@@ -123,15 +123,31 @@ function getWhatsAppStatus() {
 async function sendWhatsAppDirect(phone, text) {
   if (!waClient || !isReady) return false;
   try {
-    const rawNumber = phone.replace(/[^0-9]/g, '');
-    const chatId = `${rawNumber}@c.us`;
+    let chatId = phone;
+    if (chatId.includes('@')) {
+      // already a valid whatsapp chatId (e.g. 192474832203994@lid or 919123456789@c.us)
+    } else {
+      const rawNumber = phone.replace(/[^0-9]/g, '');
+      chatId = `${rawNumber}@c.us`;
+    }
+    
+    // Check if client has getNumberId or fallback
+    try {
+      const numberId = await waClient.getNumberId(chatId.replace('@c.us', ''));
+      if (numberId && numberId._serialized) {
+        chatId = numberId._serialized;
+      }
+    } catch (e) {}
+
     await waClient.sendMessage(chatId, text);
+    console.log(`✅ Direct alert message dispatched to ${chatId}`);
     return true;
   } catch (err) {
-    console.error('Error sending direct WhatsApp:', err);
+    console.error('Error sending direct WhatsApp:', err.message || err);
     return false;
   }
 }
+
 
 module.exports = { initWhatsAppWeb, getWhatsAppStatus, sendWhatsAppDirect };
 

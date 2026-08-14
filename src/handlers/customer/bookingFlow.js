@@ -64,16 +64,16 @@ async function handleConfirmation(phone, text, session) {
     console.log(`\n📢 INSTANT OWNER ALERT: Dispatching to ${ownerPhone}...`);
     console.log(alertMsg);
 
-    // 2. Dispatch alert via Real WhatsApp Bridge
+    // 2. Dispatch alert to Equipment Owner
     sendWhatsAppDirect(ownerPhone, alertMsg).catch(err => console.error('Owner WhatsApp alert failed:', err));
 
-    // 3. Dispatch alert via Twilio SMS/WhatsApp (if configured)
-    if (process.env.TWILIO_ACCOUNT_SID && !process.env.TWILIO_ACCOUNT_SID.includes('dummy')) {
-      twilioService.sendWhatsApp(ownerPhone, alertMsg).catch(() => {});
-    }
+    // 3. For Demo Testing: Also send a copy directly to the tester with [OWNER ALERT PREVIEW]
+    const demoOwnerPreview = `🔔 *[TRACTOR OWNER NOTIFICATION PREVIEW]*\n_This is what the machinery owner receives immediately on their phone:_\n\n${alertMsg}`;
+    sendWhatsAppDirect(phone, demoOwnerPreview).catch(err => console.error('Demo alert preview failed:', err));
 
     session.state = 'CUSTOMER_MENU';
     return getText(session.language, 'booking_confirmed', { ref: booking.booking_ref });
+
   } else if (t === 'CANCEL') {
     session.state = 'CUSTOMER_MENU';
     return getText(session.language, 'booking_cancelled');
