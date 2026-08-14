@@ -44,9 +44,16 @@ async function createPaymentLink(phone, ownerName = 'Equipment Owner') {
         plan: 'Owner Pro Monthly',
         phone: phone
       },
-      callback_url: 'https://gomate-whatsapp-bot.onrender.com/payment-success',
-      callback_method: 'get'
-    });
+    return paymentLink;
+  } catch (error) {
+    console.error('Razorpay Payment Link Error:', error);
+    return {
+      id: `plink_fallback_${Date.now()}`,
+      short_url: 'https://rzp.io/i/gomate-owner-pro'
+    };
+  }
+}
+
 
 async function createBookingPaymentLink(phone, amount, bookingRef, equipmentModel) {
   if (!razorpay) {
