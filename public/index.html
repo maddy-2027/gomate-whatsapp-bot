@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GoMate WhatsApp Bot & QR Link</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --wa-header: #075e54;
+      --wa-green: #25d366;
+      --wa-bg: #eae6df;
+      --wa-bubble-in: #ffffff;
+      --wa-bubble-out: #d9fdd3;
+      --wa-text: #111b21;
+      --wa-meta: #667781;
+      --primary: #128c7e;
+      --border: #e2e8f0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background: #0b141a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+      color: #334155;
+    }
+
+    /* Top Banner for Real WhatsApp QR */
+    .qr-banner-container {
+      width: 100%;
+      max-width: 1100px;
+      background: linear-gradient(135deg, #075e54, #128c7e);
+      color: #ffffff;
+      border-radius: 12px;
+      padding: 16px 24px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .qr-banner-text {
+      flex: 1;
+      min-width: 280px;
+    }
+
+    .qr-banner-text h1 {
+      font-size: 20px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .qr-banner-text p {
+      font-size: 13px;
+      color: #d1fae5;
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    .qr-box-wrapper {
+      background: #ffffff;
+      padding: 10px;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    #waQrImage {
+      width: 150px;
+      height: 150px;
+      display: block;
+      border-radius: 6px;
+    }
+
+    #waQrPlaceholder {
+      width: 150px;
+      height: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #64748b;
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      border-radius: 6px;
+    }
+
+    .qr-status-pill {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 12px;
+      margin-top: 6px;
+      display: inline-block;
+    }
+
+    .status-scanning {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-online {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    /* WhatsApp Simulator Frame */
+    .app-container {
+      display: flex;
+      width: 100%;
+      max-width: 1100px;
+      height: 75vh;
+      background: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .phone-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--wa-bg);
+      background-image: radial-gradient(#d1d7db 0.8px, transparent 0.8px);
+      background-size: 16px 16px;
+      position: relative;
+    }
+
+    .wa-header {
+      background: var(--wa-header);
+      color: #ffffff;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 10;
+    }
+
+    .wa-profile {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .wa-avatar {
+      width: 40px;
+      height: 40px;
+      background: #128c7e;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .wa-info h2 {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .wa-status {
+      font-size: 11px;
+      color: #d1fae5;
+    }
+
+    .persona-selector {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #ffffff;
+      padding: 6px 10px;
+      border-radius: 16px;
+      font-size: 12px;
+      outline: none;
+    }
+
+    .persona-selector option {
+      background: #0f172a;
+      color: #ffffff;
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .message-row {
+      display: flex;
+      width: 100%;
+    }
+
+    .message-row.incoming { justify-content: flex-start; }
+    .message-row.outgoing { justify-content: flex-end; }
+
+    .bubble {
+      max-width: 80%;
+      padding: 9px 13px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      line-height: 1.45;
+      position: relative;
+      box-shadow: 0 1px 1px rgba(11, 20, 26, 0.12);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .message-row.incoming .bubble { background: var(--wa-bubble-in); color: var(--wa-text); }
+    .message-row.outgoing .bubble { background: var(--wa-bubble-out); color: var(--wa-text); }
+
+    .bubble-meta {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 4px;
+      font-size: 10px;
+      color: var(--wa-meta);
+      margin-top: 3px;
+    }
+
+    .quick-chips {
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.95);
+      border-top: 1px solid rgba(0,0,0,0.06);
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    .chip {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 14px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .chip:hover { background: #f1f5f9; }
+    .chip.primary { background: #e6f4ea; color: #137333; font-weight: 600; }
+
+    .chat-input-bar {
+      padding: 10px 14px;
+      background: #f0f2f5;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 20px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .btn-send {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #128c7e;
+      color: #ffffff;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .btn-send svg { width: 18px; height: 18px; fill: currentColor; }
+
+    .typing-indicator {
+      display: flex;
+      gap: 4px;
+      padding: 4px 8px;
+    }
+
+    .typing-indicator span {
+      width: 6px;
+      height: 6px;
+      background: #64748b;
+      border-radius: 50%;
+      animation: bounce 1.3s infinite ease-in-out;
+    }
+    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top QR Code Banner for Real WhatsApp Link -->
+  <div class="qr-banner-container">
+    <div class="qr-banner-text">
+      <h1>🚜 Connect Your Real WhatsApp Phone</h1>
+      <p>1. Open <strong>WhatsApp</strong> on your phone.</p>
+      <p>2. Tap <strong>Linked Devices</strong> (in Settings on iPhone or 3 dots on Android).</p>
+      <p>3. Tap <strong>Link a Device</strong> and point your phone at the QR code on the right 👉</p>
+      <div style="margin-top: 10px;">
+        <span id="waBannerStatusPill" class="qr-status-pill status-scanning">⏳ WAITING FOR QR SCAN</span>
+      </div>
+    </div>
+
+    <div class="qr-box-wrapper">
+      <div id="waQrPlaceholder">Loading QR Code...</div>
+      <img id="waQrImage" style="display: none;" alt="Scan WhatsApp QR" />
+      <div id="waConnectedText" style="display: none; text-align: center; padding: 10px;">
+        <div style="font-size: 32px;">✅</div>
+        <p style="font-size: 12px; font-weight: 700; color: #166534;">CONNECTED</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- WhatsApp Web Simulator -->
+  <div class="app-container">
+    <div class="phone-container">
+      <div class="wa-header">
+        <div class="wa-profile">
+          <div class="wa-avatar">🚜</div>
+          <div class="wa-info">
+            <h2>GoMate Assistant</h2>
+            <div class="wa-status">Online • Trilingual Bot</div>
+          </div>
+        </div>
+
+        <select id="personaSelect" class="persona-selector" onchange="changePersona()">
+          <option value="+919876543210">👤 Customer (+91 98765 43210)</option>
+          <option value="+919123456789">🚜 Equipment Owner (+91 91234 56789)</option>
+          <option value="+919999988888">🆕 New User (+91 99999 88888)</option>
+        </select>
+      </div>
+
+      <div id="chatMessages" class="chat-messages"></div>
+
+      <div class="quick-chips">
+        <button class="chip primary" onclick="sendQuick('hi')">👋 Start / Hi</button>
+        <button class="chip" onclick="sendQuick('1')">1️⃣ 1 (मराठी / Agri)</button>
+        <button class="chip" onclick="sendQuick('2')">2️⃣ 2 (English / Transport)</button>
+        <button class="chip" onclick="sendQuick('3')">3️⃣ 3 (हिंदी / Infra)</button>
+        <button class="chip" onclick="sendQuick('Pune')">📍 Pune</button>
+        <button class="chip" onclick="sendQuick('Nashik')">📍 Nashik</button>
+        <button class="chip" onclick="sendQuick('15/08/2026 3')">📅 15/08/2026 3 Days</button>
+        <button class="chip" onclick="sendQuick('CONFIRM')">✅ CONFIRM</button>
+        <button class="chip" onclick="sendQuick('CANCEL')">❌ CANCEL</button>
+        <button class="chip" onclick="sendQuick('menu')">📋 Menu</button>
+      </div>
+
+      <form id="chatForm" class="chat-input-bar" onsubmit="handleSend(event)">
+        <input 
+          type="text" 
+          id="messageInput" 
+          class="chat-input" 
+          placeholder="Type a message or option number (e.g. 'hi', '1', 'tractor in Pune')..." 
+          autocomplete="off"
+        />
+        <button type="submit" class="btn-send">
+          <svg viewBox="0 0 24 24">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
+          </svg>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let activePhone = '+919876543210';
+    const messageHistory = {};
+
+    function formatTime() {
+      const now = new Date();
+      return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function formatWhatsAppMarkdown(text) {
+      if (!text) return '';
+      let html = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      html = html.replace(/\*([^\*]+)\*/g, '<strong>$1</strong>');
+      html = html.replace(/_([^_]+)_/g, '<em>$1</em>');
+      return html;
+    }
+
+    function renderMessage(sender, text) {
+      const container = document.getElementById('chatMessages');
+      const row = document.createElement('div');
+      row.className = `message-row ${sender === 'user' ? 'outgoing' : 'incoming'}`;
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.innerHTML = formatWhatsAppMarkdown(text);
+      const meta = document.createElement('div');
+      meta.className = 'bubble-meta';
+      meta.innerHTML = `<span>${formatTime()}</span> ${sender === 'user' ? '<span style="color:#53bdeb;">✓✓</span>' : ''}`;
+      bubble.appendChild(meta);
+      row.appendChild(bubble);
+      container.appendChild(row);
+      container.scrollTop = container.scrollHeight;
+
+      if (!messageHistory[activePhone]) messageHistory[activePhone] = [];
+      messageHistory[activePhone].push({ sender, text, time: formatTime() });
+    }
+
+    function showTypingIndicator() {
+      const container = document.getElementById('chatMessages');
+      const row = document.createElement('div');
+      row.id = 'typingIndicatorRow';
+      row.className = 'message-row incoming';
+      row.innerHTML = `<div class="bubble"><div class="typing-indicator"><span></span><span></span><span></span></div></div>`;
+      container.appendChild(row);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+      const el = document.getElementById('typingIndicatorRow');
+      if (el) el.remove();
+    }
+
+    async function handleSend(e) {
+      if (e) e.preventDefault();
+      const input = document.getElementById('messageInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      input.value = '';
+      renderMessage('user', text);
+      showTypingIndicator();
+
+      try {
+        const response = await fetch('/api/simulator/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: activePhone, message: text })
+        });
+        const data = await response.json();
+        removeTypingIndicator();
+
+        if (data.reply) {
+          renderMessage('bot', data.reply);
+        } else if (data.error) {
+          renderMessage('bot', `⚠️ Error: ${data.error}`);
+        }
+      } catch (err) {
+        removeTypingIndicator();
+        renderMessage('bot', '⚠️ Failed to reach GoMate server.');
+      }
+    }
+
+    function sendQuick(text) {
+      document.getElementById('messageInput').value = text;
+      handleSend();
+    }
+
+    function changePersona() {
+      activePhone = document.getElementById('personaSelect').value;
+      const container = document.getElementById('chatMessages');
+      container.innerHTML = '';
+      if (messageHistory[activePhone]) {
+        messageHistory[activePhone].forEach(m => renderMessage(m.sender, m.text));
+      } else {
+        sendQuick('hi');
+      }
+    }
+
+    async function pollWhatsAppStatus() {
+      try {
+        const res = await fetch('/api/whatsapp/status');
+        const data = await res.json();
+        const pill = document.getElementById('waBannerStatusPill');
+        const qrImg = document.getElementById('waQrImage');
+        const qrPlace = document.getElementById('waQrPlaceholder');
+        const connText = document.getElementById('waConnectedText');
+
+        if (data.isReady) {
+          pill.className = 'qr-status-pill status-online';
+          pill.textContent = '🟢 CONNECTED TO REAL WHATSAPP';
+          qrImg.style.display = 'none';
+          qrPlace.style.display = 'none';
+          connText.style.display = 'block';
+        } else if (data.qrDataUrl) {
+          pill.className = 'qr-status-pill status-scanning';
+          pill.textContent = '📷 READY TO SCAN WITH WHATSAPP';
+          qrPlace.style.display = 'none';
+          connText.style.display = 'none';
+          qrImg.src = data.qrDataUrl;
+          qrImg.style.display = 'block';
+        }
+      } catch (e) {}
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      sendQuick('hi');
+      setInterval(pollWhatsAppStatus, 2000);
+      pollWhatsAppStatus();
+    });
+  </script>
+</body>
+</html>
