@@ -11,19 +11,15 @@ if (process.env.RAZORPAY_KEY_ID &&
   });
 }
 
-
 async function createPaymentLink(phone, ownerName = 'Equipment Owner') {
   if (!razorpay) {
     const encodedPhone = encodeURIComponent(phone || '+919876543210');
-    // Use the live Render public link so it opens on phones without 'localhost' restrictions
     const baseUrl = process.env.RENDER_EXTERNAL_URL || 'https://gomate-whatsapp-bot.onrender.com';
     return {
       id: `plink_mock_${Date.now()}`,
       short_url: `${baseUrl}/demo-payment?phone=${encodedPhone}`
     };
   }
-
-
 
   try {
     const paymentLink = await razorpay.paymentLink.create({
@@ -44,6 +40,10 @@ async function createPaymentLink(phone, ownerName = 'Equipment Owner') {
         plan: 'Owner Pro Monthly',
         phone: phone
       },
+      callback_url: 'https://gomate-whatsapp-bot.onrender.com/payment-success',
+      callback_method: 'get'
+    });
+
     return paymentLink;
   } catch (error) {
     console.error('Razorpay Payment Link Error:', error);
@@ -53,7 +53,6 @@ async function createPaymentLink(phone, ownerName = 'Equipment Owner') {
     };
   }
 }
-
 
 async function createBookingPaymentLink(phone, amount, bookingRef, equipmentModel) {
   if (!razorpay) {
@@ -99,7 +98,6 @@ async function createBookingPaymentLink(phone, amount, bookingRef, equipmentMode
   }
 }
 
-
 async function createSubscription(phone, planId) {
   return await createPaymentLink(phone);
 }
@@ -114,5 +112,3 @@ async function handleWebhookEvent(event) {
 }
 
 module.exports = { createPaymentLink, createBookingPaymentLink, createSubscription, handleWebhookEvent };
-
-
