@@ -22,6 +22,8 @@ const CATALOG = {
   ]
 };
 
+const { searchEquipment } = require('../../db/equipment.repo');
+
 async function handleCategorySelect(phone, text, session) {
   const map = { '1': 'agriculture', '2': 'transport', '3': 'infrastructure' };
   const cat = map[text.trim()];
@@ -38,12 +40,26 @@ async function handleLocationInput(phone, text, session) {
   session.data.location = district;
   
   const category = session.data.category || 'agriculture';
-  const rawList = CATALOG[category] || CATALOG.agriculture;
   
-  const results = rawList.map(item => ({
-    ...item,
-    location: district
-  }));
+  // 1. Try fetching real equipment from Supabase DB
+  let results = [];
+  try {
+    const dbResults = await searchEquipment({ category, district });
+    if (dbResults && dbResults.length > 0) {
+      results = dbResults;
+    }
+  } catch (err) {
+    console.error('Error fetching from DB:', err);
+  }
+
+  // 2. If no direct match in district, use rich catalog fallback
+  if (!results.length) {
+    const rawList = CATALOG[category] || CATALOG.agriculture;
+    results = rawList.map(item => ({
+      ...item,
+      location: district
+    }));
+  }
   
   if (!results.length) {
     session.state = 'CUSTOMER_MENU';
@@ -55,11 +71,12 @@ async function handleLocationInput(phone, text, session) {
   
   const header = getText(session.language, 'search_results_header', { type: category.toUpperCase(), location: district });
   const cards = results.map((r, i) => getText(session.language, 'equipment_card', { 
-    index: i + 1, model: r.model, price: r.price_per_day, location: r.location, rating: r.rating 
+    index: i + 1, model: r.model, price: r.price_per_day, location: r.district || r.location || district, rating: r.rating || 4.8 
   })).join('\n\n');
   
   return `${header}\n\n${cards}`;
 }
 
 module.exports = { handleCategorySelect, handleLocationInput };
+
 

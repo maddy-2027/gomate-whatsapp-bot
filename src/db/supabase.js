@@ -1,7 +1,13 @@
 const { createClient } = require('@supabase/supabase-js');
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+let rawUrl = process.env.SUPABASE_URL || '';
+if (rawUrl.endsWith('/rest/v1/')) rawUrl = rawUrl.replace('/rest/v1/', '');
+if (rawUrl.endsWith('/rest/v1')) rawUrl = rawUrl.replace('/rest/v1', '');
+if (rawUrl.endsWith('/')) rawUrl = rawUrl.slice(0, -1);
+
+const supabaseUrl = rawUrl;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY;
+
 
 let supabase = null;
 

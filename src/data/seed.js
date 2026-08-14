@@ -1,7 +1,6 @@
 require('dotenv').config();
-const { createClient } = require('@supabase/supabase-js');
+const supabase = require('../db/supabase');
 
-const supabase = createClient(process.env.SUPABASE_URL || 'http://mock', process.env.SUPABASE_SERVICE_ROLE_KEY || 'mock');
 
 const equipment = [
   { category: 'agriculture', type: 'Tractor', model: 'Mahindra 575 DI', district: 'Pune', price_per_day: 1500, rating: 4.8 },
