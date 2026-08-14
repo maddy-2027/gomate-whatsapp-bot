@@ -32,7 +32,7 @@ async function handleDateInput(phone, text, session) {
   return "Invalid format. Please enter date and duration (e.g. 15/08/2026 3)";
 }
 
-const { sendWhatsAppDirect } = require('../../services/whatsappWeb');
+const { createBookingPaymentLink } = require('../../services/razorpay');
 
 async function handleConfirmation(phone, text, session) {
   const t = text.trim().toUpperCase();
@@ -47,11 +47,20 @@ async function handleConfirmation(phone, text, session) {
       status: 'pending'
     });
     
-    // Determine Owner Contact (from equipment relation or default owner phone)
+    // 1. Generate Customer Instant Payment Link
+    const payObj = await createBookingPaymentLink(
+      phone, 
+      session.data.totalAmount || 1500, 
+      booking.booking_ref, 
+      equip.model || 'Equipment'
+    );
+    const payLink = payObj && payObj.short_url ? payObj.short_url : 'https://rzp.io/l/gomate-booking';
+
+    // 2. Determine Owner Contact (from equipment relation or default owner phone)
     const ownerPhone = (equip.owners && equip.owners.phone) || equip.owner_phone || '+919123456789';
     const ownerLang = (equip.owners && equip.owners.language) || session.language || 'en';
 
-    // 1. Format Owner Notification in owner's language
+    // 3. Format Owner Notification in owner's language
     const alertMsg = getText(ownerLang, 'owner_new_booking_notification', {
       ref: booking.booking_ref,
       customerPhone: phone,
@@ -62,18 +71,21 @@ async function handleConfirmation(phone, text, session) {
     });
 
     console.log(`\n📢 INSTANT OWNER ALERT: Dispatching to ${ownerPhone}...`);
-    console.log(alertMsg);
 
-    // 2. Dispatch alert to Equipment Owner
+    // Dispatch alert to Equipment Owner
     sendWhatsAppDirect(ownerPhone, alertMsg).catch(err => console.error('Owner WhatsApp alert failed:', err));
 
-    // 3. For Demo Testing: Also send a copy directly to the tester with [OWNER ALERT PREVIEW]
+    // Send alert preview to demo tester
     const demoOwnerPreview = `🔔 *[TRACTOR OWNER NOTIFICATION PREVIEW]*\n_This is what the machinery owner receives immediately on their phone:_\n\n${alertMsg}`;
     sendWhatsAppDirect(phone, demoOwnerPreview).catch(err => console.error('Demo alert preview failed:', err));
 
     session.state = 'CUSTOMER_MENU';
-    return getText(session.language, 'booking_confirmed', { ref: booking.booking_ref });
+    
+    // 4. Return Customer Confirmation with Payment Link
+    const confirmText = getText(session.language, 'booking_confirmed', { ref: booking.booking_ref });
+    const paymentPrompt = `💳 *Pay Rental Total (₹${session.data.totalAmount}) via UPI:*\n${payLink}\n\n_Instant payment with PhonePe, Google Pay, Paytm, or BHIM UPI._`;
 
+    return `${confirmText}\n\n${paymentPrompt}`;
   } else if (t === 'CANCEL') {
     session.state = 'CUSTOMER_MENU';
     return getText(session.language, 'booking_cancelled');
@@ -82,4 +94,5 @@ async function handleConfirmation(phone, text, session) {
 }
 
 module.exports = { handleEquipmentSelect, handleDateInput, handleConfirmation };
+
 

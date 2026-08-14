@@ -118,6 +118,31 @@ app.post('/api/demo/payment-success', async (req, res) => {
   }
 });
 
+// Customer Booking Payment Success Simulation
+app.post('/api/demo/customer-payment-success', async (req, res) => {
+  try {
+    const { phone, ref, amount, model, txnId } = req.body;
+    console.log(`\n💰 CUSTOMER PAYMENT CONFIRMED: ₹${amount} for ${model} (Ref: ${ref}) by ${phone}`);
+
+    const { sendWhatsAppDirect } = require('./src/services/whatsappWeb');
+    
+    // 1. Send receipt to Customer
+    await sendWhatsAppDirect(phone,
+      `🎉 *Payment Received & Booking Confirmed!*\n\n` +
+      `🚜 *Equipment:* ${model}\n` +
+      `🔖 *Booking Ref:* ${ref}\n` +
+      `💰 *Amount Paid:* ₹${amount}\n` +
+      `🔖 *Transaction ID:* ${txnId}\n\n` +
+      `The machinery owner has been notified and will contact you for delivery coordination! 🚚`
+    );
+
+    res.json({ success: true, txnId });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+
 // Payment success landing page
 app.get('/payment-success', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'demo-payment.html'));
