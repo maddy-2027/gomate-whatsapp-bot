@@ -32,10 +32,12 @@ async function handleDateInput(phone, text, session) {
   return "Invalid format. Please enter date and duration (e.g. 15/08/2026 3)";
 }
 
+const { sendWhatsAppDirect } = require('../../services/whatsappWeb');
+
 async function handleConfirmation(phone, text, session) {
   const t = text.trim().toUpperCase();
   if (t === 'CONFIRM') {
-    const equip = session.data.selectedEquipment;
+    const equip = session.data.selectedEquipment || {};
     const booking = await createBooking({
       customer_phone: phone,
       equipment_id: equip.id,
@@ -45,6 +47,31 @@ async function handleConfirmation(phone, text, session) {
       status: 'pending'
     });
     
+    // Determine Owner Contact (from equipment relation or default owner phone)
+    const ownerPhone = (equip.owners && equip.owners.phone) || equip.owner_phone || '+919123456789';
+    const ownerLang = (equip.owners && equip.owners.language) || session.language || 'en';
+
+    // 1. Format Owner Notification in owner's language
+    const alertMsg = getText(ownerLang, 'owner_new_booking_notification', {
+      ref: booking.booking_ref,
+      customerPhone: phone,
+      model: equip.model || 'Equipment',
+      date: session.data.startDate,
+      duration: session.data.duration,
+      total: session.data.totalAmount
+    });
+
+    console.log(`\n📢 INSTANT OWNER ALERT: Dispatching to ${ownerPhone}...`);
+    console.log(alertMsg);
+
+    // 2. Dispatch alert via Real WhatsApp Bridge
+    sendWhatsAppDirect(ownerPhone, alertMsg).catch(err => console.error('Owner WhatsApp alert failed:', err));
+
+    // 3. Dispatch alert via Twilio SMS/WhatsApp (if configured)
+    if (process.env.TWILIO_ACCOUNT_SID && !process.env.TWILIO_ACCOUNT_SID.includes('dummy')) {
+      twilioService.sendWhatsApp(ownerPhone, alertMsg).catch(() => {});
+    }
+
     session.state = 'CUSTOMER_MENU';
     return getText(session.language, 'booking_confirmed', { ref: booking.booking_ref });
   } else if (t === 'CANCEL') {
@@ -55,3 +82,4 @@ async function handleConfirmation(phone, text, session) {
 }
 
 module.exports = { handleEquipmentSelect, handleDateInput, handleConfirmation };
+
