@@ -33,8 +33,10 @@ async function handleDateInput(phone, text, session) {
 }
 
 const { createBookingPaymentLink } = require('../../services/razorpay');
+const { sendWhatsAppDirect } = require('../../services/whatsappWeb');
 
 async function handleConfirmation(phone, text, session) {
+
   const t = text.trim().toUpperCase();
   if (t === 'CONFIRM') {
     const equip = session.data.selectedEquipment || {};
