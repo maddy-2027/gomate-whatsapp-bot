@@ -10,8 +10,9 @@ module.exports = {
     transport: "Select Type:\n1. Truck\n2. Dump Truck\n3. Mini Truck",
     infrastructure: "Select Type:\n1. Excavator (JCB)\n2. Bulldozer\n3. Crane"
   },
-  location_prompt: "Please enter your district (e.g., Pune, Nashik):",
-  search_results_header: "🔍 *Search Results for {type} in {location}:*",
+  location_prompt: "📍 *Share your Location*\n\n1. Tap the paperclip 📎 (or +) in WhatsApp and select *Location* to send your GPS pin, OR\n2. Type your district name (e.g., *Pune*, *Nashik*, *Satara*):",
+  search_results_header: "🔍 *Nearest {type} found around {location}:*",
+
   no_results: "Sorry, no equipment found for {type} in {location}. Try another district.",
   equipment_card: "*{index}. {model}*\n💰 ₹{price}/day\n📍 {location}\n⭐ {rating}/5\nReply with the number to book.",
   booking_dates_prompt: "You selected {model}.\nPlease enter the start date (DD/MM/YYYY) and duration in days.\nExample: 15/08/2026 3",

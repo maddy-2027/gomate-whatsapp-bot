@@ -10,8 +10,9 @@ module.exports = {
     transport: "प्रकार निवडा:\n1. ट्रक\n2. डंप ट्रक\n3. मिनी ट्रक",
     infrastructure: "प्रकार निवडा:\n1. एक्सकॅव्हेटर (JCB)\n2. बुलडोझर\n3. क्रेन"
   },
-  location_prompt: "कृपया आपला जिल्हा प्रविष्ट करा (उदा. पुणे, नाशिक):",
-  search_results_header: "🔍 *{location} मधील {type} साठी शोध परिणाम:*",
+  location_prompt: "📍 *आपले स्थान शेअर करा*\n\n1. WhatsApp मध्ये 📎 (किंवा +) वर टॅप करा आणि तुमचा *GPS Location Pin* पाठवा, किंवा\n2. तुमच्या जिल्ह्याचे नाव टाईप करा (उदा. *पुणे*, *नाशिक*, *सातारा*, *सांगली*):",
+  search_results_header: "🔍 *{location} जवळ आढळलेली {type}:*",
+
   no_results: "क्षमस्व, {location} मध्ये {type} साठी कोणतीही उपकरणे आढळली नाहीत. दुसरा जिल्हा वापरून पहा.",
   equipment_card: "*{index}. {model}*\n💰 ₹{price}/दिवस\n📍 {location}\n⭐ {rating}/5\nबुक करण्यासाठी नंबरसह उत्तर द्या.",
   booking_dates_prompt: "तुम्ही {model} निवडले आहे.\nकृपया सुरुवातीची तारीख (DD/MM/YYYY) आणि दिवस प्रविष्ट करा.\nउदाहरण: 15/08/2026 3",

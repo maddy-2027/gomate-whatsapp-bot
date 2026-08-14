@@ -1,10 +1,10 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode');
 const { getSession } = require('./session');
-const { routeMessage } = require('../handlers/router');
 
 let waClient = null;
 let currentQrDataUrl = null;
+
 let isReady = false;
 
 function initWhatsAppWeb(onQrCallback, onReadyCallback) {
@@ -64,13 +64,23 @@ function initWhatsAppWeb(onQrCallback, onReadyCallback) {
     // Determine clean sender phone
     const from = msg.from;
     const phone = '+' + from.replace('@c.us', '').replace(/@lid$/, '');
-    const body = (msg.body || '').trim();
+    let body = (msg.body || '').trim();
+
+    // Check if this is a WhatsApp Location Pin
+    if (msg.type === 'location' || (msg.location && msg.location.latitude)) {
+      const lat = msg.location.latitude;
+      const lng = msg.location.longitude;
+      body = `GPS_LOCATION:${lat},${lng}`;
+      console.log(`📍 Real WhatsApp GPS Location received from ${phone}: Lat ${lat}, Lng ${lng}`);
+    }
 
     if (!body) return;
 
     console.log(`📱 Real WhatsApp message received from ${phone}: "${body}"`);
 
+
     try {
+      const { routeMessage } = require('../handlers/router');
       const session = getSession(phone);
       const replyText = await routeMessage(phone, body, session);
       if (replyText) {
@@ -78,6 +88,7 @@ function initWhatsAppWeb(onQrCallback, onReadyCallback) {
         await msg.reply(replyText);
       }
     } catch (err) {
+
       console.error('Error processing real WhatsApp message:', err);
       await msg.reply('Sorry, something went wrong processing your request. Reply "menu" to return to the menu.');
     }

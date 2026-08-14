@@ -1,12 +1,16 @@
 const Razorpay = require('razorpay');
 
 let razorpay = null;
-if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
+if (process.env.RAZORPAY_KEY_ID && 
+    process.env.RAZORPAY_KEY_SECRET && 
+    !process.env.RAZORPAY_KEY_ID.includes('dummy') &&
+    process.env.RAZORPAY_KEY_ID.startsWith('rzp_')) {
   razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_KEY_SECRET,
   });
 }
+
 
 async function createPaymentLink(phone, ownerName = 'Equipment Owner') {
   if (!razorpay) {

@@ -35,10 +35,65 @@ async function handleCategorySelect(phone, text, session) {
   return getText(session.language, 'category_select');
 }
 
+// Known Maharashtra district coordinates for distance calculation
+const DISTRICT_COORDS = {
+  pune: { lat: 18.5204, lng: 73.8567, name: 'Pune' },
+  nashik: { lat: 19.9975, lng: 73.7898, name: 'Nashik' },
+  satara: { lat: 17.6805, lng: 73.9926, name: 'Satara' },
+  sangli: { lat: 16.8524, lng: 74.5815, name: 'Sangli' },
+  kolhapur: { lat: 16.7050, lng: 74.2433, name: 'Kolhapur' },
+  solapur: { lat: 17.6599, lng: 75.9064, name: 'Solapur' },
+  nagpur: { lat: 21.1458, lng: 79.0882, name: 'Nagpur' },
+  aurangabad: { lat: 19.8762, lng: 75.3433, name: 'Aurangabad' },
+  mumbai: { lat: 19.0760, lng: 72.8777, name: 'Mumbai' }
+};
+
+// Haversine formula to compute km distance between two GPS coordinates
+function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Radius of the earth in km
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a = 
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * 
+    Math.sin(dLon / 2) * Math.sin(dLon / 2); 
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
+  return Math.round(R * c);
+}
+
+function findNearestDistrict(userLat, userLng) {
+  let nearest = 'Pune';
+  let minDistance = Infinity;
+
+  for (const [key, val] of Object.entries(DISTRICT_COORDS)) {
+    const dist = getDistanceFromLatLonInKm(userLat, userLng, val.lat, val.lng);
+    if (dist < minDistance) {
+      minDistance = dist;
+      nearest = val.name;
+    }
+  }
+  return { nearestDistrict: nearest, distanceKm: minDistance };
+}
+
 async function handleLocationInput(phone, text, session) {
-  const district = text.trim();
+  let district = text.trim();
+  let distanceNote = '';
+
+  // Check if user sent a GPS coordinate (e.g. "GPS_LOCATION:18.5204,73.8567")
+  if (text.startsWith('GPS_LOCATION:')) {
+    const coords = text.replace('GPS_LOCATION:', '').split(',');
+    const userLat = parseFloat(coords[0]);
+    const userLng = parseFloat(coords[1]);
+
+    if (!isNaN(userLat) && !isNaN(userLng)) {
+      const match = findNearestDistrict(userLat, userLng);
+      district = match.nearestDistrict;
+      distanceNote = ` (~${match.distanceKm} km away)`;
+      console.log(`📍 GPS Pin matched to nearest hub: ${district} (${match.distanceKm} km)`);
+    }
+  }
+
   session.data.location = district;
-  
   const category = session.data.category || 'agriculture';
   
   // 1. Try fetching real equipment from Supabase DB
@@ -69,13 +124,19 @@ async function handleLocationInput(phone, text, session) {
   session.data.searchResults = results;
   session.state = 'BOOKING_SELECT';
   
-  const header = getText(session.language, 'search_results_header', { type: category.toUpperCase(), location: district });
+  const displayLocation = `${district}${distanceNote}`;
+  const header = getText(session.language, 'search_results_header', { type: category.toUpperCase(), location: displayLocation });
   const cards = results.map((r, i) => getText(session.language, 'equipment_card', { 
-    index: i + 1, model: r.model, price: r.price_per_day, location: r.district || r.location || district, rating: r.rating || 4.8 
+    index: i + 1, 
+    model: r.model, 
+    price: r.price_per_day, 
+    location: `${r.district || r.location || district}${distanceNote ? ' (Nearby)' : ''}`, 
+    rating: r.rating || 4.8 
   })).join('\n\n');
   
-  return `${header}\n\n${cards}`;
+  return `${header}\n\n${cards}\n\n_Reply with 1, 2, 3... to book | 0 for Menu_`;
 }
+
 
 module.exports = { handleCategorySelect, handleLocationInput };
 
