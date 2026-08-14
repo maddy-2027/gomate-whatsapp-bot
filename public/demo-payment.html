@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GoMate Owner Pro — ₹599/month | Secure Payment</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .payment-card {
+      background: #ffffff;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 440px;
+      overflow: hidden;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+    }
+
+    /* Header */
+    .card-header {
+      background: linear-gradient(135deg, #00297a, #1a4fbb);
+      padding: 24px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .merchant-logo {
+      width: 52px;
+      height: 52px;
+      background: #fff;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      flex-shrink: 0;
+    }
+
+    .merchant-info h2 {
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .merchant-info p {
+      font-size: 12px;
+      color: #a5b4fc;
+      margin-top: 2px;
+    }
+
+    .secure-badge {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: #6ee7b7;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .lock-icon { font-size: 14px; }
+
+    /* Amount Block */
+    .amount-block {
+      background: #f8faff;
+      padding: 20px 24px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: center;
+    }
+
+    .amount-block .label {
+      font-size: 12px;
+      color: #64748b;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .amount-block .amount {
+      font-size: 40px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -1px;
+      margin: 4px 0;
+    }
+
+    .amount-block .plan-tag {
+      display: inline-block;
+      background: #dcfce7;
+      color: #166534;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-top: 4px;
+    }
+
+    /* Payment Body */
+    .card-body { padding: 24px; }
+
+    /* UPI Section */
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #374151;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .upi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .upi-option {
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #fff;
+    }
+
+    .upi-option:hover, .upi-option.selected {
+      border-color: #4f46e5;
+      background: #eef2ff;
+    }
+
+    .upi-option .upi-icon { font-size: 24px; margin-bottom: 4px; }
+    .upi-option .upi-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .upi-id-input-wrap {
+      margin-bottom: 20px;
+    }
+
+    .upi-id-input-wrap label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #374151;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .upi-id-input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .upi-id-input:focus { border-color: #4f46e5; }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #94a3b8;
+      font-size: 12px;
+      margin: 16px 0;
+    }
+
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #e2e8f0;
+    }
+
+    /* Pay Button */
+    .pay-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      letter-spacing: 0.3px;
+    }
+
+    .pay-btn:hover { 
+      background: linear-gradient(135deg, #047857, #059669);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(5, 150, 105, 0.3);
+    }
+
+    .pay-btn:active { transform: translateY(0); }
+
+    .pay-btn:disabled {
+      background: #d1d5db;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Footer */
+    .card-footer {
+      padding: 14px 24px;
+      background: #f8fafc;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .card-footer span {
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    .rzp-logo {
+      font-size: 11px;
+      font-weight: 700;
+      color: #3b82f6;
+    }
+
+    /* What You Get Block */
+    .benefits-block {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 20px;
+    }
+
+    .benefits-block .benefits-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #166534;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .benefit-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #374151;
+      margin-bottom: 4px;
+    }
+
+    .benefit-row:last-child { margin-bottom: 0; }
+
+    /* Processing Overlay */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .overlay.active { display: flex; }
+
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border: 5px solid rgba(255,255,255,0.2);
+      border-top-color: #10b981;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .overlay-text {
+      color: #ffffff;
+      font-size: 17px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .overlay-sub {
+      color: #94a3b8;
+      font-size: 13px;
+      margin-top: 6px;
+    }
+
+    /* Success Screen */
+    .success-screen {
+      display: none;
+      text-align: center;
+      padding: 40px 24px;
+    }
+
+    .success-screen.active { display: block; }
+
+    .success-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #059669, #10b981);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 38px;
+      box-shadow: 0 8px 24px rgba(5, 150, 105, 0.3);
+      animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .success-screen h2 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+
+    .success-screen p {
+      font-size: 14px;
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    .txn-id {
+      background: #f1f5f9;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 12px;
+      color: #475569;
+      font-family: monospace;
+      margin: 16px 0;
+      font-weight: 600;
+    }
+
+    .whatsapp-notice {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 20px;
+      font-size: 13px;
+      color: #166534;
+      font-weight: 500;
+    }
+
+    .back-btn {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      background: #0f172a;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .back-btn:hover { background: #1e293b; }
+  </style>
+</head>
+<body>
+
+  <!-- Processing Overlay -->
+  <div class="overlay" id="processingOverlay">
+    <div class="spinner"></div>
+    <div class="overlay-text" id="overlayText">Contacting your UPI app...</div>
+    <div class="overlay-sub" id="overlaySub">Please wait, do not close this page</div>
+  </div>
+
+  <div class="payment-card" id="paymentCard">
+    <!-- Header -->
+    <div class="card-header">
+      <div class="merchant-logo">🚜</div>
+      <div class="merchant-info">
+        <h2>GoMate Equipment Marketplace</h2>
+        <p>Equipment Owner Pro Subscription</p>
+      </div>
+      <div class="secure-badge">
+        <span class="lock-icon">🔒</span>
+        <span>Secure</span>
+      </div>
+    </div>
+
+    <!-- Amount -->
+    <div class="amount-block">
+      <div class="label">Total Amount</div>
+      <div class="amount">₹599</div>
+      <span class="plan-tag">✅ Owner Pro — 30 Days Access</span>
+    </div>
+
+    <!-- Body -->
+    <div class="card-body" id="paymentBody">
+      <!-- Benefits -->
+      <div class="benefits-block">
+        <div class="benefits-title">🎁 What you get with Owner Pro:</div>
+        <div class="benefit-row">✅ Unlimited equipment listings on GoMate</div>
+        <div class="benefit-row">✅ Real-time WhatsApp booking alerts</div>
+        <div class="benefit-row">✅ AI-powered customer matching</div>
+        <div class="benefit-row">✅ Trilingual support (मराठी / English / हिंदी)</div>
+      </div>
+
+      <!-- UPI Apps -->
+      <div class="section-title">📱 Pay with UPI App</div>
+      <div class="upi-grid">
+        <div class="upi-option" onclick="selectUPI('phonepe', this)">
+          <div class="upi-icon">💜</div>
+          <div class="upi-label">PhonePe</div>
+        </div>
+        <div class="upi-option" onclick="selectUPI('gpay', this)">
+          <div class="upi-icon">🅖</div>
+          <div class="upi-label">Google Pay</div>
+        </div>
+        <div class="upi-option" onclick="selectUPI('paytm', this)">
+          <div class="upi-icon">🔵</div>
+          <div class="upi-label">Paytm</div>
+        </div>
+        <div class="upi-option" onclick="selectUPI('bhim', this)">
+          <div class="upi-icon">🏛️</div>
+          <div class="upi-label">BHIM UPI</div>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="divider">or enter UPI ID manually</div>
+
+      <!-- UPI ID Input -->
+      <div class="upi-id-input-wrap">
+        <label>Your UPI ID</label>
+        <input
+          type="text"
+          class="upi-id-input"
+          id="upiIdInput"
+          placeholder="e.g. yourname@ybl, 9876543210@paytm"
+        />
+      </div>
+
+      <!-- Pay Button -->
+      <button class="pay-btn" id="payBtn" onclick="initiatePayment()">
+        🔐 Pay ₹599 Securely
+      </button>
+    </div>
+
+    <!-- Success Screen (hidden initially) -->
+    <div class="success-screen" id="successScreen">
+      <div class="success-icon">✅</div>
+      <h2>Payment Successful!</h2>
+      <p>Your GoMate Owner Pro subscription is now <strong>active for 30 days</strong>.</p>
+      <div class="txn-id" id="txnIdBox">Transaction ID: Loading...</div>
+      <div class="whatsapp-notice">
+        📱 <strong>Check your WhatsApp!</strong><br>
+        A confirmation message has been sent to your registered number.
+      </div>
+      <button class="back-btn" onclick="window.location.href='/'">← Go Back to GoMate</button>
+    </div>
+
+    <!-- Footer -->
+    <div class="card-footer">
+      <span>🔒 256-bit SSL Secured</span>
+      <span>•</span>
+      <span class="rzp-logo">Powered by Razorpay</span>
+    </div>
+  </div>
+
+  <script>
+    let selectedApp = null;
+    const phoneFromUrl = new URLSearchParams(window.location.search).get('phone') || '+919876543210';
+
+    function selectUPI(app, el) {
+      document.querySelectorAll('.upi-option').forEach(e => e.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedApp = app;
+    }
+
+    function generateTxnId() {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let id = 'PAY';
+      for (let i = 0; i < 12; i++) id += chars[Math.floor(Math.random() * chars.length)];
+      return id;
+    }
+
+    async function initiatePayment() {
+      const upiId = document.getElementById('upiIdInput').value.trim();
+
+      if (!selectedApp && !upiId) {
+        alert('Please select a UPI app or enter your UPI ID to continue.');
+        return;
+      }
+
+      const btn = document.getElementById('payBtn');
+      btn.disabled = true;
+
+      // Show processing overlay
+      const overlay = document.getElementById('processingOverlay');
+      const overlayText = document.getElementById('overlayText');
+      const overlaySub = document.getElementById('overlaySub');
+      overlay.classList.add('active');
+
+      // Simulate realistic payment steps
+      const steps = [
+        { text: 'Connecting to payment gateway...', sub: 'Establishing secure connection', delay: 800 },
+        { text: 'Verifying UPI credentials...', sub: 'Checking your UPI ID with NPCI', delay: 1200 },
+        { text: 'Sending payment request...', sub: 'Check your UPI app for approval notification', delay: 1500 },
+        { text: 'Confirming payment...', sub: 'Waiting for bank confirmation', delay: 1000 },
+        { text: 'Activating Owner Pro subscription...', sub: 'Almost done!', delay: 800 },
+      ];
+
+      for (const step of steps) {
+        overlayText.textContent = step.text;
+        overlaySub.textContent = step.sub;
+        await sleep(step.delay);
+      }
+
+      // Simulate webhook call to our backend
+      const txnId = generateTxnId();
+      try {
+        await fetch('/api/demo/payment-success', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            phone: phoneFromUrl,
+            txnId,
+            amount: 599,
+            app: selectedApp || 'UPI'
+          })
+        });
+      } catch (e) {
+        console.log('Server notification done');
+      }
+
+      // Hide overlay and show success
+      overlay.classList.remove('active');
+      document.getElementById('paymentBody').style.display = 'none';
+      document.getElementById('successScreen').style.display = 'block';
+      document.getElementById('txnIdBox').textContent = `Transaction ID: ${txnId}`;
+    }
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+  </script>
+</body>
+</html>

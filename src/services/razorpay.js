@@ -10,11 +10,16 @@ if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
 
 async function createPaymentLink(phone, ownerName = 'Equipment Owner') {
   if (!razorpay) {
+    const encodedPhone = encodeURIComponent(phone || '+919876543210');
+    // Use the live Render public link so it opens on phones without 'localhost' restrictions
+    const baseUrl = process.env.RENDER_EXTERNAL_URL || 'https://gomate-whatsapp-bot.onrender.com';
     return {
       id: `plink_mock_${Date.now()}`,
-      short_url: 'https://rzp.io/i/gomate-owner-pro'
+      short_url: `${baseUrl}/demo-payment?phone=${encodedPhone}`
     };
   }
+
+
 
   try {
     const paymentLink = await razorpay.paymentLink.create({

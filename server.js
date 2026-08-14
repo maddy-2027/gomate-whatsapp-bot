@@ -81,6 +81,48 @@ app.post('/webhook/razorpay', async (req, res) => {
   } catch (e) { res.status(500).send('Error'); }
 });
 
+// Demo Payment Page
+app.get('/demo-payment', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'demo-payment.html'));
+});
+
+// Demo Payment Success Simulation (fires after demo payment is clicked)
+app.post('/api/demo/payment-success', async (req, res) => {
+  try {
+    const { phone, txnId, amount } = req.body;
+    console.log(`\n💰 DEMO: ₹${amount} payment confirmed for ${phone} | TxnID: ${txnId}`);
+
+    // Update session to mark subscription as ACTIVE
+    const session = getSession(phone);
+    if (session) {
+      session.subscriptionStatus = 'active';
+      session.subscriptionTxnId = txnId;
+    }
+
+    // If WhatsApp is connected, send a real WhatsApp confirmation message
+    const { sendWhatsAppDirect } = require('./src/services/whatsappWeb');
+    await sendWhatsAppDirect(phone,
+      `✅ *Payment Successful!*\n\n` +
+      `*GoMate Owner Pro* subscription activated!\n` +
+      `💰 Amount: ₹${amount}\n` +
+      `🔖 Transaction ID: ${txnId}\n` +
+      `📅 Valid for: 30 days\n\n` +
+      `Your machinery is now LIVE on GoMate. Farmers across Maharashtra can find and book your tractors and equipment! 🚜`
+    );
+
+    res.json({ success: true, message: 'Payment demo confirmed', txnId });
+
+  } catch (e) {
+    console.error('Demo payment error:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Payment success landing page
+app.get('/payment-success', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'demo-payment.html'));
+});
+
 app.use((err, req, res, next) => { console.error(err.stack); res.status(500).send('Something broke!'); });
 
 app.listen(port, () => {
