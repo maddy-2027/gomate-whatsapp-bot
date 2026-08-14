@@ -17,12 +17,26 @@ async function routeMessage(phone, text, session) {
   }
 
   // Handle global reset / language switch commands
-  if (t === 'reset' || t === 'restart') {
-    session.state = 'INIT';
+  if (t === 'reset' || t === 'restart' || t === '00' || t === 'change language' || t === 'भाषा बदला') {
+    session.state = 'LANG_SELECT';
     session.language = null;
     session.role = null;
     session.data = {};
+    return getText('en', 'welcome');
   }
+
+  // Handle Main Menu / Back commands from any stage
+  if (t === '0' || t === 'menu' || t === 'main menu' || t === 'back' || t === 'home' || t === 'मुख्य मेनू' || t === 'मेनू') {
+    if (session.role === 'owner') {
+      session.state = 'OWNER_MENU';
+      return getText(session.language, 'owner_menu');
+    } else {
+      session.role = 'customer';
+      session.state = 'CUSTOMER_MENU';
+      return getText(session.language, 'customer_menu');
+    }
+  }
+
 
   // Handle first time or reset initialization
   if (!session.language || session.state === 'INIT') {
@@ -59,8 +73,8 @@ async function routeMessage(phone, text, session) {
     }
   }
 
-  // Navigation commands
-  if (t === 'menu' || t === 'back' || t === 'hi' || t === 'hello' || t === 'namaste' || t === 'namaskar') {
+  // Navigation commands fallback
+  if (t === 'hi' || t === 'hello' || t === 'namaste' || t === 'namaskar') {
     if (session.role === 'owner') {
       session.state = 'OWNER_MENU';
       return getText(session.language, 'owner_menu');
@@ -69,6 +83,7 @@ async function routeMessage(phone, text, session) {
       return getText(session.language, 'customer_menu');
     }
   }
+
 
   switch (session.state) {
     // --- CUSTOMER FLOWS ---

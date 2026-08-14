@@ -1,9 +1,10 @@
 module.exports = {
   welcome: "Welcome to GoMate! 🚜\nPlease select your language:\n1. मराठी (Marathi)\n2. English\n3. हिंदी (Hindi)",
   role_select: "Please select your role:\n1. 🚜 Find Equipment (Customer)\n2. 📋 Rent Out Equipment (Owner)",
-  customer_menu: "*Customer Menu*\n1. 🔍 Search Equipment\n2. 📅 My Bookings\n3. ❓ Help",
-  owner_menu: "*Owner Menu*\n1. ➕ List Equipment\n2. 📊 Dashboard\n3. 💳 Subscription\n4. ❓ Help",
-  category_select: "Select Category:\n1. 🌾 Agriculture\n2. 🚚 Transport\n3. 🏗️ Infrastructure",
+  customer_menu: "*Customer Menu*\n1. 🔍 Search Equipment\n2. 📅 My Bookings\n3. ❓ Help\n\n_Reply *0* for Main Menu | *00* to Change Language_",
+  owner_menu: "*Owner Menu*\n1. ➕ List Equipment\n2. 📊 Dashboard\n3. 💳 Subscription (₹599/mo)\n4. ❓ Help\n\n_Reply *0* for Main Menu | *00* to Change Language_",
+  category_select: "Select Category:\n1. 🌾 Agriculture\n2. 🚚 Transport\n3. 🏗️ Infrastructure\n\n_Reply *0* to return to Main Menu_",
+
   equipment_types: {
     agriculture: "Select Type:\n1. Tractor\n2. Harvester\n3. Rotavator\n4. Cultivator",
     transport: "Select Type:\n1. Truck\n2. Dump Truck\n3. Mini Truck",
