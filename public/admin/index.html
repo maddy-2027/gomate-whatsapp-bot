@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GoMate — Admin Operations HQ</title>
+  <meta name="theme-color" content="#1F2323">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+
+  <!-- Password Protected Login Overlay -->
+  <div id="authOverlay" class="auth-overlay">
+    <div class="auth-card">
+      <div style="width: 140px; margin: 0 auto;">
+        <img src="/assets/brand/logo.svg" alt="GoMate" style="width: 100%;">
+      </div>
+      <h2>Admin Operations HQ</h2>
+      <p style="font-size: 13px; color: var(--gm-gray-600); margin-bottom: 20px;">Enter passkey to access marketplace management</p>
+      
+      <form id="authForm" onsubmit="handleLogin(event)" style="display: flex; flex-direction: column; gap: 12px; text-align: left;">
+        <div>
+          <label style="font-size: 12px; font-weight: 600; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">Admin Passkey</label>
+          <input type="password" id="adminPass" class="gm-input" placeholder="gomate2026" required autofocus autocomplete="current-password">
+        </div>
+        <button type="submit" class="gm-btn gm-btn-primary" style="padding: 10px; width: 100%;">
+          Unlock Dashboard 🔐
+        </button>
+        <div id="authError" class="auth-error">Incorrect password. Please try again.</div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main Dashboard App Layout -->
+  <div class="admin-layout" id="appLayout" style="display: none;">
+    
+    <!-- Fixed Left Sidebar (Charcoal) -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-brand">
+        <a href="/admin" style="display: block;">
+          <img src="/assets/brand/logo-white.svg" alt="GoMate" style="height: 32px; display: block;">
+        </a>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" onclick="switchTab('overview')">
+          <span class="icon">📊</span>
+          <span>Dashboard Home</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('bookings')">
+          <span class="icon">📅</span>
+          <span>Bookings Pipeline</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('equipment')">
+          <span class="icon">🚜</span>
+          <span>Fleet Directory (16)</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('owners')">
+          <span class="icon">👥</span>
+          <span>Owners (₹599/mo)</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('revenue')">
+          <span class="icon">💰</span>
+          <span>Revenue & MRR</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span class="status-dot"></span>
+          <span>Live Ops</span>
+        </div>
+        <a href="/" target="_blank" style="color: var(--gm-amber-500); font-weight: 600; font-size: 11px;">Simulator ↗</a>
+      </div>
+    </aside>
+
+    <!-- Main Content Panel -->
+    <main class="admin-main">
+      
+      <!-- Top Bar -->
+      <header class="admin-header">
+        <div class="header-left">
+          <h2 id="viewTitle">Marketplace Overview</h2>
+          <p id="viewSubtitle">Real-time demand, fleet availability, and owner subscription metrics</p>
+        </div>
+        <div class="header-right">
+          <a href="/style-guide" target="_blank" class="gm-btn gm-btn-outline" style="padding: 6px 12px; font-size: 12px;">Style Guide</a>
+          <button class="gm-btn gm-btn-outline" onclick="fetchDashboardData()" style="padding: 6px 12px; font-size: 12px;">
+            🔄 Refresh
+          </button>
+          <button class="gm-btn gm-btn-outline" onclick="handleLogout()" style="padding: 6px 12px; font-size: 12px; color: var(--gm-error);">
+            🚪 Logout
+          </button>
+        </div>
+      </header>
+
+      <!-- Views Container -->
+      <div class="admin-content">
+        
+        <!-- Tab 1: Overview -->
+        <div id="tab-overview" class="view-panel">
+          <!-- KPI Summary Cards -->
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span>Total Bookings</span>
+                <span style="font-size: 16px;">📅</span>
+              </div>
+              <div class="kpi-value" id="kpiTotalBookings">-</div>
+              <div class="kpi-footer">
+                <span style="color: var(--gm-success); font-weight: 600;" id="kpiConfirmedBookings">-</span> confirmed requests
+              </div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span>Machinery Fleet</span>
+                <span style="font-size: 16px;">🚜</span>
+              </div>
+              <div class="kpi-value" id="kpiTotalEquipment">-</div>
+              <div class="kpi-footer">
+                <span>16 canonical types live</span>
+              </div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span>Subscribed Owners</span>
+                <span style="font-size: 16px;">👥</span>
+              </div>
+              <div class="kpi-value" id="kpiActiveOwners">-</div>
+              <div class="kpi-footer">
+                <span>₹599/month active</span>
+              </div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span>Monthly Recurring Revenue</span>
+                <span style="font-size: 16px;">💳</span>
+              </div>
+              <div class="kpi-value" id="kpiMRR">-</div>
+              <div class="kpi-footer">
+                <span style="color: var(--gm-amber-500); font-weight: 600;">₹599/owner/mo</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Bookings Section -->
+          <div class="gm-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <h3 style="font-size: 16px;">Recent Booking Activity</h3>
+              <button class="gm-btn gm-btn-outline" style="padding: 4px 10px; font-size: 11px;" onclick="switchTab('bookings')">View All</button>
+            </div>
+            <div class="gm-table-container">
+              <table class="gm-table" id="recentBookingsTable">
+                <thead>
+                  <tr>
+                    <th>Ref</th>
+                    <th>Customer</th>
+                    <th>Equipment</th>
+                    <th>District</th>
+                    <th>Dates</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td colspan="7" style="text-align: center; padding: 24px;">Loading live bookings...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Bookings -->
+        <div id="tab-bookings" class="view-panel" style="display: none;">
+          <div class="gm-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+              <h3 style="font-size: 16px;">All Booking Requests & Status Pipeline</h3>
+              <div style="display: flex; gap: 10px;">
+                <input type="text" id="bookingSearch" class="gm-input" placeholder="Search ref, customer..." onkeyup="filterBookings()" style="width: 220px;">
+                <select id="bookingStatusFilter" class="gm-select" onchange="filterBookings()" style="width: 140px;">
+                  <option value="all">All Statuses</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="pending">Pending</option>
+                  <option value="completed">Completed</option>
+                </select>
+              </div>
+            </div>
+            <div class="gm-table-container">
+              <table class="gm-table" id="allBookingsTable">
+                <thead>
+                  <tr>
+                    <th>Ref</th>
+                    <th>Customer Phone</th>
+                    <th>Equipment</th>
+                    <th>District</th>
+                    <th>Start Date</th>
+                    <th>Duration</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="bookingsTableBody">
+                  <!-- Populated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Equipment Fleet -->
+        <div id="tab-equipment" class="view-panel" style="display: none;">
+          <div class="gm-card" style="margin-bottom: 20px; padding: 14px 20px;">
+            <div style="display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+              <input type="text" id="equipSearch" class="gm-input" placeholder="Search 16 equipment types or models..." onkeyup="filterEquipment()" style="width: 300px;">
+              <select id="equipCategoryFilter" class="gm-select" onchange="filterEquipment()" style="width: 200px;">
+                <option value="all">All Categories (3)</option>
+                <option value="agriculture">🌾 Agriculture (8 types)</option>
+                <option value="transport">🚚 Transport (5 types)</option>
+                <option value="infrastructure">🏗️ Infrastructure (3 types)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="equipment-grid" id="equipmentGrid">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+        <!-- Tab 4: Owners -->
+        <div id="tab-owners" class="view-panel" style="display: none;">
+          <div class="gm-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <h3 style="font-size: 16px;">Machinery Owners Directory (₹599/mo Plan)</h3>
+              <input type="text" id="ownerSearch" class="gm-input" placeholder="Search owner, district..." onkeyup="filterOwners()" style="width: 240px;">
+            </div>
+            <div class="gm-table-container">
+              <table class="gm-table">
+                <thead>
+                  <tr>
+                    <th>Owner Name</th>
+                    <th>WhatsApp Phone</th>
+                    <th>District</th>
+                    <th>Plan</th>
+                    <th>Status</th>
+                    <th>Expires</th>
+                    <th>Direct Connect</th>
+                  </tr>
+                </thead>
+                <tbody id="ownersTableBody">
+                  <!-- Populated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 5: Revenue -->
+        <div id="tab-revenue" class="view-panel" style="display: none;">
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span>Owner Subscriptions (MRR)</span>
+                <span style="font-size: 16px;">💳</span>
+              </div>
+              <div class="kpi-value" id="revenueMRR">₹0</div>
+              <div class="kpi-footer">Active ₹599/mo machinery partners</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span>Gross Rental Volume (GMV)</span>
+                <span style="font-size: 16px;">📈</span>
+              </div>
+              <div class="kpi-value" id="revenueGMV">₹0</div>
+              <div class="kpi-footer">Total machinery hire booked via WhatsApp</div>
+            </div>
+          </div>
+
+          <div class="gm-card">
+            <h3 style="font-size: 16px; margin-bottom: 12px;">Business & Revenue Architecture</h3>
+            <p style="font-size: 14px; color: var(--gm-gray-700); line-height: 1.6;">
+              • <strong>Zero Commission Model:</strong> Farmers & contractors book machinery for free with 0% platform fee.<br>
+              • <strong>Owner Pro Subscription:</strong> Equipment owners pay a flat <strong>₹599/month</strong> to list their fleet and receive WhatsApp booking alerts.<br>
+              • <strong>7-Day Free Trial:</strong> All new registered owners receive a 7-day trial before automated Razorpay subscription billing.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="/admin/admin.js"></script>
+</body>
+</html>

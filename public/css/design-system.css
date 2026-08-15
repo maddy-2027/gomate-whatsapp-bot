@@ -1,0 +1,310 @@
+/* ==========================================================================
+   GoMate Unified Design System — Clean, Neat, Classic
+   Specification: Space Grotesk + Inter + JetBrains Mono | Amber CTA + Charcoal + Logo Blue
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+:root {
+  /* --- Primary Action (Amber/Orange) --- */
+  --gm-amber-500: #E67E22;
+  --gm-amber-600: #D35400;
+  --gm-amber-700: #B94A00;
+  --gm-amber-100: #FDEBD0;
+  --gm-amber-50:  #FEF9E7;
+
+  /* --- Brand Identity (from Logo Guide) --- */
+  --gm-brand-navy:   #0A1F44;
+  --gm-brand-blue:   #2E7DFF;
+  --gm-brand-dark:   #0D0D0D;
+
+  /* --- Secondary / Surface (Charcoal) --- */
+  --gm-charcoal-950: #141717;
+  --gm-charcoal-900: #1F2323;
+  --gm-charcoal-800: #2C3232;
+  --gm-charcoal-700: #3E4646;
+
+  /* --- Accent (Muted Leaf-Green) --- */
+  --gm-green-700: #3B5E44;
+  --gm-green-600: #5B8266;
+  --gm-green-500: #6D9878;
+  --gm-green-100: #E2ECE5;
+  --gm-green-50:  #F4F8F5;
+
+  /* --- Neutrals Scale --- */
+  --gm-gray-900: #1E293B;
+  --gm-gray-800: #334155;
+  --gm-gray-700: #475569;
+  --gm-gray-600: #64748B;
+  --gm-gray-500: #94A3B8;
+  --gm-gray-300: #CBD5E1;
+  --gm-gray-200: #E2E8F0;
+  --gm-gray-100: #F1F5F9;
+  --gm-gray-50:  #F8FAFC;
+  --gm-white:    #FFFFFF;
+
+  /* --- Semantics (Distinct from Brand) --- */
+  --gm-success:       #2E7D32;
+  --gm-success-bg:    #E8F5E9;
+  --gm-warning:       #D97706;
+  --gm-warning-bg:    #FEF3C7;
+  --gm-error:         #DC2626;
+  --gm-error-bg:      #FEE2E2;
+  --gm-info:          #2563EB;
+  --gm-info-bg:       #EFF6FF;
+
+  /* --- Typography --- */
+  --gm-font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  --gm-font-body:    'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --gm-font-mono:    'JetBrains Mono', monospace;
+
+  /* --- Type Scale --- */
+  --gm-text-xs:   12px;
+  --gm-text-sm:   14px;
+  --gm-text-base: 16px;
+  --gm-text-lg:   20px;
+  --gm-text-xl:   24px;
+  --gm-text-2xl:  32px;
+  --gm-text-3xl:  48px;
+
+  /* --- Spacing Scale (8px Base) --- */
+  --gm-space-1: 4px;
+  --gm-space-2: 8px;
+  --gm-space-3: 12px;
+  --gm-space-4: 16px;
+  --gm-space-5: 20px;
+  --gm-space-6: 24px;
+  --gm-space-8: 32px;
+  --gm-space-10: 40px;
+  --gm-space-12: 48px;
+  --gm-space-16: 64px;
+
+  /* --- Shape & Border --- */
+  --gm-radius-sm:   4px;
+  --gm-radius-md:   8px;
+  --gm-radius-lg:   12px;
+  --gm-radius-pill: 9999px;
+
+  --gm-border-width: 1px;
+  --gm-border-color: var(--gm-gray-200);
+
+  /* --- Shadows (Restrained & Classic) --- */
+  --gm-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --gm-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06);
+  --gm-shadow-md: 0 4px 8px rgba(0, 0, 0, 0.08);
+  --gm-shadow-lg: 0 12px 24px -4px rgba(0, 0, 0, 0.12);
+
+  /* --- Motion --- */
+  --gm-transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Base Resets */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--gm-font-body);
+  background-color: var(--gm-gray-50);
+  color: var(--gm-gray-900);
+  font-size: var(--gm-text-base);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--gm-font-display);
+  color: var(--gm-brand-dark);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+}
+
+/* --- Shared Button Components --- */
+.gm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gm-space-2);
+  padding: 10px 18px;
+  border-radius: var(--gm-radius-sm);
+  font-size: var(--gm-text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--gm-transition);
+  border: var(--gm-border-width) solid transparent;
+  line-height: 1.2;
+}
+
+/* Primary CTA = Amber */
+.gm-btn-primary {
+  background-color: var(--gm-amber-500);
+  color: var(--gm-white);
+  border-color: var(--gm-amber-600);
+}
+.gm-btn-primary:hover {
+  background-color: var(--gm-amber-600);
+}
+.gm-btn-primary:active {
+  background-color: var(--gm-amber-700);
+}
+
+/* Secondary CTA = Charcoal / Navy */
+.gm-btn-secondary {
+  background-color: var(--gm-charcoal-900);
+  color: var(--gm-white);
+  border-color: var(--gm-charcoal-800);
+}
+.gm-btn-secondary:hover {
+  background-color: var(--gm-charcoal-800);
+}
+
+/* Outline CTA */
+.gm-btn-outline {
+  background-color: var(--gm-white);
+  color: var(--gm-gray-800);
+  border-color: var(--gm-gray-300);
+}
+.gm-btn-outline:hover {
+  background-color: var(--gm-gray-100);
+  border-color: var(--gm-gray-400);
+}
+
+/* Brand Blue Action */
+.gm-btn-brand {
+  background-color: var(--gm-brand-blue);
+  color: var(--gm-white);
+}
+.gm-btn-brand:hover {
+  background-color: #1E66E0;
+}
+
+/* --- Shared Card Component --- */
+.gm-card {
+  background-color: var(--gm-white);
+  border: var(--gm-border-width) solid var(--gm-gray-200);
+  border-radius: var(--gm-radius-md);
+  padding: var(--gm-space-6);
+  box-shadow: var(--gm-shadow-xs);
+  transition: var(--gm-transition);
+}
+.gm-card:hover {
+  border-color: var(--gm-gray-300);
+}
+
+/* --- Shared Status Badges --- */
+.gm-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--gm-radius-sm);
+  font-size: var(--gm-text-xs);
+  font-weight: 600;
+  font-family: var(--gm-font-body);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border: var(--gm-border-width) solid transparent;
+}
+.gm-badge-confirmed, .gm-badge-active {
+  background-color: var(--gm-success-bg);
+  color: var(--gm-success);
+  border-color: #C8E6C9;
+}
+.gm-badge-pending, .gm-badge-warning {
+  background-color: var(--gm-warning-bg);
+  color: var(--gm-warning);
+  border-color: #FDE68A;
+}
+.gm-badge-cancelled, .gm-badge-expired, .gm-badge-error {
+  background-color: var(--gm-error-bg);
+  color: var(--gm-error);
+  border-color: #FECACA;
+}
+.gm-badge-trial, .gm-badge-info {
+  background-color: var(--gm-info-bg);
+  color: var(--gm-info);
+  border-color: #BFDBFE;
+}
+.gm-badge-agri {
+  background-color: var(--gm-green-100);
+  color: var(--gm-green-700);
+}
+
+/* Verified ID Pill (matching brand guide) */
+.gm-verified-id {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1.5px solid var(--gm-brand-blue);
+  border-radius: var(--gm-radius-sm);
+  font-family: var(--gm-font-mono);
+  font-size: var(--gm-text-xs);
+  font-weight: 600;
+  color: var(--gm-brand-blue);
+  background: #FFFFFF;
+}
+
+/* --- Shared Table Component --- */
+.gm-table-container {
+  width: 100%;
+  overflow-x: auto;
+  background: var(--gm-white);
+  border: var(--gm-border-width) solid var(--gm-gray-200);
+  border-radius: var(--gm-radius-md);
+}
+.gm-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: var(--gm-text-sm);
+}
+.gm-table th {
+  background-color: var(--gm-gray-50);
+  color: var(--gm-gray-700);
+  font-weight: 600;
+  padding: 10px 16px;
+  border-bottom: var(--gm-border-width) solid var(--gm-gray-200);
+  white-space: nowrap;
+}
+.gm-table td {
+  padding: 12px 16px;
+  border-bottom: var(--gm-border-width) solid var(--gm-gray-200);
+  color: var(--gm-gray-900);
+  vertical-align: middle;
+}
+.gm-table tr:last-child td {
+  border-bottom: none;
+}
+.gm-table tr:hover {
+  background-color: #F8FAFC;
+}
+
+/* --- Shared Form Inputs --- */
+.gm-input, .gm-select {
+  width: 100%;
+  padding: 8px 12px;
+  border: var(--gm-border-width) solid var(--gm-gray-300);
+  border-radius: var(--gm-radius-sm);
+  font-size: var(--gm-text-sm);
+  background-color: var(--gm-white);
+  color: var(--gm-gray-900);
+  outline: none;
+  transition: var(--gm-transition);
+}
+.gm-input:focus, .gm-select:focus {
+  border-color: var(--gm-brand-blue);
+  box-shadow: 0 0 0 2px rgba(46, 125, 255, 0.15);
+}

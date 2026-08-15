@@ -1,0 +1,23 @@
+{
+  "name": "GoMate — Equipment Rental Marketplace",
+  "short_name": "GoMate",
+  "description": "Rent Farm, Transport, and Construction Equipment directly on WhatsApp across Maharashtra. Zero commission for farmers.",
+  "start_url": "/landing",
+  "display": "standalone",
+  "background_color": "#F8FAFC",
+  "theme_color": "#0A1F44",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/assets/brand/logo.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "48x48 72x72 96x96 144x144",
+      "type": "image/svg+xml"
+    }
+  ]
+}

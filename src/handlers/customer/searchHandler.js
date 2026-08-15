@@ -2,23 +2,32 @@ const { getText } = require('../../services/language');
 
 const CATALOG = {
   agriculture: [
-    { id: 101, type: 'agriculture', model: 'Mahindra 575 DI (45 HP Tractor)', price_per_day: 1400, rating: 4.8 },
-    { id: 102, type: 'agriculture', model: 'John Deere 5310 (55 HP 4WD Tractor)', price_per_day: 1800, rating: 4.9 },
-    { id: 103, type: 'agriculture', model: 'Sonalika Tiger DI 50 Tractor', price_per_day: 1500, rating: 4.7 },
-    { id: 104, type: 'agriculture', model: 'Claas Crop Tiger 30 Harvester', price_per_day: 3500, rating: 4.9 },
-    { id: 105, type: 'agriculture', model: 'Shaktiman Semi Champion Rotavator', price_per_day: 600, rating: 4.6 }
+    { id: 101, category: 'agriculture', type: 'Tractor', model: 'Mahindra 575 DI (45 HP)', price_per_day: 1500, rating: 4.8 },
+    { id: 102, category: 'agriculture', type: 'Tractor', model: 'John Deere 5310 (55 HP 4WD)', price_per_day: 1800, rating: 4.9 },
+    { id: 103, category: 'agriculture', type: 'Cultivator', model: 'Fieldking Heavy Duty Cultivator', price_per_day: 600, rating: 4.5 },
+    { id: 104, category: 'agriculture', type: 'Trailer', model: 'GoMate 4-Tonne Tipping Trailer', price_per_day: 800, rating: 4.6 },
+    { id: 105, category: 'agriculture', type: 'Seed Drill', model: 'National Automatic Seed Drill', price_per_day: 750, rating: 4.4 },
+    { id: 106, category: 'agriculture', type: 'Harvester', model: 'Claas Crop Tiger 30 Harvester', price_per_day: 4200, rating: 4.9 },
+    { id: 107, category: 'agriculture', type: 'Sprayer', model: 'ASPEE HTP 500L Tractor Sprayer', price_per_day: 700, rating: 4.6 },
+    { id: 108, category: 'agriculture', type: 'Rotavator', model: 'Shaktiman Semi Champion Rotavator', price_per_day: 850, rating: 4.7 },
+    { id: 109, category: 'agriculture', type: 'Drone (spraying)', model: 'GoMate Agri-Hexacopter Spray Drone 10L', price_per_day: 2500, rating: 4.9 }
   ],
   transport: [
-    { id: 201, type: 'transport', model: 'Tata 407 LPT Pickup', price_per_day: 2200, rating: 4.7 },
-    { id: 202, type: 'transport', model: 'Ashok Leyland Dost Plus', price_per_day: 1600, rating: 4.8 },
-    { id: 203, type: 'transport', model: 'Mahindra Bolero Maxi Truck Plus', price_per_day: 1400, rating: 4.6 },
-    { id: 204, type: 'transport', model: 'BharatBenz 2823C Tipper Truck', price_per_day: 5000, rating: 4.9 }
+    { id: 201, category: 'transport', type: 'Delivery Trucks', model: 'Tata Ace Gold (Chhota Hathi)', price_per_day: 1300, rating: 4.8 },
+    { id: 202, category: 'transport', type: 'Delivery Trucks', model: 'Ashok Leyland Dost Plus Pickup', price_per_day: 1600, rating: 4.7 },
+    { id: 203, category: 'transport', type: 'Trucks', model: 'Tata 407 LPT Medium Truck (4 Tonne)', price_per_day: 2600, rating: 4.6 },
+    { id: 204, category: 'transport', type: 'Trucks', model: 'Mahindra Blazo X 28 Heavy Truck', price_per_day: 3500, rating: 4.8 },
+    { id: 205, category: 'transport', type: 'Dump Trucks', model: 'Ashok Leyland 2518 Tipper (16 Cu.M)', price_per_day: 4000, rating: 4.7 },
+    { id: 206, category: 'transport', type: 'Vans', model: 'Maruti Suzuki Eeco Cargo Van', price_per_day: 1100, rating: 4.3 },
+    { id: 207, category: 'transport', type: 'Tanker Trucks', model: 'BharatBenz 1617 Water/Fuel Tanker', price_per_day: 4200, rating: 4.6 }
   ],
   infrastructure: [
-    { id: 301, type: 'infrastructure', model: 'JCB 3DX Super Backhoe Loader', price_per_day: 4200, rating: 4.9 },
-    { id: 302, type: 'infrastructure', model: 'Komatsu PC210 Hydraulic Excavator', price_per_day: 7500, rating: 4.8 },
-    { id: 303, type: 'infrastructure', model: 'ACE 14XW Hydra Mobile Crane', price_per_day: 5500, rating: 4.7 },
-    { id: 304, type: 'infrastructure', model: 'CAT CS11 GC Soil Compactor', price_per_day: 6000, rating: 4.8 }
+    { id: 301, category: 'infrastructure', type: 'Backhoe Loaders', model: 'JCB 3DX Super Backhoe Loader', price_per_day: 4500, rating: 4.9 },
+    { id: 302, category: 'infrastructure', type: 'Backhoe Loaders', model: 'JCB 4DX Heavy Duty Backhoe Loader', price_per_day: 5200, rating: 4.8 },
+    { id: 303, category: 'infrastructure', type: 'Excavators', model: 'Komatsu PC210 Hydraulic Excavator', price_per_day: 7500, rating: 4.9 },
+    { id: 304, category: 'infrastructure', type: 'Excavators', model: 'Tata Hitachi EX 200 Excavator', price_per_day: 7000, rating: 4.8 },
+    { id: 305, category: 'infrastructure', type: 'Bulldozers', model: 'CAT D6 Heavy Crawler Dozer', price_per_day: 8500, rating: 4.9 },
+    { id: 306, category: 'infrastructure', type: 'Bulldozers', model: 'BEML BD65 Crawler Bulldozer', price_per_day: 6500, rating: 4.5 }
   ]
 };
 
@@ -137,7 +146,4 @@ async function handleLocationInput(phone, text, session) {
   return `${header}\n\n${cards}\n\n_Reply with 1, 2, 3... to book | 0 for Menu_`;
 }
 
-
-module.exports = { handleCategorySelect, handleLocationInput };
-
-
+module.exports = { handleCategorySelect, handleLocationInput, CATALOG };

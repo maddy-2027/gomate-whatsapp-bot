@@ -1,0 +1,342 @@
+/* ==========================================================================
+   GoMate Public Marketing Landing Page — Design System Styles
+   ========================================================================== */
+
+/* Navbar */
+.landing-nav {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--gm-gray-200);
+  padding: 12px 24px;
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  font-size: var(--gm-text-sm);
+  font-weight: 600;
+  color: var(--gm-gray-700);
+}
+
+.nav-links a:hover {
+  color: var(--gm-amber-500);
+}
+
+/* Hero Section */
+.hero-section {
+  padding: 80px 24px 60px;
+  background: linear-gradient(180deg, #F8FAFC 0%, #FFFFFF 100%);
+  text-align: center;
+  border-bottom: 1px solid var(--gm-gray-200);
+}
+
+.hero-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.hero-title {
+  font-size: 52px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--gm-brand-dark);
+  letter-spacing: -1.5px;
+  margin-bottom: 20px;
+}
+
+.hero-title span {
+  color: var(--gm-amber-500);
+}
+
+.hero-subtitle {
+  font-size: 18px;
+  color: var(--gm-gray-700);
+  line-height: 1.6;
+  max-width: 740px;
+  margin: 0 auto 36px;
+}
+
+.hero-cta-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* Trust / Traction Strip */
+.stats-banner {
+  max-width: 1100px;
+  margin: -32px auto 60px;
+  background: #FFFFFF;
+  border-radius: var(--gm-radius-md);
+  padding: 24px 36px;
+  box-shadow: var(--gm-shadow-sm);
+  border: 1px solid var(--gm-gray-200);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 24px;
+  text-align: center;
+}
+
+.stat-item h3 {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--gm-brand-navy);
+  font-family: var(--gm-font-display);
+}
+
+.stat-item p {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gm-gray-600);
+  margin-top: 4px;
+}
+
+/* How It Works Section */
+.how-section {
+  padding: 60px 24px;
+  background: #FFFFFF;
+  border-bottom: 1px solid var(--gm-gray-200);
+}
+
+.section-header {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto 48px;
+}
+
+.section-header h2 {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--gm-brand-dark);
+}
+
+.section-header p {
+  font-size: 16px;
+  color: var(--gm-gray-600);
+  margin-top: 8px;
+}
+
+.steps-grid {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.step-card {
+  background: var(--gm-gray-50);
+  border-radius: var(--gm-radius-md);
+  padding: 28px 24px;
+  border: 1px solid var(--gm-gray-200);
+}
+
+.step-number {
+  width: 36px;
+  height: 36px;
+  background: var(--gm-charcoal-900);
+  color: #FFFFFF;
+  border-radius: var(--gm-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: var(--gm-font-mono);
+  margin-bottom: 16px;
+}
+
+.step-card h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.step-card p {
+  font-size: 14px;
+  color: var(--gm-gray-600);
+  line-height: 1.5;
+}
+
+/* Equipment Showcase */
+.catalog-section {
+  padding: 80px 24px;
+  background: var(--gm-gray-50);
+  border-bottom: 1px solid var(--gm-gray-200);
+}
+
+.catalog-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.category-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.cat-tab-btn {
+  padding: 8px 18px;
+  border-radius: var(--gm-radius-sm);
+  background: #FFFFFF;
+  border: 1px solid var(--gm-gray-300);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gm-gray-700);
+  cursor: pointer;
+  transition: var(--gm-transition);
+}
+
+.cat-tab-btn.active {
+  background: var(--gm-charcoal-900);
+  color: #FFFFFF;
+  border-color: var(--gm-charcoal-900);
+}
+
+.equip-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.landing-equip-card {
+  background: #FFFFFF;
+  border-radius: var(--gm-radius-md);
+  padding: 20px;
+  border: 1px solid var(--gm-gray-200);
+  box-shadow: var(--gm-shadow-xs);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.landing-equip-card:hover {
+  border-color: var(--gm-gray-300);
+  box-shadow: var(--gm-shadow-sm);
+}
+
+.card-badge {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: var(--gm-gray-100);
+  color: var(--gm-gray-700);
+  padding: 2px 6px;
+  border-radius: var(--gm-radius-sm);
+  display: inline-block;
+  margin-bottom: 8px;
+}
+
+.card-model {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--gm-brand-dark);
+  margin-bottom: 6px;
+}
+
+.card-desc {
+  font-size: 12px;
+  color: var(--gm-gray-600);
+  line-height: 1.4;
+  margin-bottom: 16px;
+}
+
+.card-pricing-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--gm-gray-100);
+  padding-top: 12px;
+}
+
+.card-price {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gm-brand-navy);
+}
+
+.card-price span {
+  font-size: 11px;
+  font-weight: normal;
+  color: var(--gm-gray-500);
+}
+
+/* Equipment Owner Section (Distinct Charcoal Background) */
+.owner-cta-section {
+  padding: 80px 24px;
+  background-color: var(--gm-charcoal-900);
+  color: #FFFFFF;
+}
+
+.owner-cta-box {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.owner-cta-box h2 {
+  color: #FFFFFF;
+  font-size: 36px;
+}
+
+/* FAQ Accordion */
+.faq-section {
+  padding: 60px 24px;
+  background: #FFFFFF;
+}
+
+.faq-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.faq-item {
+  background: #FFFFFF;
+  border-radius: var(--gm-radius-sm);
+  border: 1px solid var(--gm-gray-200);
+  margin-bottom: 12px;
+}
+
+.faq-question {
+  padding: 16px 20px;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--gm-gray-900);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.faq-answer {
+  padding: 0 20px 16px;
+  font-size: 14px;
+  color: var(--gm-gray-600);
+  line-height: 1.5;
+}
+
+/* Footer */
+.landing-footer {
+  background: var(--gm-charcoal-950);
+  color: var(--gm-gray-500);
+  padding: 40px 24px;
+  font-size: 13px;
+  border-top: 1px solid var(--gm-charcoal-800);
+}

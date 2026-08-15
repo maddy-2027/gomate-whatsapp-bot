@@ -1,0 +1,173 @@
+/* ==========================================================================
+   GoMate Owner Pro Portal — Styles
+   ========================================================================== */
+
+.owner-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--gm-gray-50);
+}
+
+/* Top Navigation Bar */
+.owner-navbar {
+  background-color: var(--gm-charcoal-900);
+  color: var(--gm-white);
+  border-bottom: 1px solid var(--gm-charcoal-800);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.owner-nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+
+.owner-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.owner-brand-badge {
+  background: rgba(46, 125, 255, 0.2);
+  color: var(--gm-brand-blue);
+  border: 1px solid rgba(46, 125, 255, 0.4);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--gm-radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.owner-nav-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.owner-tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--gm-gray-400);
+  padding: 8px 16px;
+  font-size: var(--gm-text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: var(--gm-radius-sm);
+  transition: var(--gm-transition);
+}
+
+.owner-tab-btn:hover {
+  color: var(--gm-white);
+  background: var(--gm-charcoal-800);
+}
+
+.owner-tab-btn.active {
+  color: var(--gm-white);
+  background: var(--gm-charcoal-800);
+  border-bottom: 2px solid var(--gm-amber-500);
+}
+
+.owner-main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  width: 100%;
+  flex: 1;
+}
+
+/* Overview KPIs */
+.owner-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+/* Listings Grid */
+.owner-listings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.owner-equip-card {
+  background: var(--gm-white);
+  border: 1px solid var(--gm-gray-200);
+  border-radius: var(--gm-radius-md);
+  overflow: hidden;
+  box-shadow: var(--gm-shadow-xs);
+  transition: var(--gm-transition);
+  display: flex;
+  flex-direction: column;
+}
+
+.owner-equip-card:hover {
+  border-color: var(--gm-gray-300);
+  box-shadow: var(--gm-shadow-sm);
+}
+
+.owner-equip-img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  background: var(--gm-gray-100);
+}
+
+.owner-equip-body {
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: var(--gm-gray-300);
+  transition: .2s;
+  border-radius: 24px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .2s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--gm-success);
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
