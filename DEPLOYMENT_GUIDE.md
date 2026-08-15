@@ -26,20 +26,20 @@ This guide details the step-by-step procedure to deploy the GoMate WhatsApp Bot 
 
 Set these environment variables in your cloud provider's dashboard:
 
-| Variable | Description | Example / Placeholder |
+| Variable | Description | Example / Production Value |
 |---|---|---|
 | `PORT` | Server listening port | `3000` |
 | `NODE_ENV` | Environment mode | `production` |
 | `ADMIN_PASSWORD` | Passkey for `/admin` HQ | `gomate2026` (or your strong secret) |
-| `TWILIO_ACCOUNT_SID` | Twilio Account SID | `AC_YOUR_TWILIO_ACCOUNT_SID` |
-| `TWILIO_AUTH_TOKEN` | Twilio Auth Token | `YOUR_TWILIO_AUTH_TOKEN` |
-| `TWILIO_WHATSAPP_NUMBER` | Twilio sender address | `whatsapp:+17372508034` |
-| `GEMINI_API_KEY` | Google Gemini AI API key | `YOUR_GEMINI_API_KEY` |
-| `SUPABASE_URL` | Supabase project URL | `https://your-project.supabase.co` |
-| `SUPABASE_SERVICE_KEY` | Supabase service role key | `YOUR_SUPABASE_SERVICE_ROLE_KEY` |
-| `SUPABASE_ANON_KEY` | Supabase anon public key | `YOUR_SUPABASE_ANON_KEY` |
-| `RAZORPAY_KEY_ID` | Razorpay API Key | `rzp_live_YOUR_KEY_ID` |
-| `RAZORPAY_KEY_SECRET` | Razorpay API Secret | `YOUR_RAZORPAY_KEY_SECRET` |
+| `TWILIO_ACCOUNT_SID` | Twilio Account SID | `ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx` |
+| `TWILIO_AUTH_TOKEN` | Twilio Auth Token | `your_twilio_auth_token_here` |
+| `TWILIO_WHATSAPP_NUMBER` | Twilio sender address | `whatsapp:+1XXXXXXXXXX` |
+| `GEMINI_API_KEY` | Google Gemini AI API key | `AQ.Ab8RN6KjQekgs...` |
+| `SUPABASE_URL` | Supabase project URL | `https://ibtznblylmqyexfkyjrv.supabase.co` |
+| `SUPABASE_SERVICE_KEY` | Supabase service role key | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` |
+| `SUPABASE_ANON_KEY` | Supabase anon public key | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` |
+| `RAZORPAY_KEY_ID` | Razorpay API Key | `rzp_live_XXXXXXXXXXXX` |
+| `RAZORPAY_KEY_SECRET` | Razorpay API Secret | `XXXXXXXXXXXXXXXXXXXXXXXX` |
 
 ---
 
@@ -51,7 +51,7 @@ To receive messages sent by customers from their physical WhatsApp apps to your 
 2. Under **Sandbox Settings** (or **Endpoint Configuration**), locate **"WHEN A MESSAGE COMES IN"**.
 3. Set the Webhook URL:
    ```
-   https://gomate-whatsapp-bot.onrender.com/webhook/whatsapp
+   https://<YOUR-CLOUD-DOMAIN>.onrender.com/webhook/whatsapp
    ```
 4. Set HTTP Method to **`HTTP POST`**.
 5. Click **Save**.
@@ -70,7 +70,7 @@ To automatically activate owner subscriptions upon payment confirmation:
 2. Click **Add New Webhook**.
 3. Enter Webhook URL:
    ```
-   https://gomate-whatsapp-bot.onrender.com/webhook/razorpay
+   https://<YOUR-CLOUD-DOMAIN>.onrender.com/webhook/razorpay
    ```
 4. Select the following **Active Events**:
    - `subscription.activated`
@@ -88,11 +88,11 @@ Once deployed, verify the system status:
 
 | Endpoint | Expected Status | Purpose |
 |---|---|---|
-| `GET https://gomate-whatsapp-bot.onrender.com/api/health` | `200 OK` | Automated uptime & container health monitor |
-| `GET https://gomate-whatsapp-bot.onrender.com/landing` | `200 OK` | Public marketing landing page |
-| `GET https://gomate-whatsapp-bot.onrender.com/owner` | `200 OK` | Owner Pro Portal (Fleet manager & ₹599/mo plan) |
-| `GET https://gomate-whatsapp-bot.onrender.com/admin` | `200 OK` | Operations HQ (Protected by password) |
-| `POST https://gomate-whatsapp-bot.onrender.com/webhook/whatsapp` | `200 OK` | WhatsApp message ingestion endpoint |
+| `GET https://<domain>/api/health` | `200 OK` | Automated uptime & container health monitor |
+| `GET https://<domain>/landing` | `200 OK` | Public marketing landing page |
+| `GET https://<domain>/owner` | `200 OK` | Owner Pro Portal (Fleet manager & ₹599/mo plan) |
+| `GET https://<domain>/admin` | `200 OK` | Operations HQ (Protected by password) |
+| `POST https://<domain>/webhook/whatsapp` | `200 OK` | WhatsApp message ingestion endpoint |
 
 ---
 
