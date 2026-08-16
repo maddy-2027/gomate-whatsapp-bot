@@ -19,6 +19,13 @@ const port = process.env.PORT || 3000;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'gomate2026';
 const ADMIN_TOKEN = 'gm_auth_' + Buffer.from(ADMIN_PASSWORD).toString('base64');
 
+process.on('uncaughtException', (err) => {
+  console.warn('⚠️ Non-fatal process warning:', err.message);
+});
+process.on('unhandledRejection', (err) => {
+  console.warn('⚠️ Non-fatal rejection warning:', err && err.message);
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

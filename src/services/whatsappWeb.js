@@ -55,9 +55,17 @@ function initWhatsAppWeb(onQrCallback, onReadyCallback) {
     isReady = false;
   });
 
-  waClient.on('disconnected', (reason) => {
-    console.log('⚠️ WhatsApp Web Disconnected:', reason);
+  waClient.on('disconnected', async (reason) => {
+    console.log('⚠️ WhatsApp Web Disconnected (Ready for new pairing):', reason);
     isReady = false;
+    currentQrDataUrl = null;
+    try {
+      await waClient.destroy();
+    } catch (e) {}
+    setTimeout(() => {
+      console.log('🔄 Launching fresh QR pairing for new WhatsApp number...');
+      initWhatsAppWeb(onQrCallback, onReadyCallback);
+    }, 3000);
   });
 
   async function handleIncomingMessage(msg) {
