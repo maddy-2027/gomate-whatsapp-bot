@@ -137,13 +137,20 @@ async function handleLocationInput(phone, text, session) {
   
   const displayLocation = `${district}${distanceNote}`;
   const header = getText(session.language, 'search_results_header', { type: category.toUpperCase(), location: displayLocation });
-  const cards = results.map((r, i) => getText(session.language, 'equipment_card', { 
-    index: i + 1, 
-    model: r.model, 
-    price: r.price_per_day, 
-    location: `${r.district || r.location || district}${distanceNote ? ' (Nearby)' : ''}`, 
-    rating: r.rating || 4.8 
-  })).join('\n\n');
+  const cards = results.map((r, i) => {
+    let card = getText(session.language, 'equipment_card', { 
+      index: i + 1, 
+      model: r.model, 
+      price: r.price_per_day, 
+      location: `${r.district || r.location || district}${distanceNote ? ' (Nearby)' : ''}`, 
+      rating: r.rating || 4.8 
+    });
+    if (r.services) {
+      const srvLabel = session.language === 'mr' ? 'उपलब्ध कामे' : (session.language === 'hi' ? 'उपलब्ध सेवाएं' : 'Services');
+      card += `\n${srvLabel}: ${r.services}`;
+    }
+    return card;
+  }).join('\n\n');
   
   const footer = getText(session.language, 'results_footer');
   return `${header}\n\n${cards}\n\n${footer}`;

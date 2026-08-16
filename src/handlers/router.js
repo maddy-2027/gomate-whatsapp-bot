@@ -140,6 +140,7 @@ async function routeMessage(phone, text, session) {
     case 'LISTING_CATEGORY': return await listingFlow.handleCategorySelect(phone, rawText, session);
     case 'LISTING_TYPE':     return await listingFlow.handleTypeInput(phone, rawText, session);
     case 'LISTING_MODEL':    return await listingFlow.handleModelInput(phone, rawText, session);
+    case 'LISTING_SERVICES': return await listingFlow.handleServicesInput(phone, rawText, session);
     case 'LISTING_PRICE':    return await listingFlow.handlePriceInput(phone, rawText, session);
 
     default:
