@@ -3,24 +3,32 @@ const { addEquipment } = require('../../db/equipment.repo');
 
 const SERVICE_MAP = {
   agriculture: {
-    '1': 'Ploughing (नांगरणी)',
-    '2': 'Rotavator (रोटाव्हेटर)',
+    '1': 'Ploughing / Tillage (नांगरणी)',
+    '2': 'Rotavator / Seedbed (रोटाव्हेटर)',
     '3': 'Seeding / Sowing (पेरणी)',
-    '4': 'Harvesting / Cutting (कापणी / तोडणी)',
-    '5': 'Trolley Transport (ट्रॉली)',
+    '4': 'Harvesting / Cutting (कापणी / ऊस तोडणी)',
+    '5': 'Trolley Transport (ट्रॉली वाहतूक)',
     '6': 'Spraying (फवारणी)',
-    '7': 'All Attachments (सर्व कामे)'
+    '7': 'All Attachments (सर्व कामे उपलब्ध)'
   },
   infrastructure: {
-    '1': 'Land Levelling & Trenching (सपाटीकरण व चर)',
-    '2': 'Well & Foundation Digging (विहीर व पाया)',
-    '3': 'Building Demolition (पाडकाम)',
-    '4': 'Road & Pipeline Work (रस्ते व पाईपलाईन)'
+    '1': 'Farm Ponds & Land Levelling (शेततळे व सपाटीकरण)',
+    '2': 'Well & Deep Foundation Digging (विहीर व खोल पाया)',
+    '3': 'Rock Breaker / Hard Rock (खडक फोडणे - ब्रेकर)',
+    '4': 'Pipeline & Trenching (पाईपलाईन चर खोदकाम)',
+    '5': 'Demolition & Debris Clearing (पाडकाम व डेब्रिज उपसा)',
+    '6': 'Road Work & Drainage (रस्ते व नाला खोदकाम)',
+    '7': 'Heavy Crane Lifting (क्रेन व अवजड लिफ्टिंग)',
+    '8': 'All Excavation Work (सर्व प्रकारची खोदकामे)'
   },
   transport: {
-    '1': 'Agri Produce to Mandi (शेतीमाल वाहतूक)',
-    '2': 'Construction Material / Sand (वाळू/सिमेंट)',
-    '3': 'General Cargo (सर्व प्रकारची मालवाहतूक)'
+    '1': 'Mandi & Agri Produce (शेतीमाल व भाजीपाला)',
+    '2': 'House Shifting & Furniture (घरगुती सामान शिफ्टिंग)',
+    '3': 'Construction Material / Sand (वाळू, सिमेंट, विटा)',
+    '4': 'Commercial Boxes & Goods (व्यापारी मालवाहतूक)',
+    '5': 'Water / Liquid Tanker (पाण्याचा टँकर)',
+    '6': 'Long Distance Highway Trip (लांब पल्ल्याची वाहतूक)',
+    '7': 'All Transport Work (सर्व प्रकारची वाहतूक)'
   }
 };
 
@@ -68,7 +76,7 @@ async function handleServicesInput(phone, text, session) {
     }
   }
 
-  // If user typed custom text instead of digits (e.g. "Harvesting, Seeding")
+  // If user typed custom text (e.g. "House Shifting, Mandi")
   if (selected.length === 0) {
     selected.push(t);
   }
@@ -83,13 +91,13 @@ async function handlePriceInput(phone, text, session) {
   const price = priceMatch ? parseInt(priceMatch[1]) : parseInt(text.trim());
 
   if (!isNaN(price) && price > 0) {
-    const services = session.data.listingServices || 'All Attachments (सर्व कामे)';
-    const model = session.data.listingModel || 'Tractor';
+    const services = session.data.listingServices || 'All Services (सर्व कामे)';
+    const model = session.data.listingModel || 'Vehicle/Equipment';
     const category = session.data.listingCategory || 'agriculture';
-    const type = session.data.listingType || 'Tractor';
+    const type = session.data.listingType || 'Machinery';
     const district = session.data.ownerDistrict || session.data.location || 'Pune';
 
-    // Save to Database / in-memory catalog
+    // Save to Database repository
     try {
       await addEquipment({
         owner_phone: phone,
@@ -122,5 +130,6 @@ module.exports = {
   handleTypeInput,
   handleModelInput,
   handleServicesInput,
-  handlePriceInput
+  handlePriceInput,
+  SERVICE_MAP
 };
