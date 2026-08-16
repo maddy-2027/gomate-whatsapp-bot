@@ -1,24 +1,12 @@
-const twilio = require('twilio');
-const config = require('../config');
-
-let client = null;
-if (config.twilio.accountSid !== 'dummy_sid') {
-  client = twilio(config.twilio.accountSid, config.twilio.authToken);
-} else {
-  console.warn('Twilio not configured. Using mock client.');
-  client = { messages: { create: async (msg) => console.log('Mock WhatsApp Message sent:', msg) } };
-}
+/**
+ * twilio.js — DEPRECATED
+ * GoMate uses whatsapp-web.js (QR scan) instead of Twilio.
+ * This shim re-exports sendWhatsAppDirect so any legacy imports don't break.
+ */
+const { sendWhatsAppDirect } = require('./whatsappWeb');
 
 async function sendWhatsApp(to, body) {
-  try {
-    await client.messages.create({
-      body: body,
-      from: config.twilio.whatsappNumber,
-      to: to
-    });
-  } catch (error) {
-    console.error('Error sending WhatsApp message:', error);
-  }
+  return await sendWhatsAppDirect(to, body);
 }
 
 module.exports = { sendWhatsApp };
