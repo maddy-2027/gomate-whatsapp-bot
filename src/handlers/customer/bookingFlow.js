@@ -128,49 +128,49 @@ async function handleDateInput(phone, text, session) {
   const modelText = quantity > 1 ? `${quantity}x ${equip.model}` : equip.model;
   
   if (session.language === 'mr') {
-    return `*🚜 बुकिंग तपशील व पेमेंट सारांश*
+    return `*बुकिंग तपशील व पेमेंट सारांश*
 ━━━━━━━━━━━━━━━━━━━━
 उपकरण: *${modelText}*
-📍 स्थान: *${session.data.location || 'पुणे'}*
-📅 तारीख: *${startDate}*
-⏱️ कालावधी: *${duration} दिवस*
-💰 एकूण रक्कम: *₹${totalAmount.toLocaleString('en-IN')}*
-🔖 संदर्भ क्र: *${booking.booking_ref}*
+स्थान: *${session.data.location || 'पुणे'}*
+तारीख: *${startDate}*
+कालावधी: *${duration} दिवस*
+एकूण रक्कम: *₹${totalAmount.toLocaleString('en-IN')}*
+संदर्भ क्र: *${booking.booking_ref}*
 ━━━━━━━━━━━━━━━━━━━━
 
-💳 *पेमेंट करण्यासाठी खालील लिंकवर क्लिक करा:*
+*पेमेंट करण्यासाठी खालील लिंकवर क्लिक करा:*
 👉 ${payLink}
 
 _PhonePe, Google Pay, Paytm, किंवा BHIM UPI द्वारे त्वरित पेमेंट करा._
 _(रद्द करण्यासाठी *0* किंवा *CANCEL* पाठवा)_`;
   } else if (session.language === 'hi') {
-    return `*🚜 बुकिंग विवरण व पेमेंट सारांश*
+    return `*बुकिंग विवरण व पेमेंट सारांश*
 ━━━━━━━━━━━━━━━━━━━━
 उपकरण: *${modelText}*
-📍 स्थान: *${session.data.location || 'पुणे'}*
-📅 तिथि: *${startDate}*
-⏱️ अवधि: *${duration} दिन*
-💰 कुल राशि: *₹${totalAmount.toLocaleString('en-IN')}*
-🔖 संदर्भ संख्या: *${booking.booking_ref}*
+स्थान: *${session.data.location || 'पुणे'}*
+तिथि: *${startDate}*
+अवधि: *${duration} दिन*
+कुल राशि: *₹${totalAmount.toLocaleString('en-IN')}*
+संदर्भ संख्या: *${booking.booking_ref}*
 ━━━━━━━━━━━━━━━━━━━━
 
-💳 *भुगतान करने के लिए नीचे दिए गए लिंक पर क्लिक करें:*
+*भुगतान करने के लिए नीचे दिए गए लिंक पर क्लिक करें:*
 👉 ${payLink}
 
 _PhonePe, Google Pay, Paytm, या BHIM UPI द्वारा तुरंत भुगतान करें।_
 _(रद्द करने के लिए *0* या *CANCEL* भेजें)_`;
   } else {
-    return `*🚜 Booking Summary & Payment Link*
+    return `*Booking Summary & Payment Link*
 ━━━━━━━━━━━━━━━━━━━━
 Equipment: *${modelText}*
-📍 Location: *${session.data.location || 'Pune'}*
-📅 Date: *${startDate}*
-⏱️ Duration: *${duration} days*
-💰 Total Amount: *₹${totalAmount.toLocaleString('en-IN')}*
-🔖 Reference: *${booking.booking_ref}*
+Location: *${session.data.location || 'Pune'}*
+Date: *${startDate}*
+Duration: *${duration} days*
+Total Amount: *₹${totalAmount.toLocaleString('en-IN')}*
+Reference: *${booking.booking_ref}*
 ━━━━━━━━━━━━━━━━━━━━
 
-💳 *Proceed to Pay & Confirm Booking:*
+*Proceed to Pay & Confirm Booking:*
 👉 ${payLink}
 
 _Pay securely using PhonePe, Google Pay, Paytm, or Cards._
@@ -198,23 +198,23 @@ async function handleConfirmation(phone, text, session) {
   session.state = 'CUSTOMER_MENU';
 
   if (session.language === 'mr') {
-    return `✅ *बुकिंग संदर्भ ${ref} नोंदवले गेले आहे!*
+    return `*बुकिंग संदर्भ ${ref} नोंदवले गेले आहे!*
 
-💳 *पेमेंट पूर्ण करण्यासाठी लिंक:*
+*पेमेंट पूर्ण करण्यासाठी लिंक:*
 👉 ${payLink}
 
 _पेमेंट पूर्ण होताच मशिनरी मालक तुमच्याशी संपर्क साधतील._`;
   } else if (session.language === 'hi') {
-    return `✅ *बुकिंग संदर्भ ${ref} दर्ज किया गया है!*
+    return `*बुकिंग संदर्भ ${ref} दर्ज किया गया है!*
 
-💳 *भुगतान पूरा करने के लिए लिंक:*
+*भुगतान पूरा करने के लिए लिंक:*
 👉 ${payLink}
 
 _भुगतान पूरा होते ही मशीन मालिक आपसे संपर्क करेंगे।_`;
   } else {
-    return `✅ *Booking ${ref} is Registered!*
+    return `*Booking ${ref} is Registered!*
 
-💳 *Complete Payment via UPI Link:*
+*Complete Payment via UPI Link:*
 👉 ${payLink}
 
 _The equipment owner will contact you once payment is completed._`;
