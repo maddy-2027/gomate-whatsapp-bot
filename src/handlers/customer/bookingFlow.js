@@ -109,7 +109,7 @@ async function handleDateInput(phone, text, session) {
   session.data.payLink = payLink;
 
   // ── 3. Notify Owner in the background ────────────────────────────────────
-  const ownerPhone = (equip.owners && equip.owners.phone) || equip.owner_phone || '+919123456789';
+  const ownerPhone = (equip.owners && equip.owners.phone) || equip.owner_phone || process.env.ADMIN_WHATSAPP_NUMBER || '+919123456789';
   const ownerLang = (equip.owners && equip.owners.language) || 'mr';
   const alertMsg = getText(ownerLang, 'owner_new_booking_notification', {
     ref: booking.booking_ref,
