@@ -3,8 +3,14 @@ const { detectLanguage } = require('./language');
 
 const ai = process.env.GEMINI_API_KEY ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }) : null;
 
+// High-speed low-latency model chain (sub-second response times)
+const FAST_MODELS = [
+  'gemini-3.1-flash-lite',
+  'gemini-3.5-flash-lite',
+  'gemini-flash-lite-latest'
+];
+
 async function generateChatResponse(message, language = 'en', context = '', session = {}) {
-  // Dynamically detect language from the user's latest prompt
   const detected = detectLanguage(message);
   const effectiveLang = detected || session.language || language || 'en';
 
@@ -16,48 +22,36 @@ async function generateChatResponse(message, language = 'en', context = '', sess
 
   let langInstruction = '';
   if (effectiveLang === 'mr') {
-    langInstruction = `CRITICAL LANGUAGE REQUIREMENT: You MUST reply natively and fluently in MARATHI (मराठी) using Devanagari script.
-- Even if the user asked using English letters (e.g. 'tractor pahije' or 'pune madhe harvester bhetel ka'), you MUST reply in pure, natural, respectful Marathi (उदा. 'होय, पुणे परिसरामध्ये महिंद्रा आणि जॉन डीअर ट्रॅक्टर उपलब्ध आहेत...').
-- Use standard agricultural terminology used in Maharashtra (e.g., नांगरणी, रोटाव्हेटर, ऊस तोडणी, भाडे).`;
+    langInstruction = `CRITICAL LANGUAGE RULE: You MUST reply natively in MARATHI (मराठी) using Devanagari script. Keep it concise, respectful, and helpful.`;
   } else if (effectiveLang === 'hi') {
-    langInstruction = `CRITICAL LANGUAGE REQUIREMENT: You MUST reply natively and fluently in HINDI (हिंदी) using Devanagari script.
-- Even if the user asked in Hinglish (e.g. 'tractor chahiye' or 'jcb ka rent kya hai'), you MUST reply in natural, polite Hindi (उदा. 'जी हाँ, आपके क्षेत्र में जेसीबी और ट्रैक्टर उचित किराए पर उपलब्ध हैं...').`;
+    langInstruction = `CRITICAL LANGUAGE RULE: You MUST reply natively in HINDI (हिंदी) using Devanagari script. Keep it concise and polite.`;
   } else {
-    langInstruction = `CRITICAL LANGUAGE REQUIREMENT: Reply in clear, simple English formatted for WhatsApp.`;
+    langInstruction = `CRITICAL LANGUAGE RULE: Reply in clear, simple English.`;
   }
 
-  const systemInstruction = `You are GoMate's AI WhatsApp Assistant — an equipment rental marketplace in Maharashtra, India.
-
-Your mission:
-1. Help FARMERS & CUSTOMERS find & rent:
-   - Agricultural equipment (Mahindra/John Deere tractors, Claas harvesters, rotavators, spray drones).
-   - Transport vehicles (Tata Ace 'Chhota Hathi', tippers, cargo vans).
-   - Infrastructure machinery (JCB 3DX backhoes, Komatsu excavators, bulldozers).
-2. Help MACHINERY OWNERS list equipment and manage their ₹599/month Owner Pro subscription.
-3. Pricing & Booking Policy:
-   - Farmers/customers book for FREE with ₹0 commission.
-   - Machinery owners pay a flat ₹599/month subscription for unlimited bookings.
-   - Standard tractor rent is ~₹1,500/day, JCB ~₹4,500/day, Tata Ace ~₹1,300/day.
-4. Response formatting rules:
-   - Format for WhatsApp using *bold*, _italic_, and clean bullet points.
-   - Keep answers concise and direct (under 120 words).
-   - Include a call to action at the end: e.g. "मुख्य मेनूवर जाण्यासाठी *0* टाइप करा किंवा थेट वर्ग निवडा."
-   - Context data: ${context}
-
+  const systemInstruction = `You are GoMate's AI WhatsApp Assistant — Maharashtra's machinery rental platform.
+- Farmers/customers book for FREE with ₹0 commission.
+- Owners list machinery for flat ₹599/month.
+- Tractors ~₹1,500/day, JCB ~₹4,500/day, Tata Ace ~₹1,300/day.
+- Keep answers under 80 words for ultra-fast reading on WhatsApp.
+- Format with *bold* and bullet points.
+- Context: ${context}
 ${langInstruction}`;
 
-  const fallbackModels = ['gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-flash-latest'];
-
-  for (const modelName of fallbackModels) {
+  for (const modelName of FAST_MODELS) {
     try {
-      const history = (session.conversation_history || []).slice(-6);
+      const history = (session.conversation_history || []).slice(-4);
       let contents = history.map(m => ({ role: m.role, parts: [{ text: m.text }] }));
       contents.push({ role: 'user', parts: [{ text: message }] });
 
       const response = await ai.models.generateContent({
         model: modelName,
         contents: contents,
-        config: { systemInstruction: systemInstruction }
+        config: {
+          systemInstruction: systemInstruction,
+          maxOutputTokens: 300,
+          temperature: 0.4
+        }
       });
 
       const reply = response.text;
@@ -67,10 +61,10 @@ ${langInstruction}`;
           { role: 'user', text: message },
           { role: 'model', text: reply }
         );
-        return reply;
+        return reply.trim();
       }
     } catch (err) {
-      console.warn(`Gemini (${modelName}) error:`, err.message.substring(0, 100));
+      console.warn(`⚡ Fast fallback: ${modelName} error (${err.message.substring(0, 50)}) -> trying next`);
     }
   }
 

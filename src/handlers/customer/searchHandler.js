@@ -105,15 +105,17 @@ async function handleLocationInput(phone, text, session) {
   session.data.location = district;
   const category = session.data.category || 'agriculture';
   
-  // 1. Try fetching real equipment from Supabase DB
+  // 1. Fetch equipment with instant 500ms timeout race
   let results = [];
   try {
-    const dbResults = await searchEquipment({ category, district });
+    const dbPromise = searchEquipment({ category, district });
+    const timeoutPromise = new Promise(resolve => setTimeout(() => resolve([]), 500));
+    const dbResults = await Promise.race([dbPromise, timeoutPromise]);
     if (dbResults && dbResults.length > 0) {
       results = dbResults;
     }
   } catch (err) {
-    console.error('Error fetching from DB:', err);
+    // Instant fallback
   }
 
   // 2. If no direct match in district, use rich catalog fallback
