@@ -55,7 +55,7 @@ function initWhatsAppWeb(onQrCallback, onReadyCallback) {
   });
 
   waClient.on('disconnected', async (reason) => {
-    console.log('⚠️ WhatsApp Web Disconnected (Ready for new pairing):', reason);
+    console.log('⚠️ WhatsApp Web Disconnected:', reason);
     isReady = false;
     currentQrDataUrl = null;
     try {
@@ -68,15 +68,16 @@ function initWhatsAppWeb(onQrCallback, onReadyCallback) {
   });
 
   async function handleIncomingMessage(msg) {
-    if (!msg || msg.isStatus || msg.broadcast) return;
+    // 1. Strict self-loop protection: Ignore any outgoing message sent by the bot itself
+    if (!msg || msg.fromMe || msg.isStatus || msg.broadcast) return;
     if (msg.from && msg.from.includes('@g.us')) return; // ignore group chats
 
-    // Determine target chat ID and phone number
-    const targetChatId = (msg.fromMe && msg.to) ? msg.to : msg.from;
-    const phone = '+' + targetChatId.replace('@c.us', '').replace(/@lid$/, '');
+    // 2. Clean sender phone number
+    const from = msg.from;
+    const phone = '+' + from.replace('@c.us', '').replace(/@lid$/, '');
     let body = (msg.body || '').trim();
 
-    // Check if this is a WhatsApp Location Pin
+    // 3. Check if this is a WhatsApp Location Pin
     if (msg.type === 'location' || (msg.location && msg.location.latitude)) {
       const lat = msg.location.latitude;
       const lng = msg.location.longitude;
@@ -86,13 +87,6 @@ function initWhatsAppWeb(onQrCallback, onReadyCallback) {
 
     if (!body) return;
 
-    // Filter out our own automated bot replies from self-looping
-    if (msg.fromMe) {
-      if (body.startsWith('GoMate') || body.startsWith('Welcome') || body.startsWith('*') || body.startsWith('✅') || body.startsWith('💳')) {
-        return;
-      }
-    }
-
     console.log(`📱 Real WhatsApp message received from ${phone}: "${body}"`);
 
     try {
@@ -101,31 +95,18 @@ function initWhatsAppWeb(onQrCallback, onReadyCallback) {
       const replyText = await routeMessage(phone, body, session);
       if (replyText) {
         console.log(`💬 Sending WhatsApp reply to ${phone}: "${replyText.substring(0, 50)}..."`);
-        
-        // Use direct sendMessage for maximum reliability across devices
-        try {
-          await waClient.sendMessage(targetChatId, replyText);
-        } catch (sendErr) {
-          await msg.reply(replyText);
-        }
+        await msg.reply(replyText);
       }
     } catch (err) {
       console.error('Error processing real WhatsApp message:', err);
       try {
-        await waClient.sendMessage(targetChatId, 'Sorry, something went wrong processing your request. Reply "0" to return to the menu.');
+        await msg.reply('Sorry, something went wrong processing your request. Reply "0" to return to the menu.');
       } catch (e) {}
     }
   }
 
-  // Handle incoming messages from other people
+  // Handle ONLY incoming messages from external senders (never message_create)
   waClient.on('message', handleIncomingMessage);
-
-  // Handle messages when user tests by sending message to themselves or from the bot phone
-  waClient.on('message_create', async (msg) => {
-    if (msg.fromMe) {
-      await handleIncomingMessage(msg);
-    }
-  });
 
   waClient.initialize().catch((err) => {
     console.error('Failed to initialize WhatsApp Web client:', err);
