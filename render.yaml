@@ -2,7 +2,7 @@ services:
   - type: web
     name: gomate-whatsapp-bot
     runtime: docker
-    plan: starter
+    plan: free
     region: singapore # Closest low-latency region for Indian users
     dockerfilePath: ./Dockerfile
     healthCheckPath: /api/health
