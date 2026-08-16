@@ -9,50 +9,65 @@ const subscriptionHandler = require('./owner/subscriptionHandler');
 const { generateChatResponse } = require('../services/gemini');
 
 /**
- * Core conversation state machine.
- * Supports auto language detection and seamless multilingual switching.
+ * Intelligent Multilingual Conversation Router
+ * Seamlessly handles structured number-based menus, WhatsApp GPS pins, 
+ * and conversational natural language questions in Marathi, Hindi, and English.
  */
 async function routeMessage(phone, text, session) {
   const rawText = (text || '').trim();
   const t = rawText.toLowerCase();
 
-  // ── Auto-Detect Language on Natural Queries ──────────────────────────────
+  // 1. Detect language from incoming message
   const detectedLang = detectLanguage(rawText);
-  if (detectedLang && session.state !== 'LANG_SELECT') {
+  if (detectedLang) {
     session.language = detectedLang;
   }
 
-  // ── Global commands (work from any state) ─────────────────────────────────
+  // ── Global Reset / Help Commands ──────────────────────────────────────────
 
   if (t === 'help' || t === 'मदत' || t === 'सहायता') {
-    return getText(session.language || 'en', 'help_text');
+    return getText(session.language || 'mr', 'help_text');
   }
 
   if (t === 'reset' || t === 'restart' || t === '00' || t === 'change language' || t === 'भाषा बदला' || t === 'भाषा बदलो') {
-    session.state    = 'LANG_SELECT';
+    session.state = 'LANG_SELECT';
     session.language = null;
-    session.role     = null;
-    session.data     = {};
-    return getText('en', 'welcome');
+    session.role = null;
+    session.data = {};
+    return getText('mr', 'welcome');
   }
 
   if (t === '0' || t === 'menu' || t === 'main menu' || t === 'back' || t === 'home' || t === 'मुख्य मेनू' || t === 'मेनू') {
     if (session.role === 'owner') {
       session.state = 'OWNER_MENU';
-      return getText(session.language || 'en', 'owner_menu');
+      return getText(session.language || 'mr', 'owner_menu');
     }
-    session.role  = 'customer';
+    session.role = 'customer';
     session.state = 'CUSTOMER_MENU';
-    return getText(session.language || 'en', 'customer_menu');
+    return getText(session.language || 'mr', 'customer_menu');
   }
 
-  // ── STEP 1: Brand new session ──────────────────────────────────────────────
+  // ── Natural Language / Direct Question Detection ──────────────────────────
+  // If user sends a real sentence/question (not just 1/2/3, hi, or menu commands)
+  const isSingleDigit = /^[0-9]$/.test(t);
+  const isShortGreeting = ['hi', 'hello', 'hey', 'start', 'namaste', 'namaskar', 'नमस्कार', 'नमस्ते'].includes(t);
+  const isLocationPin = rawText.startsWith('GPS_LOCATION:');
+
+  // If new session but user asked a direct question (e.g., "मला ऊस तोडणी साठी ट्रॅक्टर पाहिजे")
+  if ((!session.state || session.state === 'INIT' || session.state === 'LANG_SELECT') && !isSingleDigit && !isShortGreeting && !isLocationPin) {
+    session.language = detectedLang || session.language || 'mr';
+    session.role = 'customer';
+    session.state = 'CUSTOMER_MENU';
+    return await generateChatResponse(rawText, session.language, JSON.stringify(session.data || {}), session);
+  }
+
+  // ── STEP 1: Brand new session with greeting (e.g. "Hi") ───────────────────
   if (!session.state || session.state === 'INIT') {
     session.state = 'LANG_SELECT';
-    return getText('en', 'welcome');
+    return getText('mr', 'welcome');
   }
 
-  // ── STEP 2: Language selection ─────────────────────────────────────────────
+  // ── STEP 2: Language Selection ─────────────────────────────────────────────
   if (session.state === 'LANG_SELECT') {
     if (t === '1' || t.includes('मराठी') || t.includes('marathi')) {
       session.language = 'mr';
@@ -61,46 +76,50 @@ async function routeMessage(phone, text, session) {
     } else if (t === '3' || t.includes('हिंदी') || t.includes('hindi')) {
       session.language = 'hi';
     } else {
-      return getText('en', 'welcome');   // re-prompt, don't change state
+      // If user typed anything else, default to detected language or re-prompt
+      session.language = detectedLang || 'mr';
+      session.state = 'ROLE_SELECT';
+      return getText(session.language, 'role_select');
     }
     session.state = 'ROLE_SELECT';
     return getText(session.language, 'role_select');
   }
 
-  // ── STEP 3: Role selection ─────────────────────────────────────────────────
+  // ── STEP 3: Role Selection ─────────────────────────────────────────────────
   if (session.state === 'ROLE_SELECT') {
     if (t === '1' || t.includes('customer') || t.includes('find') || t.includes('ग्राहक') || t.includes('उपकरणे') || t.includes('उपकरण')) {
-      session.role  = 'customer';
+      session.role = 'customer';
       session.state = 'CUSTOMER_MENU';
-      return getText(session.language || 'en', 'customer_menu');
+      return getText(session.language || 'mr', 'customer_menu');
     }
     if (t === '2' || t.includes('owner') || t.includes('rent') || t.includes('मालक') || t.includes('मालिक')) {
-      session.role  = 'owner';
+      session.role = 'owner';
       session.state = 'ONBOARD_NAME';
-      return getText(session.language || 'en', 'owner_onboard_name');
+      return getText(session.language || 'mr', 'owner_onboard_name');
     }
-    return getText(session.language || 'en', 'role_select');
+    return getText(session.language || 'mr', 'role_select');
   }
 
-  // ── Greeting shortcut (after language set) ─────────────────────────────────
-  if (t === 'hi' || t === 'hello' || t === 'namaste' || t === 'namaskar' || t === 'नमस्कार' || t === 'नमस्ते') {
+  // ── Greeting Shortcut (after language is set) ──────────────────────────────
+  if (isShortGreeting) {
     if (session.role === 'owner') {
       session.state = 'OWNER_MENU';
-      return getText(session.language || 'en', 'owner_menu');
+      return getText(session.language || 'mr', 'owner_menu');
     }
     session.state = 'CUSTOMER_MENU';
-    return getText(session.language || 'en', 'customer_menu');
+    return getText(session.language || 'mr', 'customer_menu');
   }
 
-  // ── Main state machine ─────────────────────────────────────────────────────
+  // ── State Machine ──────────────────────────────────────────────────────────
   switch (session.state) {
 
-    // CUSTOMER ────────────────────────────────────────────────────────────────
+    // CUSTOMER FLOWS
     case 'CUSTOMER_MENU':
-      if (t === '1') { session.state = 'SEARCH_CATEGORY'; return getText(session.language, 'category_select'); }
-      if (t === '2') { session.state = 'CHECK_STATUS';    return getText(session.language, 'booking_status_prompt'); }
-      if (t === '3') {                                     return getText(session.language, 'help_text'); }
-      return await generateChatResponse(rawText, session.language || 'en', JSON.stringify(session.data || {}), session);
+      if (t === '1') { session.state = 'SEARCH_CATEGORY'; return getText(session.language || 'mr', 'category_select'); }
+      if (t === '2') { session.state = 'CHECK_STATUS';    return getText(session.language || 'mr', 'booking_status_prompt'); }
+      if (t === '3') {                                     return getText(session.language || 'mr', 'help_text'); }
+      // Any other query at customer menu is answered by Gemini AI
+      return await generateChatResponse(rawText, session.language || 'mr', JSON.stringify(session.data || {}), session);
 
     case 'SEARCH_CATEGORY':  return await searchHandler.handleCategorySelect(phone, rawText, session);
     case 'SEARCH_LOCATION':  return await searchHandler.handleLocationInput(phone, rawText, session);
@@ -109,13 +128,13 @@ async function routeMessage(phone, text, session) {
     case 'BOOKING_CONFIRM':  return await bookingFlow.handleConfirmation(phone, rawText, session);
     case 'CHECK_STATUS':     return await statusHandler.handleStatusQuery(phone, rawText, session);
 
-    // OWNER ───────────────────────────────────────────────────────────────────
+    // OWNER FLOWS
     case 'OWNER_MENU':
-      if (t === '1') { session.state = 'LISTING_CATEGORY'; return getText(session.language, 'listing_category'); }
+      if (t === '1') { session.state = 'LISTING_CATEGORY'; return getText(session.language || 'mr', 'listing_category'); }
       if (t === '2') {                                      return await dashboardHandler.showDashboard(phone, session); }
       if (t === '3') {                                      return await subscriptionHandler.showStatus(phone, session); }
-      if (t === '4') {                                      return getText(session.language, 'help_text'); }
-      return await generateChatResponse(rawText, session.language || 'en', JSON.stringify(session.data || {}), session);
+      if (t === '4') {                                      return getText(session.language || 'mr', 'help_text'); }
+      return await generateChatResponse(rawText, session.language || 'mr', JSON.stringify(session.data || {}), session);
 
     case 'ONBOARD_NAME':     return await onboardingFlow.handleNameInput(phone, rawText, session);
     case 'ONBOARD_DISTRICT': return await onboardingFlow.handleDistrictInput(phone, rawText, session);
@@ -125,7 +144,7 @@ async function routeMessage(phone, text, session) {
     case 'LISTING_PRICE':    return await listingFlow.handlePriceInput(phone, rawText, session);
 
     default:
-      return await generateChatResponse(rawText, session.language || 'en', JSON.stringify(session.data || {}), session);
+      return await generateChatResponse(rawText, session.language || 'mr', JSON.stringify(session.data || {}), session);
   }
 }
 
