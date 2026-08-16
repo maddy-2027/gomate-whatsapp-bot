@@ -10,21 +10,31 @@ let memoryOwners = [...defaultSeedOwners].map((owner, idx) => ({
 
 async function registerOwner(data) {
   const newOwner = {
-    id: data.id || ('o-' + Date.now()),
-    ...data,
+    phone: data.phone,
+    name: data.name || 'Owner',
+    district: data.district || 'Pune',
+    language: data.language || 'mr',
     subscription_status: data.subscription_status || 'trial',
-    created_at: new Date().toISOString(),
     subscription_expires_at: new Date(Date.now() + 7 * 24 * 3600000).toISOString()
   };
-  memoryOwners.unshift(newOwner);
 
   try {
-    const { data: owner, error } = await supabase.from('owners').insert([newOwner]).select().single();
-    if (!error && owner) return owner;
+    const { data: owner, error } = await supabase
+      .from('owners')
+      .upsert([newOwner], { onConflict: 'phone' })
+      .select()
+      .single();
+    if (!error && owner) {
+      memoryOwners.unshift(owner);
+      return owner;
+    }
   } catch (err) {
-    // fallback
+    console.warn('Supabase registerOwner fallback:', err.message);
   }
-  return newOwner;
+
+  const fallback = { id: 'o-' + Date.now(), ...newOwner, created_at: new Date().toISOString() };
+  memoryOwners.unshift(fallback);
+  return fallback;
 }
 
 async function getOwnerByPhone(phone) {

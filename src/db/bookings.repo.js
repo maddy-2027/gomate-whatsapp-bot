@@ -7,7 +7,6 @@ let memoryBookings = [
     booking_ref: 'GM-8942',
     customer_name: 'Vikram Shinde',
     customer_phone: '+919876543210',
-    equipment_id: '101',
     equipment_name: 'Mahindra 575 DI (45 HP)',
     category: 'agriculture',
     district: 'Pune',
@@ -23,7 +22,6 @@ let memoryBookings = [
     booking_ref: 'GM-3419',
     customer_name: 'Ramesh Pawar',
     customer_phone: '+919811223344',
-    equipment_id: '301',
     equipment_name: 'JCB 3DX Super Backhoe Loader',
     category: 'infrastructure',
     district: 'Nashik',
@@ -39,7 +37,6 @@ let memoryBookings = [
     booking_ref: 'GM-5510',
     customer_name: 'Sunil Gaikwad',
     customer_phone: '+919766554433',
-    equipment_id: '201',
     equipment_name: 'Tata Ace Gold (Chhota Hathi)',
     category: 'transport',
     district: 'Kolhapur',
@@ -55,8 +52,7 @@ let memoryBookings = [
     booking_ref: 'GM-7721',
     customer_name: 'Ganesh More',
     customer_phone: '+919422001122',
-    equipment_id: '109',
-    equipment_name: 'GoMate Agri-Hexacopter Spray Drone 10L',
+    equipment_name: 'GoMate Agri Spray Drone',
     category: 'agriculture',
     district: 'Nashik',
     start_date: '2026-08-20',
@@ -70,27 +66,46 @@ let memoryBookings = [
 
 async function createBooking(data) {
   const ref = 'GM-' + Math.random().toString(36).substring(2, 6).toUpperCase();
-  const newBooking = {
-    ...data,
+  
+  // Format start date as valid SQL date (YYYY-MM-DD)
+  let sqlDate = new Date().toISOString().split('T')[0];
+  if (data.start_date && /^\d{4}-\d{2}-\d{2}$/.test(data.start_date)) {
+    sqlDate = data.start_date;
+  }
+
+  const dbBooking = {
     booking_ref: ref,
-    id: data.id || ('b-' + Date.now()),
-    created_at: new Date().toISOString(),
+    customer_phone: data.customer_phone || '+919876543210',
+    customer_name: data.customer_name || 'Customer',
+    start_date: sqlDate,
+    duration_days: parseInt(data.duration_days) || 1,
+    total_amount: parseFloat(data.total_amount) || 1500,
     status: data.status || 'pending'
   };
 
-  memoryBookings.unshift(newBooking);
+  // If valid UUID equipment ID
+  if (data.equipment_id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(data.equipment_id)) {
+    dbBooking.equipment_id = data.equipment_id;
+  }
 
   try {
     const { data: booking, error } = await supabase
       .from('bookings')
-      .insert([newBooking])
+      .insert([dbBooking])
       .select()
       .single();
-    if (!error && booking && booking.booking_ref) return booking;
+    if (!error && booking && booking.booking_ref) {
+      const fullBooking = { ...booking, ...data, booking_ref: booking.booking_ref };
+      memoryBookings.unshift(fullBooking);
+      return fullBooking;
+    }
   } catch (err) {
-    console.error('Error inserting booking to Supabase:', err);
+    console.warn('Supabase createBooking fallback:', err.message);
   }
-  return newBooking;
+
+  const fallback = { ...data, ...dbBooking, id: 'b-' + Date.now(), created_at: new Date().toISOString() };
+  memoryBookings.unshift(fallback);
+  return fallback;
 }
 
 async function getBookingByRef(ref) {
@@ -138,7 +153,7 @@ async function updateBookingStatus(id, status) {
   if (item) item.status = status;
 
   try {
-    const { error } = await supabase.from('bookings').update({ status }).eq('id', id);
+    const { error } = await supabase.from('bookings').update({ status }).or(`id.eq.${id},booking_ref.eq.${id}`);
     return !error;
   } catch (err) {
     return true;

@@ -15,7 +15,13 @@ async function searchEquipment(criteria) {
     if (criteria.district) query = query.ilike('district', `%${criteria.district}%`);
     query = query.eq('available', true).limit(10);
     const { data, error } = await query;
-    if (!error && data && data.length > 0) return data;
+    if (!error && data && data.length > 0) {
+      // Map description back to services if present
+      return data.map(d => ({
+        ...d,
+        services: d.description || d.services || 'All Attachments'
+      }));
+    }
   } catch (err) {
     // fallback to memory
   }
@@ -29,27 +35,43 @@ async function searchEquipment(criteria) {
 }
 
 async function addEquipment(equipmentData) {
-  const newEquip = {
-    id: equipmentData.id || String(Date.now()),
-    ...equipmentData,
-    created_at: new Date().toISOString(),
-    available: true
+  const dbRecord = {
+    category: equipmentData.category || 'agriculture',
+    type: equipmentData.type || 'Machinery',
+    model: equipmentData.model || 'Equipment',
+    district: equipmentData.district || 'Pune',
+    taluka: equipmentData.taluka || null,
+    price_per_day: equipmentData.price_per_day || 1500,
+    available: true,
+    rating: 5.0,
+    description: equipmentData.services || equipmentData.description || 'All Attachments'
   };
-  memoryEquipment.unshift(newEquip);
 
   try {
-    const { data, error } = await supabase.from('equipment').insert([newEquip]).select().single();
-    if (!error && data) return data;
+    const { data, error } = await supabase.from('equipment').insert([dbRecord]).select().single();
+    if (!error && data) {
+      const formatted = { ...data, services: data.description };
+      memoryEquipment.unshift(formatted);
+      return formatted;
+    }
   } catch (err) {
-    console.error('Error adding equipment to Supabase:', err);
+    console.warn('Supabase addEquipment fallback:', err.message);
   }
-  return newEquip;
+
+  const fallback = { id: String(Date.now()), ...equipmentData, created_at: new Date().toISOString(), available: true };
+  memoryEquipment.unshift(fallback);
+  return fallback;
 }
 
 async function getAllEquipment() {
   try {
     const { data, error } = await supabase.from('equipment').select('*').order('created_at', { ascending: false });
-    if (!error && data && data.length > 0) return data;
+    if (!error && data && data.length > 0) {
+      return data.map(d => ({
+        ...d,
+        services: d.description || d.services || 'All Attachments'
+      }));
+    }
   } catch (err) {
     // fallback
   }
