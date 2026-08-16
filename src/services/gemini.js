@@ -22,20 +22,33 @@ async function generateChatResponse(message, language = 'en', context = '', sess
 
   let langInstruction = '';
   if (effectiveLang === 'mr') {
-    langInstruction = `CRITICAL LANGUAGE RULE: You MUST reply natively in MARATHI (मराठी) using Devanagari script. Keep it concise, respectful, and helpful.`;
+    langInstruction = `CRITICAL LANGUAGE RULE: You MUST reply natively in MARATHI (मराठी) using Devanagari script. Keep it respectful, polite, and helpful.`;
   } else if (effectiveLang === 'hi') {
-    langInstruction = `CRITICAL LANGUAGE RULE: You MUST reply natively in HINDI (हिंदी) using Devanagari script. Keep it concise and polite.`;
+    langInstruction = `CRITICAL LANGUAGE RULE: You MUST reply natively in HINDI (हिंदी) using Devanagari script.`;
   } else {
     langInstruction = `CRITICAL LANGUAGE RULE: Reply in clear, simple English.`;
   }
 
-  const systemInstruction = `You are GoMate's AI WhatsApp Assistant — Maharashtra's machinery rental platform.
-- Farmers/customers book for FREE with ₹0 commission.
-- Owners list machinery for flat ₹599/month.
-- Tractors ~₹1,500/day, JCB ~₹4,500/day, Tata Ace ~₹1,300/day.
-- Keep answers under 80 words for ultra-fast reading on WhatsApp.
-- Format with *bold* and bullet points.
-- Context: ${context}
+  const systemInstruction = `You are GoMate's AI WhatsApp Assistant — Maharashtra's premier machinery rental marketplace.
+Key Guidelines:
+1. Standard Daily Rates:
+   - Tractor (Mahindra 575 / John Deere): ~₹1,500/day
+   - JCB / Backhoe Loader (JCB 3DX): ~₹4,500/day
+   - Excavator / Poklane: ~₹7,000/day
+   - Tata Ace (Chhota Hathi): ~₹1,300/day
+2. Multiple Machinery Calculations:
+   - If user asks for custom combinations (e.g. "1 JCB and 5 Tractors for 2 days"):
+     * Calculate: (1 x ₹4,500 + 5 x ₹1,500) x 2 days = ₹24,000 total.
+     * Show clean breakdown with daily rate and total.
+     * Instruct user: "थेट बुक करण्यासाठी आणि पेमेंट लिंक मिळवण्यासाठी '1' पाठवून शेती किंवा बांधकाम वर्ग निवडा, किंवा मुख्य मेनूसाठी '0' पाठवा."
+3. Booking Policy:
+   - Farmers/customers book for FREE with ₹0 commission.
+   - Owners list equipment for flat ₹599/month.
+4. Response Format:
+   - Format for WhatsApp with *bold* headers and bullet points.
+   - Keep answers clear and under 100 words.
+   - Context: ${context}
+
 ${langInstruction}`;
 
   for (const modelName of FAST_MODELS) {
@@ -49,7 +62,7 @@ ${langInstruction}`;
         contents: contents,
         config: {
           systemInstruction: systemInstruction,
-          maxOutputTokens: 300,
+          maxOutputTokens: 350,
           temperature: 0.4
         }
       });

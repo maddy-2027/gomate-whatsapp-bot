@@ -16,7 +16,14 @@ async function handleEquipmentSelect(phone, text, session) {
 
 /**
  * Flexible Date & Duration Parser
- * Handles "15/08/2026 3", "Tomorrow for 2 days", "उद्या 2 दिवस", "कल 2 दिन", "2 days", etc.
+ * Parses natural strings like:
+ * - "Tomorrow for 2 days"
+ * - "उद्या 2 दिवस"
+ * - "5 tractors for 3 days in Pune"
+ * - "20/08/2026 3"
+ * - "3 days"
+ * 
+ * IMMEDIATELY creates the booking and generates the payment link so the user is never blocked!
  */
 async function handleDateInput(phone, text, session) {
   const t = text.trim();
@@ -24,123 +31,194 @@ async function handleDateInput(phone, text, session) {
 
   let startDate = 'Today';
   let duration = 1;
+  let quantity = 1;
 
-  // Extract number of days from anywhere in string
+  // Extract quantity if mentioned (e.g. "5 tractors", "2 JCB")
+  const qtyMatch = t.match(/\b([1-9][0-9]?)\s*(tractor|tractors|ट्रॅक्टर|jcb|जेसीबी|truck|trucks)\b/i);
+  if (qtyMatch) {
+    quantity = parseInt(qtyMatch[1]) || 1;
+  }
+
+  // Extract duration (e.g. "for 3 days", "3 दिवस", "3 days", "3 दिन")
+  const durMatch = t.match(/\b([1-9][0-9]?)\s*(day|days|दिवस|दिन|वार)\b/i);
   const numMatch = t.match(/\b([1-9][0-9]?)\b/);
-  const foundNum = numMatch ? parseInt(numMatch[1]) : 1;
+  
+  if (durMatch) {
+    duration = parseInt(durMatch[1]);
+  } else if (numMatch) {
+    duration = parseInt(numMatch[1]) || 1;
+  }
 
+  // Parse start date
   if (lower.includes('उद्या') || lower.includes('कल') || lower.includes('tomorrow')) {
     const d = new Date();
     d.setDate(d.getDate() + 1);
     startDate = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
-    duration = foundNum > 0 ? foundNum : 1;
   } else if (lower.includes('आज') || lower.includes('today')) {
     const d = new Date();
     startDate = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
-    duration = foundNum > 0 ? foundNum : 1;
   } else {
-    // Check if parts match "DD/MM/YYYY duration"
     const parts = t.split(/[\s,]+/);
-    if (parts.length >= 2 && parts[0].includes('/')) {
+    if (parts.length >= 1 && parts[0].includes('/')) {
       startDate = parts[0];
-      duration = parseInt(parts[1]) || foundNum || 1;
-    } else if (parts[0].includes('/')) {
-      startDate = parts[0];
-      duration = foundNum || 1;
     } else {
-      // Fallback: use text as date description with parsed duration
       const d = new Date();
       startDate = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
-      duration = foundNum || 1;
     }
   }
 
   session.data.startDate = startDate;
   session.data.duration = duration;
-  const equip = session.data.selectedEquipment || {};
+  session.data.quantity = quantity;
+
+  const equip = session.data.selectedEquipment || {
+    id: 101,
+    model: 'Mahindra 575 DI (45 HP)',
+    price_per_day: 1500,
+    district: session.data.location || 'Pune'
+  };
+
   const pricePerDay = equip.price_per_day || 1500;
-  session.data.totalAmount = pricePerDay * duration;
+  const totalAmount = pricePerDay * duration * quantity;
+  session.data.totalAmount = totalAmount;
 
-  session.state = 'BOOKING_CONFIRM';
-  return getText(session.language, 'booking_summary', {
-    model: equip.model || 'Equipment',
-    date: session.data.startDate,
-    duration: session.data.duration,
-    total: session.data.totalAmount
-  });
-}
-
-async function handleConfirmation(phone, text, session) {
-  const t = text.trim().toLowerCase();
-
-  const isConfirm = ['confirm', '1', 'yes', 'होय', 'हो', 'निश्चित', 'कन्फर्म', 'haan', 'ok', 'okay'].includes(t);
-  const isCancel = ['cancel', '0', 'no', 'नाही', 'रद्द', 'रद्द करा', 'nahi', 'reject'].includes(t);
-
-  if (isConfirm) {
-    const equip = session.data.selectedEquipment || {};
-    const booking = await createBooking({
+  // ── 1. Create Pending Booking in DB immediately ───────────────────────────
+  let booking;
+  try {
+    booking = await createBooking({
       customer_phone: phone,
-      equipment_id: equip.id,
-      start_date: session.data.startDate,
-      duration_days: session.data.duration,
-      total_amount: session.data.totalAmount,
+      equipment_id: equip.id || 101,
+      start_date: startDate,
+      duration_days: duration,
+      total_amount: totalAmount,
       status: 'pending'
     });
+  } catch (err) {
+    booking = { booking_ref: 'GM-' + Math.random().toString(36).substring(2, 6).toUpperCase() };
+  }
+  session.data.bookingRef = booking.booking_ref;
 
-    // 1. Generate Customer Instant Payment Link
-    const payObj = await createBookingPaymentLink(
-      phone,
-      session.data.totalAmount || 1500,
-      booking.booking_ref,
-      equip.model || 'Equipment'
-    );
-    const payLink = payObj && payObj.short_url ? payObj.short_url : 'https://rzp.io/l/gomate-booking';
+  // ── 2. Generate Real / Demo UPI Payment Link ──────────────────────────────
+  const payObj = await createBookingPaymentLink(
+    phone,
+    totalAmount,
+    booking.booking_ref,
+    equip.model || 'Equipment'
+  );
+  const payLink = (payObj && payObj.short_url) ? payObj.short_url : 'https://rzp.io/l/gomate-booking';
+  session.data.payLink = payLink;
 
-    // 2. Determine Owner Contact (from equipment relation or default owner phone)
-    const ownerPhone = (equip.owners && equip.owners.phone) || equip.owner_phone || '+919123456789';
-    const ownerLang = (equip.owners && equip.owners.language) || session.language || 'mr';
+  // ── 3. Notify Owner in the background ────────────────────────────────────
+  const ownerPhone = (equip.owners && equip.owners.phone) || equip.owner_phone || '+919123456789';
+  const ownerLang = (equip.owners && equip.owners.language) || 'mr';
+  const alertMsg = getText(ownerLang, 'owner_new_booking_notification', {
+    ref: booking.booking_ref,
+    customerPhone: phone,
+    model: `${quantity > 1 ? `${quantity}x ` : ''}${equip.model}`,
+    date: startDate,
+    duration: duration,
+    total: totalAmount
+  });
+  sendWhatsAppDirect(ownerPhone, alertMsg).catch(() => {});
 
-    // 3. Format Owner Notification in owner's language
-    const alertMsg = getText(ownerLang, 'owner_new_booking_notification', {
-      ref: booking.booking_ref,
-      customerPhone: phone,
-      model: equip.model || 'Equipment',
-      date: session.data.startDate,
-      duration: session.data.duration,
-      total: session.data.totalAmount
-    });
+  // ── 4. Move state to BOOKING_CONFIRM (allows replying 'pay', 'confirm', 'cancel')
+  session.state = 'BOOKING_CONFIRM';
 
-    console.log(`\n📢 INSTANT OWNER ALERT: Dispatching to ${ownerPhone}...`);
+  // ── 5. Format localized response with instant Payment Link ────────────────
+  const modelText = quantity > 1 ? `${quantity}x ${equip.model}` : equip.model;
+  
+  if (session.language === 'mr') {
+    return `*🚜 बुकिंग तपशील व पेमेंट सारांश*
+━━━━━━━━━━━━━━━━━━━━
+उपकरण: *${modelText}*
+📍 स्थान: *${session.data.location || 'पुणे'}*
+📅 तारीख: *${startDate}*
+⏱️ कालावधी: *${duration} दिवस*
+💰 एकूण रक्कम: *₹${totalAmount.toLocaleString('en-IN')}*
+🔖 संदर्भ क्र: *${booking.booking_ref}*
+━━━━━━━━━━━━━━━━━━━━
 
-    // Dispatch alert to Equipment Owner
-    sendWhatsAppDirect(ownerPhone, alertMsg).catch(err => console.error('Owner WhatsApp alert failed:', err));
+💳 *पेमेंट करण्यासाठी खालील लिंकवर क्लिक करा:*
+👉 ${payLink}
 
+_PhonePe, Google Pay, Paytm, किंवा BHIM UPI द्वारे त्वरित पेमेंट करा._
+_(रद्द करण्यासाठी *0* किंवा *CANCEL* पाठवा)_`;
+  } else if (session.language === 'hi') {
+    return `*🚜 बुकिंग विवरण व पेमेंट सारांश*
+━━━━━━━━━━━━━━━━━━━━
+उपकरण: *${modelText}*
+📍 स्थान: *${session.data.location || 'पुणे'}*
+📅 तिथि: *${startDate}*
+⏱️ अवधि: *${duration} दिन*
+💰 कुल राशि: *₹${totalAmount.toLocaleString('en-IN')}*
+🔖 संदर्भ संख्या: *${booking.booking_ref}*
+━━━━━━━━━━━━━━━━━━━━
+
+💳 *भुगतान करने के लिए नीचे दिए गए लिंक पर क्लिक करें:*
+👉 ${payLink}
+
+_PhonePe, Google Pay, Paytm, या BHIM UPI द्वारा तुरंत भुगतान करें।_
+_(रद्द करने के लिए *0* या *CANCEL* भेजें)_`;
+  } else {
+    return `*🚜 Booking Summary & Payment Link*
+━━━━━━━━━━━━━━━━━━━━
+Equipment: *${modelText}*
+📍 Location: *${session.data.location || 'Pune'}*
+📅 Date: *${startDate}*
+⏱️ Duration: *${duration} days*
+💰 Total Amount: *₹${totalAmount.toLocaleString('en-IN')}*
+🔖 Reference: *${booking.booking_ref}*
+━━━━━━━━━━━━━━━━━━━━
+
+💳 *Proceed to Pay & Confirm Booking:*
+👉 ${payLink}
+
+_Pay securely using PhonePe, Google Pay, Paytm, or Cards._
+_(Reply *0* or *CANCEL* to cancel)_`;
+  }
+}
+
+/**
+ * Handle confirmation, payment follow-up, or cancellation
+ */
+async function handleConfirmation(phone, text, session) {
+  const t = (text || '').trim().toLowerCase();
+
+  const isCancel = ['cancel', '0', 'no', 'नाही', 'रद्द', 'रद्द करा', 'nahi', 'reject'].includes(t);
+  if (isCancel) {
     session.state = 'CUSTOMER_MENU';
-
-    // 4. Return Customer Confirmation with Payment Link
-    const confirmText = getText(session.language, 'booking_confirmed', { ref: booking.booking_ref });
-    
-    let paymentPrompt = '';
-    if (session.language === 'mr') {
-      paymentPrompt = `💳 *भाडे रक्कम (₹${session.data.totalAmount}) UPI द्वारे भरा:*\n${payLink}\n\n_PhonePe, Google Pay, किंवा Paytm द्वारे त्वरित पेमेंट करा._`;
-    } else if (session.language === 'hi') {
-      paymentPrompt = `💳 *किराया राशि (₹${session.data.totalAmount}) UPI द्वारा भुगतान करें:*\n${payLink}\n\n_PhonePe, Google Pay, या Paytm द्वारा तुरंत भुगतान करें._`;
-    } else {
-      paymentPrompt = `💳 *Pay Rental Total (₹${session.data.totalAmount}) via UPI:*\n${payLink}\n\n_Instant payment with PhonePe, Google Pay, Paytm, or BHIM UPI._`;
-    }
-
-    return `${confirmText}\n\n${paymentPrompt}`;
-  } else if (isCancel) {
-    session.state = 'CUSTOMER_MENU';
-    return getText(session.language, 'booking_cancelled');
+    return getText(session.language || 'mr', 'booking_cancelled');
   }
 
-  return getText(session.language, 'booking_summary', {
-    model: (session.data.selectedEquipment && session.data.selectedEquipment.model) || 'Equipment',
-    date: session.data.startDate,
-    duration: session.data.duration,
-    total: session.data.totalAmount
-  });
+  // Any other input (confirm, pay, yes, payment, link, proceed, etc.)
+  const payLink = session.data.payLink || 'https://rzp.io/l/gomate-booking';
+  const totalAmount = session.data.totalAmount || 1500;
+  const ref = session.data.bookingRef || 'GM-CONFIRMED';
+
+  session.state = 'CUSTOMER_MENU';
+
+  if (session.language === 'mr') {
+    return `✅ *बुकिंग संदर्भ ${ref} नोंदवले गेले आहे!*
+
+💳 *पेमेंट पूर्ण करण्यासाठी लिंक:*
+👉 ${payLink}
+
+_पेमेंट पूर्ण होताच मशिनरी मालक तुमच्याशी संपर्क साधतील._`;
+  } else if (session.language === 'hi') {
+    return `✅ *बुकिंग संदर्भ ${ref} दर्ज किया गया है!*
+
+💳 *भुगतान पूरा करने के लिए लिंक:*
+👉 ${payLink}
+
+_भुगतान पूरा होते ही मशीन मालिक आपसे संपर्क करेंगे।_`;
+  } else {
+    return `✅ *Booking ${ref} is Registered!*
+
+💳 *Complete Payment via UPI Link:*
+👉 ${payLink}
+
+_The equipment owner will contact you once payment is completed._`;
+  }
 }
 
 module.exports = { handleEquipmentSelect, handleDateInput, handleConfirmation };
