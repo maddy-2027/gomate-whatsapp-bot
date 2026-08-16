@@ -20,16 +20,20 @@ function getText(lang = 'en', key, vars = {}) {
 /**
  * Intelligent Language Detector
  * Detects Marathi, Hindi, or English from Devanagari script, Marathi specific particles, or Romanized words.
+ * NOTE: Single digits (1, 2, 3) must NEVER be treated as language markers!
  */
 function detectLanguage(text) {
   if (!text || typeof text !== 'string') return null;
   const t = text.trim();
   const lower = t.toLowerCase();
 
-  // 1. Check for explicit language requests
-  if (lower === '1' || lower.includes('मराठी') || lower.includes('marathi')) return 'mr';
-  if (lower === '3' || lower.includes('हिंदी') || lower.includes('hindi')) return 'hi';
-  if (lower === '2' || lower.includes('english')) return 'en';
+  // 1. Explicit full language name requests only (NEVER single digits)
+  if (lower.includes('मराठी') || lower.includes('marathi')) return 'mr';
+  if (lower.includes('हिंदी') || lower.includes('hindi')) return 'hi';
+  if (lower.includes('english')) return 'en';
+
+  // If text is a single digit or menu command, do not infer language from it
+  if (/^[0-9]+$/.test(lower)) return null;
 
   // 2. Devanagari Script Analysis
   const devanagariRegex = /[\u0900-\u097F]/;
@@ -52,9 +56,8 @@ function detectLanguage(text) {
 
   // 3. Romanized Marathi / Marathish keywords
   const marathiRoman = [
-    'pahije', 'paahije', 'ahe', 'aahe', 'nahit', 'nahi', 'kiti', 'sheti', 'bhav', 'bhada', 
-    'bhadyane', 'us', 'toadni', 'kasa', 'kas', 'sangli', 'kolhapur', 'satara', 'pune', 
-    'nashik', 'aurangabad', 'solapur', 'nagpur', 'rotavator', 'kay', 'kadhi', 'kuthe', 'namaskar'
+    'pahije', 'paahije', 'ahe', 'aahe', 'nahit', 'kiti', 'sheti', 'bhav', 'bhada', 
+    'bhadyane', 'toadni', 'kasa', 'rotavator', 'namaskar'
   ];
   for (const w of marathiRoman) {
     if (new RegExp(`\\b${w}\\b`, 'i').test(lower)) return 'mr';
@@ -62,8 +65,8 @@ function detectLanguage(text) {
 
   // 4. Romanized Hindi / Hinglish keywords
   const hindiRoman = [
-    'chahiye', 'chaahiye', 'hai', 'hain', 'kitna', 'kya', 'kaise', 'kab', 'kahan', 'batao', 
-    'chahiye tha', 'rent pe', 'kiraya', 'kisaan', 'kheti', 'namaste', 'bhai'
+    'chahiye', 'chaahiye', 'hain', 'kitna', 'kaise', 'batao', 
+    'chahiye tha', 'rent pe', 'kiraya', 'kisaan', 'kheti'
   ];
   for (const w of hindiRoman) {
     if (new RegExp(`\\b${w}\\b`, 'i').test(lower)) return 'hi';
