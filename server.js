@@ -261,6 +261,11 @@ app.get('/api/simulator/session', (req, res) => {
   res.json({ session });
 });
 
+// WhatsApp Web status & live QR code endpoint
+app.get('/api/whatsapp/status', (req, res) => {
+  res.json(getWhatsAppStatus());
+});
+
 // WhatsApp Web webhook (whatsapp-web.js handles messaging — no Twilio)
 app.post('/webhook/whatsapp', webhookHandler);
 
