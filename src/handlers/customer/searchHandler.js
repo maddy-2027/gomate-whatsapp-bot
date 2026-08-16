@@ -143,7 +143,8 @@ async function handleLocationInput(phone, text, session) {
     rating: r.rating || 4.8 
   })).join('\n\n');
   
-  return `${header}\n\n${cards}\n\n_Reply with 1, 2, 3... to book | 0 for Menu_`;
+  const footer = getText(session.language, 'results_footer');
+  return `${header}\n\n${cards}\n\n${footer}`;
 }
 
 module.exports = { handleCategorySelect, handleLocationInput, CATALOG };
