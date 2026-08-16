@@ -1,7 +1,7 @@
 require('dotenv').config();
 const path = require('path');
 const express = require('express');
-const twilio = require('twilio');
+
 const webhookHandler = require('./src/handlers/webhook');
 const razorpayService = require('./src/services/razorpay');
 const { getSession, resetSession } = require('./src/services/session');
@@ -254,12 +254,8 @@ app.get('/api/simulator/session', (req, res) => {
   res.json({ session });
 });
 
-// Real Twilio Webhook (for production / Twilio connection)
-const twilioMiddleware = process.env.NODE_ENV === 'production' 
-  ? twilio.webhook({ validate: true }) 
-  : (req, res, next) => next();
-
-app.post('/webhook/whatsapp', twilioMiddleware, webhookHandler);
+// WhatsApp Web webhook (whatsapp-web.js handles messaging — no Twilio)
+app.post('/webhook/whatsapp', webhookHandler);
 
 // Razorpay Webhook
 app.post('/webhook/razorpay', async (req, res) => {

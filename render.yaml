@@ -17,12 +17,6 @@ services:
         value: /usr/bin/chromium
       - key: NODE_TLS_REJECT_UNAUTHORIZED
         value: "0"
-      - key: TWILIO_ACCOUNT_SID
-        sync: false
-      - key: TWILIO_AUTH_TOKEN
-        sync: false
-      - key: TWILIO_WHATSAPP_NUMBER
-        sync: false
       - key: GEMINI_API_KEY
         sync: false
       - key: SUPABASE_URL
