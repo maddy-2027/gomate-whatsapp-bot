@@ -8,7 +8,9 @@ let currentQrDataUrl = null;
 let isReady = false;
 
 function initWhatsAppWeb(onQrCallback, onReadyCallback) {
-  const chromePath = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
+  const isWindows = process.platform === 'win32';
+  const chromePath = process.env.PUPPETEER_EXECUTABLE_PATH || 
+    (isWindows ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' : '/usr/bin/chromium');
 
   waClient = new Client({
     authStrategy: new LocalAuth({ dataPath: './.wwebjs_auth' }),
