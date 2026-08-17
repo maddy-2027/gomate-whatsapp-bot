@@ -1,4 +1,5 @@
 const { getText, detectLanguage } = require('../services/language');
+const { getUser, upsertUser } = require('../db/users.repo');
 const searchHandler = require('./customer/searchHandler');
 const bookingFlow = require('./customer/bookingFlow');
 const statusHandler = require('./customer/statusHandler');
@@ -11,7 +12,7 @@ const { generateChatResponse } = require('../services/gemini');
 /**
  * Intelligent Multilingual Conversation Router
  * Seamlessly handles structured number-based menus, WhatsApp GPS pins, 
- * and conversational natural language questions in Marathi, Hindi, and English.
+ * permanent customer profile onboarding, and conversational AI in Marathi, Hindi, and English.
  */
 async function routeMessage(phone, text, session) {
   const rawText = (text || '').trim();
@@ -20,6 +21,18 @@ async function routeMessage(phone, text, session) {
   const isSingleDigit = /^[0-9]+$/.test(t);
   const isShortGreeting = ['hi', 'hello', 'hey', 'start', 'namaste', 'namaskar', 'नमस्कार', 'नमस्ते'].includes(t);
   const isLocationPin = rawText.startsWith('GPS_LOCATION:');
+
+  // Load existing user profile from Supabase if not yet cached in session
+  if (!session.customerName) {
+    try {
+      const user = await getUser(phone);
+      if (user && user.name) {
+        session.customerName = user.name;
+        if (!session.language && user.language) session.language = user.language;
+        if (!session.role && user.role) session.role = user.role;
+      }
+    } catch (e) {}
+  }
 
   // Auto-detect language ONLY on non-digit phrases (words/sentences)
   if (!isSingleDigit) {
@@ -89,31 +102,58 @@ async function routeMessage(phone, text, session) {
   if (session.state === 'ROLE_SELECT') {
     if (t === '1' || t.includes('customer') || t.includes('find') || t.includes('ग्राहक') || t.includes('उपकरणे') || t.includes('उपकरण')) {
       session.role = 'customer';
-      session.state = 'CUSTOMER_MENU';
-      return getText(session.language, 'customer_menu');
+      if (session.customerName) {
+        session.state = 'CUSTOMER_MENU';
+        return getText(session.language, 'welcome_back_customer', { name: session.customerName });
+      }
+      session.state = 'CUSTOMER_NAME';
+      return getText(session.language, 'customer_onboard_name');
     }
     if (t === '2' || t.includes('owner') || t.includes('rent') || t.includes('मालक') || t.includes('मालिक')) {
       session.role = 'owner';
+      if (session.customerName) {
+        session.state = 'OWNER_MENU';
+        return getText(session.language, 'owner_menu');
+      }
       session.state = 'ONBOARD_NAME';
       return getText(session.language, 'owner_onboard_name');
     }
     return getText(session.language, 'role_select');
   }
 
-  // ── Greeting Shortcut (after language is set) ──────────────────────────────
+  // ── Greeting Shortcut (after language & name are set) ──────────────────────
   if (isShortGreeting) {
     if (session.role === 'owner') {
       session.state = 'OWNER_MENU';
       return getText(session.language, 'owner_menu');
     }
     session.state = 'CUSTOMER_MENU';
+    if (session.customerName) {
+      return getText(session.language, 'welcome_back_customer', { name: session.customerName });
+    }
     return getText(session.language, 'customer_menu');
   }
 
   // ── State Machine ──────────────────────────────────────────────────────────
   switch (session.state) {
 
-    // CUSTOMER FLOWS
+    // CUSTOMER ONBOARDING & FLOWS
+    case 'CUSTOMER_NAME': {
+      const name = rawText.trim();
+      session.customerName = name;
+      session.role = 'customer';
+      try {
+        await upsertUser({
+          phone,
+          name,
+          role: 'customer',
+          language: session.language
+        });
+      } catch (e) {}
+      session.state = 'CUSTOMER_MENU';
+      return getText(session.language, 'customer_onboard_welcome', { name });
+    }
+
     case 'CUSTOMER_MENU':
       if (t === '1') { session.state = 'SEARCH_CATEGORY'; return getText(session.language, 'category_select'); }
       if (t === '2') { session.state = 'CHECK_STATUS';    return getText(session.language, 'booking_status_prompt'); }

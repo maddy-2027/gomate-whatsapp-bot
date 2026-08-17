@@ -84,9 +84,11 @@ async function handleDateInput(phone, text, session) {
 
   // ── 1. Create Pending Booking in DB immediately ───────────────────────────
   let booking;
+  const customerName = session.customerName || session.data.customerName || 'Customer';
   try {
     booking = await createBooking({
       customer_phone: phone,
+      customer_name: customerName,
       equipment_id: equip.id || 101,
       start_date: startDate,
       duration_days: duration,
@@ -113,7 +115,7 @@ async function handleDateInput(phone, text, session) {
   const ownerLang = (equip.owners && equip.owners.language) || 'mr';
   const alertMsg = getText(ownerLang, 'owner_new_booking_notification', {
     ref: booking.booking_ref,
-    customerPhone: phone,
+    customerPhone: customerName !== 'Customer' ? `${customerName} (${phone})` : phone,
     model: `${quantity > 1 ? `${quantity}x ` : ''}${equip.model}`,
     date: startDate,
     duration: duration,

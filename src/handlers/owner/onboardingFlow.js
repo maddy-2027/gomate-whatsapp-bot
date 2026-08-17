@@ -1,21 +1,32 @@
 const { getText } = require('../../services/language');
 const { registerOwner } = require('../../db/owners.repo');
+const { upsertUser } = require('../../db/users.repo');
 
 async function handleNameInput(phone, text, session) {
-  session.data.ownerName = text.trim();
+  const name = text.trim();
+  session.data.ownerName = name;
+  session.customerName = name;
   session.state = 'ONBOARD_DISTRICT';
-  return getText(session.language, 'owner_onboard_district', { name: session.data.ownerName });
+  return getText(session.language, 'owner_onboard_district', { name });
 }
 
 async function handleDistrictInput(phone, text, session) {
-  session.data.ownerDistrict = text.trim();
+  const district = text.trim();
+  session.data.ownerDistrict = district;
   
   await registerOwner({
     phone,
     name: session.data.ownerName,
-    district: session.data.ownerDistrict,
+    district: district,
     language: session.language,
     subscription_status: 'trial'
+  });
+
+  await upsertUser({
+    phone,
+    name: session.data.ownerName,
+    role: 'owner',
+    language: session.language
   });
   
   session.state = 'OWNER_MENU';

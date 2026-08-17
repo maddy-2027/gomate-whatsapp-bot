@@ -1,7 +1,10 @@
 module.exports = {
   welcome: "Welcome to GoMate!\nPlease select your language:\n1. *मराठी (Marathi)*\n2. *English*\n3. *हिंदी (Hindi)*",
-  role_select: "Please select your role:\n1. *Find Equipment (Customer)*\n2. *Rent Out Equipment (Owner)*\n\n_Reply *00* to change language_",
-  customer_menu: "*Customer Menu*\n1. Search Equipment\n2. My Bookings\n3. Help & AI Assistant\n\n_Reply *0* for Main Menu | *00* to Change Language_",
+  role_select: "Please select your role:\n1. *Find Equipment (Customer)*\n2. *Rent Out Equipment (Owner)*\n\n_Send *00* to change language_",
+  customer_onboard_name: "Welcome to GoMate!\nPlease enter your *full name* (e.g., Sachin Patil):",
+  customer_onboard_welcome: "Welcome, *{name}*! Great to have you on GoMate.\n\n*Customer Menu*\n1. Search Equipment\n2. My Bookings\n3. Help & Support\n\n_Send *0* for Menu | Send *00* for Language_",
+  welcome_back_customer: "Welcome back, *{name}*!\n\n*Customer Menu*\n1. Search Equipment\n2. My Bookings\n3. Help & Support\n\n_Send *0* for Menu | Send *00* for Language_",
+  customer_menu: "*Customer Menu*\n1. Search Equipment\n2. My Bookings\n3. Help & Support\n\n_Send *0* for Menu | Send *00* for Language_",
   owner_menu: "*Owner Menu*\n1. List Equipment\n2. Dashboard\n3. Subscription (₹599/mo)\n4. Help & AI Assistant\n\n_Reply *0* for Main Menu | *00* to Change Language_",
   category_select: "Select Equipment Category:\n1. *Agriculture* (Tractors, Harvesters, Rotavators)\n2. *Transport* (Pickups, Mini Trucks, Tippers)\n3. *Infrastructure* (JCB, Excavators, Cranes)\n\n_Reply *0* to return to Main Menu_",
 
