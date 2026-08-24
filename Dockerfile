@@ -1,9 +1,9 @@
 # =================================================================
 # GoMate Production Dockerfile
-# Optimized for Node.js 20 LTS + Chromium / WhatsApp-Web.js support
+# Optimized for Node.js 22 LTS + Chromium / WhatsApp-Web.js support
 # =================================================================
 
-FROM node:20-bullseye-slim
+FROM node:22-bullseye-slim
 
 # Install Chromium and required OS dependencies for headless browser support
 RUN apt-get update && apt-get install -y --no-install-recommends \

@@ -13,9 +13,20 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABAS
 let supabase = null;
 
 if (supabaseUrl && supabaseKey) {
-  supabase = createClient(supabaseUrl, supabaseKey);
-} else {
-  console.warn('⚠️ Supabase credentials not found. Using mock database.');
+  try {
+    supabase = createClient(supabaseUrl, supabaseKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false
+      }
+    });
+  } catch (err) {
+    console.warn('⚠️ Supabase init error, falling back to mock:', err.message);
+  }
+}
+
+if (!supabase) {
+  console.warn('⚠️ Supabase credentials not found or failed to initialize. Using mock database.');
   supabase = {
     from: (table) => ({
       select: () => ({ eq: () => ({ single: async () => ({ data: null, error: null }), order: async () => ({ data: [], error: null }) }) }),
