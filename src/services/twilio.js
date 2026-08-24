@@ -2,7 +2,7 @@ const twilio = require('twilio');
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
-const twilioNumber = process.env.TWILIO_WHATSAPP_NUMBER || 'whatsapp:+17372508034';
+const twilioNumber = process.env.TWILIO_WHATSAPP_NUMBER || 'whatsapp:+14155238886';
 
 let client = null;
 if (accountSid && authToken && !accountSid.includes('dummy')) {
