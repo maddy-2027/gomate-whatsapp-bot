@@ -13,6 +13,10 @@ function initWhatsAppWeb(onQrCallback, onReadyCallback) {
 
   waClient = new Client({
     authStrategy: new LocalAuth({ dataPath: './.wwebjs_auth' }),
+    webVersionCache: {
+      type: 'remote',
+      remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.3000.1014587000-alpha.html',
+    },
     puppeteer: {
       executablePath: chromePath,
       headless: true,
@@ -23,7 +27,17 @@ function initWhatsAppWeb(onQrCallback, onReadyCallback) {
         '--disable-accelerated-2d-canvas',
         '--no-first-run',
         '--no-zygote',
-        '--disable-gpu'
+        '--disable-gpu',
+        '--disable-extensions',
+        '--disable-component-extensions-with-background-pages',
+        '--disable-default-apps',
+        '--mute-audio',
+        '--no-default-browser-check',
+        '--disable-background-timer-throttling',
+        '--disable-backgrounding-occluded-windows',
+        '--disable-renderer-backgrounding',
+        '--disable-features=Translate,BackForwardCache,AcceptCHFrame,MediaRouter,OptimizationHints',
+        '--js-flags=--max-old-space-size=256'
       ]
     }
   });
