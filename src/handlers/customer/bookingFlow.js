@@ -207,21 +207,20 @@ async function createInstantBookingWithProcess(phone, session) {
   const location = (session.data && session.data.location) || 'Pune';
   const customerName = session.customerName || (session.data && session.data.customerName) || 'Customer';
 
-  // 1. Create booking in repository
-  let booking;
-  try {
-    booking = await createBooking({
-      customer_phone: phone,
-      customer_name: customerName,
-      equipment_id: 101,
-      start_date: 'Tomorrow',
-      duration_days: duration,
-      total_amount: totalAmount,
-      status: 'pending'
-    });
-  } catch (err) {
-    booking = { booking_ref: 'GM-' + Math.random().toString(36).substring(2, 6).toUpperCase() };
-  }
+  // 1. Generate instant booking reference (0ms latency)
+  const bookingRef = 'GM-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+  const booking = { booking_ref: bookingRef };
+
+  // Save to database asynchronously in background without delaying WhatsApp reply
+  createBooking({
+    customer_phone: phone,
+    customer_name: customerName,
+    equipment_id: 101,
+    start_date: 'Tomorrow',
+    duration_days: duration,
+    total_amount: totalAmount,
+    status: 'pending'
+  }).catch(() => {});
 
   if (!session.data) session.data = {};
   session.data.bookingRef = booking.booking_ref;
