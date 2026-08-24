@@ -67,34 +67,55 @@ function initWhatsAppWeb(onQrCallback, onReadyCallback) {
     }, 3000);
   });
 
+  const recentReplies = new Set();
+
   async function handleIncomingMessage(msg) {
-    // 1. Strict self-loop protection: Ignore any outgoing message sent by the bot itself
-    if (!msg || msg.fromMe || msg.isStatus || msg.broadcast) return;
+    if (!msg || msg.isStatus || msg.broadcast) return;
     if (msg.from && msg.from.includes('@g.us')) return; // ignore group chats
 
-    // 2. Clean sender phone number
-    const from = msg.from;
-    const phone = '+' + from.replace('@c.us', '').replace(/@lid$/, '');
-    let body = (msg.body || '').trim();
+    // Anti-loop protection: ignore if body was sent by bot itself
+    const body = (msg.body || '').trim();
+    if (!body) return;
 
-    // 3. Check if this is a WhatsApp Location Pin
+    if (recentReplies.has(body)) {
+      recentReplies.delete(body);
+      return;
+    }
+
+    // If message is fromMe, only process if user is chatting in self-chat (to itself)
+    if (msg.fromMe) {
+      if (msg.to && msg.from && msg.to !== msg.from) {
+        // Message sent from bot to someone else - ignore
+        return;
+      }
+    }
+
+    // Clean sender phone number
+    const from = msg.fromMe ? (msg.to || msg.from) : msg.from;
+    const phone = '+' + from.replace('@c.us', '').replace(/@lid$/, '');
+
+    let textPayload = body;
+
+    // Check if this is a WhatsApp Location Pin
     if (msg.type === 'location' || (msg.location && msg.location.latitude)) {
       const lat = msg.location.latitude;
       const lng = msg.location.longitude;
-      body = `GPS_LOCATION:${lat},${lng}`;
+      textPayload = `GPS_LOCATION:${lat},${lng}`;
       console.log(`📍 Real WhatsApp GPS Location received from ${phone}: Lat ${lat}, Lng ${lng}`);
     }
 
-    if (!body) return;
-
-    console.log(`📱 Real WhatsApp message received from ${phone}: "${body}"`);
+    console.log(`📱 Real WhatsApp message received from ${phone} (fromMe: ${msg.fromMe}): "${textPayload}"`);
 
     try {
       const { routeMessage } = require('../handlers/router');
       const session = getSession(phone);
-      const replyText = await routeMessage(phone, body, session);
+      const replyText = await routeMessage(phone, textPayload, session);
       if (replyText) {
         console.log(`💬 Sending WhatsApp reply to ${phone}: "${replyText.substring(0, 50)}..."`);
+        recentReplies.add(replyText.trim());
+        // Auto-cleanup reply set after 30s
+        setTimeout(() => recentReplies.delete(replyText.trim()), 30000);
+        
         await msg.reply(replyText);
       }
     } catch (err) {
@@ -105,8 +126,14 @@ function initWhatsAppWeb(onQrCallback, onReadyCallback) {
     }
   }
 
-  // Handle ONLY incoming messages from external senders (never message_create)
+  // Listen to both message (from others) and message_create (for self-chat testing)
   waClient.on('message', handleIncomingMessage);
+  waClient.on('message_create', (msg) => {
+    if (msg.fromMe && msg.to === msg.from) {
+      // User is typing to themselves in self-chat!
+      handleIncomingMessage(msg);
+    }
+  });
 
   waClient.initialize().catch((err) => {
     console.error('Failed to initialize WhatsApp Web client:', err);
