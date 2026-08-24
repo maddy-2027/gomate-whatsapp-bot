@@ -198,15 +198,34 @@ _(Reply *0* for Main Menu)_`;
   return null;
 }
 
+const responseCache = new Map();
+
 async function generateChatResponse(message, language = 'en', context = '', session = {}) {
   // Detect language from the current message or fall back to session language
   const detected = detectLanguage(message);
   const effectiveLang = detected || session.language || language || 'en';
+  const cleanMsg = (message || '').trim().toLowerCase();
 
-  // 1. Check instant direct calculation engine first (sub-millisecond & 100% reliable)
+  // 1. Check in-memory instant response cache (sub-millisecond)
+  const cacheKey = `${effectiveLang}:${cleanMsg}`;
+  if (responseCache.has(cacheKey)) {
+    return responseCache.get(cacheKey);
+  }
+
+  // 2. Check instant direct calculation engine (sub-millisecond & 100% reliable)
   const directAnswer = solveDirectQuery(message, effectiveLang, session);
   if (directAnswer) {
+    responseCache.set(cacheKey, directAnswer);
     return directAnswer;
+  }
+
+  // 3. Fast keyword & instant menu shortcuts
+  if (cleanMsg.includes('contact') || cleanMsg.includes('helpline') || cleanMsg.includes('कॉल') || cleanMsg.includes('फोन') || cleanMsg.includes('संपर्क')) {
+    const contactText = effectiveLang === 'mr' 
+      ? `📞 *GoMate शेतकरी व ग्राहक मदत केंद्र*\n\nटोल-फ्री नंबर: *1800-123-4567*\nWhatsApp: *+91 98220 12345*\nवेळ: सकाळी 7:00 ते रात्री 10:00 (सर्व 7 दिवस)\n\n👉 मेनूसाठी *0* पाठवा.`
+      : `📞 *GoMate Farmer & Customer Helpline*\n\nToll-Free Number: *1800-123-4567*\nWhatsApp: *+91 98220 12345*\nHours: 7:00 AM – 10:00 PM (All 7 days)\n\n👉 Reply *0* for Main Menu.`;
+    responseCache.set(cacheKey, contactText);
+    return contactText;
   }
 
   if (!ai) {
@@ -227,76 +246,50 @@ async function generateChatResponse(message, language = 'en', context = '', sess
   const systemInstruction = `You are GoMate's Multilingual WhatsApp AI Assistant.
 GoMate is Maharashtra's #1 verified equipment and machinery rental marketplace connecting farmers, contractors, and transporters directly with equipment owners with ₹0 booking fees.
 
-OUR CATALOG & SERVICES:
-1. 🌾 AGRICULTURE (शेती):
-   - Tractors (Mahindra 575 DI, John Deere 5310, Sonalika, Swaraj): ~₹1,500/day
-   - Rotavators, Cultivators, Seed Drills, Tippers: ~₹600-₹900/day
-   - Harvesters (Combine / Sugarcane Cutters / Claas): ~₹4,200/day
-   - Agricultural Spraying Drones (10L Hexacopter): ~₹2,500/day
-   - Services offered: Ploughing (नांगरणी), Rotavator, Sowing (पेरणी), Harvesting (कापणी), Spraying (फवारणी), Trolley transport.
+CATALOG:
+1. Agriculture: Tractors (~₹1,500/day), Harvesters (~₹4,200/day), Rotavators (~₹850/day), Drones (~₹2,500/day).
+2. Transport: Tata Ace Chhota Hathi (~₹1,300/day), Pickup Dost (~₹1,600/day), Tata 407 (~₹2,600/day), Tankers (~₹4,200/day).
+3. Construction: JCB 3DX (~₹4,500/day), Excavators (~₹7,000/day), Bulldozers (~₹6,500/day).
 
-2. 🚚 TRANSPORT & LOGISTICS (वाहतूक):
-   - Mini Trucks: Tata Ace Gold (Chhota Hathi): ~₹1,300/day
-   - Pickups: Ashok Leyland Dost Plus, Mahindra Bolero Maxi Truck: ~₹1,600/day
-   - Medium & Heavy Trucks: Tata 407 (4T), Mahindra Blazo: ~₹2,600 - ₹3,500/day
-   - Dumpers / Tippers (16 Cu.M): ~₹4,000/day
-   - Water / Liquid Tankers: ~₹4,200/day
-   - Services offered: Mandi & farm produce, house shifting, construction materials (sand/bricks), commercial goods.
-
-3. 🏗️ INFRASTRUCTURE & CONSTRUCTION (बांधकाम):
-   - Backhoe Loaders: JCB 3DX, JCB 4DX: ~₹4,500 - ₹5,200/day
-   - Hydraulic Excavators: Komatsu PC210, Tata Hitachi EX 200: ~₹7,000 - ₹7,500/day
-   - Crawler Bulldozers: CAT D6, BEML: ~₹6,500 - ₹8,500/day
-   - Services offered: Farm ponds (शेततळे), land levelling, wells & foundation digging, rock breaker, trenching & pipeline.
-
-KEY POLICIES:
-- For Customers/Farmers: 100% Free booking, ₹0 commission, direct owner contact and UPI payment.
-- For Equipment Owners: List equipment for flat ₹599/month, unlimited farmer enquiries.
-- Coverage: Active across all districts of Maharashtra (Pune, Nashik, Satara, Sangli, Kolhapur, Solapur, Aurangabad, Nagpur, Mumbai, etc.).
-
-INSTRUCTIONS FOR YOUR RESPONSE:
-1. Even if the user asks something out of context, unrelated, or in casual speech, warmly address their query, connect it to how GoMate can help them, and explain what we offer.
-2. If they ask about custom machinery combinations or multi-day calculations (e.g. "2 JCBs and 3 Tractors for 4 days"), calculate accurately and show total price estimate.
-3. Keep the tone warm, respectful, and formatted cleanly with WhatsApp *bolding* and bullet points.
-4. Keep the response concise (around 60-90 words).
-5. Always conclude with a clear next step:
-   - In Marathi: "\n\n👉 *उपकरणे शोधण्यासाठी '1' पाठवा, किंवा मुख्य मेनूसाठी '0' पाठवा.*"
-   - In Hindi: "\n\n👉 *मशीनरी खोजने के लिए '1' भेजें, या मुख्य मेनू के लिए '0' भेजें।*"
-   - In English: "\n\n👉 *Reply '1' to search equipment, or '0' for Main Menu.*"
+Keep replies concise (35-55 words), structured with WhatsApp bold formatting, and end with:
+- In Marathi: "\n\n👉 *शोधण्यासाठी '1' पाठवा, किंवा मेनूसाठी '0' पाठवा.*"
+- In Hindi: "\n\n👉 *खोजने के लिए '1' भेजें, या मेनू के लिए '0' भेजें।*"
+- In English: "\n\n👉 *Reply '1' to search equipment, or '0' for Main Menu.*"
 
 ${langInstruction}`;
 
-  for (const modelName of FAST_MODELS) {
-    try {
-      const history = (session.conversation_history || []).slice(-4);
+  // Ultra-fast single call with 1.8-second strict timeout
+  const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('AI_TIMEOUT')), 1800));
+
+  try {
+    const aiCall = (async () => {
+      const history = (session.conversation_history || []).slice(-2);
       let contents = history.map(m => ({ role: m.role, parts: [{ text: m.text }] }));
       contents.push({ role: 'user', parts: [{ text: message }] });
 
       const response = await ai.models.generateContent({
-        model: modelName,
+        model: 'gemini-2.0-flash',
         contents: contents,
         config: {
           systemInstruction: systemInstruction,
-          maxOutputTokens: 350,
-          temperature: 0.3
+          maxOutputTokens: 180,
+          temperature: 0.2
         }
       });
+      return response.text;
+    })();
 
-      const reply = response.text;
-      if (reply) {
-        if (!session.conversation_history) session.conversation_history = [];
-        session.conversation_history.push(
-          { role: 'user', text: message },
-          { role: 'model', text: reply }
-        );
-        return reply.trim();
-      }
-    } catch (err) {
-      console.warn(`⚡ Model ${modelName} fallback attempt: ${err.message ? err.message.substring(0, 50) : err}`);
+    const reply = await Promise.race([aiCall, timeoutPromise]);
+    if (reply) {
+      const trimmed = reply.trim();
+      responseCache.set(cacheKey, trimmed);
+      return trimmed;
     }
+  } catch (err) {
+    // Fast graceful fallback if network/AI times out
   }
 
-  // Graceful fallback
+  // Instant graceful fallback
   if (effectiveLang === 'mr') {
     return `🙏 *GoMate कृषी व बांधकाम सहाय्यक*\n\nआम्ही शेती (ट्रॅक्टर, हार्वेस्टर), वाहतूक (छोटा हत्ती, ट्रक) आणि बांधकाम (JCB, क्रेन) उपकरणे वाजवी दरात उपलब्ध करतो.\n\n👉 उपकरणे शोधण्यासाठी *1* पाठवा किंवा मुख्य मेनूसाठी *0* पाठवा.`;
   }
