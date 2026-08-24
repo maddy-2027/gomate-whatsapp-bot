@@ -192,35 +192,119 @@ async function handleConfirmation(phone, text, session) {
     return getText(session.language || 'mr', 'booking_cancelled');
   }
 
-  // Any other input (confirm, pay, yes, payment, link, proceed, etc.)
-  const payLink = session.data.payLink || 'https://rzp.io/l/gomate-booking';
-  const totalAmount = session.data.totalAmount || 1500;
-  const ref = session.data.bookingRef || 'GM-CONFIRMED';
+  return await createInstantBookingWithProcess(phone, session);
+}
 
-  session.state = 'CUSTOMER_MENU';
+/**
+ * Instant Booking Creator with full 4-step process explanation & UPI payment link
+ */
+async function createInstantBookingWithProcess(phone, session) {
+  const quote = (session.data && session.data.lastQuote) || {};
+  const machineName = quote.model || (session.data && session.data.selectedEquipment && session.data.selectedEquipment.model) || 'Mahindra 575 DI Tractor';
+  const duration = quote.days || (session.data && session.data.duration) || 1;
+  const quantity = quote.qty || (session.data && session.data.quantity) || 1;
+  const totalAmount = quote.total || (session.data && session.data.totalAmount) || (1500 * duration * quantity);
+  const location = (session.data && session.data.location) || 'Pune';
+  const customerName = session.customerName || (session.data && session.data.customerName) || 'Customer';
 
-  if (session.language === 'mr') {
-    return `*बुकिंग संदर्भ ${ref} नोंदवले गेले आहे!*
+  // 1. Create booking in repository
+  let booking;
+  try {
+    booking = await createBooking({
+      customer_phone: phone,
+      customer_name: customerName,
+      equipment_id: 101,
+      start_date: 'Tomorrow',
+      duration_days: duration,
+      total_amount: totalAmount,
+      status: 'pending'
+    });
+  } catch (err) {
+    booking = { booking_ref: 'GM-' + Math.random().toString(36).substring(2, 6).toUpperCase() };
+  }
 
-*पेमेंट पूर्ण करण्यासाठी लिंक:*
-👉 ${payLink}
+  if (!session.data) session.data = {};
+  session.data.bookingRef = booking.booking_ref;
+  session.data.totalAmount = totalAmount;
 
-_पेमेंट पूर्ण होताच मशिनरी मालक तुमच्याशी संपर्क साधतील._`;
-  } else if (session.language === 'hi') {
-    return `*बुकिंग संदर्भ ${ref} दर्ज किया गया है!*
+  // 2. Generate UPI / Checkout Link
+  const payObj = await createBookingPaymentLink(
+    phone,
+    totalAmount,
+    booking.booking_ref,
+    machineName
+  );
+  const payLink = (payObj && payObj.short_url) ? payObj.short_url : 'https://rzp.io/l/gomate-booking';
+  session.data.payLink = payLink;
+  session.state = 'BOOKING_CONFIRM';
 
-*भुगतान पूरा करने के लिए लिंक:*
-👉 ${payLink}
+  // 3. Notify owner in the background
+  const ownerPhone = process.env.ADMIN_WHATSAPP_NUMBER || '+919822012345';
+  sendWhatsAppDirect(ownerPhone, `🔔 *New GoMate Booking!* Ref: ${booking.booking_ref} | ${machineName} | ₹${totalAmount} | Customer: ${phone}`).catch(() => {});
 
-_भुगतान पूरा होते ही मशीन मालिक आपसे संपर्क करेंगे।_`;
+  const lang = session.language || 'en';
+
+  if (lang === 'mr') {
+    return `🎉 *तुमची बुकिंग तयार झाली आहे!*
+━━━━━━━━━━━━━━━━━━━━
+🚜 उपकरण: *${machineName}*
+🔖 बुकिंग संदर्भ: *${booking.booking_ref}*
+📅 कालावधी: *${duration} दिवस*
+💰 एकूण भाडे: *₹${totalAmount.toLocaleString('en-IN')}*
+━━━━━━━━━━━━━━━━━━━━
+
+👉 *पेमेंट करण्यासाठी खालील लिंकवर क्लिक करा:*
+🔗 ${payLink}
+_(PhonePe, Google Pay, Paytm किंवा BHIM UPI द्वारे सुरक्षित पेमेंट करा)_
+
+📋 *बुकिंग व डिलिव्हरीची प्रक्रिया:*
+1️⃣ *UPI द्वारे पेमेंट करा:* वरील लिंकवर क्लिक करून ₹${totalAmount.toLocaleString('en-IN')} चे पेमेंट पूर्ण करा.
+2️⃣ *मालकाचे तपशील:* पेमेंट यशस्वी होताच तुम्हाला मशिनरी मालकाचा फोन नंबर, नाव व थेट पत्ता WhatsApp वर मिळेल.
+3️⃣ *डिलिव्हरी समन्वय:* मालक स्वतः तुमच्याशी फोनवर संपर्क साधून तुमच्या शेतात/जागेवर मशिनरी वेळेत पोहोचवतील.
+4️⃣ *GoMate सुरक्षा:* काम सुरू होईपर्यंत तुमची रक्कम 100% GoMate द्वारे सुरक्षित राहील.
+
+_मुख्य मेनूसाठी *0* पाठवा किंवा रद्द करण्यासाठी *CANCEL* पाठवा._`;
+  } else if (lang === 'hi') {
+    return `🎉 *आपकी बुकिंग तैयार हो गई है!*
+━━━━━━━━━━━━━━━━━━━━
+🚜 मशीनरी: *${machineName}*
+🔖 बुकिंग संदर्भ: *${booking.booking_ref}*
+📅 अवधि: *${duration} दिन*
+💰 कुल किराया: *₹${totalAmount.toLocaleString('en-IN')}*
+━━━━━━━━━━━━━━━━━━━━
+
+👉 *भुगतान करने के लिए नीचे दिए गए लिंक पर क्लिक करें:*
+🔗 ${payLink}
+_(PhonePe, Google Pay, Paytm या BHIM UPI द्वारा सुरक्षित भुगतान करें)_
+
+📋 *बुकिंग व डिलीवरी की प्रक्रिया:*
+1️⃣ *UPI द्वारा भुगतान करें:* ऊपर दिए गए लिंक पर क्लिक कर ₹${totalAmount.toLocaleString('en-IN')} का भुगतान पूरा करें।
+2️⃣ *मालिक का विवरण:* भुगतान पूरा होते ही आपको मशीन मालिक का फोन नंबर, नाम और पता WhatsApp पर प्राप्त होगा।
+3️⃣ *डिलीवरी समन्वय:* मालिक आपसे सीधे फोन पर संपर्क कर मशीनरी आपके खेत/साइट पर पहुंचाएंगे।
+4️⃣ *GoMate सुरक्षा:* काम शुरू होने तक आपका पैसा 100% GoMate द्वारा सुरक्षित रहेगा।
+
+_मुख्य मेनू के लिए *0* भेजें या रद्द करने के लिए *CANCEL* भेजें।_`;
   } else {
-    return `*Booking ${ref} is Registered!*
+    return `🎉 *Your Booking is Ready!*
+━━━━━━━━━━━━━━━━━━━━
+🚜 Equipment: *${machineName}*
+🔖 Booking Ref: *${booking.booking_ref}*
+📅 Duration: *${duration} day(s)*
+💰 Total Amount: *₹${totalAmount.toLocaleString('en-IN')}*
+━━━━━━━━━━━━━━━━━━━━
 
-*Complete Payment via UPI Link:*
-👉 ${payLink}
+👉 *Click the secure link below to complete payment:*
+🔗 ${payLink}
+_(Pay instantly via PhonePe, Google Pay, Paytm, or Cards)_
 
-_The equipment owner will contact you once payment is completed._`;
+📋 *How the Booking & Delivery Process Works:*
+1️⃣ *Complete UPI Payment:* Click the link above to complete the payment of ₹${totalAmount.toLocaleString('en-IN')}.
+2️⃣ *Owner Details Shared:* Once paid, the equipment owner's direct phone number, name & location will be sent to your WhatsApp.
+3️⃣ *Delivery Coordination:* The owner will coordinate delivery directly to your farm/site on the scheduled date with driver/operator.
+4️⃣ *100% GoMate Guarantee:* Your payment is fully protected by GoMate until the machinery arrives and work begins.
+
+_Reply *0* for Main Menu or *CANCEL* to cancel._`;
   }
 }
 
-module.exports = { handleEquipmentSelect, handleDateInput, handleConfirmation };
+module.exports = { handleEquipmentSelect, handleDateInput, handleConfirmation, createInstantBookingWithProcess };

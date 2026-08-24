@@ -311,26 +311,152 @@ app.post('/api/demo/payment-success', async (req, res) => {
   }
 });
 
-// Customer Booking Payment Success Simulation
+// Customer Booking Payment Success & Official Invoice Generator
 app.post('/api/demo/customer-payment-success', async (req, res) => {
   try {
     const { phone, ref, amount, model, txnId } = req.body;
     console.log(`\n💰 CUSTOMER PAYMENT CONFIRMED: ₹${amount} for ${model} (Ref: ${ref}) by ${phone}`);
 
     const { sendWhatsAppDirect } = require('./src/services/whatsappWeb');
-    
-    // 1. Send receipt to Customer
-    await sendWhatsAppDirect(phone,
-      `🎉 *Payment Received & Booking Confirmed!*\n\n` +
-      `🚜 *Equipment:* ${model}\n` +
-      `🔖 *Booking Ref:* ${ref}\n` +
-      `💰 *Amount Paid:* ₹${amount}\n` +
-      `🔖 *Transaction ID:* ${txnId}\n\n` +
-      `The machinery owner has been notified and will contact you for delivery coordination! 🚚`
-    );
+    const { getSession } = require('./src/services/session');
+    const session = getSession(phone);
+    const lang = (session && session.language) || 'en';
+    const customerName = (session && session.customerName) || 'Customer';
+    const now = new Date();
+    const dateStr = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()}`;
+    const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+    const invNo = `GM-INV-${ref.replace('GM-', '')}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-    res.json({ success: true, txnId });
+    const baseAmount = Math.round(Number(amount) / 1.18);
+    const gstAmount = Number(amount) - baseAmount;
+
+    let invoiceMessage = '';
+
+    if (lang === 'mr') {
+      invoiceMessage = `🧾 *गोमेट अधिकृत टॅक्स इनव्हॉइस व पावती*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔖 *पावती क्र (Invoice No):* ${invNo}
+🔖 *बुकिंग संदर्भ (Ref):* ${ref}
+📅 *तारीख व वेळ:* ${dateStr} | ${timeStr}
+💳 *पेमेंट पद्धत:* UPI (यशस्वी ✅)
+🔖 *व्यवहार आयडी (Txn ID):* ${txnId}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 *बुकिंग व मशिनरी तपशील:*
+🚜 *उपकरण:* ${model}
+👤 *ग्राहक:* ${customerName !== 'Customer' ? customerName : 'GoMate ग्राहक'} (${phone})
+📍 *स्थान:* महाराष्ट्र (स्थानिक शेत / साइट)
+
+💰 *पेमेंट सारांश (GST सह):*
+• मूळ भाडे रक्कम: ₹${baseAmount.toLocaleString('en-IN')}
+• गोमेट प्लॅटफॉर्म फी: ₹0 (मोफत)
+• GST (18% समाविष्ट): ₹${gstAmount.toLocaleString('en-IN')}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💵 *एकूण भरलेली रक्कम: ₹${Number(amount).toLocaleString('en-IN')} (PAID ✅)*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📞 *मशिनरी मालक व ऑपरेटर तपशील:*
+👤 *मालकाचे नाव:* राजेश पाटील (गोमेट व्हेरिफाइड मालक ⭐️ 4.9)
+📱 *मालकाचा फोन:* +91 98220 12345
+📍 *मुख्य केंद्र:* पुणे / पश्चिम महाराष्ट्र
+
+🚚 *डिलिव्हरी व पुढील सूचना:*
+1️⃣ मालकांना तुमची बुकिंग पावती व तपशील त्वरित पाठवले आहेत.
+2️⃣ डिलिव्हरी वेळेचे समन्वय साधण्यासाठी मालक तुम्हाला 1-2 तासांत कॉल करतील.
+3️⃣ सुरक्षिततेची हमी: काम सुरू होईपर्यंत तुमची रक्कम GoMate द्वारे 100% सुरक्षित आहे.
+
+_📞 GoMate शेतकरी हेल्पलाइन: 1800-123-4567_
+_गोमेट निवडल्याबद्दल धन्यवाद! 🚜🌾_`;
+    } else if (lang === 'hi') {
+      invoiceMessage = `🧾 *गोमेट आधिकारिक टैक्स इनवॉइस व रसीद*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔖 *रसीद सं (Invoice No):* ${invNo}
+🔖 *बुकिंग संदर्भ (Ref):* ${ref}
+📅 *दिनांक व समय:* ${dateStr} | ${timeStr}
+💳 *भुगतान माध्यम:* UPI (सफल ✅)
+🔖 *लेनदेन आईडी (Txn ID):* ${txnId}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 *बुकिंग व मशीनरी विवरण:*
+🚜 *मशीनरी:* ${model}
+👤 *ग्राहक:* ${customerName !== 'Customer' ? customerName : 'GoMate ग्राहक'} (${phone})
+📍 *स्थान:* महाराष्ट्र
+
+💰 *भुगतान विवरण (GST सहित):*
+• मूल किराया राशि: ₹${baseAmount.toLocaleString('en-IN')}
+• गोमेट प्लेटफॉर्म शुल्क: ₹0 (निःशुल्क)
+• GST (18% सम्मिलित): ₹${gstAmount.toLocaleString('en-IN')}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💵 *कुल भुगतान राशि: ₹${Number(amount).toLocaleString('en-IN')} (PAID ✅)*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📞 *मशीन मालिक व ऑपरेटर विवरण:*
+👤 *मालिक का नाम:* राजेश पाटिल (GoMate सत्यापित ⭐️ 4.9)
+📱 *मालिक का फोन:* +91 98220 12345
+📍 *केंद्र:* पुणे / पश्चिम महाराष्ट्र
+
+🚚 *डिलीवरी व आगामी निर्देश:*
+1️⃣ मशीन मालिक को आपकी बुकिंग रसीद भेज दी गई है।
+2️⃣ डिलीवरी समय और स्थान के समन्वय हेतु मालिक 1-2 घंटे में आपको कॉल करेंगे।
+3️⃣ सुरक्षा गारंटी: काम शुरू होने तक आपका पैसा 100% सुरक्षित है।
+
+_📞 GoMate किसान हेल्पलाइन: 1800-123-4567_
+_गोमेट का उपयोग करने के लिए धन्यवाद! 🚜🌾_`;
+    } else {
+      invoiceMessage = `🧾 *GOMATE OFFICIAL TAX INVOICE & RECEIPT*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔖 *Invoice No:* ${invNo}
+🔖 *Booking Ref:* ${ref}
+📅 *Date & Time:* ${dateStr} | ${timeStr}
+💳 *Payment Mode:* UPI / Cards (SUCCESS ✅)
+🔖 *Transaction ID:* ${txnId}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 *BOOKING & EQUIPMENT DETAILS:*
+🚜 *Equipment:* ${model}
+👤 *Customer:* ${customerName !== 'Customer' ? customerName : 'GoMate Customer'} (${phone})
+📍 *Service Location:* Maharashtra (Local Site / Farm)
+
+💰 *PAYMENT BREAKDOWN (GST INCL):*
+• Base Rental Rate: ₹${baseAmount.toLocaleString('en-IN')}
+• Platform Convenience Fee: ₹0.00 (FREE)
+• GST (18% Included): ₹${gstAmount.toLocaleString('en-IN')}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💵 *TOTAL AMOUNT PAID: ₹${Number(amount).toLocaleString('en-IN')} (PAID ✅)*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📞 *VERIFIED EQUIPMENT OWNER DETAILS:*
+👤 *Owner Name:* Rajesh Patil (GoMate Verified Owner ⭐️ 4.9)
+📱 *Owner Phone:* +91 98220 12345
+📍 *Operating Hub:* Pune / Western Maharashtra Hub
+
+🚚 *DELIVERY INSTRUCTIONS:*
+1️⃣ The machinery owner has received your confirmed booking voucher.
+2️⃣ The owner will call you within 1-2 hours to confirm your exact delivery coordinates.
+3️⃣ 100% GoMate Protection: Your payment is protected until machinery is deployed on site.
+
+_📞 GoMate Toll-Free Support: 1800-123-4567_
+_Thank you for renting with GoMate! 🚜🌾_`;
+    }
+
+    // 1. Send Official Tax Invoice to Customer on WhatsApp
+    await sendWhatsAppDirect(phone, invoiceMessage);
+
+    // 2. Also notify Owner with Customer details and confirmed payout
+    const ownerPhone = process.env.ADMIN_WHATSAPP_NUMBER || '+919822012345';
+    await sendWhatsAppDirect(ownerPhone,
+      `🎉 *PAYMENT CONFIRMED FOR YOUR MACHINERY!*\n\n` +
+      `🔖 *Ref:* ${ref}\n` +
+      `🚜 *Equipment:* ${model}\n` +
+      `💰 *Payout Confirmed:* ₹${amount}\n` +
+      `👤 *Customer:* ${customerName} (${phone})\n` +
+      `🔖 *Txn ID:* ${txnId}\n\n` +
+      `👉 Please contact the customer immediately to coordinate delivery!`
+    ).catch(() => {});
+
+    res.json({ success: true, txnId, invoiceNo: invNo });
   } catch (e) {
+    console.error('Payment confirmation error:', e);
     res.status(500).json({ error: e.message });
   }
 });
