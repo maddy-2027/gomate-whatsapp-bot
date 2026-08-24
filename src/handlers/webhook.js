@@ -1,14 +1,23 @@
 const { getSession } = require('../services/session');
 const { routeMessage } = require('./router');
-const { sendWhatsApp } = require('../services/twilio');
+
+function escapeXml(unsafe) {
+  if (!unsafe) return '';
+  return unsafe.replace(/[<>&'"]/g, function (c) {
+    switch (c) {
+      case '<': return '&lt;';
+      case '>': return '&gt;';
+      case '&': return '&amp;';
+      case '\'': return '&apos;';
+      case '"': return '&quot;';
+    }
+  });
+}
 
 /**
  * Webhook handler for Twilio WhatsApp incoming messages and HTTP simulator.
  */
 module.exports = async (req, res) => {
-  // Acknowledge Twilio quickly with 200 OK
-  res.status(200).send('<Response></Response>');
-
   let from = req.body.From || req.body.phone || '';
   let body = req.body.Body || req.body.message || '';
 
@@ -21,17 +30,32 @@ module.exports = async (req, res) => {
   const rawPhone = from.replace('whatsapp:', '').trim();
   body = (body || '').trim();
 
-  console.log(`📱 [Twilio Webhook] Message from ${rawPhone}: "${body}"`);
-  if (!rawPhone || !body) return;
+  console.log(`📱 [Twilio Webhook] Received from ${rawPhone}: "${body}"`);
+
+  if (!rawPhone || !body) {
+    res.type('text/xml').send('<Response></Response>');
+    return;
+  }
 
   try {
     const session = getSession(rawPhone);
     const replyText = await routeMessage(rawPhone, body, session);
+
     if (replyText) {
-      console.log(`💬 [Twilio Webhook] Sending reply to ${from}: "${replyText.substring(0, 60)}..."`);
-      await sendWhatsApp(from, replyText);
+      console.log(`💬 [Twilio Webhook] Replying with TwiML to ${rawPhone}: "${replyText.substring(0, 60)}..."`);
+      
+      // Return official Twilio TwiML Messaging XML
+      const twiml = `<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Message>${escapeXml(replyText)}</Message>
+</Response>`;
+      
+      res.type('text/xml').send(twiml);
+    } else {
+      res.type('text/xml').send('<Response></Response>');
     }
   } catch (err) {
     console.error('❌ [Twilio Webhook] Processing error:', err);
+    res.type('text/xml').send('<Response></Response>');
   }
 };
