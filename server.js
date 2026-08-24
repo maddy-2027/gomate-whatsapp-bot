@@ -266,7 +266,8 @@ app.get('/api/whatsapp/status', (req, res) => {
   res.json(getWhatsAppStatus());
 });
 
-// WhatsApp Web webhook (whatsapp-web.js handles messaging — no Twilio)
+// Twilio WhatsApp & Webhook endpoints
+app.post('/webhook', webhookHandler);
 app.post('/webhook/whatsapp', webhookHandler);
 
 // Razorpay Webhook
