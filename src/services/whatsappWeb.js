@@ -11,12 +11,10 @@ function initWhatsAppWeb(onQrCallback, onReadyCallback) {
   const chromePath = process.env.PUPPETEER_EXECUTABLE_PATH || 
     (isWindows ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' : '/usr/bin/chromium');
 
+  const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
+
   waClient = new Client({
     authStrategy: new LocalAuth({ dataPath: './.wwebjs_auth' }),
-    webVersionCache: {
-      type: 'remote',
-      remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.3000.1014587000-alpha.html',
-    },
     puppeteer: {
       executablePath: chromePath,
       headless: true,
@@ -28,18 +26,11 @@ function initWhatsAppWeb(onQrCallback, onReadyCallback) {
         '--no-first-run',
         '--no-zygote',
         '--disable-gpu',
-        '--disable-extensions',
-        '--disable-component-extensions-with-background-pages',
-        '--disable-default-apps',
-        '--mute-audio',
-        '--no-default-browser-check',
-        '--disable-background-timer-throttling',
-        '--disable-backgrounding-occluded-windows',
-        '--disable-renderer-backgrounding',
-        '--disable-features=Translate,BackForwardCache,AcceptCHFrame,MediaRouter,OptimizationHints',
-        '--js-flags=--max-old-space-size=256'
+        `--user-agent=${USER_AGENT}`,
+        '--window-size=1280,800'
       ]
-    }
+    },
+    userAgent: USER_AGENT
   });
 
   waClient.on('qr', async (qr) => {
