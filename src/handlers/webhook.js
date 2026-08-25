@@ -1,5 +1,6 @@
 const { getSession } = require('../services/session');
 const { routeMessage } = require('./router');
+const { sendWhatsApp } = require('../services/twilio');
 
 function escapeXml(unsafe) {
   if (!unsafe) return '';
@@ -42,15 +43,20 @@ module.exports = async (req, res) => {
     const replyText = await routeMessage(rawPhone, body, session);
 
     if (replyText) {
-      console.log(`💬 [Twilio Webhook] Replying with TwiML to ${rawPhone}: "${replyText.substring(0, 60)}..."`);
+      console.log(`💬 [Twilio Webhook] Replying to ${rawPhone}: "${replyText.substring(0, 60)}..."`);
       
-      // Return official Twilio TwiML Messaging XML
+      // 1. Send TwiML Response
       const twiml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Message>${escapeXml(replyText)}</Message>
 </Response>`;
       
       res.type('text/xml').send(twiml);
+
+      // 2. Also trigger Twilio REST API async dispatch (Dual Delivery Guarantee)
+      if (from.startsWith('whatsapp:')) {
+        sendWhatsApp(from, replyText).catch(() => {});
+      }
     } else {
       res.type('text/xml').send('<Response></Response>');
     }
