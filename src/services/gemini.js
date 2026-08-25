@@ -136,7 +136,9 @@ function solveDirectQuery(message, effectiveLang, session = {}) {
       }
     }
 
-    const total = rate * qty * days;
+    const PLATFORM_FEE = 49;
+    const rentalTotal = rate * qty * days;
+    const total = rentalTotal + PLATFORM_FEE;
 
     // Save active quote into session for instant 1-click booking
     if (session && session.data) {
@@ -145,6 +147,8 @@ function solveDirectQuery(message, effectiveLang, session = {}) {
         rate,
         qty,
         days,
+        rentalTotal,
+        platformFee: PLATFORM_FEE,
         total,
         machineMr,
         machineHi,
@@ -152,6 +156,8 @@ function solveDirectQuery(message, effectiveLang, session = {}) {
         model: qty > 1 ? `${qty}x ${machineEn}` : machineEn
       };
       session.data.totalAmount = total;
+      session.data.rentalTotal = rentalTotal;
+      session.data.platformFee = PLATFORM_FEE;
       session.data.duration = days;
       session.data.quantity = qty;
     }
@@ -162,9 +168,12 @@ function solveDirectQuery(message, effectiveLang, session = {}) {
 उपकरण: *${qty > 1 ? `${qty}x ` : ''}${machineMr}*
 दर: *₹${rate.toLocaleString('en-IN')}/दिवस*
 कालावधी: *${days} दिवस*
-अंदाजित एकूण भाडे: *₹${total.toLocaleString('en-IN')}* (${qty > 1 ? `${qty} ट्रॅक्टर x ` : ''}₹${rate} x ${days} दिवस)
+• उपकरण भाडे: *₹${rentalTotal.toLocaleString('en-IN')}* (${qty > 1 ? `${qty} ट्रॅक्टर x ` : ''}₹${rate} x ${days} दिवस)
+• गोमेट सुरक्षा व सहाय्य फी: *₹${PLATFORM_FEE}*
 ━━━━━━━━━━━━━━━━━━━━
-✅ शेतकऱ्यांसाठी ₹0 कमिशन व थेट मालकाशी संपर्क!
+💰 *एकूण रक्कम: ₹${total.toLocaleString('en-IN')}*
+━━━━━━━━━━━━━━━━━━━━
+✅ १००% गोमेट सुरक्षा हमी व थेट मालकाशी संपर्क!
 
 👉 *थेट बुक करण्यासाठी आणि पेमेंट लिंक मिळवण्यासाठी 'बुक करा' किंवा '1' पाठवा.*
 _(मुख्य मेनूसाठी *0* पाठवा)_`;
@@ -174,9 +183,12 @@ _(मुख्य मेनूसाठी *0* पाठवा)_`;
 मशीनरी: *${qty > 1 ? `${qty}x ` : ''}${machineHi}*
 दर: *₹${rate.toLocaleString('en-IN')}/दिन*
 अवधि: *${days} दिन*
-अनुमानित कुल किराया: *₹${total.toLocaleString('en-IN')}* (${qty > 1 ? `${qty} मशीन x ` : ''}₹${rate} x ${days} दिन)
+• मशीनरी किराया: *₹${rentalTotal.toLocaleString('en-IN')}* (${qty > 1 ? `${qty} मशीन x ` : ''}₹${rate} x ${days} दिन)
+• गोमेट सुरक्षा व सेवा शुल्क: *₹${PLATFORM_FEE}*
 ━━━━━━━━━━━━━━━━━━━━
-✅ किसानों के लिए ₹0 कमीशन और सीधे मालिक से संपर्क!
+💰 *कुल राशि: ₹${total.toLocaleString('en-IN')}*
+━━━━━━━━━━━━━━━━━━━━
+✅ १००% गोमेट सुरक्षा गारंटी और सीधे मालिक से संपर्क!
 
 👉 *बुक करने और पेमेंट लिंक प्राप्त करने के लिए 'बुक करो' या '1' भेजें।*
 _(मुख्य मेनू के लिए *0* भेजें)_`;
@@ -186,9 +198,12 @@ _(मुख्य मेनू के लिए *0* भेजें)_`;
 Equipment: *${qty > 1 ? `${qty}x ` : ''}${machineEn}*
 Daily Rate: *₹${rate.toLocaleString('en-IN')}/day*
 Duration: *${days} day(s)*
-Estimated Total: *₹${total.toLocaleString('en-IN')}* (${qty > 1 ? `${qty} units x ` : ''}₹${rate} x ${days} days)
+• Equipment Rental: *₹${rentalTotal.toLocaleString('en-IN')}* (${qty > 1 ? `${qty} units x ` : ''}₹${rate} x ${days} days)
+• GoMate Protection & Support Fee: *₹${PLATFORM_FEE}*
 ━━━━━━━━━━━━━━━━━━━━
-✅ ₹0 booking fee for farmers & direct owner connect!
+💰 *Total Amount: ₹${total.toLocaleString('en-IN')}*
+━━━━━━━━━━━━━━━━━━━━
+✅ 100% GoMate Protection & direct owner connect!
 
 👉 *To book now & get your instant payment link, reply 'Book' or '1'.*
 _(Reply *0* for Main Menu)_`;

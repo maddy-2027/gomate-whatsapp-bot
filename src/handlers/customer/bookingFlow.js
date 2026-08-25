@@ -243,13 +243,19 @@ async function createInstantBookingWithProcess(phone, session) {
 
   const lang = session.language || 'en';
 
+  const platformFee = quote.platformFee || 49;
+  const rentalAmount = quote.rentalTotal || (totalAmount - platformFee);
+
   if (lang === 'mr') {
     return `🎉 *तुमची बुकिंग तयार झाली आहे!*
 ━━━━━━━━━━━━━━━━━━━━
 🚜 उपकरण: *${machineName}*
 🔖 बुकिंग संदर्भ: *${booking.booking_ref}*
 📅 कालावधी: *${duration} दिवस*
-💰 एकूण भाडे: *₹${totalAmount.toLocaleString('en-IN')}*
+• उपकरण भाडे: *₹${rentalAmount.toLocaleString('en-IN')}*
+• गोमेट सुरक्षा व सेवा फी: *₹${platformFee}*
+━━━━━━━━━━━━━━━━━━━━
+💰 *एकूण भरण्याची रक्कम: ₹${totalAmount.toLocaleString('en-IN')}*
 ━━━━━━━━━━━━━━━━━━━━
 
 👉 *पेमेंट करण्यासाठी खालील लिंकवर क्लिक करा:*
@@ -269,7 +275,10 @@ _मुख्य मेनूसाठी *0* पाठवा किंवा �
 🚜 मशीनरी: *${machineName}*
 🔖 बुकिंग संदर्भ: *${booking.booking_ref}*
 📅 अवधि: *${duration} दिन*
-💰 कुल किराया: *₹${totalAmount.toLocaleString('en-IN')}*
+• मशीनरी किराया: *₹${rentalAmount.toLocaleString('en-IN')}*
+• गोमेट सुरक्षा व सेवा शुल्क: *₹${platformFee}*
+━━━━━━━━━━━━━━━━━━━━
+💰 *कुल देय राशि: ₹${totalAmount.toLocaleString('en-IN')}*
 ━━━━━━━━━━━━━━━━━━━━
 
 👉 *भुगतान करने के लिए नीचे दिए गए लिंक पर क्लिक करें:*
@@ -289,7 +298,10 @@ _मुख्य मेनू के लिए *0* भेजें या रद
 🚜 Equipment: *${machineName}*
 🔖 Booking Ref: *${booking.booking_ref}*
 📅 Duration: *${duration} day(s)*
-💰 Total Amount: *₹${totalAmount.toLocaleString('en-IN')}*
+• Equipment Rental: *₹${rentalAmount.toLocaleString('en-IN')}*
+• GoMate Protection & Support Fee: *₹${platformFee}*
+━━━━━━━━━━━━━━━━━━━━
+💰 *Total Amount to Pay: ₹${totalAmount.toLocaleString('en-IN')}*
 ━━━━━━━━━━━━━━━━━━━━
 
 👉 *Click the secure link below to complete payment:*

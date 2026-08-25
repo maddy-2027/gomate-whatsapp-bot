@@ -328,8 +328,11 @@ app.post('/api/demo/customer-payment-success', async (req, res) => {
     const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
     const invNo = `GM-INV-${ref.replace('GM-', '')}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-    const baseAmount = Math.round(Number(amount) / 1.18);
-    const gstAmount = Number(amount) - baseAmount;
+    const platformFee = 49;
+    const totalPaid = Number(amount);
+    const rentalPortion = Math.max(0, totalPaid - platformFee);
+    const baseRental = Math.round(rentalPortion / 1.18);
+    const gstAmount = rentalPortion - baseRental;
 
     let invoiceMessage = '';
 
@@ -348,12 +351,12 @@ app.post('/api/demo/customer-payment-success', async (req, res) => {
 👤 *ग्राहक:* ${customerName !== 'Customer' ? customerName : 'GoMate ग्राहक'} (${phone})
 📍 *स्थान:* महाराष्ट्र (स्थानिक शेत / साइट)
 
-💰 *पेमेंट सारांश (GST सह):*
-• मूळ भाडे रक्कम: ₹${baseAmount.toLocaleString('en-IN')}
-• गोमेट प्लॅटफॉर्म फी: ₹0 (मोफत)
+💰 *पेमेंट सारांश:*
+• मूळ भाडे रक्कम: ₹${baseRental.toLocaleString('en-IN')}
+• गोमेट सुरक्षा व सहाय्य फी: ₹${platformFee}
 • GST (18% समाविष्ट): ₹${gstAmount.toLocaleString('en-IN')}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💵 *एकूण भरलेली रक्कम: ₹${Number(amount).toLocaleString('en-IN')} (PAID ✅)*
+💵 *एकूण भरलेली रक्कम: ₹${totalPaid.toLocaleString('en-IN')} (PAID ✅)*
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 📞 *मशिनरी मालक व ऑपरेटर तपशील:*
@@ -383,12 +386,12 @@ _गोमेट निवडल्याबद्दल धन्यवाद! 
 👤 *ग्राहक:* ${customerName !== 'Customer' ? customerName : 'GoMate ग्राहक'} (${phone})
 📍 *स्थान:* महाराष्ट्र
 
-💰 *भुगतान विवरण (GST सहित):*
-• मूल किराया राशि: ₹${baseAmount.toLocaleString('en-IN')}
-• गोमेट प्लेटफॉर्म शुल्क: ₹0 (निःशुल्क)
+💰 *भुगतान विवरण:*
+• मूल किराया राशि: ₹${baseRental.toLocaleString('en-IN')}
+• गोमेट सुरक्षा व सेवा शुल्क: ₹${platformFee}
 • GST (18% सम्मिलित): ₹${gstAmount.toLocaleString('en-IN')}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💵 *कुल भुगतान राशि: ₹${Number(amount).toLocaleString('en-IN')} (PAID ✅)*
+💵 *कुल भुगतान राशि: ₹${totalPaid.toLocaleString('en-IN')} (PAID ✅)*
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 📞 *मशीन मालिक व ऑपरेटर विवरण:*
@@ -418,12 +421,12 @@ _गोमेट का उपयोग करने के लिए धन्�
 👤 *Customer:* ${customerName !== 'Customer' ? customerName : 'GoMate Customer'} (${phone})
 📍 *Service Location:* Maharashtra (Local Site / Farm)
 
-💰 *PAYMENT BREAKDOWN (GST INCL):*
-• Base Rental Rate: ₹${baseAmount.toLocaleString('en-IN')}
-• Platform Convenience Fee: ₹0.00 (FREE)
+💰 *PAYMENT BREAKDOWN:*
+• Base Rental Rate: ₹${baseRental.toLocaleString('en-IN')}
+• GoMate Protection & Support Fee: ₹${platformFee}
 • GST (18% Included): ₹${gstAmount.toLocaleString('en-IN')}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💵 *TOTAL AMOUNT PAID: ₹${Number(amount).toLocaleString('en-IN')} (PAID ✅)*
+💵 *TOTAL AMOUNT PAID: ₹${totalPaid.toLocaleString('en-IN')} (PAID ✅)*
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 📞 *VERIFIED EQUIPMENT OWNER DETAILS:*
@@ -443,13 +446,13 @@ _Thank you for renting with GoMate! 🚜🌾_`;
     // 1. Send Official Tax Invoice to Customer on WhatsApp
     await sendWhatsAppDirect(phone, invoiceMessage);
 
-    // 2. Also notify Owner with Customer details and confirmed payout
+    // 2. Also notify Owner with Customer details and net equipment payout
     const ownerPhone = process.env.ADMIN_WHATSAPP_NUMBER || '+919822012345';
     await sendWhatsAppDirect(ownerPhone,
       `🎉 *PAYMENT CONFIRMED FOR YOUR MACHINERY!*\n\n` +
       `🔖 *Ref:* ${ref}\n` +
       `🚜 *Equipment:* ${model}\n` +
-      `💰 *Payout Confirmed:* ₹${amount}\n` +
+      `💰 *Equipment Rental Payout:* ₹${rentalPortion.toLocaleString('en-IN')}\n` +
       `👤 *Customer:* ${customerName} (${phone})\n` +
       `🔖 *Txn ID:* ${txnId}\n\n` +
       `👉 Please contact the customer immediately to coordinate delivery!`
