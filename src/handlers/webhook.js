@@ -1,19 +1,7 @@
 const { getSession } = require('../services/session');
 const { routeMessage } = require('./router');
-const { sendWhatsApp } = require('../services/twilio');
-
-function escapeXml(unsafe) {
-  if (!unsafe) return '';
-  return unsafe.replace(/[<>&'"]/g, function (c) {
-    switch (c) {
-      case '<': return '&lt;';
-      case '>': return '&gt;';
-      case '&': return '&amp;';
-      case '\'': return '&apos;';
-      case '"': return '&quot;';
-    }
-  });
-}
+const twilio = require('twilio');
+const { MessagingResponse } = twilio.twiml;
 
 /**
  * Webhook handler for Twilio WhatsApp incoming messages and HTTP simulator.
@@ -34,8 +22,9 @@ module.exports = async (req, res) => {
   console.log(`📱 [Twilio Webhook] Received from ${rawPhone}: "${body}"`);
 
   if (!rawPhone || !body) {
-    res.type('text/xml').send('<Response></Response>');
-    return;
+    const emptyTwiml = new MessagingResponse();
+    res.writeHead(200, { 'Content-Type': 'text/xml' });
+    return res.end(emptyTwiml.toString());
   }
 
   try {
@@ -43,25 +32,23 @@ module.exports = async (req, res) => {
     const replyText = await routeMessage(rawPhone, body, session);
 
     if (replyText) {
-      console.log(`💬 [Twilio Webhook] Replying to ${rawPhone}: "${replyText.substring(0, 60)}..."`);
+      console.log(`💬 [Twilio Webhook] Replying via TwiML to ${rawPhone}: "${replyText.substring(0, 60)}..."`);
       
-      // 1. Send TwiML Response
-      const twiml = `<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-  <Message>${escapeXml(replyText)}</Message>
-</Response>`;
-      
-      res.type('text/xml').send(twiml);
+      // Use official Twilio TwiML Builder
+      const twiml = new MessagingResponse();
+      twiml.message(replyText);
 
-      // 2. Also trigger Twilio REST API async dispatch (Dual Delivery Guarantee)
-      if (from.startsWith('whatsapp:')) {
-        sendWhatsApp(from, replyText).catch(() => {});
-      }
+      res.writeHead(200, { 'Content-Type': 'text/xml' });
+      return res.end(twiml.toString());
     } else {
-      res.type('text/xml').send('<Response></Response>');
+      const emptyTwiml = new MessagingResponse();
+      res.writeHead(200, { 'Content-Type': 'text/xml' });
+      return res.end(emptyTwiml.toString());
     }
   } catch (err) {
     console.error('❌ [Twilio Webhook] Processing error:', err);
-    res.type('text/xml').send('<Response></Response>');
+    const emptyTwiml = new MessagingResponse();
+    res.writeHead(200, { 'Content-Type': 'text/xml' });
+    return res.end(emptyTwiml.toString());
   }
 };
