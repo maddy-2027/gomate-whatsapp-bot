@@ -12,9 +12,9 @@ if (process.env.RAZORPAY_KEY_ID &&
 }
 
 async function createPaymentLink(phone, ownerName = 'Equipment Owner') {
+  const baseUrl = process.env.RENDER_EXTERNAL_URL || 'https://gomate-whatsapp-bot-1.onrender.com';
   if (!razorpay) {
     const encodedPhone = encodeURIComponent(phone || '+919876543210');
-    const baseUrl = process.env.RENDER_EXTERNAL_URL || 'https://gomate-whatsapp-bot.onrender.com';
     return {
       id: `plink_mock_${Date.now()}`,
       short_url: `${baseUrl}/demo-payment?phone=${encodedPhone}`
@@ -40,7 +40,7 @@ async function createPaymentLink(phone, ownerName = 'Equipment Owner') {
         plan: 'Owner Pro Monthly',
         phone: phone
       },
-      callback_url: 'https://gomate-whatsapp-bot.onrender.com/payment-success',
+      callback_url: `${baseUrl}/payment-success`,
       callback_method: 'get'
     });
 
@@ -55,9 +55,9 @@ async function createPaymentLink(phone, ownerName = 'Equipment Owner') {
 }
 
 async function createBookingPaymentLink(phone, amount, bookingRef, equipmentModel) {
+  const baseUrl = process.env.RENDER_EXTERNAL_URL || 'https://gomate-whatsapp-bot-1.onrender.com';
   if (!razorpay) {
     const encodedPhone = encodeURIComponent(phone || '+919876543210');
-    const baseUrl = process.env.RENDER_EXTERNAL_URL || 'https://gomate-whatsapp-bot.onrender.com';
     return {
       id: `plink_book_${Date.now()}`,
       short_url: `${baseUrl}/customer-payment.html?phone=${encodedPhone}&amount=${amount}&ref=${bookingRef}&model=${encodeURIComponent(equipmentModel)}`
@@ -82,7 +82,7 @@ async function createBookingPaymentLink(phone, amount, bookingRef, equipmentMode
         equipmentModel,
         phone
       },
-      callback_url: 'https://gomate-whatsapp-bot.onrender.com/payment-success',
+      callback_url: `${baseUrl}/payment-success`,
       callback_method: 'get'
     });
 
@@ -90,7 +90,6 @@ async function createBookingPaymentLink(phone, amount, bookingRef, equipmentMode
   } catch (error) {
     console.error('Customer Booking Payment Link Error:', error);
     const encodedPhone = encodeURIComponent(phone || '+919876543210');
-    const baseUrl = process.env.RENDER_EXTERNAL_URL || 'https://gomate-whatsapp-bot.onrender.com';
     return {
       id: `plink_book_fb_${Date.now()}`,
       short_url: `${baseUrl}/customer-payment.html?phone=${encodedPhone}&amount=${amount}&ref=${bookingRef}&model=${encodeURIComponent(equipmentModel)}`

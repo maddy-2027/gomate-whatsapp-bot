@@ -270,30 +270,37 @@
         </div>
       </div>
 
-      <div class="section-title">📱 Select UPI Payment App</div>
+      <div class="section-title">📱 Pay using UPI App (Tap to Open)</div>
       <div class="upi-grid">
-        <div class="upi-option" onclick="selectUPI('phonepe', this)">
+        <a id="phonepeLink" class="upi-option" onclick="selectUPI('phonepe', this)">
           <div class="upi-icon">💜</div>
           <div class="upi-label">PhonePe</div>
-        </div>
-        <div class="upi-option" onclick="selectUPI('gpay', this)">
+        </a>
+        <a id="gpayLink" class="upi-option" onclick="selectUPI('gpay', this)">
           <div class="upi-icon">🅖</div>
           <div class="upi-label">Google Pay</div>
-        </div>
-        <div class="upi-option" onclick="selectUPI('paytm', this)">
+        </a>
+        <a id="paytmLink" class="upi-option" onclick="selectUPI('paytm', this)">
           <div class="upi-icon">🔵</div>
           <div class="upi-label">Paytm</div>
-        </div>
-        <div class="upi-option" onclick="selectUPI('bhim', this)">
+        </a>
+        <a id="bhimLink" class="upi-option" onclick="selectUPI('bhim', this)">
           <div class="upi-icon">🏛️</div>
-          <div class="upi-label">BHIM UPI</div>
-        </div>
+          <div class="upi-label">BHIM / Any UPI</div>
+        </a>
       </div>
 
-      <input type="text" class="upi-id-input" id="upiIdInput" placeholder="or enter UPI ID (e.g. mobile@upi)" />
+      <!-- Live Dynamic UPI QR Code for Desktop/Laptop -->
+      <div style="text-align: center; background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 12px; padding: 14px; margin-bottom: 16px;">
+        <div style="font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 8px; text-transform: uppercase;">
+          📷 Or Scan QR from PhonePe / GPay / Paytm
+        </div>
+        <img id="upiQrImage" src="" alt="UPI QR Code" style="width: 140px; height: 140px; border-radius: 8px; background: #fff; padding: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);" />
+        <div style="font-size: 11px; color: #64748b; margin-top: 6px;" id="upiIdText">UPI ID: gomatepay@okaxis</div>
+      </div>
 
-      <button class="pay-btn" onclick="processPayment()">
-        🔐 Pay Rental Advance & Confirm
+      <button class="pay-btn" id="payBtn" onclick="processPayment()">
+        🔐 Confirm & Complete Booking
       </button>
     </div>
 
@@ -306,38 +313,61 @@
       </div>
       <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 12px; font-size: 13px; color: #166534; font-weight: 500;">
         📱 <strong>Check your WhatsApp!</strong><br>
-        Booking receipt and owner contact details sent to your chat.
+        Official Tax Invoice, Payment Receipt & Verified Owner contact card sent to your chat.
       </div>
     </div>
 
     <div class="card-footer">
-      <span>Powered by Razorpay</span> • <span>Instant Bank Settlement</span>
+      <span>🔒 100% Protected by GoMate</span> • <span>Instant WhatsApp Voucher</span>
     </div>
   </div>
 
   <script>
     const params = new URLSearchParams(window.location.search);
-    const amount = params.get('amount') || '1500';
+    const amount = params.get('amount') || '1549';
     const ref = params.get('ref') || 'GM-DEMO';
-    const model = params.get('model') || 'Machinery';
+    const model = params.get('model') || 'Mahindra Tractor 45 HP';
     const phone = params.get('phone') || '+919876543210';
 
-    document.getElementById('amountDisplay').textContent = `₹${amount}`;
+    document.getElementById('amountDisplay').textContent = `₹${Number(amount).toLocaleString('en-IN')}`;
     document.getElementById('refDisplay').textContent = `Ref: ${ref}`;
     document.getElementById('modelDisplay').textContent = model;
 
-    let selectedApp = null;
+    // Construct Standard Indian NPCI UPI Deep Link
+    const upiVpa = 'gomatepay@okaxis';
+    const upiName = 'GoMate Agro Equipment';
+    const upiNote = encodeURIComponent(`GoMate Booking ${ref}`);
+    const genericUpiIntent = `upi://pay?pa=${upiVpa}&pn=${encodeURIComponent(upiName)}&am=${amount}&cu=INR&tn=${upiNote}`;
+    
+    // Set dynamic QR code image via Google Chart / QR API
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(genericUpiIntent)}`;
+    document.getElementById('upiQrImage').src = qrUrl;
+
+    let selectedApp = 'upi';
     function selectUPI(app, el) {
       document.querySelectorAll('.upi-option').forEach(e => e.classList.remove('selected'));
-      el.classList.add('selected');
+      if (el) el.classList.add('selected');
       selectedApp = app;
+
+      // On mobile devices, trigger native UPI app intent directly
+      if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        if (app === 'phonepe') {
+          window.location.href = `phonepe://pay?pa=${upiVpa}&pn=${encodeURIComponent(upiName)}&am=${amount}&cu=INR&tn=${upiNote}`;
+        } else if (app === 'paytm') {
+          window.location.href = `paytmmp://pay?pa=${upiVpa}&pn=${encodeURIComponent(upiName)}&am=${amount}&cu=INR&tn=${upiNote}`;
+        } else if (app === 'gpay') {
+          window.location.href = `gpay://upi/pay?pa=${upiVpa}&pn=${encodeURIComponent(upiName)}&am=${amount}&cu=INR&tn=${upiNote}`;
+        } else {
+          window.location.href = genericUpiIntent;
+        }
+      }
     }
 
     async function processPayment() {
       const overlay = document.getElementById('overlay');
       overlay.classList.add('active');
 
-      await new Promise(r => setTimeout(r, 1500));
+      await new Promise(r => setTimeout(r, 1200));
 
       const txnId = 'PAY' + Math.random().toString(36).substring(2, 10).toUpperCase();
 
@@ -347,7 +377,9 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ phone, ref, amount, model, txnId })
         });
-      } catch (e) {}
+      } catch (e) {
+        console.error('Payment callback error:', e);
+      }
 
       overlay.classList.remove('active');
       document.getElementById('paymentBody').style.display = 'none';
