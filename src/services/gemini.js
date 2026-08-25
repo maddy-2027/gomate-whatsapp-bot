@@ -234,8 +234,82 @@ async function generateChatResponse(message, language = 'en', context = '', sess
     return directAnswer;
   }
 
-  // 3. Fast keyword & instant menu shortcuts
-  if (cleanMsg.includes('contact') || cleanMsg.includes('helpline') || cleanMsg.includes('कॉल') || cleanMsg.includes('फोन') || cleanMsg.includes('संपर्क')) {
+  // 3. Fast Keyword & Instant Menu Shortcuts (Sub-millisecond 0ms execution)
+  
+  // Rate Card & Price List
+  if (cleanMsg.includes('rate') || cleanMsg.includes('price') || cleanMsg.includes('दर') || cleanMsg.includes('किंमत') || cleanMsg.includes('दरपत्रक') || cleanMsg.includes('खर्च किती')) {
+    let rateText = '';
+    if (effectiveLang === 'mr') {
+      rateText = `📊 *गोमेट मशिनरी अधिकृत दरपत्रक (प्रति दिवस)*
+━━━━━━━━━━━━━━━━━━━━
+🌾 *शेती उपकरणे:*
+• महिंद्रा ट्रॅक्टर (45 HP): *₹1,500/दिवस*
+• कम्बाईन हार्वेस्टर: *₹4,200/दिवस*
+• शक्तिमान रोटाव्हेटर: *₹850/दिवस*
+• शेती फवारणी ड्रोन: *₹2,500/दिवस*
+
+🚚 *वाहतूक उपकरणे:*
+• टाटा एसी (छोटा हत्ती): *₹1,300/दिवस*
+• बोलेरो / दोस्त पिकअप: *₹1,600/दिवस*
+• टाटा 407 ट्रक: *₹2,600/दिवस*
+
+🏗️ *बांधकाम उपकरणे:*
+• JCB 3DX बॅकहो लोडर: *₹4,500/दिवस*
+• हायड्रॉलिक एक्सकॅव्हेटर (पोकलेन): *₹7,000/दिवस*
+━━━━━━━━━━━━━━━━━━━━
+🛡️ गोमेट सुरक्षा व सेवा फी: *फक्त ₹49*
+✅ १००% सुरक्षित व थेट मालकाशी संपर्क!
+
+👉 *थेट बुक करण्यासाठी उपकरणाचे नाव पाठवा (उदा: 'मला 2 दिवस ट्रॅक्टर हवा') किंवा मेनूसाठी '0' पाठवा.*`;
+    } else if (effectiveLang === 'hi') {
+      rateText = `📊 *गोमेट मशीनरी आधिकारिक दर सूची (प्रति दिन)*
+━━━━━━━━━━━━━━━━━━━━
+🌾 *कृषि उपकरण:*
+• महिंद्रा ट्रैक्टर (45 HP): *₹1,500/दिन*
+• कंबाइन हार्वेस्टर: *₹4,200/दिन*
+• शक्तिमान रोटावेटर: *₹850/दिन*
+• कृषि छिड़काव ड्रोन: *₹2,500/दिन*
+
+🚚 *परिवहन उपकरण:*
+• टाटा ऐस (छोटा हाथी): *₹1,300/दिन*
+• बोलेरो / दोस्त पिकअप: *₹1,600/दिन*
+• टाटा 407 ट्रक: *₹2,600/दिन*
+
+🏗️ *निर्माण उपकरण:*
+• JCB 3DX बैकहो लोडर: *₹4,500/दिन*
+• हाइड्रोलिक एक्सकेवेटर (पोकलेन): *₹7,000/दिन*
+━━━━━━━━━━━━━━━━━━━━
+🛡️ गोमेट सुरक्षा शुल्क: *मात्र ₹49*
+
+👉 *मशीनरी बुक करने के लिए नाम भेजें या मेनू के लिए '0' भेजें।*`;
+    } else {
+      rateText = `📊 *GoMate Official Rental Rate Card (Per Day)*
+━━━━━━━━━━━━━━━━━━━━
+🌾 *Agriculture Equipment:*
+• Mahindra Tractor (45 HP): *₹1,500/day*
+• Combine Harvester: *₹4,200/day*
+• Shaktiman Rotavator: *₹850/day*
+• Agri Spraying Drone: *₹2,500/day*
+
+🚚 *Transport & Logistics:*
+• Tata Ace (Chhota Hathi): *₹1,300/day*
+• Bolero / Dost Pickup: *₹1,600/day*
+• Tata 407 Truck: *₹2,600/day*
+
+🏗️ *Infrastructure & Construction:*
+• JCB 3DX Backhoe Loader: *₹4,500/day*
+• Hydraulic Excavator (Poklane): *₹7,000/day*
+━━━━━━━━━━━━━━━━━━━━
+🛡️ GoMate Protection & Support Fee: *Flat ₹49*
+
+👉 *To get a quote, type machinery name (e.g. '1 JCB for 2 days') or reply '0' for Menu.*`;
+    }
+    responseCache.set(cacheKey, rateText);
+    return rateText;
+  }
+
+  // Contact & Helpline
+  if (cleanMsg.includes('contact') || cleanMsg.includes('helpline') || cleanMsg.includes('कॉल') || cleanMsg.includes('फोन') || cleanMsg.includes('संपर्क') || cleanMsg.includes('number')) {
     const contactText = effectiveLang === 'mr' 
       ? `📞 *GoMate शेतकरी व ग्राहक मदत केंद्र*\n\nटोल-फ्री नंबर: *1800-123-4567*\nWhatsApp: *+91 98220 12345*\nवेळ: सकाळी 7:00 ते रात्री 10:00 (सर्व 7 दिवस)\n\n👉 मेनूसाठी *0* पाठवा.`
       : `📞 *GoMate Farmer & Customer Helpline*\n\nToll-Free Number: *1800-123-4567*\nWhatsApp: *+91 98220 12345*\nHours: 7:00 AM – 10:00 PM (All 7 days)\n\n👉 Reply *0* for Main Menu.`;
@@ -243,75 +317,89 @@ async function generateChatResponse(message, language = 'en', context = '', sess
     return contactText;
   }
 
-  if (!ai) {
-    if (effectiveLang === 'mr') return "🙏 *GoMate सहाय्यक*\nआम्ही शेती (ट्रॅक्टर, हार्वेस्टर), वाहतूक (छोटा हत्ती, ट्रक) आणि बांधकाम (JCB, क्रेन) उपकरणे भाड्याने देतो.\n\n👉 उपकरणे शोधण्यासाठी *1* पाठवा किंवा मेनूसाठी *0* पाठवा.";
-    if (effectiveLang === 'hi') return "🙏 *GoMate सहायक*\nहम कृषि (ट्रैक्टर, हार्वेस्टर), परिवहन (छोटा हाथी, ट्रक) और निर्माण (JCB, क्रेन) उपकरण किराए पर उपलब्ध कराते हैं।\n\n👉 मशीन खोजने के लिए *1* भेजें या मेनू के लिए *0* भेजें।";
-    return "🙏 *GoMate Assistant*\nWe provide rentals for Agriculture (Tractors, Harvesters), Transport (Tata Ace, Trucks), and Infrastructure (JCB, Excavators).\n\n👉 Reply *1* to search equipment or *0* for Main Menu.";
+  // How it works & Process
+  if (cleanMsg.includes('process') || cleanMsg.includes('how it works') || cleanMsg.includes('कसे काम') || cleanMsg.includes('प्रक्रिया') || cleanMsg.includes('डिलिव्हरी')) {
+    const procText = effectiveLang === 'mr'
+      ? `📋 *GoMate वर बुकिंग कसे करावे? (४ सोप्या पायऱ्या)*
+━━━━━━━━━━━━━━━━━━━━
+1️⃣ *दर व अंदाज:* हवे असलेले उपकरण सांगा (उदा. 'मला २ दिवस ट्रॅक्टर हवा').
+2️⃣ *१-क्लिक बुकिंग:* 'बुक करा' पाठवून सुरक्षित UPI लिंक मिळवा.
+3️⃣ *मालकाशी थेट संपर्क:* पेमेंट पूर्ण होताच मशिनरी मालकाचा फोन नंबर व थेट पत्ता मिळतो.
+4️⃣ *सुरक्षित डिलिव्हरी:* मालक स्वतः तुमच्या शेतात/साइटवर मशिनरी वेळेत पोहोचवतील. काम सुरू होईपर्यंत तुमची रक्कम GoMate द्वारे सुरक्षित!
+
+👉 *उपकरण शोधण्यासाठी '1' पाठवा किंवा मेनूसाठी '0' पाठवा.*`
+      : `📋 *How GoMate Booking Works (4 Simple Steps)*
+━━━━━━━━━━━━━━━━━━━━
+1️⃣ *Quote & Estimate:* Ask for any equipment (e.g. '1 JCB for 2 days').
+2️⃣ *Instant 1-Click Booking:* Reply 'Book' to receive your secure UPI link.
+3️⃣ *Direct Owner Connect:* Receive verified owner name, phone & hub location instantly.
+4️⃣ *Guaranteed Delivery:* The owner delivers the machinery with driver directly to your site.
+
+👉 *Reply '1' to Search Equipment or '0' for Main Menu.*`;
+    responseCache.set(cacheKey, procText);
+    return procText;
   }
 
-  let langInstruction = '';
+  // Locations & Districts
+  if (cleanMsg.includes('location') || cleanMsg.includes('district') || cleanMsg.includes('पुणे') || cleanMsg.includes('नाशिक') || cleanMsg.includes('सातारा') || cleanMsg.includes('कोल्हापूर') || cleanMsg.includes('सोलापूर') || cleanMsg.includes('नगर') || cleanMsg.includes('पत्ता') || cleanMsg.includes('कुठे')) {
+    const locText = effectiveLang === 'mr'
+      ? `📍 *GoMate संपूर्ण महाराष्ट्रात कार्यरत आहे!*
+━━━━━━━━━━━━━━━━━━━━
+आम्ही पुणे, नाशिक, सातारा, सांगली, कोल्हापूर, सोलापूर, छत्रपती संभाजीनगर, नागपूर, अमरावती आणि महाराष्ट्रातील सर्व जिल्ह्यांत व तालुक्यांत सेवा देतो.
+
+👉 *आपल्या शेतातील पिनकोड किंवा तालुक्याचे नाव पाठवून जवळची उपकरणे शोधा.*
+_(मेनूसाठी *0* पाठवा)_`
+      : `📍 *GoMate Operates Across All Maharashtra!*
+━━━━━━━━━━━━━━━━━━━━
+Active hubs in Pune, Nashik, Satara, Kolhapur, Solapur, Aurangabad, Nagpur, and all rural agricultural talukas.
+
+👉 *Send your location pin or taluka name to find nearby machinery.*
+_(Reply *0* for Main Menu)_`;
+    responseCache.set(cacheKey, locText);
+    return locText;
+  }
+
+  // Owner Listing Inquiry
+  if (cleanMsg.includes('माझी मशीन') || cleanMsg.includes('मालक') || cleanMsg.includes('list') || cleanMsg.includes('attach') || cleanMsg.includes('owner') || cleanMsg.includes('भाड्याने द्यायची')) {
+    const ownerText = effectiveLang === 'mr'
+      ? `🚜 *आपली मशिनरी गोमेटवर जोडा व नियमित भाडे कमवा!*
+━━━━━━━━━━━━━━━━━━━━
+• शेतकऱ्यांकडून थेट चौकशी व बुकिंग
+• पहिल्या महिन्यासाठी ₹0 नोंदणी फी
+• १००% थेट UPI पेमेंट
+
+👉 *मशिनरी नोंदणी सुरू करण्यासाठी '2' पाठवा, किंवा मेनूसाठी '0' पाठवा.*`
+      : `🚜 *List Your Equipment on GoMate & Earn Daily Rentals!*
+━━━━━━━━━━━━━━━━━━━━
+• Get direct farmer inquiries across your district
+• ₹0 listing fee for the first 30 days
+• 100% direct bank payouts
+
+👉 *Reply '2' to register as an Equipment Owner or '0' for Menu.*`;
+    responseCache.set(cacheKey, ownerText);
+    return ownerText;
+  }
+
+  // Instant Graceful Catalog Overview (No remote AI wait needed!)
   if (effectiveLang === 'mr') {
-    langInstruction = `CRITICAL LANGUAGE RULE: You MUST reply in clear, natural MARATHI (मराठी) using Devanagari script. Be extremely polite, respectful, and helpful.`;
-  } else if (effectiveLang === 'hi') {
-    langInstruction = `CRITICAL LANGUAGE RULE: You MUST reply in natural HINDI (हिंदी) using Devanagari script. Be polite and helpful.`;
-  } else {
-    langInstruction = `CRITICAL LANGUAGE RULE: Reply in clear, friendly, and simple English.`;
-  }
+    return `🙏 *GoMate कृषी, वाहतूक व बांधकाम सहाय्यक*
 
-  const systemInstruction = `You are GoMate's Multilingual WhatsApp AI Assistant.
-GoMate is Maharashtra's #1 verified equipment and machinery rental marketplace connecting farmers, contractors, and transporters directly with equipment owners with ₹0 booking fees.
+आम्ही शेती (ट्रॅक्टर, हार्वेस्टर), वाहतूक (छोटा हत्ती, ट्रक) आणि बांधकाम (JCB, एक्सकॅव्हेटर) उपकरणे वाजवी दरात उपलब्ध करतो.
 
-CATALOG:
-1. Agriculture: Tractors (~₹1,500/day), Harvesters (~₹4,200/day), Rotavators (~₹850/day), Drones (~₹2,500/day).
-2. Transport: Tata Ace Chhota Hathi (~₹1,300/day), Pickup Dost (~₹1,600/day), Tata 407 (~₹2,600/day), Tankers (~₹4,200/day).
-3. Construction: JCB 3DX (~₹4,500/day), Excavators (~₹7,000/day), Bulldozers (~₹6,500/day).
-
-Keep replies concise (35-55 words), structured with WhatsApp bold formatting, and end with:
-- In Marathi: "\n\n👉 *शोधण्यासाठी '1' पाठवा, किंवा मेनूसाठी '0' पाठवा.*"
-- In Hindi: "\n\n👉 *खोजने के लिए '1' भेजें, या मेनू के लिए '0' भेजें।*"
-- In English: "\n\n👉 *Reply '1' to search equipment, or '0' for Main Menu.*"
-
-${langInstruction}`;
-
-  // Ultra-fast single call with 1.8-second strict timeout
-  const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('AI_TIMEOUT')), 1800));
-
-  try {
-    const aiCall = (async () => {
-      const history = (session.conversation_history || []).slice(-2);
-      let contents = history.map(m => ({ role: m.role, parts: [{ text: m.text }] }));
-      contents.push({ role: 'user', parts: [{ text: message }] });
-
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.0-flash',
-        contents: contents,
-        config: {
-          systemInstruction: systemInstruction,
-          maxOutputTokens: 180,
-          temperature: 0.2
-        }
-      });
-      return response.text;
-    })();
-
-    const reply = await Promise.race([aiCall, timeoutPromise]);
-    if (reply) {
-      const trimmed = reply.trim();
-      responseCache.set(cacheKey, trimmed);
-      return trimmed;
-    }
-  } catch (err) {
-    // Fast graceful fallback if network/AI times out
-  }
-
-  // Instant graceful fallback
-  if (effectiveLang === 'mr') {
-    return `🙏 *GoMate कृषी व बांधकाम सहाय्यक*\n\nआम्ही शेती (ट्रॅक्टर, हार्वेस्टर), वाहतूक (छोटा हत्ती, ट्रक) आणि बांधकाम (JCB, क्रेन) उपकरणे वाजवी दरात उपलब्ध करतो.\n\n👉 उपकरणे शोधण्यासाठी *1* पाठवा किंवा मुख्य मेनूसाठी *0* पाठवा.`;
+👉 *उपकरणे शोधण्यासाठी '1' पाठवा, मालक नोंदणीसाठी '2' पाठवा, किंवा दरपत्रकासाठी 'दर' पाठवा.*`;
   }
   if (effectiveLang === 'hi') {
-    return `🙏 *GoMate कृषि और निर्माण सहायक*\n\nहम कृषि (ट्रैक्टर, हार्वेस्टर), परिवहन (छोटा हाथी, ट्रक) और निर्माण (JCB, क्रेन) उपकरण किफायती दरों पर प्रदान करते हैं।\n\n👉 मशीनरी खोजने के लिए *1* भेजें या मुख्य मेनू के लिए *0* भेजें।`;
+    return `🙏 *GoMate कृषि, परिवहन व निर्माण सहायक*
+
+हम कृषि (ट्रैक्टर, हार्वेस्टर), परिवहन (छोटा हाथी, ट्रक) और निर्माण (JCB, एक्सकेवेटर) उपकरण किफायती दरों पर प्रदान करते हैं।
+
+👉 *मशीनरी खोजने के लिए '1' भेजें, या दर सूची के लिए 'दर' भेजें।*`;
   }
-  return `🙏 *GoMate Machinery Assistant*\n\nWe provide verified rentals for Agriculture (Tractors, Harvesters), Transport (Tata Ace, Trucks), and Infrastructure (JCB, Excavators).\n\n👉 Reply *1* to search equipment, or *0* for Main Menu.`;
+  return `🙏 *GoMate Machinery & Rental Assistant*
+
+We provide verified rentals for Agriculture (Tractors, Harvesters), Transport (Tata Ace, Trucks), and Infrastructure (JCB, Excavators).
+
+👉 *Reply '1' to search equipment, '2' for Owner listing, or 'rates' for Rate Card.*`;
 }
 
 module.exports = { generateChatResponse };
