@@ -3,6 +3,7 @@ const path = require('path');
 const express = require('express');
 
 const webhookHandler = require('./src/handlers/webhook');
+const { handleMetaVerification, handleMetaInbound } = require('./src/handlers/metaWebhook');
 const razorpayService = require('./src/services/razorpay');
 const { getSession, resetSession } = require('./src/services/session');
 const { routeMessage } = require('./src/handlers/router');
@@ -275,9 +276,19 @@ app.get('/api/whatsapp/status', (req, res) => {
   res.json(getWhatsAppStatus());
 });
 
-// Twilio WhatsApp & Webhook endpoints
+// 🌟 Meta WhatsApp Cloud API (Official) Webhooks
+app.get('/webhook/meta', handleMetaVerification);
+app.post('/webhook/meta', handleMetaInbound);
+app.get('/webhook/whatsapp', handleMetaVerification); // Dual compatibility for Meta
+
+// Inbound dispatcher (handles both Meta Cloud API JSON and Twilio x-www-form-urlencoded)
+app.post('/webhook/whatsapp', (req, res) => {
+  if (req.body && req.body.object === 'whatsapp_business_account') {
+    return handleMetaInbound(req, res);
+  }
+  return webhookHandler(req, res);
+});
 app.post('/webhook', webhookHandler);
-app.post('/webhook/whatsapp', webhookHandler);
 
 // Razorpay Webhook
 app.post('/webhook/razorpay', async (req, res) => {
