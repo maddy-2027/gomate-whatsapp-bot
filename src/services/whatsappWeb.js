@@ -1,184 +1,229 @@
-const { Client, LocalAuth } = require('whatsapp-web.js');
+const { makeWASocket, useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = require('@whiskeysockets/baileys');
+const pino = require('pino');
 const qrcode = require('qrcode');
+const qrcodeTerminal = require('qrcode-terminal');
+const path = require('path');
+const fs = require('fs');
 const { getSession } = require('./session');
 
-let waClient = null;
+let waSocket = null;
 let currentQrDataUrl = null;
+let rawQrCode = null;
 let isReady = false;
+let connectedUser = null;
+const AUTH_DIR = path.join(process.cwd(), '.baileys_auth');
 
-function initWhatsAppWeb(onQrCallback, onReadyCallback) {
-  const isWindows = process.platform === 'win32';
-  const chromePath = process.env.PUPPETEER_EXECUTABLE_PATH || 
-    (isWindows ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' : '/usr/bin/chromium');
+// In-memory debounce set to prevent loop replies
+const recentReplies = new Set();
 
-  const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
-
-  waClient = new Client({
-    authStrategy: new LocalAuth({ dataPath: './.wwebjs_auth' }),
-    puppeteer: {
-      executablePath: chromePath,
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--no-first-run',
-        '--no-zygote',
-        '--disable-gpu',
-        `--user-agent=${USER_AGENT}`,
-        '--window-size=1280,800'
-      ]
-    },
-    userAgent: USER_AGENT
-  });
-
-  waClient.on('qr', async (qr) => {
-    console.log('⚡ WhatsApp Web QR Code generated!');
-    try {
-      currentQrDataUrl = await qrcode.toDataURL(qr);
-      if (onQrCallback) onQrCallback(currentQrDataUrl);
-    } catch (e) {
-      console.error('Error generating QR code data URL:', e);
+/**
+ * Initialize Baileys WhatsApp Web Multi-Device Client
+ */
+async function initWhatsAppWeb(onQrCallback, onReadyCallback) {
+  try {
+    if (!fs.existsSync(AUTH_DIR)) {
+      fs.mkdirSync(AUTH_DIR, { recursive: true });
     }
-  });
 
-  waClient.on('ready', () => {
-    console.log('✅ WhatsApp Web Client is READY and CONNECTED to your phone!');
-    isReady = true;
-    currentQrDataUrl = null;
-    if (onReadyCallback) onReadyCallback();
-  });
-
-  waClient.on('authenticated', () => {
-    console.log('🔐 WhatsApp Web Authenticated successfully!');
-  });
-
-  waClient.on('auth_failure', (msg) => {
-    console.error('❌ WhatsApp Web Auth failure:', msg);
-    isReady = false;
-  });
-
-  waClient.on('disconnected', async (reason) => {
-    console.log('⚠️ WhatsApp Web Disconnected:', reason);
-    isReady = false;
-    currentQrDataUrl = null;
+    const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
+    let version = [2, 3000, 1015901307];
     try {
-      await waClient.destroy();
+      const v = await fetchLatestBaileysVersion();
+      if (v && v.version) version = v.version;
     } catch (e) {}
-    setTimeout(() => {
-      console.log('🔄 Launching fresh QR pairing for new WhatsApp number...');
-      initWhatsAppWeb(onQrCallback, onReadyCallback);
-    }, 3000);
-  });
 
-  const recentReplies = new Set();
+    waSocket = makeWASocket({
+      version,
+      auth: state,
+      printQRInTerminal: false,
+      logger: pino({ level: 'silent' }),
+      browser: ['GoMate 24x7 Server', 'Chrome', '126.0.0.0'],
+      syncFullHistory: false,
+      generateHighQualityLinkPreview: true,
+      markOnlineOnConnect: true,
+    });
 
-  async function handleIncomingMessage(msg) {
-    if (!msg || msg.isStatus || msg.broadcast) return;
-    if (msg.from && msg.from.includes('@g.us')) return; // ignore group chats
+    waSocket.ev.on('creds.update', saveCreds);
 
-    // Anti-loop protection: ignore if body was sent by bot itself
-    const body = (msg.body || '').trim();
-    if (!body) return;
+    waSocket.ev.on('connection.update', async (update) => {
+      const { connection, lastDisconnect, qr } = update;
 
-    if (recentReplies.has(body)) {
-      recentReplies.delete(body);
-      return;
-    }
-
-    // If message is fromMe, only process if user is chatting in self-chat (to itself)
-    if (msg.fromMe) {
-      if (msg.to && msg.from && msg.to !== msg.from) {
-        // Message sent from bot to someone else - ignore
-        return;
+      if (qr) {
+        rawQrCode = qr;
+        try {
+          currentQrDataUrl = await qrcode.toDataURL(qr);
+          console.log('\n======================================================');
+          console.log('⚡ Scan this WhatsApp QR code to link your phone number:');
+          console.log('🌐 Web Dashboard: http://localhost:3000/qr');
+          console.log('======================================================\n');
+          qrcodeTerminal.generate(qr, { small: true });
+          if (onQrCallback) onQrCallback(currentQrDataUrl);
+        } catch (err) {
+          console.error('Failed to generate QR data URL:', err);
+        }
       }
-    }
 
-    // Clean sender phone number
-    const from = msg.fromMe ? (msg.to || msg.from) : msg.from;
-    const phone = '+' + from.replace('@c.us', '').replace(/@lid$/, '');
-
-    let textPayload = body;
-
-    // Check if this is a WhatsApp Location Pin
-    if (msg.type === 'location' || (msg.location && msg.location.latitude)) {
-      const lat = msg.location.latitude;
-      const lng = msg.location.longitude;
-      textPayload = `GPS_LOCATION:${lat},${lng}`;
-      console.log(`📍 Real WhatsApp GPS Location received from ${phone}: Lat ${lat}, Lng ${lng}`);
-    }
-
-    console.log(`📱 Real WhatsApp message received from ${phone} (fromMe: ${msg.fromMe}): "${textPayload}"`);
-
-    try {
-      const { routeMessage } = require('../handlers/router');
-      const session = getSession(phone);
-      const replyText = await routeMessage(phone, textPayload, session);
-      if (replyText) {
-        console.log(`💬 Sending WhatsApp reply to ${phone}: "${replyText.substring(0, 50)}..."`);
-        recentReplies.add(replyText.trim());
-        // Auto-cleanup reply set after 30s
-        setTimeout(() => recentReplies.delete(replyText.trim()), 30000);
-        
-        await msg.reply(replyText);
+      if (connection === 'open') {
+        isReady = true;
+        currentQrDataUrl = null;
+        rawQrCode = null;
+        connectedUser = waSocket.user ? (waSocket.user.name || waSocket.user.id) : 'Connected';
+        const cleanPhone = waSocket.user?.id ? '+' + waSocket.user.id.split(':')[0] : 'Your Phone';
+        console.log('\n🎉 ======================================================');
+        console.log(`🚀 GoMate WhatsApp Bot is LIVE & CONNECTED on ${cleanPhone}!`);
+        console.log(`📱 24x7 Real SIM Messaging is ACTIVE without Twilio.`);
+        console.log('======================================================\n');
+        if (onReadyCallback) onReadyCallback();
       }
-    } catch (err) {
-      console.error('Error processing real WhatsApp message:', err);
-      try {
-        await msg.reply('Sorry, something went wrong processing your request. Reply "0" to return to the menu.');
-      } catch (e) {}
-    }
+
+      if (connection === 'close') {
+        isReady = false;
+        currentQrDataUrl = null;
+        const statusCode = lastDisconnect?.error?.output?.statusCode;
+        const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
+
+        console.log(`⚠️ WhatsApp connection closed (Reason: ${statusCode || 'Unknown'}). Reconnecting: ${shouldReconnect}`);
+
+        if (shouldReconnect) {
+          setTimeout(() => {
+            initWhatsAppWeb(onQrCallback, onReadyCallback);
+          }, 3000);
+        } else {
+          console.log('🔒 WhatsApp logged out. Cleaning session and waiting for new QR scan...');
+          try {
+            fs.rmSync(AUTH_DIR, { recursive: true, force: true });
+          } catch (e) {}
+          setTimeout(() => {
+            initWhatsAppWeb(onQrCallback, onReadyCallback);
+          }, 2000);
+        }
+      }
+    });
+
+    // Listen for incoming WhatsApp messages
+    waSocket.ev.on('messages.upsert', async ({ messages, type }) => {
+      if (type !== 'notify') return;
+
+      for (const msg of messages) {
+        try {
+          if (!msg.message) continue;
+          const from = msg.key.remoteJid;
+
+          // Ignore status broadcasts and group messages
+          if (!from || from === 'status@broadcast' || from.endsWith('@g.us')) continue;
+
+          // Ignore bot's own outbound messages unless it's testing in self-chat
+          if (msg.key.fromMe) continue;
+
+          // Extract message text content
+          const msgType = Object.keys(msg.message)[0];
+          let body = '';
+
+          if (msgType === 'conversation') {
+            body = msg.message.conversation;
+          } else if (msgType === 'extendedTextMessage') {
+            body = msg.message.extendedTextMessage?.text || '';
+          } else if (msgType === 'imageMessage') {
+            body = msg.message.imageMessage?.caption || '';
+          } else if (msgType === 'locationMessage') {
+            const lat = msg.message.locationMessage?.degreesLatitude;
+            const lng = msg.message.locationMessage?.degreesLongitude;
+            body = `GPS_LOCATION:${lat},${lng}`;
+            console.log(`📍 Real GPS location received: ${lat}, ${lng}`);
+          }
+
+          body = (body || '').trim();
+          if (!body) continue;
+
+          // Anti-loop protection
+          if (recentReplies.has(body)) {
+            recentReplies.delete(body);
+            continue;
+          }
+
+          const rawNumber = from.replace('@s.whatsapp.net', '').replace(/:\d+/, '');
+          const phone = '+' + rawNumber;
+
+          console.log(`📱 Real WhatsApp Inbound from ${phone}: "${body}"`);
+
+          const { routeMessage } = require('../handlers/router');
+          const session = getSession(phone);
+          const replyText = await routeMessage(phone, body, session);
+
+          if (replyText) {
+            recentReplies.add(replyText.trim());
+            setTimeout(() => recentReplies.delete(replyText.trim()), 30000);
+
+            console.log(`💬 Replying to ${phone}: "${replyText.substring(0, 50)}..."`);
+            await waSocket.sendMessage(from, { text: replyText });
+          }
+        } catch (err) {
+          console.error('Error handling Baileys message:', err);
+        }
+      }
+    });
+
+  } catch (err) {
+    console.error('Failed to initialize Baileys:', err);
   }
-
-  // Listen to both message (from others) and message_create (for self-chat testing)
-  waClient.on('message', handleIncomingMessage);
-  waClient.on('message_create', (msg) => {
-    if (msg.fromMe && msg.to === msg.from) {
-      // User is typing to themselves in self-chat!
-      handleIncomingMessage(msg);
-    }
-  });
-
-  waClient.initialize().catch((err) => {
-    console.error('Failed to initialize WhatsApp Web client:', err);
-  });
-
-  return waClient;
 }
 
+/**
+ * Get current connection status and QR code
+ */
 function getWhatsAppStatus() {
+  const cleanPhone = waSocket?.user?.id ? '+' + waSocket.user.id.split(':')[0] : null;
   return {
     isReady,
-    qrDataUrl: currentQrDataUrl
+    status: isReady ? 'connected' : (currentQrDataUrl ? 'qr_ready' : 'connecting'),
+    qrDataUrl: currentQrDataUrl,
+    phone: cleanPhone,
+    user: connectedUser
   };
 }
 
+/**
+ * Send an outbound WhatsApp message directly using Baileys
+ */
 async function sendWhatsAppDirect(phone, text) {
-  if (!waClient || !isReady) return false;
+  if (!waSocket || !isReady) {
+    console.warn(`[Baileys] Cannot send message to ${phone}: WhatsApp is not connected.`);
+    return false;
+  }
   try {
-    let chatId = phone;
-    if (chatId.includes('@')) {
-      // already a valid whatsapp chatId
-    } else {
-      const rawNumber = phone.replace(/[^0-9]/g, '');
-      chatId = `${rawNumber}@c.us`;
-    }
-    
-    try {
-      const numberId = await waClient.getNumberId(chatId.replace('@c.us', ''));
-      if (numberId && numberId._serialized) {
-        chatId = numberId._serialized;
-      }
-    } catch (e) {}
+    const rawNumber = phone.replace(/[^0-9]/g, '');
+    const jid = `${rawNumber}@s.whatsapp.net`;
 
-    await waClient.sendMessage(chatId, text);
-    console.log(`✅ Direct alert message dispatched to ${chatId}`);
+    await waSocket.sendMessage(jid, { text });
+    console.log(`✅ Direct message sent to ${phone}`);
     return true;
   } catch (err) {
-    console.error('Error sending direct WhatsApp:', err.message || err);
+    console.error(`Error sending message to ${phone}:`, err.message || err);
     return false;
   }
 }
 
-module.exports = { initWhatsAppWeb, getWhatsAppStatus, sendWhatsAppDirect };
+/**
+ * Disconnect and logout current session
+ */
+async function logoutWhatsApp() {
+  try {
+    if (waSocket) {
+      await waSocket.logout();
+    }
+    fs.rmSync(AUTH_DIR, { recursive: true, force: true });
+    isReady = false;
+    currentQrDataUrl = null;
+    return { success: true, message: 'Logged out successfully' };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+}
+
+module.exports = {
+  initWhatsAppWeb,
+  initBaileys: initWhatsAppWeb,
+  getWhatsAppStatus,
+  sendWhatsAppDirect,
+  logoutWhatsApp
+};

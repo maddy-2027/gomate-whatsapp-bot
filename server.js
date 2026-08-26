@@ -3,11 +3,10 @@ const path = require('path');
 const express = require('express');
 
 const webhookHandler = require('./src/handlers/webhook');
-const { handleMetaVerification, handleMetaInbound } = require('./src/handlers/metaWebhook');
 const razorpayService = require('./src/services/razorpay');
 const { getSession, resetSession } = require('./src/services/session');
 const { routeMessage } = require('./src/handlers/router');
-const { initWhatsAppWeb, getWhatsAppStatus } = require('./src/services/whatsappWeb');
+const { initWhatsAppWeb, getWhatsAppStatus, logoutWhatsApp } = require('./src/services/whatsappWeb');
 const { initKeepAlive, getKeepAliveStatus } = require('./src/services/keepAlive');
 
 // Database repositories for admin metrics
@@ -33,6 +32,11 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve Static Frontend Assets & Pages
 app.use(express.static(path.join(__dirname, 'public')));
+
+// WhatsApp QR Code Web Pairing Dashboard
+app.get('/qr', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'qr.html'));
+});
 
 // Admin portal route
 app.get('/admin', (req, res) => {
@@ -61,13 +65,19 @@ app.get('/api/health', (req, res) => {
     service: 'GoMate WhatsApp Bot & Operations HQ',
     uptime: Math.round(process.uptime()),
     timestamp: new Date().toISOString(),
-    keepAlive: getKeepAliveStatus()
+    keepAlive: getKeepAliveStatus(),
+    whatsapp: getWhatsAppStatus().status
   });
 });
 
 // WhatsApp Web Real Device status & QR
 app.get('/api/whatsapp/status', (req, res) => {
   res.json(getWhatsAppStatus());
+});
+
+app.post('/api/whatsapp/logout', async (req, res) => {
+  const result = await logoutWhatsApp();
+  res.json(result);
 });
 
 // Admin Auth Middleware
@@ -276,19 +286,9 @@ app.get('/api/whatsapp/status', (req, res) => {
   res.json(getWhatsAppStatus());
 });
 
-// 🌟 Meta WhatsApp Cloud API (Official) Webhooks
-app.get('/webhook/meta', handleMetaVerification);
-app.post('/webhook/meta', handleMetaInbound);
-app.get('/webhook/whatsapp', handleMetaVerification); // Dual compatibility for Meta
-
-// Inbound dispatcher (handles both Meta Cloud API JSON and Twilio x-www-form-urlencoded)
-app.post('/webhook/whatsapp', (req, res) => {
-  if (req.body && req.body.object === 'whatsapp_business_account') {
-    return handleMetaInbound(req, res);
-  }
-  return webhookHandler(req, res);
-});
+// Twilio WhatsApp & Webhook endpoints
 app.post('/webhook', webhookHandler);
+app.post('/webhook/whatsapp', webhookHandler);
 
 // Razorpay Webhook
 app.post('/webhook/razorpay', async (req, res) => {
