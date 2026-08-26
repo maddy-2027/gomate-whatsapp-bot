@@ -48,7 +48,7 @@ function solveDirectQuery(message, effectiveLang, session = {}) {
     machineEn = 'JCB 3DX Backhoe Loader';
     machineMr = 'JCB 3DX बॅकहो लोडर';
     machineHi = 'JCB 3DX बैकहो लोडर';
-  } else if (t.includes('tractor') || t.includes('ट्रॅक्टर') || t.includes('ट्रैक्टर') || t.includes('mahindra') || t.includes('john deere')) {
+  } else if (t.includes('tractor') || t.includes('ट्रॅक्टर') || t.includes('ट्रैक्टर') || t.includes('mahindra') || t.includes('john deere') || t.includes('tafe')) {
     machine = 'Tractor';
     rate = 1500;
     machineEn = 'Mahindra 575 DI Tractor (45 HP)';
@@ -60,6 +60,18 @@ function solveDirectQuery(message, effectiveLang, session = {}) {
     machineEn = 'Combine Harvester';
     machineMr = 'कम्बाईन हार्वेस्टर';
     machineHi = 'कंबाइन हार्वेस्टर';
+  } else if (t.includes('truck') || t.includes('ट्रक') || t.includes('407') || t.includes('eicher')) {
+    machine = 'Truck';
+    rate = 2600;
+    machineEn = 'Tata 407 Heavy Truck';
+    machineMr = 'टाटा 407 ट्रक';
+    machineHi = 'टाटा 407 ट्रक';
+  } else if (t.includes('bolero') || t.includes('बोलेरो') || t.includes('dost') || t.includes('दोस्त')) {
+    machine = 'Pickup';
+    rate = 1600;
+    machineEn = 'Mahindra Bolero Pickup';
+    machineMr = 'महिंद्रा बोलेरो पिकअप';
+    machineHi = 'महिंद्रा बोलेरो पिकअप';
   } else if (t.includes('ace') || t.includes('chhota hathi') || t.includes('छोटा हत्ती') || t.includes('छोटा हाथी') || t.includes('pickup') || t.includes('पिकअप')) {
     machine = 'Tata Ace';
     rate = 1300;
@@ -96,7 +108,8 @@ function solveDirectQuery(message, effectiveLang, session = {}) {
 
   // Check if user is asking about cost/rate or specific duration:
   const isAskingCost = t.includes('cost') || t.includes('how much') || t.includes('rate') || t.includes('price') || 
-                       t.includes('rent') || t.includes('भाडे') || t.includes('दर') || t.includes('खर्च') || 
+                       t.includes('rent') || t.includes('hire') || t.includes('want') || t.includes('need') ||
+                       t.includes('भाडे') || t.includes('दर') || t.includes('खर्च') || 
                        t.includes('रुपये') || t.includes('किती') || t.includes('पाहिजे') || t.includes('हवे') ||
                        t.includes('किराया') || t.includes('कितना') || t.includes('चाहिए') || t.includes('दोन दिवस') || t.includes('तीन दिवस');
 
@@ -221,17 +234,16 @@ async function generateChatResponse(message, language = 'en', context = '', sess
   const effectiveLang = detected || session.language || language || 'en';
   const cleanMsg = (message || '').trim().toLowerCase();
 
-  // 1. Check in-memory instant response cache (sub-millisecond)
+  // 1. Direct calculation engine (sub-millisecond & ensures session.data.lastQuote is always set)
+  const directAnswer = solveDirectQuery(message, effectiveLang, session);
+  if (directAnswer) {
+    return directAnswer;
+  }
+
+  // 2. Check in-memory instant response cache for static inquiries
   const cacheKey = `${effectiveLang}:${cleanMsg}`;
   if (responseCache.has(cacheKey)) {
     return responseCache.get(cacheKey);
-  }
-
-  // 2. Check instant direct calculation engine (sub-millisecond & 100% reliable)
-  const directAnswer = solveDirectQuery(message, effectiveLang, session);
-  if (directAnswer) {
-    responseCache.set(cacheKey, directAnswer);
-    return directAnswer;
   }
 
   // 3. Fast Keyword & Instant Menu Shortcuts (Sub-millisecond 0ms execution)

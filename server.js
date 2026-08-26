@@ -7,6 +7,7 @@ const razorpayService = require('./src/services/razorpay');
 const { getSession, resetSession } = require('./src/services/session');
 const { routeMessage } = require('./src/handlers/router');
 const { initWhatsAppWeb, getWhatsAppStatus } = require('./src/services/whatsappWeb');
+const { initKeepAlive, getKeepAliveStatus } = require('./src/services/keepAlive');
 
 // Database repositories for admin metrics
 const bookingsRepo = require('./src/db/bookings.repo');
@@ -52,8 +53,16 @@ app.get('/style-guide', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'style-guide', 'index.html'));
 });
 
-// Health check
-app.get('/api/health', (req, res) => res.status(200).json({ status: 'ok', service: 'GoMate WhatsApp Bot & Operations HQ' }));
+// Health check & 24/7 Heartbeat Endpoint
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    service: 'GoMate WhatsApp Bot & Operations HQ',
+    uptime: Math.round(process.uptime()),
+    timestamp: new Date().toISOString(),
+    keepAlive: getKeepAliveStatus()
+  });
+});
 
 // WhatsApp Web Real Device status & QR
 app.get('/api/whatsapp/status', (req, res) => {
@@ -484,4 +493,7 @@ app.listen(port, () => {
     (qrUrl) => console.log('📱 Scan the QR code at http://localhost:3000 to connect your WhatsApp!'),
     () => console.log('🚀 GoMate is now LIVE on your real WhatsApp!')
   );
+
+  // Initialize 24/7 Keep-Alive Heartbeat (keeps cloud containers awake)
+  initKeepAlive();
 });

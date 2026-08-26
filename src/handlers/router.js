@@ -81,23 +81,42 @@ async function routeMessage(phone, text, session) {
 
   function isBookingIntent(text) {
     const s = (text || '').toLowerCase().trim();
-    if (s === 'book' || s === 'book this' || s === 'i want this' || s === 'i want' || s === 'book now' || s === 'pay' || s === 'proceed' || s === 'order') return true;
-    if (s === 'मला हे पाहिजे' || s === 'मला पाहिजे' || s === 'बुक करा' || s === 'हवे आहे' || s === 'बुक' || s === 'पाहिजे' || s === 'होय' || s === 'कन्फर्म') return true;
-    if (s === 'मुझे यह चाहिए' || s === 'मुझे चाहिए' || s === 'बुक करो' || s === 'बुक करना है' || s === 'हाँ' || s === 'कन्फर्म') return true;
-    if (s.includes('मला हे पाहिजे') || s.includes('बुक करा') || s.includes('book this') || s.includes('i want this') || s.includes('book now') || s.includes('i want')) return true;
+
+    // 1. If user is asking for equipment, duration, or price, it is a NEW inquiry, NEVER a confirmation!
+    const isNewInquiry = /(jcb|gcd|tractor|ट्रॅक्टर|ट्रैक्टर|truck|ट्रक|harvester|हार्वेस्टर|dost|दोस्त|bolero|बोलेरो|ace|हत्ती|हाथी|excavator|एक्सकॅव्हेटर|पोकलेन|rotavator|रोटाव्हेटर|drone|ड्रोन|rate|price|cost|दर|भाडे|खर्च|किंमत|रुपये|किती|कितना|day|days|दिवस|दिन|want|need|चाहिए|पाहिजे|हवे|\?)/i.test(s);
+    if (isNewInquiry) return false;
+
+    // 2. Direct exact booking confirmation phrases
+    const exactBookingPhrases = [
+      '1', 'book', 'book now', 'book this', 'pay', 'pay now', 'proceed', 'proceed to pay', 'confirm', 'confirm booking', 'yes', 'order',
+      'बुक करा', 'बुक', 'होय', 'होय बुक करा', 'कन्फर्म', 'कन्फर्म करा', 'पेमेंट करा', 'पेमेंट लिंक', 'पेमेंट लिंक पाठवा', 'बुकिंग करा',
+      'बुक करो', 'बुक करना है', 'हाँ', 'हाँ बुक करो', 'कन्फर्म करो', 'पेमेंट करो'
+    ];
+    if (exactBookingPhrases.includes(s)) return true;
+
+    // 3. Prefix matching for unambiguous commands (e.g. "book please", "pay now please")
+    if (/^(book|pay|confirm|yes|होय|हाँ|कन्फर्म)\b/i.test(s) && !s.includes('?') && !s.includes('how') && !s.includes('what')) {
+      return true;
+    }
     return false;
   }
 
   // 💳 DIRECT BOOKING & PAYMENT LINK TRIGGER:
-  // If user says "Book", "I want this", "मला हे पाहिजे", or selects "1" after receiving a quote:
-  if (isBookingIntent(rawText) || (t === '1' && session.data && session.data.lastQuote)) {
+  // Only trigger booking if a quote is actively stored in session AND user sends an explicit booking confirmation!
+  if (session.data && session.data.lastQuote && isBookingIntent(rawText)) {
     session.role = 'customer';
     return await bookingFlow.createInstantBookingWithProcess(phone, session);
   }
 
+  const isInActiveInputState = [
+    'BOOKING_DATES', 'BOOKING_DURATION', 'BOOKING_SELECT',
+    'SEARCH_LOCATION', 'CUSTOMER_NAME', 'ONBOARD_NAME',
+    'ONBOARD_DISTRICT', 'LISTING_TYPE', 'LISTING_MODEL', 'LISTING_PRICE', 'CHECK_STATUS'
+  ].includes(session.state);
+
   // 🌟 TOP-LEVEL INSTANT QUERY RESOLUTION:
-  // If user sends a question or machine rate query at ANY time (even first message), answer directly!
-  if (isNaturalQuery(rawText) && !isSingleDigit && !isShortGreeting) {
+  // If user sends a question or machine rate query while in general browsing, answer directly!
+  if (!isInActiveInputState && isNaturalQuery(rawText) && !isSingleDigit && !isShortGreeting) {
     session.role = session.role || 'customer';
     session.state = 'CUSTOMER_MENU';
     return await generateChatResponse(rawText, currentLang, 'User direct natural question', session);
@@ -208,9 +227,10 @@ async function routeMessage(phone, text, session) {
       return await generateChatResponse(rawText, session.language, 'User searching equipment category or asking custom equipment query', session);
     }
     case 'SEARCH_LOCATION': return await searchHandler.handleLocationInput(phone, rawText, session);
-    case 'BOOKING_SELECT':  return await bookingFlow.handleEquipmentSelect(phone, rawText, session);
-    case 'BOOKING_DATES':   return await bookingFlow.handleDateInput(phone, rawText, session);
-    case 'BOOKING_CONFIRM': return await bookingFlow.handleConfirmation(phone, rawText, session);
+    case 'BOOKING_SELECT':   return await bookingFlow.handleEquipmentSelect(phone, rawText, session);
+    case 'BOOKING_DATES':    return await bookingFlow.handleDateInput(phone, rawText, session);
+    case 'BOOKING_DURATION': return await bookingFlow.handleDurationInput(phone, rawText, session);
+    case 'BOOKING_CONFIRM':  return await bookingFlow.handleConfirmation(phone, rawText, session);
     case 'CHECK_STATUS':    return await statusHandler.handleStatusQuery(phone, rawText, session);
 
     case 'OWNER_MENU':

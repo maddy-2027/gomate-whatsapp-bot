@@ -5,8 +5,10 @@ const { MessagingResponse } = twilio.twiml;
 
 /**
  * Webhook handler for Twilio WhatsApp incoming messages and HTTP simulator.
+ * Hardened with a 5-second timeout and automatic fail-safe recovery so the bot NEVER drops a reply.
  */
 module.exports = async (req, res) => {
+  const startTime = Date.now();
   let from = req.body.From || req.body.phone || '';
   let body = req.body.Body || req.body.message || '';
 
@@ -19,7 +21,7 @@ module.exports = async (req, res) => {
   const rawPhone = from.replace('whatsapp:', '').trim();
   body = (body || '').trim();
 
-  console.log(`📱 [Twilio Webhook] Received from ${rawPhone}: "${body}"`);
+  console.log(`📱 [Twilio Webhook] Incoming message from ${rawPhone}: "${body}"`);
 
   if (!rawPhone || !body) {
     const emptyTwiml = new MessagingResponse();
@@ -27,28 +29,42 @@ module.exports = async (req, res) => {
     return res.end(emptyTwiml.toString());
   }
 
+  const session = getSession(rawPhone);
+  const lang = session.language || 'mr';
+
+  // Fallback response in case of timeout or non-fatal exception
+  const fallbackMessage = lang === 'en'
+    ? `🙏 *GoMate Assistant*\n\nHow can we help you today? Reply *1* to Search Equipment, *2* for Rates, or *0* for Main Menu.`
+    : `🙏 *GoMate कृषी व वाहतूक सहाय्यक*\n\nआम्ही कशी मदत करू शकतो? उपकरणे शोधण्यासाठी *1* पाठवा, दरपत्रकासाठी *दर* पाठवा, किंवा मुख्य मेनूसाठी *0* पाठवा.`;
+
   try {
-    const session = getSession(rawPhone);
-    const replyText = await routeMessage(rawPhone, body, session);
+    // ⏱️ 5-second timeout protection race: guarantees a reply before Twilio's 15s timeout
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('PROCESSING_TIMEOUT')), 5000)
+    );
 
-    if (replyText) {
-      console.log(`💬 [Twilio Webhook] Replying via TwiML to ${rawPhone}: "${replyText.substring(0, 60)}..."`);
-      
-      // Use official Twilio TwiML Builder
-      const twiml = new MessagingResponse();
-      twiml.message(replyText);
+    const replyText = await Promise.race([
+      routeMessage(rawPhone, body, session),
+      timeoutPromise
+    ]);
 
-      res.writeHead(200, { 'Content-Type': 'text/xml' });
-      return res.end(twiml.toString());
-    } else {
-      const emptyTwiml = new MessagingResponse();
-      res.writeHead(200, { 'Content-Type': 'text/xml' });
-      return res.end(emptyTwiml.toString());
-    }
-  } catch (err) {
-    console.error('❌ [Twilio Webhook] Processing error:', err);
-    const emptyTwiml = new MessagingResponse();
+    const finalReply = replyText || fallbackMessage;
+    const latency = Date.now() - startTime;
+    console.log(`💬 [Twilio Webhook] Replying in ${latency}ms to ${rawPhone}: "${finalReply.substring(0, 60)}..."`);
+
+    const twiml = new MessagingResponse();
+    twiml.message(finalReply);
     res.writeHead(200, { 'Content-Type': 'text/xml' });
-    return res.end(emptyTwiml.toString());
+    return res.end(twiml.toString());
+
+  } catch (err) {
+    const latency = Date.now() - startTime;
+    console.warn(`⚠️ [Twilio Webhook] Handled fallback (${err.message}) after ${latency}ms for ${rawPhone}`);
+
+    // Always send a courteous response even if a backend API is slow or temporarily errored
+    const twiml = new MessagingResponse();
+    twiml.message(fallbackMessage);
+    res.writeHead(200, { 'Content-Type': 'text/xml' });
+    return res.end(twiml.toString());
   }
 };

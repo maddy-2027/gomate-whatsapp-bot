@@ -3,74 +3,228 @@ const { createBooking } = require('../../db/bookings.repo');
 const { createBookingPaymentLink } = require('../../services/razorpay');
 const { sendWhatsAppDirect } = require('../../services/whatsappWeb');
 
+/**
+ * Format DD/MM/YYYY string helper
+ */
+function getOffsetDateString(daysOffset = 0) {
+  const d = new Date();
+  d.setDate(d.getDate() + daysOffset);
+  const dd = d.getDate().toString().padStart(2, '0');
+  const mm = (d.getMonth() + 1).toString().padStart(2, '0');
+  const yyyy = d.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
+}
+
+/**
+ * Step 1: Equipment Selected -> Prompt for Date & Time Slot (Uber-Style Advance Scheduler)
+ */
 async function handleEquipmentSelect(phone, text, session) {
   const idx = parseInt(text.trim()) - 1;
   const results = session.data.searchResults;
   if (!isNaN(idx) && results && results[idx]) {
     session.data.selectedEquipment = results[idx];
     session.state = 'BOOKING_DATES';
-    return getText(session.language, 'booking_dates_prompt', { model: results[idx].model });
+    
+    const equip = results[idx];
+    const lang = session.language || 'mr';
+    const rate = equip.price_per_day || 1500;
+    const location = session.data.location || equip.district || 'पुणे';
+
+    if (lang === 'mr') {
+      return `📅 *GoMate आगाऊ बुकिंग शेड्युलिंग (Advance Schedule)* 🚜
+━━━━━━━━━━━━━━━━━━━━
+उपकरण: *${equip.model}*
+दर: *₹${rate.toLocaleString('en-IN')}/दिवस*
+स्थान: *${location}*
+
+📍 *पायरी १/२: तारीख व वेळ स्लॉट निवडा:*
+1️⃣ *उद्या सकाळी (८:०० AM)* ⭐️ सर्वाधिक पसंती
+2️⃣ *उद्या दुपारी (१:०० PM)*
+3️⃣ *आज त्वरित डिलिव्हरी (२ तासांत)*
+4️⃣ *परवा सकाळी (८:०० AM)*
+
+_किंवा तुमची तारीख व वेळ टाईप करा (उदा. 'उद्या सकाळी 9 वाजता 2 दिवस' किंवा '28 ऑगस्ट 8 am')_
+_(मुख्य मेनूसाठी *0* पाठवा)_`;
+    } else if (lang === 'hi') {
+      return `📅 *GoMate अग्रिम बुकिंग शेड्यूलिंग (Advance Schedule)* 🚜
+━━━━━━━━━━━━━━━━━━━━
+मशीनरी: *${equip.model}*
+दर: *₹${rate.toLocaleString('en-IN')}/दिन*
+स्थान: *${location}*
+
+📍 *चरण १/२: दिनांक और समय स्लॉट चुनें:*
+1️⃣ *कल सुबह (८:०० AM)* ⭐️ सबसे लोकप्रिय
+2️⃣ *कल दोपहर (१:०० PM)*
+3️⃣ *आज तुरंत डिलीवरी (२ घंटे में)*
+4️⃣ *परसों सुबह (८:०० AM)*
+
+_या अपनी तारीख व समय लिखें (उदा. 'कल सुबह ९ बजे २ दिन' या '२८ अगस्त ८ am')_
+_(मुख्य मेनू के लिए *0* भेजें)_`;
+    } else {
+      return `📅 *GoMate Advance Equipment Scheduler* 🚜
+━━━━━━━━━━━━━━━━━━━━
+Equipment: *${equip.model}*
+Daily Rate: *₹${rate.toLocaleString('en-IN')}/day*
+Location: *${location}*
+
+📍 *Step 1 of 2: Select Date & Time Slot*
+1️⃣ *Tomorrow Morning (8:00 AM)* ⭐️ Most Popular
+2️⃣ *Tomorrow Afternoon (1:00 PM)*
+3️⃣ *Today Immediate Dispatch (within 2 hours)*
+4️⃣ *Day After Tomorrow (8:00 AM)*
+
+_Or reply with custom date & time (e.g. 'Tomorrow 9 AM for 2 days' or '28 August 8 AM')_
+_(Reply *0* for Main Menu)_`;
+    }
   }
   return getText(session.language, 'invalid_selection');
 }
 
 /**
- * Flexible Date & Duration Parser
- * Parses natural strings like:
- * - "Tomorrow for 2 days"
- * - "उद्या 2 दिवस"
- * - "5 tractors for 3 days in Pune"
- * - "20/08/2026 3"
- * - "3 days"
- * 
- * IMMEDIATELY creates the booking and generates the payment link so the user is never blocked!
+ * Step 2: Handle Date & Time Input (Uber-Style Slot or Natural Input)
  */
 async function handleDateInput(phone, text, session) {
-  const t = text.trim();
+  const t = (text || '').trim();
   const lower = t.toLowerCase();
+  const lang = session.language || 'mr';
 
-  let startDate = 'Today';
-  let duration = 1;
+  let startDate = getOffsetDateString(1); // default tomorrow
+  let startTime = '08:00 AM';
+  let duration = null;
   let quantity = 1;
 
-  // Extract quantity if mentioned (e.g. "5 tractors", "2 JCB")
-  const qtyMatch = t.match(/\b([1-9][0-9]?)\s*(tractor|tractors|ट्रॅक्टर|jcb|जेसीबी|truck|trucks)\b/i);
-  if (qtyMatch) {
-    quantity = parseInt(qtyMatch[1]) || 1;
-  }
+  // Extract quantity if mentioned (e.g. "2 tractors", "5 JCB")
+  const qtyMatch = t.match(/\b([1-9][0-9]?)\s*(tractor|tractors|ट्रॅक्टर|jcb|जेसीबी|truck|trucks|हत्ती)\b/i);
+  if (qtyMatch) quantity = parseInt(qtyMatch[1]) || 1;
 
-  // Extract duration (e.g. "for 3 days", "3 दिवस", "3 days", "3 दिन")
-  const durMatch = t.match(/\b([1-9][0-9]?)\s*(day|days|दिवस|दिन|वार)\b/i);
-  const numMatch = t.match(/\b([1-9][0-9]?)\b/);
-  
-  if (durMatch) {
-    duration = parseInt(durMatch[1]);
-  } else if (numMatch) {
-    duration = parseInt(numMatch[1]) || 1;
-  }
-
-  // Parse start date
-  if (lower.includes('उद्या') || lower.includes('कल') || lower.includes('tomorrow')) {
-    const d = new Date();
-    d.setDate(d.getDate() + 1);
-    startDate = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
-  } else if (lower.includes('आज') || lower.includes('today')) {
-    const d = new Date();
-    startDate = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
+  // Check Option Buttons (1, 2, 3, 4)
+  if (t === '1' || lower === 'tomorrow morning' || lower === 'उद्या सकाळी' || lower === 'कल सुबह') {
+    startDate = getOffsetDateString(1);
+    startTime = '08:00 AM';
+  } else if (t === '2' || lower === 'tomorrow afternoon' || lower === 'उद्या दुपारी' || lower === 'कल दोपहर') {
+    startDate = getOffsetDateString(1);
+    startTime = '01:00 PM';
+  } else if (t === '3' || lower === 'today' || lower === 'आज' || lower === 'immediate' || lower === 'त्वरित') {
+    startDate = getOffsetDateString(0);
+    startTime = 'Immediate (Within 2 hrs)';
+  } else if (t === '4' || lower === 'day after' || lower === 'परवा' || lower === 'परसों') {
+    startDate = getOffsetDateString(2);
+    startTime = '08:00 AM';
   } else {
-    const parts = t.split(/[\s,]+/);
-    if (parts.length >= 1 && parts[0].includes('/')) {
-      startDate = parts[0];
+    // Custom natural date & time parsing
+    if (lower.includes('उद्या') || lower.includes('कल') || lower.includes('tomorrow')) {
+      startDate = getOffsetDateString(1);
+    } else if (lower.includes('आज') || lower.includes('today')) {
+      startDate = getOffsetDateString(0);
+    } else if (lower.includes('परवा') || lower.includes('परसों')) {
+      startDate = getOffsetDateString(2);
     } else {
-      const d = new Date();
-      startDate = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
+      const dateMatch = t.match(/\b([0-3]?[0-9][\/\-.][0-1]?[0-9][\/\-.]?[0-9]{0,4})\b/);
+      if (dateMatch) startDate = dateMatch[1];
+    }
+
+    // Extract time (e.g. "9 am", "8:30 am", "10 am", "2 pm", "९ वाजता")
+    const timeMatch = t.match(/([0-1]?[0-9](?::[0-5][0-9])?)\s*(am|pm|वाजता|बजे)?/i);
+    if (timeMatch && (timeMatch[2] || lower.includes('am') || lower.includes('pm') || lower.includes('वाजता') || lower.includes('बजे') || lower.includes('सकाळी') || lower.includes('सुबह'))) {
+      const hr = timeMatch[1].includes(':') ? timeMatch[1] : `${timeMatch[1].padStart(2, '0')}:00`;
+      const meridiem = (lower.includes('pm') || lower.includes('दुपारी') || lower.includes('दोपहर') || lower.includes('संध्याकाळी') || lower.includes('शाम')) ? 'PM' : 'AM';
+      startTime = `${hr} ${meridiem}`;
     }
   }
 
+  // Check if duration was also provided in this message (e.g. "for 3 days", "3 दिवस", "2 days", "3 दिन")
+  const durMatch = t.match(/([1-9][0-9]?)\s*(?:day|days|दिवस|दिन|दिवसांचे|दिवसांसाठी|दिनों|वार)/i);
+  if (durMatch) {
+    duration = parseInt(durMatch[1]);
+  } else if (lower.includes('week') || lower.includes('आठवडा') || lower.includes('हफ्ता')) {
+    duration = 7;
+  }
+
   session.data.startDate = startDate;
-  session.data.duration = duration;
+  session.data.startTime = startTime;
   session.data.quantity = quantity;
 
+  // If duration was already included in 1 shot, create final booking immediately!
+  if (duration) {
+    session.data.duration = duration;
+    return await createFinalBookingAndPayment(phone, session);
+  }
+
+  // Otherwise, transition to BOOKING_DURATION step
+  session.state = 'BOOKING_DURATION';
+  const equip = session.data.selectedEquipment || { model: 'Mahindra 575 DI Tractor', price_per_day: 1500 };
+  const dailyRate = equip.price_per_day || 1500;
+
+  if (lang === 'mr') {
+    return `⏱️ *पायरी २/२: भाडे कालावधी (दिवस) निवडा:*
+━━━━━━━━━━━━━━━━━━━━
+🚜 उपकरण: *${equip.model}*
+📅 शेड्युल तारीख: *${startDate}*
+⏰ डिलिव्हरी वेळ: *${startTime}*
+
+1️⃣ *१ दिवस* (₹${(dailyRate * 1).toLocaleString('en-IN')} + ₹49 सुरक्षा फी)
+2️⃣ *२ दिवस* (₹${(dailyRate * 2).toLocaleString('en-IN')} + ₹49 सुरक्षा फी) ⭐️ लोकप्रिय
+3️⃣ *३ दिवस* (₹${(dailyRate * 3).toLocaleString('en-IN')} + ₹49 सुरक्षा फी)
+4️⃣ *१ आठवडा / ७ दिवस* (₹${(dailyRate * 7).toLocaleString('en-IN')} + ₹49 सुरक्षा फी)
+
+_किंवा दिवसांची संख्या टाईप करा (उदा. '४ दिवस' किंवा '५')_
+_(रद्द करण्यासाठी *0* पाठवा)_`;
+  } else if (lang === 'hi') {
+    return `⏱️ *चरण २/२: किराया अवधि (दिन) चुनें:*
+━━━━━━━━━━━━━━━━━━━━
+🚜 मशीनरी: *${equip.model}*
+📅 निर्धारित दिनांक: *${startDate}*
+⏰ डिलीवरी समय: *${startTime}*
+
+1️⃣ *१ दिन* (₹${(dailyRate * 1).toLocaleString('en-IN')} + ₹49 सुरक्षा शुल्क)
+2️⃣ *२ दिन* (₹${(dailyRate * 2).toLocaleString('en-IN')} + ₹49 सुरक्षा शुल्क) ⭐️ लोकप्रिय
+3️⃣ *३ दिन* (₹${(dailyRate * 3).toLocaleString('en-IN')} + ₹49 सुरक्षा शुल्क)
+4️⃣ *१ सप्ताह / ७ दिन* (₹${(dailyRate * 7).toLocaleString('en-IN')} + ₹49 सुरक्षा शुल्क)
+
+_या दिनों की संख्या लिखें (उदा. '४ दिन' या '५')_
+_(रद्द करने के लिए *0* भेजें)_`;
+  } else {
+    return `⏱️ *Step 2 of 2: Select Rental Duration (Days)*
+━━━━━━━━━━━━━━━━━━━━
+🚜 Equipment: *${equip.model}*
+📅 Scheduled Date: *${startDate}*
+⏰ Delivery Time: *${startTime}*
+
+1️⃣ *1 Day* (₹${(dailyRate * 1).toLocaleString('en-IN')} + ₹49 Protection Fee)
+2️⃣ *2 Days* (₹${(dailyRate * 2).toLocaleString('en-IN')} + ₹49 Protection Fee) ⭐️ Most Popular
+3️⃣ *3 Days* (₹${(dailyRate * 3).toLocaleString('en-IN')} + ₹49 Protection Fee)
+4️⃣ *1 Week / 7 Days* (₹${(dailyRate * 7).toLocaleString('en-IN')} + ₹49 Protection Fee)
+
+_Or reply with number of days (e.g. '4 days' or '5')_
+_(Reply *0* to cancel)_`;
+  }
+}
+
+/**
+ * Step 3: Handle Duration Input
+ */
+async function handleDurationInput(phone, text, session) {
+  const t = (text || '').trim();
+  const lower = t.toLowerCase();
+
+  let duration = 1;
+  if (t === '1' || lower === '1 day' || lower === '१ दिवस' || lower === '1 दिन') duration = 1;
+  else if (t === '2' || lower === '2 days' || lower === '२ दिवस' || lower === '2 दिन') duration = 2;
+  else if (t === '3' || lower === '3 days' || lower === '३ दिवस' || lower === '3 दिन') duration = 3;
+  else if (t === '4' || lower.includes('week') || lower.includes('7') || lower.includes('आठवडा') || lower.includes('सप्ताह')) duration = 7;
+  else {
+    const numMatch = t.match(/\b([1-9][0-9]?)\b/);
+    if (numMatch) duration = parseInt(numMatch[1]);
+  }
+
+  session.data.duration = duration;
+  return await createFinalBookingAndPayment(phone, session);
+}
+
+/**
+ * Creates final booking record, generates Razorpay UPI payment link & returns Uber-style schedule summary
+ */
+async function createFinalBookingAndPayment(phone, session) {
   const equip = session.data.selectedEquipment || {
     id: 101,
     model: 'Mahindra 575 DI (45 HP)',
@@ -78,19 +232,30 @@ async function handleDateInput(phone, text, session) {
     district: session.data.location || 'Pune'
   };
 
+  const duration = session.data.duration || 1;
+  const quantity = session.data.quantity || 1;
+  const startDate = session.data.startDate || getOffsetDateString(1);
+  const startTime = session.data.startTime || '08:00 AM';
   const pricePerDay = equip.price_per_day || 1500;
-  const totalAmount = pricePerDay * duration * quantity;
-  session.data.totalAmount = totalAmount;
+  const PLATFORM_FEE = 49;
+  const rentalAmount = pricePerDay * duration * quantity;
+  const totalAmount = rentalAmount + PLATFORM_FEE;
 
-  // ── 1. Create Pending Booking in DB immediately ───────────────────────────
-  let booking;
+  session.data.totalAmount = totalAmount;
+  session.data.rentalTotal = rentalAmount;
+  session.data.platformFee = PLATFORM_FEE;
+
   const customerName = session.customerName || session.data.customerName || 'Customer';
+  const modelText = quantity > 1 ? `${quantity}x ${equip.model}` : equip.model;
+
+  // 1. Create Booking Reference (GM-XXXX)
+  let booking;
   try {
     booking = await createBooking({
       customer_phone: phone,
       customer_name: customerName,
       equipment_id: equip.id || 101,
-      start_date: startDate,
+      start_date: `${startDate} at ${startTime}`,
       duration_days: duration,
       total_amount: totalAmount,
       status: 'pending'
@@ -100,222 +265,148 @@ async function handleDateInput(phone, text, session) {
   }
   session.data.bookingRef = booking.booking_ref;
 
-  // ── 2. Generate Real / Demo UPI Payment Link ──────────────────────────────
+  // 2. Generate Real / Demo UPI Payment Link
   const payObj = await createBookingPaymentLink(
     phone,
     totalAmount,
     booking.booking_ref,
-    equip.model || 'Equipment'
+    modelText
   );
   const payLink = (payObj && payObj.short_url) ? payObj.short_url : 'https://rzp.io/l/gomate-booking';
   session.data.payLink = payLink;
 
-  // ── 3. Notify Owner in the background ────────────────────────────────────
-  const ownerPhone = (equip.owners && equip.owners.phone) || equip.owner_phone || process.env.ADMIN_WHATSAPP_NUMBER || '+919123456789';
-  const ownerLang = (equip.owners && equip.owners.language) || 'mr';
-  const alertMsg = getText(ownerLang, 'owner_new_booking_notification', {
-    ref: booking.booking_ref,
-    customerPhone: customerName !== 'Customer' ? `${customerName} (${phone})` : phone,
-    model: `${quantity > 1 ? `${quantity}x ` : ''}${equip.model}`,
-    date: startDate,
-    duration: duration,
-    total: totalAmount
-  });
-  sendWhatsAppDirect(ownerPhone, alertMsg).catch(() => {});
+  // 3. Notify Owner in background
+  const ownerPhone = (equip.owners && equip.owners.phone) || equip.owner_phone || process.env.ADMIN_WHATSAPP_NUMBER || '+919822012345';
+  sendWhatsAppDirect(ownerPhone, `🔔 *New Advance GoMate Booking!* Ref: ${booking.booking_ref} | ${modelText} | Schedule: ${startDate} at ${startTime} | Duration: ${duration} days | ₹${totalAmount} | Customer: ${phone}`).catch(() => {});
 
-  // ── 4. Move state to BOOKING_CONFIRM (allows replying 'pay', 'confirm', 'cancel')
+  // Clear active quote
+  delete session.data.lastQuote;
   session.state = 'BOOKING_CONFIRM';
 
-  // ── 5. Format localized response with instant Payment Link ────────────────
-  const modelText = quantity > 1 ? `${quantity}x ${equip.model}` : equip.model;
-  
-  if (session.language === 'mr') {
-    return `*बुकिंग तपशील व पेमेंट सारांश*
-━━━━━━━━━━━━━━━━━━━━
-उपकरण: *${modelText}*
-स्थान: *${session.data.location || 'पुणे'}*
-तारीख: *${startDate}*
-कालावधी: *${duration} दिवस*
-एकूण रक्कम: *₹${totalAmount.toLocaleString('en-IN')}*
-संदर्भ क्र: *${booking.booking_ref}*
-━━━━━━━━━━━━━━━━━━━━
-
-*पेमेंट करण्यासाठी खालील लिंकवर क्लिक करा:*
-👉 ${payLink}
-
-_PhonePe, Google Pay, Paytm, किंवा BHIM UPI द्वारे त्वरित पेमेंट करा._
-_(रद्द करण्यासाठी *0* किंवा *CANCEL* पाठवा)_`;
-  } else if (session.language === 'hi') {
-    return `*बुकिंग विवरण व पेमेंट सारांश*
-━━━━━━━━━━━━━━━━━━━━
-उपकरण: *${modelText}*
-स्थान: *${session.data.location || 'पुणे'}*
-तिथि: *${startDate}*
-अवधि: *${duration} दिन*
-कुल राशि: *₹${totalAmount.toLocaleString('en-IN')}*
-संदर्भ संख्या: *${booking.booking_ref}*
-━━━━━━━━━━━━━━━━━━━━
-
-*भुगतान करने के लिए नीचे दिए गए लिंक पर क्लिक करें:*
-👉 ${payLink}
-
-_PhonePe, Google Pay, Paytm, या BHIM UPI द्वारा तुरंत भुगतान करें।_
-_(रद्द करने के लिए *0* या *CANCEL* भेजें)_`;
-  } else {
-    return `*Booking Summary & Payment Link*
-━━━━━━━━━━━━━━━━━━━━
-Equipment: *${modelText}*
-Location: *${session.data.location || 'Pune'}*
-Date: *${startDate}*
-Duration: *${duration} days*
-Total Amount: *₹${totalAmount.toLocaleString('en-IN')}*
-Reference: *${booking.booking_ref}*
-━━━━━━━━━━━━━━━━━━━━
-
-*Proceed to Pay & Confirm Booking:*
-👉 ${payLink}
-
-_Pay securely using PhonePe, Google Pay, Paytm, or Cards._
-_(Reply *0* or *CANCEL* to cancel)_`;
-  }
-}
-
-/**
- * Handle confirmation, payment follow-up, or cancellation
- */
-async function handleConfirmation(phone, text, session) {
-  const t = (text || '').trim().toLowerCase();
-
-  const isCancel = ['cancel', '0', 'no', 'नाही', 'रद्द', 'रद्द करा', 'nahi', 'reject'].includes(t);
-  if (isCancel) {
-    session.state = 'CUSTOMER_MENU';
-    return getText(session.language || 'mr', 'booking_cancelled');
-  }
-
-  return await createInstantBookingWithProcess(phone, session);
-}
-
-/**
- * Instant Booking Creator with full 4-step process explanation & UPI payment link
- */
-async function createInstantBookingWithProcess(phone, session) {
-  const quote = (session.data && session.data.lastQuote) || {};
-  const machineName = quote.model || (session.data && session.data.selectedEquipment && session.data.selectedEquipment.model) || 'Mahindra 575 DI Tractor';
-  const duration = quote.days || (session.data && session.data.duration) || 1;
-  const quantity = quote.qty || (session.data && session.data.quantity) || 1;
-  const totalAmount = quote.total || (session.data && session.data.totalAmount) || (1500 * duration * quantity);
-  const location = (session.data && session.data.location) || 'Pune';
-  const customerName = session.customerName || (session.data && session.data.customerName) || 'Customer';
-
-  // 1. Generate instant booking reference (0ms latency)
-  const bookingRef = 'GM-' + Math.random().toString(36).substring(2, 6).toUpperCase();
-  const booking = { booking_ref: bookingRef };
-
-  // Save to database asynchronously in background without delaying WhatsApp reply
-  createBooking({
-    customer_phone: phone,
-    customer_name: customerName,
-    equipment_id: 101,
-    start_date: 'Tomorrow',
-    duration_days: duration,
-    total_amount: totalAmount,
-    status: 'pending'
-  }).catch(() => {});
-
-  if (!session.data) session.data = {};
-  session.data.bookingRef = booking.booking_ref;
-  session.data.totalAmount = totalAmount;
-
-  // 2. Generate UPI / Checkout Link
-  const payObj = await createBookingPaymentLink(
-    phone,
-    totalAmount,
-    booking.booking_ref,
-    machineName
-  );
-  const payLink = (payObj && payObj.short_url) ? payObj.short_url : 'https://rzp.io/l/gomate-booking';
-  session.data.payLink = payLink;
-  session.state = 'BOOKING_CONFIRM';
-
-  // 3. Notify owner in the background
-  const ownerPhone = process.env.ADMIN_WHATSAPP_NUMBER || '+919822012345';
-  sendWhatsAppDirect(ownerPhone, `🔔 *New GoMate Booking!* Ref: ${booking.booking_ref} | ${machineName} | ₹${totalAmount} | Customer: ${phone}`).catch(() => {});
-
-  const lang = session.language || 'en';
-
-  const platformFee = quote.platformFee || 49;
-  const rentalAmount = quote.rentalTotal || (totalAmount - platformFee);
+  const lang = session.language || 'mr';
 
   if (lang === 'mr') {
-    return `🎉 *तुमची बुकिंग तयार झाली आहे!*
+    return `🎉 *तुमचे उपकरण यशस्वीरित्या शेड्युल झाले आहे!* 🚜
 ━━━━━━━━━━━━━━━━━━━━
-🚜 उपकरण: *${machineName}*
+🚜 उपकरण: *${modelText}*
 🔖 बुकिंग संदर्भ: *${booking.booking_ref}*
-📅 कालावधी: *${duration} दिवस*
-• उपकरण भाडे: *₹${rentalAmount.toLocaleString('en-IN')}*
-• गोमेट सुरक्षा व सेवा फी: *₹${platformFee}*
+📅 शेड्युल तारीख: *${startDate}*
+⏰ पोहोचण्याची वेळ: *${startTime} (अचूक वेळेत)*
+⏱️ कालावधी: *${duration} दिवस*
+📍 कार्यक्षेत्र: *${session.data.location || 'महाराष्ट्र शेत/साइट'}*
+👤 ऑपरेटर/चालक: *व्हेरिफाइड ड्रायव्हर समाविष्ट (GoMate हमी)*
 ━━━━━━━━━━━━━━━━━━━━
-💰 *एकूण भरण्याची रक्कम: ₹${totalAmount.toLocaleString('en-IN')}*
+• उपकरण भाडे: *₹${rentalAmount.toLocaleString('en-IN')}* (₹${pricePerDay} x ${duration} दिवस)
+• गोमेट सुरक्षा व सहाय्य फी: *₹${PLATFORM_FEE}*
+💰 *एकूण देय रक्कम: ₹${totalAmount.toLocaleString('en-IN')}*
 ━━━━━━━━━━━━━━━━━━━━
 
-👉 *पेमेंट करण्यासाठी खालील लिंकवर क्लिक करा:*
+👉 *बुकिंग निश्चित करण्यासाठी UPI पेमेंट करा:*
 🔗 ${payLink}
-_(PhonePe, Google Pay, Paytm किंवा BHIM UPI द्वारे सुरक्षित पेमेंट करा)_
+_(PhonePe, Google Pay, Paytm किंवा BHIM UPI द्वारे त्वरित पेमेंट करा)_
 
-📋 *बुकिंग व डिलिव्हरीची प्रक्रिया:*
-1️⃣ *UPI द्वारे पेमेंट करा:* वरील लिंकवर क्लिक करून ₹${totalAmount.toLocaleString('en-IN')} चे पेमेंट पूर्ण करा.
-2️⃣ *मालकाचे तपशील:* पेमेंट यशस्वी होताच तुम्हाला मशिनरी मालकाचा फोन नंबर, नाव व थेट पत्ता WhatsApp वर मिळेल.
-3️⃣ *डिलिव्हरी समन्वय:* मालक स्वतः तुमच्याशी फोनवर संपर्क साधून तुमच्या शेतात/जागेवर मशिनरी वेळेत पोहोचवतील.
-4️⃣ *GoMate सुरक्षा:* काम सुरू होईपर्यंत तुमची रक्कम 100% GoMate द्वारे सुरक्षित राहील.
+📋 *Uber-Style डिलिव्हरी प्रक्रिया:*
+1️⃣ *UPI पेमेंट पूर्ण करा:* वरील लिंकवर क्लिक करून ₹${totalAmount.toLocaleString('en-IN')} भरा.
+2️⃣ *मालक व ड्रायव्हर तपशील:* पेमेंट यशस्वी होताच मशिनरी मालक व ड्रायव्हरचा फोन नंबर व लोकेशन WhatsApp वर मिळेल.
+3️⃣ *वेळेवर डिलिव्हरी:* मालक स्वतः ठरलेल्या वेळेत (${startDate}, ${startTime}) उपकरण तुमच्या शेतात पोहोचवतील.
+4️⃣ *१००% सुरक्षा:* काम सुरू होईपर्यंत तुमची रक्कम GoMate द्वारे सुरक्षित!
 
-_मुख्य मेनूसाठी *0* पाठवा किंवा रद्द करण्यासाठी *CANCEL* पाठवा._`;
+_रद्द करण्यासाठी *CANCEL* किंवा मेनूसाठी *0* पाठवा._`;
   } else if (lang === 'hi') {
-    return `🎉 *आपकी बुकिंग तैयार हो गई है!*
+    return `🎉 *आपकी मशीनरी सफलतापूर्वक शेड्यूल हो गई है!* 🚜
 ━━━━━━━━━━━━━━━━━━━━
-🚜 मशीनरी: *${machineName}*
+🚜 मशीनरी: *${modelText}*
 🔖 बुकिंग संदर्भ: *${booking.booking_ref}*
-📅 अवधि: *${duration} दिन*
-• मशीनरी किराया: *₹${rentalAmount.toLocaleString('en-IN')}*
-• गोमेट सुरक्षा व सेवा शुल्क: *₹${platformFee}*
+📅 निर्धारित दिनांक: *${startDate}*
+⏰ पहुंचने का समय: *${startTime} (सटीक समय पर)*
+⏱️ अवधि: *${duration} दिन*
+📍 स्थान: *${session.data.location || 'खेत / साइट'}*
+👤 ऑपरेटर/चालक: *सत्यापित ड्राइवर सम्मिलित (GoMate गारंटी)*
 ━━━━━━━━━━━━━━━━━━━━
+• मशीनरी किराया: *₹${rentalAmount.toLocaleString('en-IN')}* (₹${pricePerDay} x ${duration} दिन)
+• गोमेट सुरक्षा शुल्क: *₹${PLATFORM_FEE}*
 💰 *कुल देय राशि: ₹${totalAmount.toLocaleString('en-IN')}*
 ━━━━━━━━━━━━━━━━━━━━
 
-👉 *भुगतान करने के लिए नीचे दिए गए लिंक पर क्लिक करें:*
+👉 *बुकिंग पक्की करने के लिए UPI भुगतान करें:*
 🔗 ${payLink}
-_(PhonePe, Google Pay, Paytm या BHIM UPI द्वारा सुरक्षित भुगतान करें)_
+_(PhonePe, Google Pay, Paytm या BHIM UPI द्वारा तुरंत भुगतान करें)_
 
-📋 *बुकिंग व डिलीवरी की प्रक्रिया:*
-1️⃣ *UPI द्वारा भुगतान करें:* ऊपर दिए गए लिंक पर क्लिक कर ₹${totalAmount.toLocaleString('en-IN')} का भुगतान पूरा करें।
-2️⃣ *मालिक का विवरण:* भुगतान पूरा होते ही आपको मशीन मालिक का फोन नंबर, नाम और पता WhatsApp पर प्राप्त होगा।
-3️⃣ *डिलीवरी समन्वय:* मालिक आपसे सीधे फोन पर संपर्क कर मशीनरी आपके खेत/साइट पर पहुंचाएंगे।
-4️⃣ *GoMate सुरक्षा:* काम शुरू होने तक आपका पैसा 100% GoMate द्वारा सुरक्षित रहेगा।
+📋 *Uber-Style डिलीवरी प्रक्रिया:*
+1️⃣ *UPI भुगतान पूरा करें:* ऊपर दिए गए लिंक पर क्लिक कर ₹${totalAmount.toLocaleString('en-IN')} का भुगतान करें।
+2️⃣ *मालिक व ड्राइवर विवरण:* भुगतान होते ही मशीन मालिक व ड्राइवर का फोन नंबर WhatsApp पर प्राप्त होगा।
+3️⃣ *समय पर डिलीवरी:* मालिक निर्धारित समय (${startDate}, ${startTime}) पर मशीन आपके स्थान पर पहुंचाएंगे।
+4️⃣ *१००% सुरक्षा:* काम शुरू होने तक आपका पैसा GoMate द्वारा सुरक्षित रहेगा।
 
-_मुख्य मेनू के लिए *0* भेजें या रद्द करने के लिए *CANCEL* भेजें।_`;
+_रद्द करने के लिए *CANCEL* या मेनू के लिए *0* भेजें।_`;
   } else {
-    return `🎉 *Your Booking is Ready!*
+    return `🎉 *Your Equipment is Scheduled (Advance Booking)!* 🚜
 ━━━━━━━━━━━━━━━━━━━━
-🚜 Equipment: *${machineName}*
+🚜 Equipment: *${modelText}*
 🔖 Booking Ref: *${booking.booking_ref}*
-📅 Duration: *${duration} day(s)*
-• Equipment Rental: *₹${rentalAmount.toLocaleString('en-IN')}*
-• GoMate Protection & Support Fee: *₹${platformFee}*
+📅 Scheduled Date: *${startDate}*
+⏰ Arrival / Dispatch Time: *${startTime} (Sharp)*
+⏱️ Duration: *${duration} day(s)*
+📍 Location: *${session.data.location || 'Local Farm/Site'}*
+👤 Operator / Driver: *Verified Operator Included (100% GoMate Guarantee)*
 ━━━━━━━━━━━━━━━━━━━━
+• Equipment Rental: *₹${rentalAmount.toLocaleString('en-IN')}* (₹${pricePerDay} x ${duration} days)
+• GoMate Protection & Support Fee: *₹${PLATFORM_FEE}*
 💰 *Total Amount to Pay: ₹${totalAmount.toLocaleString('en-IN')}*
 ━━━━━━━━━━━━━━━━━━━━
 
-👉 *Click the secure link below to complete payment:*
+👉 *Click to Confirm Booking & Pay via UPI:*
 🔗 ${payLink}
-_(Pay instantly via PhonePe, Google Pay, Paytm, or Cards)_
+_(Pay instantly with PhonePe, Google Pay, Paytm, or Cards)_
 
-📋 *How the Booking & Delivery Process Works:*
-1️⃣ *Complete UPI Payment:* Click the link above to complete the payment of ₹${totalAmount.toLocaleString('en-IN')}.
-2️⃣ *Owner Details Shared:* Once paid, the equipment owner's direct phone number, name & location will be sent to your WhatsApp.
-3️⃣ *Delivery Coordination:* The owner will coordinate delivery directly to your farm/site on the scheduled date with driver/operator.
-4️⃣ *100% GoMate Guarantee:* Your payment is fully protected by GoMate until the machinery arrives and work begins.
+📋 *How Uber-Style Dispatch Works:*
+1️⃣ *Complete UPI Payment:* Click the link above to pay ₹${totalAmount.toLocaleString('en-IN')}.
+2️⃣ *Direct Owner & Driver Connect:* Verified owner name, phone & dispatch tracking sent to WhatsApp instantly.
+3️⃣ *Guaranteed On-Time Delivery:* Machinery arrives at your site on scheduled date (${startDate} at ${startTime}).
+4️⃣ *100% Protected:* Payment is held safely by GoMate until equipment begins work.
 
 _Reply *0* for Main Menu or *CANCEL* to cancel._`;
   }
 }
 
-module.exports = { handleEquipmentSelect, handleDateInput, handleConfirmation, createInstantBookingWithProcess };
+/**
+ * Handle confirmation or cancellation in BOOKING_CONFIRM
+ */
+async function handleConfirmation(phone, text, session) {
+  const t = (text || '').trim().toLowerCase();
+  const isCancel = ['cancel', '0', 'no', 'नाही', 'रद्द', 'रद्द करा', 'nahi', 'reject'].includes(t);
+  if (session.data) {
+    delete session.data.lastQuote;
+  }
+  if (isCancel) {
+    session.state = 'CUSTOMER_MENU';
+    return getText(session.language || 'mr', 'booking_cancelled');
+  }
+}
+
+/**
+ * Top-Level Instant 1-Click Quote to Booking Converter
+ */
+async function createInstantBookingWithProcess(phone, session) {
+  const quote = (session.data && session.data.lastQuote) || {};
+  session.data.selectedEquipment = {
+    model: quote.model || 'Mahindra 575 DI Tractor',
+    price_per_day: quote.rate || 1500,
+    district: session.data.location || 'Pune'
+  };
+  session.data.duration = quote.days || 1;
+  session.data.quantity = quote.qty || 1;
+  session.data.startDate = getOffsetDateString(1);
+  session.data.startTime = '08:00 AM';
+
+  return await createFinalBookingAndPayment(phone, session);
+}
+
+module.exports = {
+  handleEquipmentSelect,
+  handleDateInput,
+  handleDurationInput,
+  handleConfirmation,
+  createInstantBookingWithProcess
+};
+
