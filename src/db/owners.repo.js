@@ -12,10 +12,12 @@ async function registerOwner(data) {
   const newOwner = {
     phone: data.phone,
     name: data.name || 'Owner',
-    district: data.district || 'Pune',
+    district: data.district || 'Sangli',
+    taluka: data.taluka || 'Jath',
+    village: data.village || data.district || 'Jath',
     language: data.language || 'mr',
     subscription_status: data.subscription_status || 'trial',
-    subscription_expires_at: new Date(Date.now() + 7 * 24 * 3600000).toISOString()
+    subscription_expires_at: data.subscription_expires_at || new Date(Date.now() + 7 * 24 * 3600000).toISOString()
   };
 
   try {
@@ -25,11 +27,22 @@ async function registerOwner(data) {
       .select()
       .single();
     if (!error && owner) {
-      memoryOwners.unshift(owner);
+      const existingIdx = memoryOwners.findIndex(o => o.phone === newOwner.phone);
+      if (existingIdx >= 0) {
+        memoryOwners[existingIdx] = { ...memoryOwners[existingIdx], ...owner };
+      } else {
+        memoryOwners.unshift(owner);
+      }
       return owner;
     }
   } catch (err) {
     console.warn('Supabase registerOwner fallback:', err.message);
+  }
+
+  const existingIdx = memoryOwners.findIndex(o => o.phone === newOwner.phone);
+  if (existingIdx >= 0) {
+    memoryOwners[existingIdx] = { ...memoryOwners[existingIdx], ...newOwner };
+    return memoryOwners[existingIdx];
   }
 
   const fallback = { id: 'o-' + Date.now(), ...newOwner, created_at: new Date().toISOString() };

@@ -37,22 +37,39 @@ async function searchEquipment(criteria) {
 }
 
 async function addEquipment(equipmentData) {
+  let img = '/assets/equipment/agri_tractor_3d.jpg';
+  if (equipmentData.category === 'transport') {
+    img = '/assets/equipment/heavy_drone_3d.jpg';
+  } else if (equipmentData.category === 'infrastructure') {
+    img = '/assets/equipment/infra_jcb_3d.jpg';
+  }
+
   const dbRecord = {
+    owner_id: equipmentData.owner_id || null,
     category: equipmentData.category || 'agriculture',
-    type: equipmentData.type || 'Machinery',
-    model: equipmentData.model || 'Equipment',
-    district: equipmentData.district || 'Pune',
-    taluka: equipmentData.taluka || null,
-    price_per_day: equipmentData.price_per_day || 1500,
+    type: equipmentData.type || equipmentData.equipment_type || 'Machinery',
+    model: equipmentData.model || equipmentData.name || 'Equipment',
+    district: equipmentData.district || 'Sangli',
+    taluka: equipmentData.taluka || 'Jath',
+    price_per_day: Number(equipmentData.price_per_day || equipmentData.daily_rate || 1500),
     available: true,
     rating: 5.0,
     description: equipmentData.services || equipmentData.description || 'All Attachments'
   };
 
+  const itemToStore = {
+    ...dbRecord,
+    owner_phone: equipmentData.owner_phone || null,
+    owner_name: equipmentData.owner_name || null,
+    village: equipmentData.village || equipmentData.district || 'Jath',
+    image_url: equipmentData.image_url || img,
+    services: dbRecord.description
+  };
+
   try {
     const { data, error } = await supabase.from('equipment').insert([dbRecord]).select().single();
     if (!error && data) {
-      const formatted = { ...data, services: data.description };
+      const formatted = { ...itemToStore, ...data, services: data.description || itemToStore.services };
       memoryEquipment.unshift(formatted);
       return formatted;
     }
@@ -60,7 +77,7 @@ async function addEquipment(equipmentData) {
     console.warn('Supabase addEquipment fallback:', err.message);
   }
 
-  const fallback = { id: String(Date.now()), ...equipmentData, created_at: new Date().toISOString(), available: true };
+  const fallback = { id: String(Date.now()), ...itemToStore, created_at: new Date().toISOString() };
   memoryEquipment.unshift(fallback);
   return fallback;
 }

@@ -53,14 +53,19 @@
         <button class="owner-tab-btn" data-tab="profile" onclick="switchOwnerTab('profile')">Profile</button>
       </nav>
 
-      <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <a href="/owner/register.html" class="gm-btn gm-btn-outline" style="padding: 6px 12px; font-size: 12px; color: #FFFFFF; border-color: rgba(255,255,255,0.4); text-decoration: none;">
+          ➕ नवीन मालक नोंदणी
+        </a>
+
         <!-- Partner Persona Selector -->
-        <select class="gm-select" style="background: var(--gm-charcoal-800); color: #FFFFFF; border-color: var(--gm-charcoal-700); font-size: 12px; padding: 4px 8px;" onchange="handleOwnerChange(this.value)">
-          <option value="+919822012345" selected>Rajesh Patil (Pune)</option>
-          <option value="+919822054321">Sanjay Deshmukh (Nashik)</option>
-          <option value="+919822099887">Amit Sharma (Mumbai)</option>
-          <option value="+919822077665">Kisan Jadhav (Kolhapur)</option>
-          <option value="+919822044332">Vikram Shinde (Satara)</option>
+        <select id="ownerSelectDropdown" class="gm-select" style="background: var(--gm-charcoal-800); color: #FFFFFF; border-color: var(--gm-charcoal-700); font-size: 12px; padding: 4px 8px;" onchange="handleOwnerChange(this.value)">
+          <option value="+919822012345" selected>Rajesh Patil (जत केंद्र)</option>
+          <option value="+919822054321">Sanjay Deshmukh (उमदी)</option>
+          <option value="+919890011223">Vitthal Birajdar (संख)</option>
+          <option value="+919822099887">Tanaji Pawar (डफळापूर)</option>
+          <option value="+919822033445">Prakash Kolekar (बिळूर)</option>
+          <option value="+919822077665">Ananda Sawant (शेगाव)</option>
         </select>
 
         <button onclick="initiateSubscriptionCheckout()" class="gm-btn gm-btn-primary" style="padding: 6px 14px; font-size: 13px;">
@@ -293,8 +298,10 @@
             <input type="number" id="newMachinePrice" class="gm-input" placeholder="1500" required min="100">
           </div>
           <div>
-            <label style="font-size: 12px; font-weight: 600; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">Operating District</label>
-            <input type="text" id="newMachineDistrict" class="gm-input" placeholder="Pune" required>
+            <label style="font-size: 12px; font-weight: 600; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">Operating Village (Jath)</label>
+            <select id="newMachineVillage" class="gm-select" required>
+              <option value="Jat">जत केंद्र (Jat Center)</option>
+            </select>
           </div>
         </div>
 

@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GoMate Owner Onboarding — मशिनरी मालक नोंदणी (जत तालुका)</title>
+  <meta name="theme-color" content="#0A1F44">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/css/design-system.css">
+  <style>
+    body {
+      background-color: var(--gm-gray-50);
+      color: var(--gm-gray-900);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Devanagari", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .reg-navbar {
+      background: var(--gm-brand-navy);
+      color: #FFFFFF;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--gm-shadow-md);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .reg-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #FFFFFF;
+    }
+
+    .lang-toggle-btn {
+      background: rgba(255, 255, 255, 0.15);
+      color: #FFFFFF;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: var(--gm-transition);
+    }
+    .lang-toggle-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .reg-container {
+      max-width: 780px;
+      width: 100%;
+      margin: 28px auto;
+      padding: 0 16px 40px;
+      flex: 1;
+    }
+
+    .hero-banner {
+      background: linear-gradient(135deg, var(--gm-brand-navy) 0%, #1e3a8a 100%);
+      color: #FFFFFF;
+      border-radius: var(--gm-radius-lg);
+      padding: 28px 24px;
+      margin-bottom: 24px;
+      box-shadow: var(--gm-shadow-lg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--gm-green-600);
+      color: #FFFFFF;
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .perks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .perk-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: var(--gm-radius-md);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .perk-icon {
+      font-size: 22px;
+    }
+
+    .form-card {
+      background: #FFFFFF;
+      border-radius: var(--gm-radius-lg);
+      border: 1px solid var(--gm-gray-200);
+      box-shadow: var(--gm-shadow-md);
+      padding: 32px 28px;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--gm-gray-100);
+    }
+
+    .step-num {
+      background: var(--gm-brand-navy);
+      color: #FFFFFF;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gm-gray-800);
+      margin-bottom: 6px;
+    }
+
+    .form-hint {
+      font-size: 12px;
+      color: var(--gm-gray-500);
+      margin-top: 4px;
+    }
+
+    .category-pills {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .cat-pill {
+      border: 2px solid var(--gm-gray-300);
+      background: var(--gm-gray-50);
+      border-radius: var(--gm-radius-md);
+      padding: 14px 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--gm-transition);
+      font-weight: 600;
+      font-size: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .cat-pill:hover {
+      border-color: var(--gm-brand-blue);
+      background: #eff6ff;
+    }
+
+    .cat-pill.active {
+      border-color: var(--gm-brand-blue);
+      background: #dbeafe;
+      color: var(--gm-brand-navy);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+    }
+
+    .submit-btn {
+      background: var(--gm-green-600);
+      color: #FFFFFF;
+      border: none;
+      width: 100%;
+      padding: 16px;
+      font-size: 17px;
+      font-weight: 700;
+      border-radius: var(--gm-radius-md);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+      transition: var(--gm-transition);
+    }
+
+    .submit-btn:hover {
+      background: var(--gm-green-700);
+      transform: translateY(-1px);
+    }
+
+    /* Modal */
+    .success-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 16px;
+    }
+
+    .success-card {
+      background: #FFFFFF;
+      border-radius: var(--gm-radius-lg);
+      padding: 36px 28px;
+      max-width: 520px;
+      width: 100%;
+      text-align: center;
+      box-shadow: var(--gm-shadow-xl);
+      animation: popIn 0.3s ease;
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="reg-navbar">
+    <a href="/landing/index.html" class="reg-brand">
+      <img src="/assets/brand/logo-white.svg" alt="GoMate" style="height: 32px;">
+      <span style="font-weight: 700; font-size: 16px; letter-spacing: 0.5px;">GoMate Partner</span>
+    </a>
+
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <button onclick="toggleLanguage()" class="lang-toggle-btn" id="langToggleBtn">
+        🌐 <span id="langLabel">English</span>
+      </button>
+      <a href="/owner/index.html" style="color: #FFFFFF; text-decoration: none; font-size: 13px; font-weight: 600; opacity: 0.9;">
+        <span id="txtLoginLink">मालक लॉगिन (Login)</span> &rarr;
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="reg-container">
+    
+    <!-- Hero Banner with 0% Commission & 7-Day Trial -->
+    <div class="hero-banner">
+      <div class="hero-badge" id="heroBadge">✨ जत तालुका पायलट प्रोजेक्ट (PIN: 416404)</div>
+      <h1 style="font-size: 26px; font-weight: 800; margin-bottom: 8px;" id="heroTitle">
+        तुमचे ट्रॅक्टर, जेसीबी किंवा गाडी जोडा आणि रोज भाडे कमवा!
+      </h1>
+      <p style="font-size: 15px; opacity: 0.9; line-height: 1.5;" id="heroSub">
+        जत तालुक्यातील १२५ गावांतील शेतकऱ्यांकडून थेट WhatsApp वर बुकिंग मागवा. <strong>शून्य टक्के (०%) कमिशन!</strong>
+      </p>
+
+      <div class="perks-grid">
+        <div class="perk-card">
+          <span class="perk-icon">🎁</span>
+          <div>
+            <div style="font-weight: 700; font-size: 13px;" id="perk1Title">७ दिवस मोफत ट्रायल</div>
+            <div style="font-size: 11px; opacity: 0.8;" id="perk1Sub">नोंदणी पूर्णपणे मोफत</div>
+          </div>
+        </div>
+
+        <div class="perk-card">
+          <span class="perk-icon">💬</span>
+          <div>
+            <div style="font-weight: 700; font-size: 13px;" id="perk2Title">थेट WhatsApp अलर्ट</div>
+            <div style="font-size: 11px; opacity: 0.8;" id="perk2Sub">स्वीकारा / नकार द्या</div>
+          </div>
+        </div>
+
+        <div class="perk-card">
+          <span class="perk-icon">💰</span>
+          <div>
+            <div style="font-weight: 700; font-size: 13px;" id="perk3Title">शून्य कमिशन (0%)</div>
+            <div style="font-size: 11px; opacity: 0.8;" id="perk3Sub">१००% भाडे तुमचेच</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Registration Form -->
+    <div class="form-card">
+      <form id="ownerRegistrationForm" onsubmit="handleRegistrationSubmit(event)">
+        
+        <!-- STEP 1: Owner Profile -->
+        <div class="step-header">
+          <div class="step-num">1</div>
+          <div>
+            <h2 style="font-size: 18px; margin: 0;" id="step1Title">मालकाची माहिती (Owner Details)</h2>
+            <p style="font-size: 12px; color: var(--gm-gray-500); margin: 2px 0 0;" id="step1Sub">तुमचे नाव, व्हॉट्सॲप नंबर आणि जत तालुक्यातील गाव निवडा</p>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+          <div class="form-group">
+            <label class="form-label" id="lblFullName">पूर्ण नाव (Full Name) *</label>
+            <input type="text" id="ownerName" class="gm-input" placeholder="उदा. मारुती तानाजी कदम" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" id="lblPhone">व्हॉट्सॲप मोबाईल नंबर (WhatsApp Number) *</label>
+            <input type="tel" id="ownerPhone" class="gm-input" placeholder="उदा. 9822012345" pattern="[0-9]{10}" maxlength="10" required>
+            <div class="form-hint" id="hintPhone">या नंबरवर शेतकऱ्यांचे बुकिंग अलर्ट मिळतील</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" id="lblVillage">जत तालुक्यातील गाव निवडा (Select Jath Village) *</label>
+          <select id="ownerVillage" class="gm-select" required style="font-size: 15px;">
+            <option value="">-- गाव निवडा (१२५ गावे) --</option>
+          </select>
+          <div class="form-hint" id="hintVillage">तालुका: जत • जिल्हा: सांगली • पिन कोड: ४१६४०४</div>
+        </div>
+
+        <!-- STEP 2: Machinery Listing -->
+        <div class="step-header" style="margin-top: 32px;">
+          <div class="step-num">2</div>
+          <div>
+            <h2 style="font-size: 18px; margin: 0;" id="step2Title">पहिल्या उपकरणाची माहिती (Machinery Listing)</h2>
+            <p style="font-size: 12px; color: var(--gm-gray-500); margin: 2px 0 0;" id="step2Sub">भाड्याने देण्यासाठी तुमचे ट्रॅक्टर, वाहन किंवा जेसीबी जोडा</p>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" id="lblSector">उपकरणाचे क्षेत्र निवडा (Select Sector) *</label>
+          <div class="category-pills">
+            <div class="cat-pill active" onclick="selectCategory('agriculture', this)" id="pillAgri">
+              <span style="font-size: 20px;">🌾</span>
+              <span id="txtAgriLabel">शेती अवजारे (Agriculture)</span>
+            </div>
+            <div class="cat-pill" onclick="selectCategory('transport', this)" id="pillTransport">
+              <span style="font-size: 20px;">🚚</span>
+              <span id="txtTransLabel">मालवाहतूक (Goods Transport)</span>
+            </div>
+            <div class="cat-pill" onclick="selectCategory('infrastructure', this)" id="pillInfra">
+              <span style="font-size: 20px;">🏗️</span>
+              <span id="txtInfraLabel">जेसीबी व बांधकाम (Earthmoving)</span>
+            </div>
+          </div>
+          <input type="hidden" id="selectedCategory" value="agriculture">
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+          <div class="form-group">
+            <label class="form-label" id="lblEquipType">उपकरणाचा प्रकार (Equipment Type) *</label>
+            <select id="equipTypeSelect" class="gm-select" onchange="handleTypePresetChange()" required>
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" id="lblModel">ब्रँड व मॉडेल नाव (Brand & Model) *</label>
+            <input type="text" id="equipModel" class="gm-input" placeholder="उदा. Mahindra 575 DI (45 HP)" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+          <div class="form-group">
+            <label class="form-label" id="lblDailyRate">प्रति दिवस भाडे दर (Daily Hire Rate ₹) *</label>
+            <div style="position: relative;">
+              <span style="position: absolute; left: 14px; top: 12px; font-weight: 700; color: var(--gm-gray-600);">₹</span>
+              <input type="number" id="dailyRate" class="gm-input" style="padding-left: 32px;" placeholder="1500" min="200" required>
+            </div>
+            <div class="form-hint" id="hintDailyRate">दर स्वतः ठरवा (उदा. ₹१,५००/दिवस)</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" id="lblServices">उपलब्ध कामे व अवजारे (Capabilities & Services)</label>
+            <input type="text" id="equipServices" class="gm-input" placeholder="उदा. नांगरट, रोटाव्हेटर, पेरणी व ट्रॉली">
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div style="margin-top: 24px;">
+          <button type="submit" class="submit-btn" id="btnSubmit">
+            <span>🚀</span>
+            <span id="btnSubmitText">मोफत नोंदणी पूर्ण करा (७ दिवस मोफत ट्रायल)</span>
+          </button>
+          <p style="text-align: center; font-size: 12px; color: var(--gm-gray-500); margin-top: 12px;" id="txtTerms">
+            नोंदणी करून आपण GoMate च्या नियम व अटींशी सहमत आहात. शून्य छुपे शुल्क.
+          </p>
+        </div>
+
+      </form>
+    </div>
+
+  </main>
+
+  <!-- Success Modal -->
+  <div id="successModal" class="success-modal" style="display: none;">
+    <div class="success-card">
+      <div style="font-size: 54px; margin-bottom: 12px;">🎉</div>
+      <h2 style="font-size: 24px; font-weight: 800; color: var(--gm-brand-navy); margin-bottom: 8px;" id="modalSuccessTitle">
+        अभिनंदन! नोंदणी यशस्वी झाली.
+      </h2>
+      <p style="font-size: 15px; color: var(--gm-gray-600); line-height: 1.5; margin-bottom: 24px;" id="modalSuccessMsg">
+        तुमचे उपकरण जत तालुक्यातील शेतकऱ्यांसाठी WhatsApp वर लगेच लाईव्ह झाले आहे. 
+        शेतकऱ्यांनी बुकिंग करताच तुमच्या WhatsApp वर थेट नोटिफिकेशन येईल!
+      </p>
+
+      <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: var(--gm-radius-md); padding: 14px; margin-bottom: 24px; text-align: left; font-size: 14px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+          <span>मालकाचे नाव:</span>
+          <strong id="modalOwnerName">-</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+          <span>गाव:</span>
+          <strong id="modalOwnerVillage">-</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+          <span>नोंदवलेले उपकरण:</span>
+          <strong id="modalOwnerEquip">-</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; color: var(--gm-green-700);">
+          <span>प्लॅन:</span>
+          <strong>७ दिवस मोफत ट्रायल (०% कमिशन)</strong>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <a id="linkOwnerDashboard" href="/owner/index.html" class="gm-btn gm-btn-primary" style="padding: 14px; font-size: 15px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          📊 मालक डॅशबोर्ड उघडा (Go to Dashboard)
+        </a>
+        <a href="https://wa.me/17372508034?text=Hi%20GoMate" target="_blank" class="gm-btn gm-btn-outline" style="padding: 12px; font-size: 14px; text-decoration: none;">
+          💬 WhatsApp Bot तपासा
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentLang = 'mr';
+    let jathVillagesList = [];
+
+    const EQUIPMENT_PRESETS = {
+      agriculture: [
+        { type: 'Tractor', model: 'Mahindra 575 DI (45 HP)', price: 1500, services: 'नांगरणी, रोटाव्हेटर, पेरणी व ट्रॉली' },
+        { type: 'Tractor', model: 'John Deere 5310 (55 HP 4WD)', price: 1800, services: '4WD अवजड कामे, बागायत शेती' },
+        { type: 'Rotavator', model: 'Shaktiman 6-ft Rotavator', price: 850, services: 'जमीन भुसभुशीत करणे' },
+        { type: 'Harvester', model: 'Claas Crop Tiger Combine Harvester', price: 4200, services: 'गहू, हरभरा, बाजरी व मका काढणी' },
+        { type: 'Sprayer', model: 'ASPEE HTP 500L Tractor Sprayer', price: 700, services: 'डाळिंब व द्राक्ष बागायत फवारणी' },
+        { type: 'Drone (spraying)', model: 'GoMate Agri Spray Drone 10L', price: 2500, services: 'अचूक व जलद औषध फवारणी' },
+        { type: 'Trailer', model: '4-Tonne Hydraulic Tipping Trailer', price: 800, services: 'धान्य, ऊस व शेतमाल वाहतूक' }
+      ],
+      transport: [
+        { type: 'Delivery Trucks', model: 'Tata Ace Gold (छोटा हत्ती)', price: 1300, services: 'जत तालुका अंतर्गत स्थानिक शेतमाल वाहतूक' },
+        { type: 'Delivery Trucks', model: 'Ashok Leyland Dost Plus Pickup', price: 1600, services: '1.5 टन शेतमाल व भाजीपाला मार्केट वाहतूक' },
+        { type: 'Trucks', model: 'Tata 407 LPT Medium Truck (4 Tonne)', price: 2600, services: 'सांगली/सांगोला/विजापूर मार्केट वाहतूक' },
+        { type: 'Tanker Trucks', model: 'BharatBenz 12KL Water Tanker', price: 3800, services: 'शेती व पिण्यासाठी पाणी टँकर' },
+        { type: 'Dump Trucks', model: 'Ashok Leyland Tipper (डंपर)', price: 4000, services: 'मुरूम, माती व खडी वाहतूक' }
+      ],
+      infrastructure: [
+        { type: 'Backhoe Loaders', model: 'JCB 3DX Super EcoXcellence', price: 4500, services: 'शेततळे, चर, सपाटीकरण व बांधकाम' },
+        { type: 'Backhoe Loaders', model: 'JCB 4DX Heavy Duty Loader', price: 5200, services: 'अवजड शेततळे व चर खोदकाम' },
+        { type: 'Excavators', model: 'Komatsu PC210 Heavy Excavator (पोकलेन)', price: 7500, services: 'मोठे शेततळे, विहीर व खडक फोडणे' },
+        { type: 'Bulldozers', model: 'CAT D6 Crawler Dozer (बुलडोझर)', price: 8000, services: 'जमीन सपाटीकरण, बांध व माळरान साफ' }
+      ]
+    };
+
+    const STRINGS = {
+      mr: {
+        langBtn: 'English',
+        loginLink: 'मालक लॉगिन (Login)',
+        heroBadge: '✨ जत तालुका पायलट प्रोजेक्ट (PIN: 416404)',
+        heroTitle: 'तुमचे ट्रॅक्टर, जेसीबी किंवा गाडी जोडा आणि रोज भाडे कमवा!',
+        heroSub: 'जत तालुक्यातील १२५ गावांतील शेतकऱ्यांकडून थेट WhatsApp वर बुकिंग मागवा. <strong>शून्य टक्के (०%) कमिशन!</strong>',
+        perk1Title: '७ दिवस मोफत ट्रायल',
+        perk1Sub: 'नोंदणी पूर्णपणे मोफत',
+        perk2Title: 'थेट WhatsApp अलर्ट',
+        perk2Sub: 'स्वीकारा / नकार द्या',
+        perk3Title: 'शून्य कमिशन (0%)',
+        perk3Sub: '१००% भाडे तुमचेच',
+        step1Title: 'मालकाची माहिती (Owner Details)',
+        step1Sub: 'तुमचे नाव, व्हॉट्सॲप नंबर आणि जत तालुक्यातील गाव निवडा',
+        lblFullName: 'पूर्ण नाव (Full Name) *',
+        lblPhone: 'व्हॉट्सॲप मोबाईल नंबर (WhatsApp Number) *',
+        hintPhone: 'या नंबरवर शेतकऱ्यांचे बुकिंग अलर्ट मिळतील',
+        lblVillage: 'जत तालुक्यातील गाव निवडा (Select Jath Village) *',
+        hintVillage: 'तालुका: जत • जिल्हा: सांगली • पिन कोड: ४१६४०४',
+        step2Title: 'पहिल्या उपकरणाची माहिती (Machinery Listing)',
+        step2Sub: 'भाड्याने देण्यासाठी तुमचे ट्रॅक्टर, वाहन किंवा जेसीबी जोडा',
+        lblSector: 'उपकरणाचे क्षेत्र निवडा (Select Sector) *',
+        txtAgri: 'शेती अवजारे (Agriculture)',
+        txtTrans: 'मालवाहतूक (Goods Transport)',
+        txtInfra: 'जेसीबी व बांधकाम (Earthmoving)',
+        lblEquipType: 'उपकरणाचा प्रकार (Equipment Type) *',
+        lblModel: 'ब्रँड व मॉडेल नाव (Brand & Model) *',
+        lblDailyRate: 'प्रति दिवस भाडे दर (Daily Hire Rate ₹) *',
+        hintDailyRate: 'दर स्वतः ठरवा (उदा. ₹१,५००/दिवस)',
+        lblServices: 'उपलब्ध कामे व अवजारे (Capabilities & Services)',
+        btnSubmit: 'मोफत नोंदणी पूर्ण करा (७ दिवस मोफत ट्रायल)',
+        txtTerms: 'नोंदणी करून आपण GoMate च्या नियम व अटींशी सहमत आहात. शून्य छुपे शुल्क.'
+      },
+      en: {
+        langBtn: 'मराठी',
+        loginLink: 'Owner Login',
+        heroBadge: '✨ Jath Taluka Pilot Project (PIN: 416404)',
+        heroTitle: 'List Your Tractor, JCB or Truck & Earn Daily Rental Income!',
+        heroSub: 'Receive direct WhatsApp rental bookings from farmers across 125 villages in Jath. <strong>0% Booking Commission!</strong>',
+        perk1Title: '7-Day Free Trial',
+        perk1Sub: '100% Free Onboarding',
+        perk2Title: 'Direct WhatsApp Alerts',
+        perk2Sub: 'Accept or Reject in 1 tap',
+        perk3Title: 'Zero Commission (0%)',
+        perk3Sub: 'Keep 100% of rental fare',
+        step1Title: 'Owner Profile',
+        step1Sub: 'Enter your name, WhatsApp phone number, and Jath village',
+        lblFullName: 'Full Name *',
+        lblPhone: 'WhatsApp Mobile Number *',
+        hintPhone: 'Booking notifications will be dispatched directly to this WhatsApp number',
+        lblVillage: 'Select Jath Village *',
+        hintVillage: 'Taluka: Jath • District: Sangli • PIN: 416404',
+        step2Title: 'Machinery Listing',
+        step2Sub: 'Add your tractor, truck, or excavator to start receiving bookings',
+        lblSector: 'Select Machinery Sector *',
+        txtAgri: '🌾 Agriculture Fleet',
+        txtTrans: '🚚 Goods Transport',
+        txtInfra: '🏗️ Infrastructure & JCB',
+        lblEquipType: 'Equipment Type *',
+        lblModel: 'Brand & Model Name *',
+        lblDailyRate: 'Daily Hire Rate (₹ / Day) *',
+        hintDailyRate: 'Set your own rate (e.g. ₹1,500/day)',
+        lblServices: 'Capabilities & Attachments',
+        btnSubmit: 'Complete Registration (7-Day Free Trial)',
+        txtTerms: 'By signing up, you agree to GoMate Partner terms. Zero hidden charges.'
+      }
+    };
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      await loadJathVillages();
+      populateTypePresets('agriculture');
+    });
+
+    async function loadJathVillages() {
+      try {
+        const res = await fetch('/api/jath/villages');
+        const data = await res.json();
+        jathVillagesList = data.villages || [];
+        renderVillageDropdown();
+      } catch (err) {
+        console.warn('Fallback villages:', err);
+      }
+    }
+
+    function renderVillageDropdown() {
+      const select = document.getElementById('ownerVillage');
+      const isMr = currentLang === 'mr';
+      
+      select.innerHTML = `<option value="">-- ${isMr ? 'गाव निवडा (१२५ गावे)' : 'Select Village (125 Villages)'} --</option>` +
+        jathVillagesList.map(v => {
+          const label = isMr ? `${v.nameMr} (${v.name})` : `${v.name} (${v.nameMr})`;
+          return `<option value="${v.name}">${label} — जत</option>`;
+        }).join('');
+    }
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'mr' ? 'en' : 'mr';
+      const s = STRINGS[currentLang];
+      
+      document.getElementById('langLabel').textContent = s.langBtn;
+      document.getElementById('txtLoginLink').textContent = s.loginLink;
+      document.getElementById('heroBadge').textContent = s.heroBadge;
+      document.getElementById('heroTitle').textContent = s.heroTitle;
+      document.getElementById('heroSub').innerHTML = s.heroSub;
+      document.getElementById('perk1Title').textContent = s.perk1Title;
+      document.getElementById('perk1Sub').textContent = s.perk1Sub;
+      document.getElementById('perk2Title').textContent = s.perk2Title;
+      document.getElementById('perk2Sub').textContent = s.perk2Sub;
+      document.getElementById('perk3Title').textContent = s.perk3Title;
+      document.getElementById('perk3Sub').textContent = s.perk3Sub;
+      document.getElementById('step1Title').textContent = s.step1Title;
+      document.getElementById('step1Sub').textContent = s.step1Sub;
+      document.getElementById('lblFullName').textContent = s.lblFullName;
+      document.getElementById('lblPhone').textContent = s.lblPhone;
+      document.getElementById('hintPhone').textContent = s.hintPhone;
+      document.getElementById('lblVillage').textContent = s.lblVillage;
+      document.getElementById('hintVillage').textContent = s.hintVillage;
+      document.getElementById('step2Title').textContent = s.step2Title;
+      document.getElementById('step2Sub').textContent = s.step2Sub;
+      document.getElementById('lblSector').textContent = s.lblSector;
+      document.getElementById('txtAgriLabel').textContent = s.txtAgri;
+      document.getElementById('txtTransLabel').textContent = s.txtTrans;
+      document.getElementById('txtInfraLabel').textContent = s.txtInfra;
+      document.getElementById('lblEquipType').textContent = s.lblEquipType;
+      document.getElementById('lblModel').textContent = s.lblModel;
+      document.getElementById('lblDailyRate').textContent = s.lblDailyRate;
+      document.getElementById('hintDailyRate').textContent = s.hintDailyRate;
+      document.getElementById('lblServices').textContent = s.lblServices;
+      document.getElementById('btnSubmitText').textContent = s.btnSubmit;
+      document.getElementById('txtTerms').textContent = s.txtTerms;
+
+      renderVillageDropdown();
+    }
+
+    function selectCategory(cat, el) {
+      document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('selectedCategory').value = cat;
+      populateTypePresets(cat);
+    }
+
+    function populateTypePresets(cat) {
+      const presets = EQUIPMENT_PRESETS[cat] || [];
+      const typeSelect = document.getElementById('equipTypeSelect');
+      
+      typeSelect.innerHTML = presets.map((p, idx) => `
+        <option value="${idx}">${p.type} — ${p.model} (₹${p.price}/दिवस)</option>
+      `).join('');
+
+      handleTypePresetChange();
+    }
+
+    function handleTypePresetChange() {
+      const cat = document.getElementById('selectedCategory').value;
+      const idx = document.getElementById('equipTypeSelect').value;
+      const preset = EQUIPMENT_PRESETS[cat] && EQUIPMENT_PRESETS[cat][idx];
+      if (preset) {
+        document.getElementById('equipModel').value = preset.model;
+        document.getElementById('dailyRate').value = preset.price;
+        document.getElementById('equipServices').value = preset.services;
+      }
+    }
+
+    async function handleRegistrationSubmit(e) {
+      e.preventDefault();
+      
+      const submitBtn = document.getElementById('btnSubmit');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<span>⏳</span> <span>नोंदणी होत आहे... / Registering...</span>`;
+
+      const cat = document.getElementById('selectedCategory').value;
+      const idx = document.getElementById('equipTypeSelect').value;
+      const preset = (EQUIPMENT_PRESETS[cat] && EQUIPMENT_PRESETS[cat][idx]) || {};
+
+      const payload = {
+        name: document.getElementById('ownerName').value.trim(),
+        phone: document.getElementById('ownerPhone').value.trim(),
+        village: document.getElementById('ownerVillage').value.trim(),
+        category: cat,
+        equipment_type: preset.type || 'Tractor',
+        model: document.getElementById('equipModel').value.trim(),
+        daily_rate: Number(document.getElementById('dailyRate').value),
+        services: document.getElementById('equipServices').value.trim(),
+        language: currentLang
+      };
+
+      try {
+        const res = await fetch('/api/owner/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Registration failed');
+
+        // Show Success Modal
+        document.getElementById('modalOwnerName').textContent = payload.name;
+        document.getElementById('modalOwnerVillage').textContent = `${payload.village} (जत तालुका)`;
+        document.getElementById('modalOwnerEquip').textContent = `${payload.model} (₹${payload.daily_rate}/दिवस)`;
+        
+        const cleanPhone = payload.phone.startsWith('+') ? payload.phone : `+91${payload.phone}`;
+        document.getElementById('linkOwnerDashboard').href = `/owner/index.html?phone=${encodeURIComponent(cleanPhone)}`;
+        
+        document.getElementById('successModal').style.display = 'flex';
+      } catch (err) {
+        alert('त्रुटी: ' + err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<span>🚀</span> <span>${STRINGS[currentLang].btnSubmit}</span>`;
+      }
+    }
+  </script>
+</body>
+</html>

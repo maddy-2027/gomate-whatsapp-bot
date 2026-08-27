@@ -4,6 +4,7 @@
  */
 
 let currentOwnerPhone = '+919822012345';
+let jathVillages = [];
 let ownerState = {
   owner: {},
   equipment: [],
@@ -24,23 +25,65 @@ const CANONICAL_EQUIPMENT = {
     'Agri Spraying Drones (10L)'
   ],
   transport: [
-    'Heavy Trucks (Tata / Blazo)',
-    'Dump Trucks & Tippers',
-    'Cargo Vans (Eeco)',
     'Delivery Mini Trucks (Tata Ace)',
-    'Tanker Trucks (12KL)'
+    'Pickup Trucks (Dost Plus)',
+    'Medium Trucks (Tata 407 4-Tonne)',
+    'Tanker Trucks (12KL Water)',
+    'Dump Trucks & Tippers'
   ],
   infrastructure: [
-    'Heavy Excavators (21-Tonne)',
-    'Crawler Bulldozers',
-    'Backhoe Loaders (JCB 3DX)'
+    'Backhoe Loaders (JCB 3DX)',
+    'Backhoe Loaders (JCB 4DX)',
+    'Heavy Excavators (21-Tonne Poklen)',
+    'Crawler Bulldozers (CAT D6)'
   ]
 };
 
 // Initial Load
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('phone')) {
+    currentOwnerPhone = urlParams.get('phone');
+  }
+  await loadRegisteredOwnersList();
+  await loadJathVillages();
   fetchOwnerPortalData();
 });
+
+async function loadRegisteredOwnersList() {
+  try {
+    const res = await fetch('/api/admin/owners');
+    if (!res.ok) return;
+    const owners = await res.json();
+    const select = document.getElementById('ownerSelectDropdown');
+    if (select && owners && owners.length > 0) {
+      select.innerHTML = owners.map(o => `
+        <option value="${o.phone}" ${o.phone === currentOwnerPhone ? 'selected' : ''}>
+          ${o.name} (${o.village || o.district || 'Jath'})
+        </option>
+      `).join('');
+    }
+  } catch (err) {
+    console.warn('Could not load owner list:', err);
+  }
+}
+
+async function loadJathVillages() {
+  try {
+    const res = await fetch('/api/jath/villages');
+    if (!res.ok) return;
+    const data = await res.json();
+    jathVillages = data.villages || [];
+    const villageSelect = document.getElementById('newMachineVillage');
+    if (villageSelect && jathVillages.length > 0) {
+      villageSelect.innerHTML = jathVillages.map(v => `
+        <option value="${v.name}">${v.nameMr} (${v.name}) — जत</option>
+      `).join('');
+    }
+  } catch (err) {
+    console.warn('Could not load villages:', err);
+  }
+}
 
 function switchOwnerTab(tabId) {
   document.querySelectorAll('.owner-tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -55,6 +98,9 @@ function switchOwnerTab(tabId) {
 
 function handleOwnerChange(phone) {
   currentOwnerPhone = phone;
+  const url = new URL(window.location);
+  url.searchParams.set('phone', phone);
+  window.history.replaceState({}, '', url);
   fetchOwnerPortalData();
 }
 
@@ -254,7 +300,9 @@ async function handleAddMachineSubmit(e) {
   const equipment_type = document.getElementById('newMachineType').value;
   const model = document.getElementById('newMachineModel').value.trim();
   const daily_rate = document.getElementById('newMachinePrice').value.trim();
-  const district = document.getElementById('newMachineDistrict').value.trim() || ownerState.owner.district || 'Pune';
+  const villageSelect = document.getElementById('newMachineVillage');
+  const village = (villageSelect && villageSelect.value) ? villageSelect.value : (ownerState.owner.village || 'Jath');
+  const district = `${village} (Jath, Sangli)`;
 
   if (!model || !daily_rate) {
     showToast('Please enter model name and daily rate', 'error');
@@ -272,8 +320,10 @@ async function handleAddMachineSubmit(e) {
         model,
         daily_rate: Number(daily_rate),
         district,
+        taluka: 'Jath',
+        village,
         owner_phone: ownerState.owner.phone || currentOwnerPhone,
-        owner_name: ownerState.owner.name || 'Rajesh Patil'
+        owner_name: ownerState.owner.name || 'Owner'
       })
     });
 

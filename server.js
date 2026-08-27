@@ -13,6 +13,7 @@ const { initKeepAlive, getKeepAliveStatus } = require('./src/services/keepAlive'
 const bookingsRepo = require('./src/db/bookings.repo');
 const equipmentRepo = require('./src/db/equipment.repo');
 const ownersRepo = require('./src/db/owners.repo');
+const { JATH_VILLAGES } = require('./src/data/jathVillages');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -144,6 +145,96 @@ app.get('/api/admin/owners', adminAuth, async (req, res) => {
   try {
     const owners = await ownersRepo.getAllOwners();
     res.json(owners);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ==========================================
+// Jath Villages & Owner Self-Registration API
+// ==========================================
+app.get('/api/jath/villages', (req, res) => {
+  res.json({
+    taluka: 'Jath (जत)',
+    district: 'Sangli (सांगली)',
+    pin: '416404',
+    total: JATH_VILLAGES.length,
+    villages: JATH_VILLAGES
+  });
+});
+
+app.post('/api/owner/register', async (req, res) => {
+  try {
+    const { name, phone, village, alternatePhone, category, equipment_type, model, daily_rate, services, language } = req.body;
+    if (!name || !phone || !village) {
+      return res.status(400).json({ error: 'Name, WhatsApp mobile number, and Village are required.' });
+    }
+
+    // Format phone to E.164 (+91...)
+    let cleanPhone = String(phone).trim().replace(/[^\d+]/g, '');
+    if (!cleanPhone.startsWith('+')) {
+      cleanPhone = cleanPhone.length === 10 ? `+91${cleanPhone}` : `+${cleanPhone}`;
+    }
+
+    // 1. Register or update Owner with 7-Day Free Trial
+    const owner = await ownersRepo.registerOwner({
+      name: name.trim(),
+      phone: cleanPhone,
+      district: `${village} (Jath, Sangli)`,
+      taluka: 'Jath',
+      village: village.trim(),
+      language: language || 'mr',
+      subscription_status: 'trial',
+      subscription_expires_at: new Date(Date.now() + 7 * 24 * 3600000).toISOString()
+    });
+
+    // 2. Add First Machinery Listing if provided
+    let equipment = null;
+    if (category && model) {
+      equipment = await equipmentRepo.addEquipment({
+        owner_id: owner.id,
+        owner_phone: cleanPhone,
+        owner_name: name.trim(),
+        category,
+        type: equipment_type || model,
+        equipment_type: equipment_type || model,
+        model: model.trim(),
+        district: 'Sangli',
+        taluka: 'Jath',
+        village: village.trim(),
+        price_per_day: Number(daily_rate || 1500),
+        daily_rate: Number(daily_rate || 1500),
+        services: services || 'जत तालुक्यात शेती व बांधकामासाठी उपलब्ध',
+        available: true
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Owner registered successfully with 7-Day Free Trial!',
+      owner,
+      equipment
+    });
+  } catch (err) {
+    console.error('Owner registration error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/owner/lookup', async (req, res) => {
+  try {
+    const phone = req.query.phone;
+    if (!phone) return res.status(400).json({ error: 'Phone parameter required' });
+    let cleanPhone = String(phone).trim().replace(/[^\d+]/g, '');
+    if (!cleanPhone.startsWith('+')) {
+      cleanPhone = cleanPhone.length === 10 ? `+91${cleanPhone}` : `+${cleanPhone}`;
+    }
+
+    const owner = await ownersRepo.getOwnerByPhone(cleanPhone);
+    if (!owner) return res.status(404).json({ error: 'Owner not found' });
+    const allEquip = await equipmentRepo.getAllEquipment();
+    const ownerEquip = allEquip.filter(e => e.owner_id === owner.id || e.owner_phone === cleanPhone);
+    res.json({ owner, equipment: ownerEquip });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
