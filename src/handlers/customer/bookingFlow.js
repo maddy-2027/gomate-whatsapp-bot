@@ -17,17 +17,59 @@ function getOffsetDateString(daysOffset = 0) {
 }
 
 /**
- * Step 1: Equipment Selected -> Prompt for Date & Time Slot (Uber-Style Advance Scheduler)
+ * Step 1: Equipment Selected -> If attachments exist, prompt for service/task; otherwise prompt for Date & Time
  */
 async function handleEquipmentSelect(phone, text, session) {
   const idx = parseInt(text.trim()) - 1;
   const results = session.data.searchResults;
   if (!isNaN(idx) && results && results[idx]) {
     session.data.selectedEquipment = results[idx];
-    session.state = 'BOOKING_DATES';
-    
     const equip = results[idx];
     const lang = session.language || 'mr';
+
+    // If equipment has multi-service attachment rate card (e.g. Tractors)
+    if (equip.service_rates && Object.keys(equip.service_rates).length > 0) {
+      session.state = 'BOOKING_SERVICE_SELECT';
+      const sRates = equip.service_rates;
+      
+      let msg = '';
+      if (lang === 'mr') {
+        msg = `🚜 *${equip.model} — कामाचा प्रकार व अवजार निवडा:*
+━━━━━━━━━━━━━━━━━━━━
+मालकाचे विविध अवजारांनुसार प्रति तास दर खालीलप्रमाणे आहेत:
+
+1️⃣ *रोटाव्हेटर काम (Rotavator)* — ₹${sRates.rotavator ? sRates.rotavator.rate : 800}/तास
+2️⃣ *कल्टीव्हेटर / मशागत (Cultivator)* — ₹${sRates.cultivation ? sRates.cultivation.rate : 900}/तास
+3️⃣ *ट्रॉली मालवाहतूक (Trolley)* — ₹${sRates.trolley ? sRates.trolley.rate : 600}/तास
+4️⃣ *नांगरट (Deep Plough)* — ₹${sRates.ploughing ? sRates.ploughing.rate : 850}/तास
+5️⃣ *संपूर्ण ट्रॅक्टर भाडे (General Day Hire)* — ₹${(equip.price_per_day || 1500).toLocaleString('en-IN')}/दिवस
+
+_हव्या असलेल्या अवजाराचा क्रमांक (१-५) निवडा:_`;
+      } else if (lang === 'hi') {
+        msg = `🚜 *${equip.model} — कार्य का प्रकार चुनें:*
+━━━━━━━━━━━━━━━━━━━━
+1️⃣ *रोटावेटर कार्य (Rotavator)* — ₹${sRates.rotavator ? sRates.rotavator.rate : 800}/घंटा
+2️⃣ *कल्टीवेटर (Cultivator)* — ₹${sRates.cultivation ? sRates.cultivation.rate : 900}/घंटा
+3️⃣ *ट्रॉली ढुलाई (Trolley)* — ₹${sRates.trolley ? sRates.trolley.rate : 600}/घंटा
+4️⃣ *जुताई (Deep Plough)* — ₹${sRates.ploughing ? sRates.ploughing.rate : 850}/घंटा
+5️⃣ *पूरा ट्रैक्टर (General Day Hire)* — ₹${(equip.price_per_day || 1500).toLocaleString('en-IN')}/दिन
+
+_कृपया विकल्प क्रमांक (१-५) चुनें:_`;
+      } else {
+        msg = `🚜 *${equip.model} — Select Task / Attachment:*
+━━━━━━━━━━━━━━━━━━━━
+1️⃣ *Rotavator Tilth* — ₹${sRates.rotavator ? sRates.rotavator.rate : 800}/hr
+2️⃣ *Cultivation / Weeding* — ₹${sRates.cultivation ? sRates.cultivation.rate : 900}/hr
+3️⃣ *Trolley Transport* — ₹${sRates.trolley ? sRates.trolley.rate : 600}/hr
+4️⃣ *Deep Ploughing* — ₹${sRates.ploughing ? sRates.ploughing.rate : 850}/hr
+5️⃣ *General Day Hire* — ₹${(equip.price_per_day || 1500).toLocaleString('en-IN')}/day
+
+_Reply with option number (1-5):_`;
+      }
+      return msg;
+    }
+
+    session.state = 'BOOKING_DATES';
     const rate = equip.price_per_day || 1500;
     const location = session.data.location || equip.district || 'पुणे';
 
@@ -44,23 +86,8 @@ async function handleEquipmentSelect(phone, text, session) {
 3️⃣ *आज त्वरित डिलिव्हरी (२ तासांत)*
 4️⃣ *परवा सकाळी (८:०० AM)*
 
-_किंवा तुमची तारीख व वेळ टाईप करा (उदा. 'उद्या सकाळी 9 वाजता 2 दिवस' किंवा '28 ऑगस्ट 8 am')_
+_किंवा तुमची तारीख व वेळ टाईप करा (उदा. 'उद्या सकाळी 9 वाजता 2 तास' किंवा '28 ऑगस्ट 8 am')_
 _(मुख्य मेनूसाठी *0* पाठवा)_`;
-    } else if (lang === 'hi') {
-      return `📅 *GoMate अग्रिम बुकिंग शेड्यूलिंग (Advance Schedule)* 🚜
-━━━━━━━━━━━━━━━━━━━━
-मशीनरी: *${equip.model}*
-दर: *₹${rate.toLocaleString('en-IN')}/दिन*
-स्थान: *${location}*
-
-📍 *चरण १/२: दिनांक और समय स्लॉट चुनें:*
-1️⃣ *कल सुबह (८:०० AM)* ⭐️ सबसे लोकप्रिय
-2️⃣ *कल दोपहर (१:०० PM)*
-3️⃣ *आज तुरंत डिलीवरी (२ घंटे में)*
-4️⃣ *परसों सुबह (८:०० AM)*
-
-_या अपनी तारीख व समय लिखें (उदा. 'कल सुबह ९ बजे २ दिन' या '२८ अगस्त ८ am')_
-_(मुख्य मेनू के लिए *0* भेजें)_`;
     } else {
       return `📅 *GoMate Advance Equipment Scheduler* 🚜
 ━━━━━━━━━━━━━━━━━━━━
@@ -74,11 +101,72 @@ Location: *${location}*
 3️⃣ *Today Immediate Dispatch (within 2 hours)*
 4️⃣ *Day After Tomorrow (8:00 AM)*
 
-_Or reply with custom date & time (e.g. 'Tomorrow 9 AM for 2 days' or '28 August 8 AM')_
+_Or reply with custom date & time (e.g. 'Tomorrow 9 AM for 2 hours')_
 _(Reply *0* for Main Menu)_`;
     }
   }
   return getText(session.language, 'invalid_selection');
+}
+
+/**
+ * Handle Service Attachment Selection (e.g. Rotavator @ 800/hr, Cultivator @ 900/hr, Trolley @ 600/hr)
+ */
+async function handleServiceSelect(phone, text, session) {
+  const t = text.trim();
+  const equip = session.data.selectedEquipment;
+  const lang = session.language || 'mr';
+
+  let serviceName = 'Base Tractor Hire';
+  let hourlyRate = 600;
+  let unit = 'hr';
+
+  if (t === '1' || t.toLowerCase().includes('rotavator') || t.includes('रोटाव्हेटर')) {
+    serviceName = 'Rotavator (रोटाव्हेटर)';
+    hourlyRate = (equip.service_rates && equip.service_rates.rotavator && equip.service_rates.rotavator.rate) || 800;
+  } else if (t === '2' || t.toLowerCase().includes('cultivator') || t.includes('कल्टीव्हेटर')) {
+    serviceName = 'Cultivator (कल्टीव्हेटर / मशागत)';
+    hourlyRate = (equip.service_rates && equip.service_rates.cultivation && equip.service_rates.cultivation.rate) || 900;
+  } else if (t === '3' || t.toLowerCase().includes('trolley') || t.includes('ट्रॉली')) {
+    serviceName = 'Hydraulic Trolley (ट्रॉली वाहतूक)';
+    hourlyRate = (equip.service_rates && equip.service_rates.trolley && equip.service_rates.trolley.rate) || 600;
+  } else if (t === '4' || t.toLowerCase().includes('plough') || t.includes('नांगरट')) {
+    serviceName = 'Deep Plough (नांगरट)';
+    hourlyRate = (equip.service_rates && equip.service_rates.ploughing && equip.service_rates.ploughing.rate) || 850;
+  } else {
+    serviceName = 'General Tractor Day Hire';
+    hourlyRate = Math.round((equip.price_per_day || 1500) / 2.5);
+    unit = 'day';
+  }
+
+  session.data.selectedService = {
+    name: serviceName,
+    hourly_rate: hourlyRate,
+    unit
+  };
+
+  session.state = 'BOOKING_DATES';
+
+  if (lang === 'mr') {
+    return `✅ निवडले: *${serviceName}* (दर: *₹${hourlyRate}/तास*)
+━━━━━━━━━━━━━━━━━━━━
+📍 *आता कामाची तारीख व वेळ निवडा:*
+1️⃣ *उद्या सकाळी (८:०० AM)* ⭐️ सर्वाधिक पसंती
+2️⃣ *उद्या दुपारी (१:०० PM)*
+3️⃣ *आज त्वरित डिलिव्हरी (२ तासांत)*
+4️⃣ *परवा सकाळी (८:०० AM)*
+
+_किंवा तुमची तारीख व वेळ टाईप करा (उदा. 'उद्या सकाळी 8 वाजता 2 तास')_`;
+  } else {
+    return `✅ Selected: *${serviceName}* (Rate: *₹${hourlyRate}/hr*)
+━━━━━━━━━━━━━━━━━━━━
+📍 *Now Select Date & Time Slot:*
+1️⃣ *Tomorrow Morning (8:00 AM)* ⭐️ Most Popular
+2️⃣ *Tomorrow Afternoon (1:00 PM)*
+3️⃣ *Today Immediate Dispatch (within 2 hours)*
+4️⃣ *Day After Tomorrow (8:00 AM)*
+
+_Or reply with custom date & time (e.g. 'Tomorrow 8 AM for 2 hours')_`;
+  }
 }
 
 /**

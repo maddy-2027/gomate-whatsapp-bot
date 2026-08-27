@@ -384,19 +384,118 @@
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
           <div class="form-group">
-            <label class="form-label" id="lblDailyRate">प्रति दिवस भाडे दर (Daily Hire Rate ₹) *</label>
+            <label class="form-label" id="lblHourlyRate">प्रति तास भाडे दर (Base Hourly Rate ₹) *</label>
             <div style="position: relative;">
               <span style="position: absolute; left: 14px; top: 12px; font-weight: 700; color: var(--gm-gray-600);">₹</span>
-              <input type="number" id="dailyRate" class="gm-input" style="padding-left: 32px;" placeholder="1500" min="200" required>
+              <input type="number" id="hourlyRate" class="gm-input" style="padding-left: 32px;" placeholder="600" min="100" value="600" required>
             </div>
-            <div class="form-hint" id="hintDailyRate">दर स्वतः ठरवा (उदा. ₹१,५००/दिवस)</div>
+            <div class="form-hint" id="hintHourlyRate">प्रति तास दर (उदा. ₹६००/तास)</div>
           </div>
 
           <div class="form-group">
-            <label class="form-label" id="lblServices">उपलब्ध कामे व अवजारे (Capabilities & Services)</label>
-            <input type="text" id="equipServices" class="gm-input" placeholder="उदा. नांगरट, रोटाव्हेटर, पेरणी व ट्रॉली">
+            <label class="form-label" id="lblDailyRate">प्रति दिवस भाडे दर (Full Day Rate ₹) *</label>
+            <div style="position: relative;">
+              <span style="position: absolute; left: 14px; top: 12px; font-weight: 700; color: var(--gm-gray-600);">₹</span>
+              <input type="number" id="dailyRate" class="gm-input" style="padding-left: 32px;" placeholder="1500" min="200" value="1500" required>
+            </div>
+            <div class="form-hint" id="hintDailyRate">८ तासांचे पूर्ण दिवस भाडे</div>
+          </div>
+        </div>
+
+        <!-- Multi-Attachment Service Rate Card (For Tractors & Agri Machinery) -->
+        <div id="attachmentRatesSection" style="background: #f8fafc; border: 1px solid var(--gm-gray-200); border-radius: var(--gm-radius-md); padding: 18px; margin-bottom: 20px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <div>
+              <h3 style="font-size: 15px; margin: 0; color: var(--gm-brand-navy);" id="titleAttachments">
+                🚜 उपलब्ध अवजारे व प्रति तास दर (Attachment Service Rates)
+              </h3>
+              <p style="font-size: 12px; color: var(--gm-gray-600); margin: 2px 0 0;" id="subAttachments">
+                तुमच्याकडे उपलब्ध असलेली अवजारे निवडा व स्वतःचा दर (₹/तास) ठरवा
+              </p>
+            </div>
+            <span class="gm-badge gm-badge-info" style="font-size: 11px;">Different Rates per Task</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
+            <!-- Rotavator -->
+            <div style="background: #FFFFFF; border: 1px solid var(--gm-gray-200); border-radius: var(--gm-radius-sm); padding: 10px;">
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; cursor: pointer;">
+                <input type="checkbox" id="chk_rotavator" checked onchange="toggleAttachmentInput('rotavator')">
+                <span>🚜 रोटाव्हेटर (Rotavator)</span>
+              </label>
+              <div style="margin-top: 6px; display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 12px; color: var(--gm-gray-600);">दर: ₹</span>
+                <input type="number" id="rate_rotavator" class="gm-input" style="padding: 4px 8px; font-size: 13px; height: 32px;" value="800" min="100">
+                <span style="font-size: 11px; color: var(--gm-gray-500);">/तास</span>
+              </div>
+            </div>
+
+            <!-- Cultivator -->
+            <div style="background: #FFFFFF; border: 1px solid var(--gm-gray-200); border-radius: var(--gm-radius-sm); padding: 10px;">
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; cursor: pointer;">
+                <input type="checkbox" id="chk_cultivation" checked onchange="toggleAttachmentInput('cultivation')">
+                <span>🌾 कल्टीव्हेटर (Cultivator)</span>
+              </label>
+              <div style="margin-top: 6px; display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 12px; color: var(--gm-gray-600);">दर: ₹</span>
+                <input type="number" id="rate_cultivation" class="gm-input" style="padding: 4px 8px; font-size: 13px; height: 32px;" value="900" min="100">
+                <span style="font-size: 11px; color: var(--gm-gray-500);">/तास</span>
+              </div>
+            </div>
+
+            <!-- Trolley -->
+            <div style="background: #FFFFFF; border: 1px solid var(--gm-gray-200); border-radius: var(--gm-radius-sm); padding: 10px;">
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; cursor: pointer;">
+                <input type="checkbox" id="chk_trolley" checked onchange="toggleAttachmentInput('trolley')">
+                <span>🛒 ट्रॉली वाहतूक (Trolley)</span>
+              </label>
+              <div style="margin-top: 6px; display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 12px; color: var(--gm-gray-600);">दर: ₹</span>
+                <input type="number" id="rate_trolley" class="gm-input" style="padding: 4px 8px; font-size: 13px; height: 32px;" value="600" min="100">
+                <span style="font-size: 11px; color: var(--gm-gray-500);">/तास</span>
+              </div>
+            </div>
+
+            <!-- Deep Plough -->
+            <div style="background: #FFFFFF; border: 1px solid var(--gm-gray-200); border-radius: var(--gm-radius-sm); padding: 10px;">
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; cursor: pointer;">
+                <input type="checkbox" id="chk_ploughing" checked onchange="toggleAttachmentInput('ploughing')">
+                <span>⛏️ नांगरट (Deep Plough)</span>
+              </label>
+              <div style="margin-top: 6px; display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 12px; color: var(--gm-gray-600);">दर: ₹</span>
+                <input type="number" id="rate_ploughing" class="gm-input" style="padding: 4px 8px; font-size: 13px; height: 32px;" value="850" min="100">
+                <span style="font-size: 11px; color: var(--gm-gray-500);">/तास</span>
+              </div>
+            </div>
+
+            <!-- Seeding -->
+            <div style="background: #FFFFFF; border: 1px solid var(--gm-gray-200); border-radius: var(--gm-radius-sm); padding: 10px;">
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; cursor: pointer;">
+                <input type="checkbox" id="chk_seeding" onchange="toggleAttachmentInput('seeding')">
+                <span>🌱 पेरणी यंत्र (Seed Drill)</span>
+              </label>
+              <div style="margin-top: 6px; display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 12px; color: var(--gm-gray-600);">दर: ₹</span>
+                <input type="number" id="rate_seeding" class="gm-input" style="padding: 4px 8px; font-size: 13px; height: 32px;" value="750" min="100">
+                <span style="font-size: 11px; color: var(--gm-gray-500);">/तास</span>
+              </div>
+            </div>
+
+            <!-- Sprayer -->
+            <div style="background: #FFFFFF; border: 1px solid var(--gm-gray-200); border-radius: var(--gm-radius-sm); padding: 10px;">
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; cursor: pointer;">
+                <input type="checkbox" id="chk_spraying" onchange="toggleAttachmentInput('spraying')">
+                <span>💧 फवारणी यंत्र (Sprayer)</span>
+              </label>
+              <div style="margin-top: 6px; display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 12px; color: var(--gm-gray-600);">दर: ₹</span>
+                <input type="number" id="rate_spraying" class="gm-input" style="padding: 4px 8px; font-size: 13px; height: 32px;" value="500" min="100">
+                <span style="font-size: 11px; color: var(--gm-gray-500);">/तास</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -651,6 +750,15 @@
       }
     }
 
+    function toggleAttachmentInput(attId) {
+      const chk = document.getElementById(`chk_${attId}`);
+      const rateInput = document.getElementById(`rate_${attId}`);
+      if (rateInput) {
+        rateInput.disabled = !chk.checked;
+        rateInput.style.opacity = chk.checked ? '1' : '0.4';
+      }
+    }
+
     async function handleRegistrationSubmit(e) {
       e.preventDefault();
       
@@ -662,6 +770,33 @@
       const idx = document.getElementById('equipTypeSelect').value;
       const preset = (EQUIPMENT_PRESETS[cat] && EQUIPMENT_PRESETS[cat][idx]) || {};
 
+      // Build attachment service rate card
+      const service_rates = {};
+      const attachmentDefs = [
+        { id: 'rotavator', name: 'Rotavator (रोटाव्हेटर)' },
+        { id: 'cultivation', name: 'Cultivator (कल्टीव्हेटर / मशागत)' },
+        { id: 'trolley', name: 'Hydraulic Trolley (ट्रॉली वाहतूक)' },
+        { id: 'ploughing', name: 'Deep Plough (नांगरट)' },
+        { id: 'seeding', name: 'Seed Drill (पेरणी यंत्र)' },
+        { id: 'spraying', name: 'Sprayer (फवारणी यंत्र)' }
+      ];
+
+      attachmentDefs.forEach(att => {
+        const chk = document.getElementById(`chk_${att.id}`);
+        const rateInput = document.getElementById(`rate_${att.id}`);
+        if (chk && chk.checked) {
+          service_rates[att.id] = {
+            id: att.id,
+            name: att.name,
+            rate: Number(rateInput ? rateInput.value : 800),
+            unit: 'hr'
+          };
+        }
+      });
+
+      const hourlyRateVal = Number(document.getElementById('hourlyRate') ? document.getElementById('hourlyRate').value : 600);
+      const dailyRateVal = Number(document.getElementById('dailyRate').value);
+
       const payload = {
         name: document.getElementById('ownerName').value.trim(),
         phone: document.getElementById('ownerPhone').value.trim(),
@@ -669,8 +804,10 @@
         category: cat,
         equipment_type: preset.type || 'Tractor',
         model: document.getElementById('equipModel').value.trim(),
-        daily_rate: Number(document.getElementById('dailyRate').value),
-        services: document.getElementById('equipServices').value.trim(),
+        hourly_rate: hourlyRateVal,
+        daily_rate: dailyRateVal,
+        service_rates: Object.keys(service_rates).length > 0 ? service_rates : null,
+        services: document.getElementById('equipServices') ? document.getElementById('equipServices').value.trim() : 'शेती व बांधकामासाठी उपलब्ध',
         language: currentLang
       };
 
@@ -687,7 +824,7 @@
         // Show Success Modal
         document.getElementById('modalOwnerName').textContent = payload.name;
         document.getElementById('modalOwnerVillage').textContent = `${payload.village} (जत तालुका)`;
-        document.getElementById('modalOwnerEquip').textContent = `${payload.model} (₹${payload.daily_rate}/दिवस)`;
+        document.getElementById('modalOwnerEquip').textContent = `${payload.model} (₹${payload.hourly_rate}/तास, ₹${payload.daily_rate}/दिवस)`;
         
         const cleanPhone = payload.phone.startsWith('+') ? payload.phone : `+91${payload.phone}`;
         document.getElementById('linkOwnerDashboard').href = `/owner/index.html?phone=${encodeURIComponent(cleanPhone)}`;

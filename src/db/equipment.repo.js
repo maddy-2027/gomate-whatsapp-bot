@@ -62,6 +62,12 @@ async function addEquipment(equipmentData) {
     owner_phone: equipmentData.owner_phone || null,
     owner_name: equipmentData.owner_name || null,
     village: equipmentData.village || equipmentData.district || 'Jath',
+    hourly_rate: Number(equipmentData.hourly_rate || Math.round(dbRecord.price_per_day / 2.5)),
+    service_rates: equipmentData.service_rates || (equipmentData.category === 'agriculture' ? {
+      rotavator: { id: 'rotavator', name: 'Rotavator (रोटाव्हेटर)', rate: 800, unit: 'hr' },
+      cultivation: { id: 'cultivation', name: 'Cultivator (कल्टीव्हेटर)', rate: 900, unit: 'hr' },
+      trolley: { id: 'trolley', name: 'Hydraulic Trolley (ट्रॉली)', rate: 600, unit: 'hr' }
+    } : null),
     image_url: equipmentData.image_url || img,
     services: dbRecord.description
   };
@@ -84,7 +90,9 @@ async function addEquipment(equipmentData) {
 
 async function getAllEquipment() {
   try {
-    const { data, error } = await supabase.from('equipment').select('*').order('created_at', { ascending: false });
+    const fetchPromise = supabase.from('equipment').select('*').order('created_at', { ascending: false });
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 500));
+    const { data, error } = await Promise.race([fetchPromise, timeoutPromise]);
     if (!error && data && data.length > 0) {
       return data.map(d => ({
         ...d,
@@ -92,7 +100,7 @@ async function getAllEquipment() {
       }));
     }
   } catch (err) {
-    // fallback
+    // fallback to memory
   }
   return memoryEquipment;
 }

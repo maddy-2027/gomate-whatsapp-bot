@@ -191,6 +191,7 @@ app.post('/api/owner/register', async (req, res) => {
     // 2. Add First Machinery Listing if provided
     let equipment = null;
     if (category && model) {
+      const { hourly_rate, service_rates } = req.body;
       equipment = await equipmentRepo.addEquipment({
         owner_id: owner.id,
         owner_phone: cleanPhone,
@@ -204,6 +205,8 @@ app.post('/api/owner/register', async (req, res) => {
         village: village.trim(),
         price_per_day: Number(daily_rate || 1500),
         daily_rate: Number(daily_rate || 1500),
+        hourly_rate: Number(hourly_rate || Math.round(Number(daily_rate || 1500) / 2.5)),
+        service_rates: service_rates || null,
         services: services || 'जत तालुक्यात शेती व बांधकामासाठी उपलब्ध',
         available: true
       });
@@ -217,6 +220,154 @@ app.post('/api/owner/register', async (req, res) => {
     });
   } catch (err) {
     console.error('Owner registration error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Hourly Rental Pricing Calculator API
+app.post('/api/booking/calculate-hourly', async (req, res) => {
+  try {
+    const { equipment_id, service_id, hours = 1, start_date, start_time, village } = req.body;
+    const allEquip = await equipmentRepo.getAllEquipment();
+    const equip = allEquip.find(e => String(e.id) === String(equipment_id)) || allEquip[0];
+    
+    let unitRate = Number(equip.hourly_rate || 600);
+    let serviceName = 'Base Machine Hire (सामान्य भाडे)';
+
+    if (equip.service_rates && service_id && equip.service_rates[service_id]) {
+      unitRate = Number(equip.service_rates[service_id].rate || equip.service_rates[service_id].rate_per_hour || unitRate);
+      serviceName = equip.service_rates[service_id].name || service_id;
+    } else if (service_id === 'rotavator') {
+      unitRate = 800;
+      serviceName = 'Rotavator (रोटाव्हेटर)';
+    } else if (service_id === 'cultivation') {
+      unitRate = 900;
+      serviceName = 'Cultivator (कल्टीव्हेटर)';
+    } else if (service_id === 'trolley') {
+      unitRate = 600;
+      serviceName = 'Hydraulic Trolley (ट्रॉली)';
+    } else if (service_id === 'ploughing') {
+      unitRate = 850;
+      serviceName = 'Deep Plough (नांगरट)';
+    } else if (service_id === 'seeding') {
+      unitRate = 750;
+      serviceName = 'Seed Drill (पेरणी)';
+    }
+
+    const durationHours = Math.max(1, Number(hours) || 1);
+    const machineSubtotal = unitRate * durationHours;
+    const PLATFORM_FEE = 49; // Flat safety & dispatch fee
+    const totalAmount = machineSubtotal + PLATFORM_FEE;
+
+    res.json({
+      success: true,
+      equipment_id: equip.id,
+      model: equip.model || equip.name,
+      category: equip.category,
+      service_id: service_id || 'base',
+      service_name: serviceName,
+      unit_hourly_rate: unitRate,
+      duration_hours: durationHours,
+      machine_subtotal: machineSubtotal,
+      platform_fee: PLATFORM_FEE,
+      total_amount: totalAmount,
+      start_date: start_date || 'Tomorrow',
+      start_time: start_time || '08:00 AM',
+      village: village || equip.village || 'Jath'
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Hourly Rental Booking Confirmation & Payment API
+app.post('/api/booking/create-hourly', async (req, res) => {
+  try {
+    const { 
+      customer_name, 
+      customer_phone, 
+      equipment_id, 
+      service_id, 
+      hours = 1, 
+      start_date, 
+      start_time, 
+      village,
+      notes 
+    } = req.body;
+
+    if (!customer_name || !customer_phone) {
+      return res.status(400).json({ error: 'Customer name and WhatsApp phone number are required.' });
+    }
+
+    const allEquip = await equipmentRepo.getAllEquipment();
+    const equip = allEquip.find(e => String(e.id) === String(equipment_id)) || allEquip[0];
+
+    let unitRate = Number(equip.hourly_rate || 600);
+    let serviceName = 'Base Machine Hire';
+
+    if (equip.service_rates && service_id && equip.service_rates[service_id]) {
+      unitRate = Number(equip.service_rates[service_id].rate || equip.service_rates[service_id].rate_per_hour || unitRate);
+      serviceName = equip.service_rates[service_id].name || service_id;
+    } else if (service_id === 'rotavator') { unitRate = 800; serviceName = 'Rotavator (रोटाव्हेटर)'; }
+    else if (service_id === 'cultivation') { unitRate = 900; serviceName = 'Cultivator (कल्टीव्हेटर)'; }
+    else if (service_id === 'trolley') { unitRate = 600; serviceName = 'Hydraulic Trolley (ट्रॉली)'; }
+    else if (service_id === 'ploughing') { unitRate = 850; serviceName = 'Deep Plough (नांगरट)'; }
+    else if (service_id === 'seeding') { unitRate = 750; serviceName = 'Seed Drill (पेरणी)'; }
+
+    const durationHours = Math.max(1, Number(hours) || 1);
+    const machineSubtotal = unitRate * durationHours;
+    const PLATFORM_FEE = 49;
+    const totalAmount = machineSubtotal + PLATFORM_FEE;
+
+    let cleanPhone = String(customer_phone).trim().replace(/[^\d+]/g, '');
+    if (!cleanPhone.startsWith('+')) {
+      cleanPhone = cleanPhone.length === 10 ? `+91${cleanPhone}` : `+${cleanPhone}`;
+    }
+
+    // Create Booking
+    const booking = await bookingsRepo.createBooking({
+      customer_name: customer_name.trim(),
+      customer_phone: cleanPhone,
+      equipment_id: equip.id,
+      equipment_name: `${equip.model} [${serviceName}]`,
+      start_date: `${start_date || 'Tomorrow'} at ${start_time || '08:00 AM'} (${durationHours} Hours)`,
+      duration_days: durationHours / 8, // fractional days
+      total_amount: totalAmount,
+      status: 'pending',
+      owner_phone: equip.owner_phone || '+919822012345'
+    });
+
+    // Generate Payment Link
+    const payObj = await razorpayService.createBookingPaymentLink(
+      cleanPhone,
+      totalAmount,
+      booking.booking_ref,
+      `${equip.model} (${serviceName} - ${durationHours} hrs)`
+    );
+
+    res.json({
+      success: true,
+      booking_ref: booking.booking_ref,
+      booking,
+      receipt: {
+        booking_ref: booking.booking_ref,
+        customer_name,
+        customer_phone: cleanPhone,
+        equipment_model: equip.model,
+        service_name: serviceName,
+        unit_hourly_rate: unitRate,
+        duration_hours: durationHours,
+        machine_subtotal: machineSubtotal,
+        platform_fee: PLATFORM_FEE,
+        total_amount: totalAmount,
+        start_date,
+        start_time,
+        village: village || 'Jath',
+        pay_url: payObj.short_url || 'https://rzp.io/l/gomate-booking'
+      }
+    });
+  } catch (err) {
+    console.error('Hourly booking error:', err);
     res.status(500).json({ error: err.message });
   }
 });

@@ -76,7 +76,9 @@ async function updateSubscription(phone, data) {
 
 async function getAllOwners() {
   try {
-    const { data, error } = await supabase.from('owners').select('*').order('created_at', { ascending: false });
+    const fetchPromise = supabase.from('owners').select('*').order('created_at', { ascending: false });
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 500));
+    const { data, error } = await Promise.race([fetchPromise, timeoutPromise]);
     if (!error && data && data.length > 0) return data;
   } catch (err) {
     // fallback

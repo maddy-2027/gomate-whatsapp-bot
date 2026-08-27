@@ -235,6 +235,7 @@ async function routeMessage(phone, text, session) {
     }
     case 'SEARCH_LOCATION': return await searchHandler.handleLocationInput(phone, rawText, session);
     case 'BOOKING_SELECT':   return await bookingFlow.handleEquipmentSelect(phone, rawText, session);
+    case 'BOOKING_SERVICE_SELECT': return await bookingFlow.handleServiceSelect(phone, rawText, session);
     case 'BOOKING_DATES':    return await bookingFlow.handleDateInput(phone, rawText, session);
     case 'BOOKING_DURATION': return await bookingFlow.handleDurationInput(phone, rawText, session);
     case 'BOOKING_CONFIRM':  return await bookingFlow.handleConfirmation(phone, rawText, session);
