@@ -8,6 +8,7 @@ const listingFlow = require('./owner/listingFlow');
 const dashboardHandler = require('./owner/dashboardHandler');
 const subscriptionHandler = require('./owner/subscriptionHandler');
 const { generateChatResponse } = require('../services/gemini');
+const { hasPendingDispatch, handleOwnerResponse } = require('../services/dispatchService');
 
 const userProfileCache = new Map();
 
@@ -27,6 +28,12 @@ function isNaturalQuery(text) {
 async function routeMessage(phone, text, session) {
   const rawText = (text || '').trim();
   const t = rawText.toLowerCase();
+
+  // 0. Check if this phone has an active 2-Way Owner Dispatch Request (Accept / Reject)
+  if (hasPendingDispatch(phone)) {
+    const dispatchReply = await handleOwnerResponse(phone, rawText);
+    if (dispatchReply) return dispatchReply;
+  }
 
   const isSingleDigit = /^[0-9]+$/.test(t);
   const isShortGreeting = ['hi', 'hello', 'hey', 'start', 'namaste', 'namaskar', 'नमस्कार', 'नमस्ते'].includes(t);

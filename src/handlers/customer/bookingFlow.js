@@ -2,6 +2,7 @@ const { getText } = require('../../services/language');
 const { createBooking } = require('../../db/bookings.repo');
 const { createBookingPaymentLink } = require('../../services/razorpay');
 const { sendWhatsAppDirect } = require('../../services/whatsappWeb');
+const { sendOwnerDispatchAlert } = require('../../services/dispatchService');
 
 /**
  * Format DD/MM/YYYY string helper
@@ -275,9 +276,19 @@ async function createFinalBookingAndPayment(phone, session) {
   const payLink = (payObj && payObj.short_url) ? payObj.short_url : 'https://rzp.io/l/gomate-booking';
   session.data.payLink = payLink;
 
-  // 3. Notify Owner in background
-  const ownerPhone = (equip.owners && equip.owners.phone) || equip.owner_phone || process.env.ADMIN_WHATSAPP_NUMBER || '+919822012345';
-  sendWhatsAppDirect(ownerPhone, `🔔 *New Advance GoMate Booking!* Ref: ${booking.booking_ref} | ${modelText} | Schedule: ${startDate} at ${startTime} | Duration: ${duration} days | ₹${totalAmount} | Customer: ${phone}`).catch(() => {});
+  // 3. Trigger 2-Way Interactive Dispatch Alert to Local Equipment Owner
+  await sendOwnerDispatchAlert({
+    bookingRef: booking.booking_ref,
+    farmerPhone: phone,
+    farmerName: customerName,
+    equipModel: modelText,
+    village: session.data.location,
+    startDate,
+    startTime,
+    duration,
+    rentalAmount,
+    totalAmount
+  }).catch(err => console.warn('Dispatch alert error:', err.message));
 
   // Clear active quote
   delete session.data.lastQuote;
