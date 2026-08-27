@@ -353,20 +353,28 @@ async function generateChatResponse(message, language = 'en', context = '', sess
   }
 
   // Locations & Districts
-  if (cleanMsg.includes('location') || cleanMsg.includes('district') || cleanMsg.includes('पुणे') || cleanMsg.includes('नाशिक') || cleanMsg.includes('सातारा') || cleanMsg.includes('कोल्हापूर') || cleanMsg.includes('सोलापूर') || cleanMsg.includes('नगर') || cleanMsg.includes('पत्ता') || cleanMsg.includes('कुठे')) {
+  if (cleanMsg.includes('location') || cleanMsg.includes('district') || cleanMsg.includes('जत') || cleanMsg.includes('jath') || cleanMsg.includes('sangli') || cleanMsg.includes('सांगली') || cleanMsg.includes('416404') || cleanMsg.includes('गाव') || cleanMsg.includes('पत्ता') || cleanMsg.includes('कुठे')) {
     const locText = effectiveLang === 'mr'
-      ? `📍 *GoMate संपूर्ण महाराष्ट्रात कार्यरत आहे!*
+      ? `📍 *GoMate जत तालुका पायलट सेवा (सांगली - 416404)*
 ━━━━━━━━━━━━━━━━━━━━
-आम्ही पुणे, नाशिक, सातारा, सांगली, कोल्हापूर, सोलापूर, छत्रपती संभाजीनगर, नागपूर, अमरावती आणि महाराष्ट्रातील सर्व जिल्ह्यांत व तालुक्यांत सेवा देतो.
+सध्या गोमेट पायलट सेवा **जत तालुक्यातील सर्व १२५ गावांमध्ये** पूर्ण क्षमतेने कार्यरत आहे!
 
-👉 *आपल्या शेतातील पिनकोड किंवा तालुक्याचे नाव पाठवून जवळची उपकरणे शोधा.*
-_(मेनूसाठी *0* पाठवा)_`
-      : `📍 *GoMate Operates Across All Maharashtra!*
+🌾 *प्रमुख स्थानिक केंद्रे:*
+• जत शहर, उमदी, संख, डफळापूर, बिळूर, शेगाव, माडग्याळ, वाळेखिंडी, मुचंडी, दरीबडची.
+
+⏱️ *डिलिव्हरी हमी:* जत तालुक्यातील कोणत्याही गावात १ ते २ तासांत थेट शेतात मशिनरी पोहोच!
+
+👉 *आपल्या गावाचे नाव टाईप करा किंवा मेनूसाठी '0' पाठवा.*`
+      : `📍 *GoMate Jath Taluka Pilot (Sangli - PIN 416404)*
 ━━━━━━━━━━━━━━━━━━━━
-Active hubs in Pune, Nashik, Satara, Kolhapur, Solapur, Aurangabad, Nagpur, and all rural agricultural talukas.
+GoMate is currently active across **all 125 villages of Jath Taluka**!
 
-👉 *Send your location pin or taluka name to find nearby machinery.*
-_(Reply *0* for Main Menu)_`;
+🌾 *Key Local Hubs:*
+• Jat City, Umadi, Sankh, Dafalapur, Bilur, Shegaon, Madgyal, Walekhindi, Muchandi.
+
+⏱️ *Fast Dispatch:* Machinery dispatched to your farm within 1–2 hours across Jath.
+
+👉 *Type your village name in Jath or reply '0' for Menu.*`;
     responseCache.set(cacheKey, locText);
     return locText;
   }

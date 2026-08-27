@@ -12,11 +12,14 @@ async function searchEquipment(criteria) {
   try {
     let query = supabase.from('equipment').select('*, owners(phone, name)');
     if (criteria.category) query = query.eq('category', criteria.category);
-    if (criteria.district) query = query.ilike('district', `%${criteria.district}%`);
+    if (criteria.taluka) {
+      query = query.ilike('taluka', `%${criteria.taluka}%`);
+    } else if (criteria.district) {
+      query = query.or(`taluka.ilike.%${criteria.district}%,district.ilike.%${criteria.district}%`);
+    }
     query = query.eq('available', true).limit(10);
     const { data, error } = await query;
     if (!error && data && data.length > 0) {
-      // Map description back to services if present
       return data.map(d => ({
         ...d,
         services: d.description || d.services || 'All Attachments'
@@ -29,7 +32,6 @@ async function searchEquipment(criteria) {
   return memoryEquipment.filter(item => {
     let match = true;
     if (criteria.category && item.category !== criteria.category) match = false;
-    if (criteria.district && item.district && !item.district.toLowerCase().includes(criteria.district.toLowerCase())) match = false;
     return match;
   });
 }
