@@ -13,8 +13,8 @@ const CATALOG = {
     { id: 107, category: 'agriculture', type: 'Trailer', model: 'GoMate 4-Tonne Tipping Trailer', price_per_day: 800, rating: 4.6, services: 'धान्य, ऊस व शेतमाल वाहतूक', image_url: '/assets/equipment/agri_hero.jpg' }
   ],
   transport: [
-    { id: 201, category: 'transport', type: 'Delivery Trucks', model: 'Tata Ace Gold (छोटा हत्ती)', price_per_day: 1300, rating: 4.8, services: 'जत तालुका अंतर्गत स्थानिक वाहतूक', image_url: '/assets/equipment/transport_cab_3d.jpg' },
-    { id: 202, category: 'transport', type: 'Delivery Trucks', model: 'Ashok Leyland Dost Plus Pickup', price_per_day: 1600, rating: 4.8, services: '1.5 टन शेतमाल व भाजीपाला मार्केट', image_url: '/assets/equipment/transport_cab_3d.jpg' },
+    { id: 201, category: 'transport', type: 'Delivery Trucks', model: 'Tata Ace Gold (छोटा हत्ती)', price_per_day: 1300, rating: 4.8, services: 'जत तालुका अंतर्गत स्थानिक वाहतूक', image_url: '/assets/equipment/transport_hero.jpg' },
+    { id: 202, category: 'transport', type: 'Delivery Trucks', model: 'Ashok Leyland Dost Plus Pickup', price_per_day: 1600, rating: 4.8, services: '1.5 टन शेतमाल व भाजीपाला मार्केट', image_url: '/assets/equipment/transport_hero.jpg' },
     { id: 203, category: 'transport', type: 'Trucks', model: 'Tata 407 LPT Medium Truck (4 Tonne)', price_per_day: 2600, rating: 4.7, services: 'सांगली/सांगोला/विजापूर मार्केट वाहतूक', image_url: '/assets/equipment/heavy_drone_3d.jpg' },
     { id: 204, category: 'transport', type: 'Tanker Trucks', model: 'BharatBenz 12KL Water Tanker', price_per_day: 3800, rating: 4.8, services: 'शेती व पिण्यासाठी पाणी टँकर', image_url: '/assets/equipment/heavy_drone_3d.jpg' },
     { id: 205, category: 'transport', type: 'Dump Trucks', model: 'Ashok Leyland Tipper (डंपर)', price_per_day: 4000, rating: 4.7, services: 'मुरूम, माती व खडी वाहतूक', image_url: '/assets/equipment/heavy_drone_3d.jpg' }
