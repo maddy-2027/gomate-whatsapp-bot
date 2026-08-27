@@ -286,12 +286,19 @@ async function handleDateInput(phone, text, session) {
     }
   }
 
-  // Check if duration was also provided in this message (e.g. "for 3 days", "3 दिवस", "2 days", "3 दिन")
-  const durMatch = t.match(/([1-9][0-9]?)\s*(?:day|days|दिवस|दिन|दिवसांचे|दिवसांसाठी|दिनों|वार)/i);
-  if (durMatch) {
-    duration = parseInt(durMatch[1]);
-  } else if (lower.includes('week') || lower.includes('आठवडा') || lower.includes('हफ्ता')) {
-    duration = 7;
+  // Check if duration / hours was also provided in this message (e.g. "for 3 hours", "3 तास", "2 hours", "3 दिवस")
+  const hourMatch = t.match(/([1-9][0-9]?)\s*(?:hour|hours|तास|घंटे|hr|hrs)/i);
+  const isHourly = !!session.data.selectedService && session.data.selectedService.unit === 'hr';
+
+  if (hourMatch) {
+    duration = parseInt(hourMatch[1]);
+  } else {
+    const durMatch = t.match(/([1-9][0-9]?)\s*(?:day|days|दिवस|दिन|दिवसांचे|दिवसांसाठी|दिनों|वार)/i);
+    if (durMatch) {
+      duration = parseInt(durMatch[1]);
+    } else if (lower.includes('week') || lower.includes('आठवडा') || lower.includes('हफ्ता')) {
+      duration = 7;
+    }
   }
 
   session.data.startDate = startDate;
@@ -307,6 +314,43 @@ async function handleDateInput(phone, text, session) {
   // Otherwise, transition to BOOKING_DURATION step
   session.state = 'BOOKING_DURATION';
   const equip = session.data.selectedEquipment || { model: 'Mahindra 575 DI Tractor', price_per_day: 1500 };
+  const selectedService = session.data.selectedService;
+
+  if (isHourly && selectedService) {
+    const rate = selectedService.hourly_rate || 800;
+    if (lang === 'mr') {
+      return `⏱️ *पायरी २/२: कामाचे तास निवडा:*
+━━━━━━━━━━━━━━━━━━━━
+🚜 काम: *${selectedService.name}*
+📅 तारीख: *${startDate}* (${startTime})
+💰 दर: *₹${rate}/तास*
+
+1️⃣ *१ तास* (₹${rate * 1 + 49})
+2️⃣ *२ तास* (₹${rate * 2 + 49}) ⭐️ लोकप्रिय
+3️⃣ *३ तास* (₹${rate * 3 + 49})
+4️⃣ *४ तास (अर्धा दिवस)* (₹${rate * 4 + 49})
+5️⃣ *६ तास* (₹${rate * 6 + 49})
+
+_किंवा तासांची संख्या टाईप करा (उदा. '२ तास' किंवा '३')_
+_(रद्द करण्यासाठी *0* पाठवा)_`;
+    } else {
+      return `⏱️ *Step 2 of 2: Select Duration in Hours:*
+━━━━━━━━━━━━━━━━━━━━
+🚜 Task: *${selectedService.name}*
+📅 Scheduled: *${startDate}* (${startTime})
+💰 Rate: *₹${rate}/hr*
+
+1️⃣ *1 Hour* (₹${rate * 1 + 49})
+2️⃣ *2 Hours* (₹${rate * 2 + 49}) ⭐️ Popular
+3️⃣ *3 Hours* (₹${rate * 3 + 49})
+4️⃣ *4 Hours (Half Day)* (₹${rate * 4 + 49})
+5️⃣ *6 Hours* (₹${rate * 6 + 49})
+
+_Or reply with hours (e.g. '2 hours' or '3')_
+_(Reply *0* to cancel)_`;
+    }
+  }
+
   const dailyRate = equip.price_per_day || 1500;
 
   if (lang === 'mr') {
@@ -355,20 +399,34 @@ _(Reply *0* to cancel)_`;
 }
 
 /**
- * Step 3: Handle Duration Input
+ * Step 3: Handle Duration Input (Hours or Days)
  */
 async function handleDurationInput(phone, text, session) {
   const t = (text || '').trim();
   const lower = t.toLowerCase();
+  const isHourly = !!session.data.selectedService && session.data.selectedService.unit === 'hr';
 
   let duration = 1;
-  if (t === '1' || lower === '1 day' || lower === '१ दिवस' || lower === '1 दिन') duration = 1;
-  else if (t === '2' || lower === '2 days' || lower === '२ दिवस' || lower === '2 दिन') duration = 2;
-  else if (t === '3' || lower === '3 days' || lower === '३ दिवस' || lower === '3 दिन') duration = 3;
-  else if (t === '4' || lower.includes('week') || lower.includes('7') || lower.includes('आठवडा') || lower.includes('सप्ताह')) duration = 7;
-  else {
-    const numMatch = t.match(/\b([1-9][0-9]?)\b/);
-    if (numMatch) duration = parseInt(numMatch[1]);
+
+  if (isHourly) {
+    if (t === '1' || lower.includes('1 तास') || lower.includes('1 hr') || lower.includes('1 hour')) duration = 1;
+    else if (t === '2' || lower.includes('2 तास') || lower.includes('2 hr') || lower.includes('2 hours')) duration = 2;
+    else if (t === '3' || lower.includes('3 तास') || lower.includes('3 hr') || lower.includes('3 hours')) duration = 3;
+    else if (t === '4' || lower.includes('4 तास') || lower.includes('4 hr') || lower.includes('4 hours') || lower.includes('half day')) duration = 4;
+    else if (t === '5' || lower.includes('6 तास') || lower.includes('6 hr') || lower.includes('6 hours')) duration = 6;
+    else {
+      const numMatch = t.match(/\b([1-9][0-9]?)\b/);
+      if (numMatch) duration = parseInt(numMatch[1]);
+    }
+  } else {
+    if (t === '1' || lower === '1 day' || lower === '१ दिवस' || lower === '1 दिन') duration = 1;
+    else if (t === '2' || lower === '2 days' || lower === '२ दिवस' || lower === '2 दिन') duration = 2;
+    else if (t === '3' || lower === '3 days' || lower === '३ दिवस' || lower === '3 दिन') duration = 3;
+    else if (t === '4' || lower.includes('week') || lower.includes('7') || lower.includes('आठवडा') || lower.includes('सप्ताह')) duration = 7;
+    else {
+      const numMatch = t.match(/\b([1-9][0-9]?)\b/);
+      if (numMatch) duration = parseInt(numMatch[1]);
+    }
   }
 
   session.data.duration = duration;
@@ -383,16 +441,19 @@ async function createFinalBookingAndPayment(phone, session) {
     id: 101,
     model: 'Mahindra 575 DI (45 HP)',
     price_per_day: 1500,
+    hourly_rate: 600,
     district: session.data.location || 'Pune'
   };
 
-  const duration = session.data.duration || 1;
+  const selectedService = session.data.selectedService;
+  const isHourly = !!selectedService && selectedService.unit === 'hr';
+  const duration = session.data.duration || (isHourly ? 2 : 1);
   const quantity = session.data.quantity || 1;
   const startDate = session.data.startDate || getOffsetDateString(1);
   const startTime = session.data.startTime || '08:00 AM';
-  const pricePerDay = equip.price_per_day || 1500;
+  const unitRate = isHourly ? (selectedService.hourly_rate || 800) : (equip.price_per_day || 1500);
   const PLATFORM_FEE = 49;
-  const rentalAmount = pricePerDay * duration * quantity;
+  const rentalAmount = unitRate * duration * quantity;
   const totalAmount = rentalAmount + PLATFORM_FEE;
 
   session.data.totalAmount = totalAmount;
@@ -452,15 +513,15 @@ async function createFinalBookingAndPayment(phone, session) {
   if (lang === 'mr') {
     return `🎉 *तुमचे उपकरण यशस्वीरित्या शेड्युल झाले आहे!* 🚜
 ━━━━━━━━━━━━━━━━━━━━
-🚜 उपकरण: *${modelText}*
+🚜 उपकरण / काम: *${selectedService ? `${modelText} (${selectedService.name})` : modelText}*
 🔖 बुकिंग संदर्भ: *${booking.booking_ref}*
 📅 शेड्युल तारीख: *${startDate}*
 ⏰ पोहोचण्याची वेळ: *${startTime} (अचूक वेळेत)*
-⏱️ कालावधी: *${duration} दिवस*
+⏱️ कालावधी: *${duration} ${isHourly ? 'तास' : 'दिवस'}*
 📍 कार्यक्षेत्र: *${session.data.location || 'महाराष्ट्र शेत/साइट'}*
 👤 ऑपरेटर/चालक: *व्हेरिफाइड ड्रायव्हर समाविष्ट (GoMate हमी)*
 ━━━━━━━━━━━━━━━━━━━━
-• उपकरण भाडे: *₹${rentalAmount.toLocaleString('en-IN')}* (₹${pricePerDay} x ${duration} दिवस)
+• भाडे दर: *₹${rentalAmount.toLocaleString('en-IN')}* (₹${unitRate} x ${duration} ${isHourly ? 'तास' : 'दिवस'})
 • गोमेट सुरक्षा व सहाय्य फी: *₹${PLATFORM_FEE}*
 💰 *एकूण देय रक्कम: ₹${totalAmount.toLocaleString('en-IN')}*
 ━━━━━━━━━━━━━━━━━━━━
@@ -472,22 +533,22 @@ _(PhonePe, Google Pay, Paytm किंवा BHIM UPI द्वारे त्�
 📋 *Uber-Style डिलिव्हरी प्रक्रिया:*
 1️⃣ *UPI पेमेंट पूर्ण करा:* वरील लिंकवर क्लिक करून ₹${totalAmount.toLocaleString('en-IN')} भरा.
 2️⃣ *मालक व ड्रायव्हर तपशील:* पेमेंट यशस्वी होताच मशिनरी मालक व ड्रायव्हरचा फोन नंबर व लोकेशन WhatsApp वर मिळेल.
-3️⃣ *वेळेवर डिलिव्हरी:* मालक स्वतः ठरलेल्या वेळेत (${startDate}, ${startTime}) उपकरण तुमच्या शेतात पोहोचवतील.
+3️⃣ *वेळेवर डिलिव्हरी:* मालक ठरलेल्या वेळेत (${startDate}, ${startTime}) उपकरण तुमच्या शेतात पोहोचवतील.
 4️⃣ *१००% सुरक्षा:* काम सुरू होईपर्यंत तुमची रक्कम GoMate द्वारे सुरक्षित!
 
 _रद्द करण्यासाठी *CANCEL* किंवा मेनूसाठी *0* पाठवा._`;
   } else if (lang === 'hi') {
     return `🎉 *आपकी मशीनरी सफलतापूर्वक शेड्यूल हो गई है!* 🚜
 ━━━━━━━━━━━━━━━━━━━━
-🚜 मशीनरी: *${modelText}*
+🚜 मशीनरी / कार्य: *${selectedService ? `${modelText} (${selectedService.name})` : modelText}*
 🔖 बुकिंग संदर्भ: *${booking.booking_ref}*
 📅 निर्धारित दिनांक: *${startDate}*
 ⏰ पहुंचने का समय: *${startTime} (सटीक समय पर)*
-⏱️ अवधि: *${duration} दिन*
+⏱️ अवधि: *${duration} ${isHourly ? 'घंटे' : 'दिन'}*
 📍 स्थान: *${session.data.location || 'खेत / साइट'}*
 👤 ऑपरेटर/चालक: *सत्यापित ड्राइवर सम्मिलित (GoMate गारंटी)*
 ━━━━━━━━━━━━━━━━━━━━
-• मशीनरी किराया: *₹${rentalAmount.toLocaleString('en-IN')}* (₹${pricePerDay} x ${duration} दिन)
+• किराया: *₹${rentalAmount.toLocaleString('en-IN')}* (₹${unitRate} x ${duration} ${isHourly ? 'घंटे' : 'दिन'})
 • गोमेट सुरक्षा शुल्क: *₹${PLATFORM_FEE}*
 💰 *कुल देय राशि: ₹${totalAmount.toLocaleString('en-IN')}*
 ━━━━━━━━━━━━━━━━━━━━
@@ -506,15 +567,15 @@ _रद्द करने के लिए *CANCEL* या मेनू के 
   } else {
     return `🎉 *Your Equipment is Scheduled (Advance Booking)!* 🚜
 ━━━━━━━━━━━━━━━━━━━━
-🚜 Equipment: *${modelText}*
+🚜 Equipment / Task: *${selectedService ? `${modelText} (${selectedService.name})` : modelText}*
 🔖 Booking Ref: *${booking.booking_ref}*
 📅 Scheduled Date: *${startDate}*
 ⏰ Arrival / Dispatch Time: *${startTime} (Sharp)*
-⏱️ Duration: *${duration} day(s)*
+⏱️ Duration: *${duration} ${isHourly ? 'hour(s)' : 'day(s)'}*
 📍 Location: *${session.data.location || 'Local Farm/Site'}*
 👤 Operator / Driver: *Verified Operator Included (100% GoMate Guarantee)*
 ━━━━━━━━━━━━━━━━━━━━
-• Equipment Rental: *₹${rentalAmount.toLocaleString('en-IN')}* (₹${pricePerDay} x ${duration} days)
+• Rental Rate: *₹${rentalAmount.toLocaleString('en-IN')}* (₹${unitRate} x ${duration} ${isHourly ? 'hr' : 'days'})
 • GoMate Protection & Support Fee: *₹${PLATFORM_FEE}*
 💰 *Total Amount to Pay: ₹${totalAmount.toLocaleString('en-IN')}*
 ━━━━━━━━━━━━━━━━━━━━
@@ -568,6 +629,7 @@ async function createInstantBookingWithProcess(phone, session) {
 
 module.exports = {
   handleEquipmentSelect,
+  handleServiceSelect,
   handleDateInput,
   handleDurationInput,
   handleConfirmation,
