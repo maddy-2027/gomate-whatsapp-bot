@@ -150,29 +150,34 @@ function renderListings(equipmentList) {
 
   if (!equipmentList || equipmentList.length === 0) {
     grid.innerHTML = `
-      <div style="grid-column: 1 / -1; text-align: center; padding: 48px; background: var(--gm-white); border-radius: var(--gm-radius-md); border: 1px solid var(--gm-gray-200);">
-        <div style="font-size: 36px; margin-bottom: 12px;">🚜</div>
-        <h3>No machinery listed yet</h3>
+      <div style="grid-column: 1 / -1; text-align: center; padding: 48px 24px; background: var(--gm-white); border-radius: var(--gm-radius-lg); border: 1px solid var(--gm-gray-200);">
+        <div style="width: 54px; height: 54px; border-radius: 50%; background: var(--gm-gray-100); color: var(--gm-gray-500); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        </div>
+        <h3 style="font-size: 18px; margin-bottom: 4px;">No machinery listed yet</h3>
         <p style="color: var(--gm-gray-600); font-size: 14px; margin-top: 4px; margin-bottom: 16px;">Add your tractors, trucks, or JCBs to start receiving customer bookings on WhatsApp.</p>
-        <button class="gm-btn gm-btn-primary" onclick="openAddMachineModal()">➕ Add Machinery Listing</button>
+        <button class="gm-btn gm-btn-primary" onclick="openAddMachineModal()" style="display: inline-flex; align-items: center; gap: 6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          Add Machinery Listing
+        </button>
       </div>
     `;
     return;
   }
 
   grid.innerHTML = equipmentList.map(item => {
-    let img = '/assets/equipment/agri_hero.jpg';
+    let img = '/assets/equipment/agri_tractor_3d.jpg';
     let badgeClass = 'gm-badge-agri';
-    let catIcon = '🌾';
+    let catLabel = 'Agriculture';
 
     if (item.category === 'transport') {
-      img = '/assets/equipment/transport_hero.jpg';
+      img = '/assets/equipment/heavy_drone_3d.jpg';
       badgeClass = 'gm-badge-info';
-      catIcon = '🚚';
+      catLabel = 'Goods Transport';
     } else if (item.category === 'infrastructure') {
-      img = '/assets/equipment/infra_hero.jpg';
+      img = '/assets/equipment/infra_jcb_3d.jpg';
       badgeClass = 'gm-badge-warning';
-      catIcon = '🏗️';
+      catLabel = 'Earthmoving & JCB';
     }
 
     const isAvailable = item.available !== false;
@@ -183,7 +188,7 @@ function renderListings(equipmentList) {
         <div class="owner-equip-body">
           <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
             <div>
-              <span class="gm-badge ${badgeClass}">${catIcon} ${item.category}</span>
+              <span class="gm-badge ${badgeClass}">${catLabel}</span>
               <h3 style="font-size: 16px; margin-top: 6px; font-weight: 700;">${item.name || item.model}</h3>
             </div>
             <label class="toggle-switch" title="Toggle active machinery availability">
@@ -193,13 +198,13 @@ function renderListings(equipmentList) {
           </div>
 
           <p style="font-size: 13px; color: var(--gm-gray-600); margin: 6px 0;">
-            ${item.equipment_type || item.model} • ${item.district || 'Pune'}
+            ${item.equipment_type || item.model} • ${item.district || 'Jath'}
           </p>
 
           <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--gm-gray-200); padding-top: 12px; margin-top: auto;">
             <div>
               <span style="font-size: 11px; color: var(--gm-gray-500);">Hire Rate:</span>
-              <div style="font-size: 17px; font-weight: 700; color: var(--gm-brand-navy);">₹${Number(item.daily_rate || 1500).toLocaleString('en-IN')}<span style="font-size: 11px; font-weight: normal; color: var(--gm-gray-500);">/day</span></div>
+              <div style="font-size: 17px; font-weight: 700; color: var(--gm-brand-navy); font-family: var(--gm-font-mono);">₹${Number(item.daily_rate || 1500).toLocaleString('en-IN')}<span style="font-size: 11px; font-weight: normal; color: var(--gm-gray-500); font-family: var(--gm-font-body);">/day</span></div>
             </div>
             <span class="gm-badge ${isAvailable ? 'gm-badge-confirmed' : 'gm-badge-cancelled'}" id="status-badge-${item.id}">
               ${isAvailable ? 'Available' : 'Paused'}
@@ -239,11 +244,12 @@ function renderBookings(bookingsList) {
           <div style="font-size: 11px; color: var(--gm-gray-500);">${b.customer_phone || '+91 98765 43210'}</div>
         </td>
         <td>${b.start_date || 'Today'} (${b.duration_days || 1} Days)</td>
-        <td><strong>₹${(b.total_amount || 0).toLocaleString('en-IN')}</strong></td>
+        <td><strong style="font-family: var(--gm-font-mono);">₹${(b.total_amount || 0).toLocaleString('en-IN')}</strong></td>
         <td><span class="gm-badge ${badgeClass}">${b.status || 'Pending'}</span></td>
         <td>
           <a href="https://wa.me/${(b.customer_phone || '').replace(/\D/g, '')}" target="_blank" class="gm-btn gm-btn-primary" style="padding: 4px 10px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;">
-            💬 WhatsApp
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            WhatsApp
           </a>
         </td>
       </tr>
@@ -383,8 +389,13 @@ function showToast(msg, type = 'info') {
     document.body.appendChild(toast);
   }
 
-  const icon = type === 'success' ? '✅' : (type === 'error' ? '⚠️' : 'ℹ️');
-  toast.innerHTML = `<span>${icon}</span> <span>${msg}</span>`;
+  let iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
+  if (type === 'success') {
+    iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+  } else if (type === 'error') {
+    iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>';
+  }
+  toast.innerHTML = `<span>${iconSvg}</span> <span>${msg}</span>`;
   toast.style.opacity = '1';
 
   setTimeout(() => {

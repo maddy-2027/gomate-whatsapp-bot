@@ -165,8 +165,9 @@
           <h1 style="font-size: 24px;" id="listingsCountTitle">My Equipment Listings</h1>
           <p style="color: var(--gm-gray-600); font-size: 14px;">Toggle availability switches or add new machinery to your fleet</p>
         </div>
-        <button class="gm-btn gm-btn-primary" onclick="openAddMachineModal()">
-          ➕ Add Machinery Listing
+        <button class="gm-btn gm-btn-primary" onclick="openAddMachineModal()" style="display: inline-flex; align-items: center; gap: 6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          Add Machinery Listing
         </button>
       </div>
 
@@ -227,8 +228,9 @@
               <strong>Razorpay UPI / Cards / NetBanking</strong>
             </div>
           </div>
-          <button onclick="initiateSubscriptionCheckout()" class="gm-btn gm-btn-primary" style="width: 100%; padding: 14px; font-size: 15px; border-radius: var(--gm-radius-sm);">
-            Manage / Renew Subscription (₹599/mo) 💳
+          <button onclick="initiateSubscriptionCheckout()" class="gm-btn gm-btn-primary" style="width: 100%; padding: 14px; font-size: 15px; border-radius: var(--gm-radius-sm); display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+            Manage / Renew Subscription (₹599/mo)
           </button>
         </div>
       </div>
@@ -271,16 +273,16 @@
     <div class="gm-modal-card">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
         <h2 style="font-size: 18px;">Add Machinery Listing</h2>
-        <button onclick="closeAddMachineModal()" style="background: transparent; border: none; font-size: 18px; cursor: pointer;">✕</button>
+        <button onclick="closeAddMachineModal()" style="background: transparent; border: none; font-size: 18px; cursor: pointer; color: var(--gm-gray-500);">✕</button>
       </div>
       
       <form onsubmit="handleAddMachineSubmit(event)" style="display: flex; flex-direction: column; gap: 14px;">
         <div>
           <label style="font-size: 12px; font-weight: 600; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">Category</label>
           <select id="newMachineCategory" class="gm-select" onchange="updateTypeDropdown()" required>
-            <option value="agriculture">🌾 Agricultural Equipment</option>
-            <option value="transport">🚚 Transport & Freight Vehicles</option>
-            <option value="infrastructure">🏗️ Construction & Earthworks</option>
+            <option value="agriculture">Agricultural Equipment</option>
+            <option value="transport">Transport & Freight Vehicles</option>
+            <option value="infrastructure">Construction & Earthworks</option>
           </select>
         </div>
 
@@ -311,7 +313,10 @@
 
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
           <button type="button" onclick="closeAddMachineModal()" class="gm-btn gm-btn-outline">Cancel</button>
-          <button type="submit" class="gm-btn gm-btn-primary">Publish Listing 🚀</button>
+          <button type="submit" class="gm-btn gm-btn-primary" style="display: inline-flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Publish Listing
+          </button>
         </div>
       </form>
     </div>

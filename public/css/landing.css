@@ -183,7 +183,7 @@
 
 /* Equipment Showcase */
 .catalog-section {
-  padding: 80px 24px;
+  padding: 88px 24px;
   background: var(--gm-gray-50);
   border-bottom: 1px solid var(--gm-gray-200);
 }
@@ -196,75 +196,88 @@
 .category-tabs {
   display: flex;
   justify-content: center;
-  gap: 8px;
-  margin-bottom: 32px;
+  gap: 10px;
+  margin-bottom: 36px;
   flex-wrap: wrap;
 }
 
 .cat-tab-btn {
-  padding: 8px 18px;
-  border-radius: var(--gm-radius-sm);
+  padding: 9px 20px;
+  border-radius: var(--gm-radius-pill);
   background: #FFFFFF;
   border: 1px solid var(--gm-gray-300);
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 600;
   color: var(--gm-gray-700);
   cursor: pointer;
   transition: var(--gm-transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
-
+.cat-tab-btn:hover {
+  background: var(--gm-gray-100);
+  border-color: var(--gm-gray-400);
+  color: var(--gm-brand-navy);
+}
 .cat-tab-btn.active {
-  background: var(--gm-charcoal-900);
+  background: var(--gm-brand-navy);
   color: #FFFFFF;
-  border-color: var(--gm-charcoal-900);
+  border-color: var(--gm-brand-navy);
+  box-shadow: var(--gm-shadow-sm);
 }
 
 .equip-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
+  gap: 22px;
 }
 
 .landing-equip-card {
   background: #FFFFFF;
-  border-radius: var(--gm-radius-md);
-  padding: 20px;
+  border-radius: var(--gm-radius-lg);
+  padding: 22px;
   border: 1px solid var(--gm-gray-200);
   box-shadow: var(--gm-shadow-xs);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  transition: var(--gm-transition);
 }
 
 .landing-equip-card:hover {
   border-color: var(--gm-gray-300);
-  box-shadow: var(--gm-shadow-sm);
+  box-shadow: var(--gm-shadow-md);
+  transform: translateY(-3px);
 }
 
 .card-badge {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
   background: var(--gm-gray-100);
   color: var(--gm-gray-700);
-  padding: 2px 6px;
+  padding: 3px 8px;
   border-radius: var(--gm-radius-sm);
   display: inline-block;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .card-model {
-  font-size: 16px;
+  font-size: 16.5px;
   font-weight: 700;
-  color: var(--gm-brand-dark);
+  color: var(--gm-brand-navy);
   margin-bottom: 6px;
+  letter-spacing: -0.01em;
 }
 
 .card-desc {
-  font-size: 12px;
+  font-size: 12.5px;
   color: var(--gm-gray-600);
-  line-height: 1.4;
-  margin-bottom: 16px;
+  line-height: 1.45;
+  margin-bottom: 18px;
+  flex-grow: 1;
 }
 
 .card-pricing-row {
@@ -272,26 +285,31 @@
   align-items: center;
   justify-content: space-between;
   border-top: 1px solid var(--gm-gray-100);
-  padding-top: 12px;
+  padding-top: 14px;
 }
 
 .card-price {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 19px;
+  font-weight: 800;
   color: var(--gm-brand-navy);
+  font-family: var(--gm-font-mono);
 }
 
 .card-price span {
   font-size: 11px;
-  font-weight: normal;
+  font-weight: 500;
   color: var(--gm-gray-500);
+  font-family: var(--gm-font-body);
 }
 
 /* Equipment Owner Section (Distinct Charcoal Background) */
 .owner-cta-section {
-  padding: 80px 24px;
-  background-color: var(--gm-charcoal-900);
+  padding: 96px 24px;
+  background: radial-gradient(circle at 50% 0%, #1e293b 0%, #0b0f17 100%);
+  background-image: var(--gm-bg-dots-dark), radial-gradient(circle at 50% 0%, #1e293b 0%, #0b0f17 100%);
+  background-size: 24px 24px, 100% 100%;
   color: #FFFFFF;
+  border-top: 1px solid var(--gm-charcoal-800);
 }
 
 .owner-cta-box {
@@ -302,12 +320,13 @@
 
 .owner-cta-box h2 {
   color: #FFFFFF;
-  font-size: 36px;
+  font-size: 38px;
+  letter-spacing: -0.02em;
 }
 
 /* FAQ Accordion */
 .faq-section {
-  padding: 60px 24px;
+  padding: 80px 24px;
   background: #FFFFFF;
 }
 
@@ -317,35 +336,47 @@
 }
 
 .faq-item {
-  background: #FFFFFF;
-  border-radius: var(--gm-radius-sm);
+  background: var(--gm-gray-50);
+  border-radius: var(--gm-radius-md);
   border: 1px solid var(--gm-gray-200);
   margin-bottom: 12px;
+  overflow: hidden;
+  transition: var(--gm-transition);
+}
+.faq-item:hover {
+  border-color: var(--gm-gray-300);
 }
 
 .faq-question {
-  padding: 16px 20px;
-  font-weight: 600;
-  font-size: 15px;
-  color: var(--gm-gray-900);
+  padding: 18px 22px;
+  font-weight: 700;
+  font-size: 15.5px;
+  color: var(--gm-brand-navy);
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  user-select: none;
+}
+.faq-question svg {
+  transition: transform 0.2s ease;
+}
+.faq-item.open .faq-question svg {
+  transform: rotate(180deg);
 }
 
 .faq-answer {
-  padding: 0 20px 16px;
+  padding: 0 22px 18px;
   font-size: 14px;
   color: var(--gm-gray-600);
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 /* Footer */
 .landing-footer {
   background: var(--gm-charcoal-950);
   color: var(--gm-gray-500);
-  padding: 40px 24px;
+  padding: 48px 24px;
   font-size: 13px;
   border-top: 1px solid var(--gm-charcoal-800);
 }

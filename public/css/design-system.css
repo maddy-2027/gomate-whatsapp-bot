@@ -163,7 +163,7 @@ button, input, select, textarea {
   align-items: center;
   justify-content: center;
   gap: var(--gm-space-2);
-  padding: 10px 18px;
+  padding: 10px 20px;
   border-radius: var(--gm-radius-sm);
   font-size: var(--gm-text-sm);
   font-weight: 600;
@@ -171,29 +171,42 @@ button, input, select, textarea {
   transition: var(--gm-transition);
   border: var(--gm-border-width) solid transparent;
   line-height: 1.2;
+  text-decoration: none;
+  user-select: none;
+}
+.gm-btn:hover {
+  transform: translateY(-1px);
+}
+.gm-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+.gm-btn:focus-visible {
+  outline: 2px solid var(--gm-brand-blue);
+  outline-offset: 2px;
 }
 
-/* Primary CTA = Amber */
+/* Primary CTA = Industrial Amber */
 .gm-btn-primary {
-  background-color: var(--gm-amber-500);
+  background: linear-gradient(180deg, var(--gm-amber-500) 0%, var(--gm-amber-600) 100%);
   color: var(--gm-white);
   border-color: var(--gm-amber-600);
+  box-shadow: 0 2px 8px rgba(243, 112, 33, 0.25);
 }
 .gm-btn-primary:hover {
-  background-color: var(--gm-amber-600);
-}
-.gm-btn-primary:active {
-  background-color: var(--gm-amber-700);
+  background: linear-gradient(180deg, var(--gm-amber-600) 0%, var(--gm-amber-700) 100%);
+  box-shadow: 0 4px 12px rgba(243, 112, 33, 0.35);
 }
 
-/* Secondary CTA = Charcoal / Navy */
+/* Secondary CTA = Dark Navy */
 .gm-btn-secondary {
-  background-color: var(--gm-charcoal-900);
+  background: var(--gm-brand-navy);
   color: var(--gm-white);
-  border-color: var(--gm-charcoal-800);
+  border-color: var(--gm-brand-navy-900);
+  box-shadow: var(--gm-shadow-xs);
 }
 .gm-btn-secondary:hover {
-  background-color: var(--gm-charcoal-800);
+  background: var(--gm-brand-navy-900);
+  box-shadow: var(--gm-shadow-sm);
 }
 
 /* Outline CTA */
@@ -205,31 +218,47 @@ button, input, select, textarea {
 .gm-btn-outline:hover {
   background-color: var(--gm-gray-100);
   border-color: var(--gm-gray-400);
+  color: var(--gm-brand-navy);
 }
 
 /* Brand Blue Action */
 .gm-btn-brand {
-  background-color: var(--gm-brand-blue);
+  background: linear-gradient(180deg, var(--gm-brand-blue) 0%, #1557d0 100%);
   color: var(--gm-white);
+  box-shadow: 0 2px 8px rgba(29, 99, 237, 0.25);
 }
 .gm-btn-brand:hover {
-  background-color: #1E66E0;
+  background: #1557d0;
+  box-shadow: 0 4px 12px rgba(29, 99, 237, 0.35);
+}
+
+/* Success Green Action */
+.gm-btn-success {
+  background: linear-gradient(180deg, var(--gm-green-600) 0%, var(--gm-green-700) 100%);
+  color: var(--gm-white);
+  border-color: var(--gm-green-700);
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.25);
+}
+.gm-btn-success:hover {
+  background: var(--gm-green-700);
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.35);
 }
 
 /* --- Shared Card Component --- */
 .gm-card {
   background-color: var(--gm-white);
-  border: var(--gm-border-width) solid var(--gm-gray-200);
-  border-radius: var(--gm-radius-md);
+  border: var(--gm-border-width) solid var(--gm-border-color);
+  border-radius: var(--gm-radius-lg);
   padding: var(--gm-space-6);
-  box-shadow: var(--gm-shadow-xs);
+  box-shadow: var(--gm-shadow-sm);
   transition: var(--gm-transition);
 }
 .gm-card:hover {
+  box-shadow: var(--gm-shadow-md);
   border-color: var(--gm-gray-300);
 }
 
-/* --- Shared Status Badges --- */
+/* --- Verified Badge Components --- */
 .gm-badge {
   display: inline-flex;
   align-items: center;

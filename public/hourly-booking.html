@@ -6,13 +6,11 @@
   <title>GoMate Hourly Booking — प्रति तास मशिनरी व अवजारे बुकिंग (जत तालुका)</title>
   <meta name="theme-color" content="#0A1F44">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="manifest" href="/manifest.json">
-  <link rel="stylesheet" href="/css/design-system.css">
-  <style>
+  <link rel="manifest" href="/  <style>
     body {
       background-color: var(--gm-gray-50);
       color: var(--gm-gray-900);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Devanagari", sans-serif;
+      font-family: var(--gm-font-body);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -21,7 +19,7 @@
     .booking-navbar {
       background: var(--gm-brand-navy);
       color: #FFFFFF;
-      padding: 14px 20px;
+      padding: 14px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -29,14 +27,54 @@
       position: sticky;
       top: 0;
       z-index: 100;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .booking-container {
-      max-width: 920px;
+      max-width: 960px;
       width: 100%;
-      margin: 24px auto;
-      padding: 0 16px 40px;
+      margin: 28px auto;
+      padding: 0 16px 48px;
       flex: 1;
+    }
+
+    /* Stepper Bar */
+    .stepper-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #FFFFFF;
+      border: 1px solid var(--gm-gray-200);
+      border-radius: var(--gm-radius-lg);
+      padding: 14px 24px;
+      margin-bottom: 24px;
+      box-shadow: var(--gm-shadow-xs);
+    }
+    .step-node {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gm-brand-navy);
+    }
+    .step-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--gm-brand-navy);
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-family: var(--gm-font-mono);
+    }
+    .step-line {
+      flex: 1;
+      height: 2px;
+      background: var(--gm-gray-200);
+      margin: 0 16px;
     }
 
     .booking-grid {
@@ -46,9 +84,12 @@
       align-items: start;
     }
 
-    @media (max-width: 820px) {
+    @media (max-width: 860px) {
       .booking-grid {
         grid-template-columns: 1fr;
+      }
+      .stepper-bar {
+        display: none;
       }
     }
 
@@ -58,7 +99,11 @@
       border-radius: var(--gm-radius-lg);
       padding: 24px;
       margin-bottom: 20px;
-      box-shadow: var(--gm-shadow-sm);
+      box-shadow: var(--gm-shadow-xs);
+      transition: var(--gm-transition);
+    }
+    .step-card:hover {
+      border-color: var(--gm-gray-300);
     }
 
     .step-title {
@@ -68,9 +113,9 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-bottom: 16px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--gm-gray-200);
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--gm-gray-100);
     }
 
     .step-badge {
@@ -83,51 +128,81 @@
       align-items: center;
       justify-content: center;
       font-size: 13px;
+      font-family: var(--gm-font-mono);
     }
 
     /* Category & Attachment Chips */
     .chips-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       gap: 10px;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
 
     .chip-btn {
-      border: 2px solid var(--gm-gray-300);
+      border: 2px solid var(--gm-gray-200);
       background: var(--gm-gray-50);
       border-radius: var(--gm-radius-md);
-      padding: 10px 8px;
+      padding: 12px 10px;
       text-align: center;
       cursor: pointer;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 700;
+      color: var(--gm-gray-700);
       transition: var(--gm-transition);
+    }
+    .chip-btn:hover {
+      background: #FFFFFF;
+      border-color: var(--gm-gray-300);
+      color: var(--gm-brand-navy);
     }
     .chip-btn.active {
       border-color: var(--gm-brand-blue);
-      background: #eff6ff;
-      color: var(--gm-brand-navy);
-      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+      background: #EFF6FF;
+      color: var(--gm-brand-blue);
+      box-shadow: 0 0 0 3px rgba(29, 99, 237, 0.15);
+    }
+
+    /* Interactive Attachment Card */
+    .attachment-chip {
+      border: 2px solid var(--gm-gray-200);
+      background: var(--gm-gray-50);
+      border-radius: var(--gm-radius-md);
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: var(--gm-transition);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .attachment-chip:hover {
+      border-color: var(--gm-gray-400);
+      background: #FFFFFF;
+    }
+    .attachment-chip.active {
+      border-color: var(--gm-green-600);
+      background: #F0FDF4;
+      box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
     }
 
     /* Hourly Blocks */
     .hours-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(68px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
       gap: 8px;
       margin-bottom: 16px;
     }
 
     .hour-block {
-      border: 2px solid var(--gm-gray-300);
+      border: 2px solid var(--gm-gray-200);
       background: #FFFFFF;
       border-radius: var(--gm-radius-sm);
-      padding: 10px 4px;
+      padding: 12px 4px;
       text-align: center;
       cursor: pointer;
       font-weight: 700;
       font-size: 13px;
+      color: var(--gm-gray-800);
       transition: var(--gm-transition);
     }
     .hour-block:hover {
@@ -135,48 +210,28 @@
     }
     .hour-block.active {
       border-color: var(--gm-green-600);
-      background: #f0fdf4;
+      background: #F0FDF4;
       color: var(--gm-green-700);
-    }
-
-    /* Time Slots */
-    .slot-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-      gap: 8px;
-    }
-    .slot-chip {
-      border: 1px solid var(--gm-gray-300);
-      background: var(--gm-gray-50);
-      border-radius: var(--gm-radius-sm);
-      padding: 8px 4px;
-      text-align: center;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .slot-chip.active {
-      background: var(--gm-brand-navy);
-      color: #FFFFFF;
-      border-color: var(--gm-brand-navy);
+      box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.2);
     }
 
     /* Receipt Card */
     .receipt-card {
       background: #FFFFFF;
-      border: 2px solid var(--gm-brand-navy);
+      border: 1px solid var(--gm-gray-200);
+      border-top: 4px solid var(--gm-brand-navy);
       border-radius: var(--gm-radius-lg);
       padding: 24px;
       box-shadow: var(--gm-shadow-md);
       position: sticky;
-      top: 80px;
+      top: 88px;
     }
 
     .receipt-line {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       font-size: 14px;
       color: var(--gm-gray-700);
     }
@@ -185,16 +240,21 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 16px;
-      padding-top: 14px;
-      border-top: 2px dashed var(--gm-gray-300);
-      font-size: 20px;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 2px dashed var(--gm-gray-200);
+      font-size: 22px;
       font-weight: 800;
+      color: var(--gm-brand-navy);
+      font-family: var(--gm-font-display);
+    }
+    .receipt-total span:last-child {
+      font-family: var(--gm-font-mono);
       color: var(--gm-brand-navy);
     }
 
     .btn-book-now {
-      background: var(--gm-green-600);
+      background: linear-gradient(180deg, var(--gm-amber-500) 0%, var(--gm-amber-600) 100%);
       color: #FFFFFF;
       border: none;
       width: 100%;
@@ -207,20 +267,22 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+      box-shadow: 0 4px 14px rgba(243, 112, 33, 0.35);
       margin-top: 20px;
       transition: var(--gm-transition);
     }
     .btn-book-now:hover {
-      background: var(--gm-green-700);
+      background: linear-gradient(180deg, var(--gm-amber-600) 0%, var(--gm-amber-700) 100%);
+      transform: translateY(-1px);
     }
 
     .data-check-box {
-      background: #fffbeb;
-      border: 1px solid #fde68a;
-      border-radius: var(--gm-radius-md);
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-left: 3px solid var(--gm-brand-blue);
+      border-radius: var(--gm-radius-sm);
       padding: 14px;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
       font-size: 13px;
     }
   </style>
@@ -248,6 +310,15 @@
 
   <main class="booking-container">
     
+    <!-- Top Stepper Indicator -->
+    <div class="stepper-bar">
+      <div class="step-node"><span class="step-num">1</span> <span>मशिनरी व अवजार</span></div>
+      <div class="step-line"></div>
+      <div class="step-node"><span class="step-num">2</span> <span>कामाचे तास व वेळ</span></div>
+      <div class="step-line"></div>
+      <div class="step-node"><span class="step-num">3</span> <span>शेतकरी माहिती व पत्ता</span></div>
+    </div>
+
     <div style="margin-bottom: 24px;">
       <div class="gm-badge gm-badge-info" style="margin-bottom: 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
@@ -302,7 +373,7 @@
         <div class="step-card">
           <div class="step-title">
             <span class="step-badge">2</span>
-            <span>तारीख व तासांची निवड (Select Hours & Slot)</span>
+            <span>तारीख व तासांची निवड (Select Hours &amp; Slot)</span>
           </div>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
@@ -329,7 +400,7 @@
           </label>
           <div class="hours-grid">
             <div class="hour-block" onclick="selectHours(1, this)">1 तास</div>
-            <div class="hour-block active" onclick="selectHours(2, this)">2 तास</div>
+            <div class="hour-block active" onclick="selectHours(2, this)">2 तास (शिफारस)</div>
             <div class="hour-block" onclick="selectHours(3, this)">3 तास</div>
             <div class="hour-block" onclick="selectHours(4, this)">4 तास (अर्धा दिवस)</div>
             <div class="hour-block" onclick="selectHours(6, this)">6 तास</div>
@@ -376,25 +447,28 @@
 
           <!-- Data-Check Review Step -->
           <div class="data-check-box">
-            <div style="font-weight: 700; color: #92400e; margin-bottom: 6px;">🔍 बुकिंग तपासणी (Data-Check):</div>
-            <div style="line-height: 1.5; color: #78350f;">
-              <div>• <strong>मशिनरी:</strong> <span id="chkModel">Mahindra 575 DI</span></div>
-              <div>• <strong>निवडलेले काम:</strong> <span id="chkService">Rotavator (रोटाव्हेटर)</span></div>
-              <div>• <strong>वेळ:</strong> <span id="chkTimeSlot">उद्या सकाळी 08:00 AM (2 तास)</span></div>
-              <div>• <strong>ठिकाण:</strong> <span id="chkVillage">जत तालुका (४१६४०४)</span></div>
-              <div>• <strong>ऑपरेटर:</strong> <span style="color: var(--gm-green-700); font-weight: 700;">ड्रायव्हरसह समाविष्ट ✅</span></div>
+            <div style="font-weight: 700; color: var(--gm-brand-navy); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gm-green-600)" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+              बुकिंग तपासणी (Verified Inspection):
+            </div>
+            <div style="line-height: 1.6; color: var(--gm-gray-700); font-size: 12.5px;">
+              <div>&bull; <strong>मशिनरी:</strong> <span id="chkModel">Mahindra 575 DI</span></div>
+              <div>&bull; <strong>काम / अवजार:</strong> <span id="chkService">Rotavator (रोटाव्हेटर)</span></div>
+              <div>&bull; <strong>वेळ:</strong> <span id="chkTimeSlot">उद्या सकाळी 08:00 AM (2 तास)</span></div>
+              <div>&bull; <strong>गाव / पत्ता:</strong> <span id="chkVillage">जत तालुका (४१६४०४)</span></div>
+              <div>&bull; <strong>ऑपरेटर:</strong> <span style="color: var(--gm-green-700); font-weight: 700;">व्हेरिफाइड ड्रायव्हरसह समाविष्ट</span></div>
             </div>
           </div>
 
           <!-- Itemized Breakdown -->
           <div class="receipt-line">
             <span id="lblRateBreakdown">रोटाव्हेटर दर (₹800 × 2 तास)</span>
-            <strong id="valSubtotal">₹1,600</strong>
+            <strong id="valSubtotal" style="font-family: var(--gm-font-mono);">₹1,600</strong>
           </div>
 
           <div class="receipt-line">
             <span>प्लॅटफॉर्म व डिस्पॅच सुरक्षा शुल्क</span>
-            <span>₹49</span>
+            <span style="font-family: var(--gm-font-mono);">₹49</span>
           </div>
 
           <div class="receipt-line" style="color: var(--gm-green-700); font-weight: 600;">
@@ -403,55 +477,58 @@
           </div>
 
           <div class="receipt-total">
-            <span>एकूण रक्कम (Total):</span>
+            <span>एकूण देय रक्कम:</span>
             <span id="valTotal">₹1,649</span>
           </div>
 
           <button class="btn-book-now" onclick="submitHourlyBooking()" id="btnBookAction">
-            <span>🚀</span> <span>आत्ताच बुक करा (Book & Pay)</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <span>आत्ताच बुक करा (Book &amp; Pay)</span>
           </button>
 
-          <div style="margin-top: 14px; text-align: center; font-size: 12px; color: var(--gm-gray-500);">
-            🔒 १००% सुरक्षित UPI पेमेंट • मालकास थेट WhatsApp अलर्ट
+          <div style="margin-top: 14px; text-align: center; font-size: 12px; color: var(--gm-gray-500); display: flex; align-items: center; justify-content: center; gap: 6px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            १००% सुरक्षित UPI पेमेंट &bull; मालकास थेट WhatsApp अलर्ट
           </div>
         </div>
       </div>
 
     </div>
 
-  </main>
-
   <!-- Booking Confirmation Modal -->
-  <div id="bookingSuccessModal" style="display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.75); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center; padding: 16px;">
-    <div style="background: #FFFFFF; border-radius: var(--gm-radius-lg); padding: 32px 24px; max-width: 480px; width: 100%; text-align: center; box-shadow: var(--gm-shadow-xl);">
-      <div style="font-size: 52px; margin-bottom: 10px;">🚜</div>
-      <h2 style="font-size: 22px; font-weight: 800; color: var(--gm-brand-navy); margin-bottom: 6px;">बुकिंग यशस्वीरित्या पाठवले!</h2>
-      <p style="font-size: 14px; color: var(--gm-gray-600); margin-bottom: 18px;">
-        बुकिंग संदर्भ: <strong id="succRef" style="font-family: var(--gm-font-mono); color: var(--gm-brand-navy);">GM-XXXX</strong><br>
-        मशिनरी मालकास WhatsApp वर अलर्ट पाठवला आहे.
+  <div id="bookingSuccessModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; padding: 16px;">
+    <div style="background: #FFFFFF; border-radius: var(--gm-radius-lg); padding: 36px 28px; max-width: 480px; width: 100%; text-align: center; box-shadow: var(--gm-shadow-xl); border: 1px solid var(--gm-gray-200);">
+      <div style="width: 60px; height: 60px; border-radius: 50%; background: #DCFCE7; color: var(--gm-green-600); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      </div>
+      <h2 style="font-size: 22px; font-weight: 800; color: var(--gm-brand-navy); margin-bottom: 6px;">बुकिंग यशस्वीरित्या नोंदवले!</h2>
+      <p style="font-size: 14px; color: var(--gm-gray-600); margin-bottom: 20px;">
+        बुकिंग संदर्भ: <strong id="succRef" style="font-family: var(--gm-font-mono); color: var(--gm-brand-navy); font-size: 15px;">GM-XXXX</strong><br>
+        मशिनरी मालकास WhatsApp वर इन्स्टंट अलर्ट पाठवला आहे.
       </p>
 
-      <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: var(--gm-radius-md); padding: 14px; margin-bottom: 20px; text-align: left; font-size: 13px;">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-          <span>काम / अवजार:</span>
-          <strong id="succTask">-</strong>
+      <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: var(--gm-radius-md); padding: 16px; margin-bottom: 24px; text-align: left; font-size: 13.5px; line-height: 1.6;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+          <span style="color: var(--gm-gray-600);">काम / अवजार:</span>
+          <strong id="succTask" style="color: var(--gm-brand-navy);">-</strong>
         </div>
-        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-          <span>कालावधी:</span>
-          <strong id="succHours">-</strong>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+          <span style="color: var(--gm-gray-600);">कालावधी:</span>
+          <strong id="succHours" style="color: var(--gm-brand-navy);">-</strong>
         </div>
-        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-          <span>एकूण भाडे:</span>
-          <strong id="succAmount" style="color: var(--gm-brand-navy);">-</strong>
+        <div style="display: flex; justify-content: space-between; padding-top: 6px; border-top: 1px dashed var(--gm-gray-300);">
+          <span style="font-weight: 700; color: var(--gm-brand-navy);">एकूण भाडे:</span>
+          <strong id="succAmount" style="color: var(--gm-green-700); font-family: var(--gm-font-mono); font-size: 16px;">-</strong>
         </div>
       </div>
 
       <div style="display: flex; flex-direction: column; gap: 10px;">
         <a id="succPayBtn" href="#" class="gm-btn gm-btn-primary" style="padding: 14px; font-size: 15px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
-          💳 UPI द्वारे ₹४९ पेमेंट करा (Pay via UPI)
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+          UPI द्वारे ₹४९ पेमेंट करा (Pay via UPI)
         </a>
         <a href="/landing/index.html" class="gm-btn gm-btn-outline" style="padding: 12px; font-size: 14px; text-decoration: none;">
-          🏠 मुख्य पृष्ठावर जा (Home)
+          मुख्य पृष्ठावर जा (Home)
         </a>
       </div>
     </div>
@@ -631,19 +708,22 @@
       // Category-aware label update
       if (lblTask) {
         if (currentCategory === 'transport') {
-          lblTask.textContent = '🚚 मालवाहतूक कामाचा प्रकार निवडा (Select Transport Option) *';
+          lblTask.textContent = 'मालवाहतूक कामाचा प्रकार निवडा (Select Transport Option) *';
         } else if (currentCategory === 'infrastructure') {
-          lblTask.textContent = '🏗️ खोदकाम / बांधकाम काम निवडा (Select Earthmoving Task) *';
+          lblTask.textContent = 'खोदकाम / बांधकाम काम निवडा (Select Earthmoving Task) *';
         } else {
-          lblTask.textContent = '🚜 शेती काम / अवजार निवडा (Select Farm Attachment / Task) *';
+          lblTask.textContent = 'शेती काम / अवजार निवडा (Select Farm Attachment / Task) *';
         }
       }
       
       const entries = Object.entries(rates);
       if (entries.length === 0) {
         grid.innerHTML = `
-          <div class="chip-btn active" style="grid-column: 1/-1; text-align: left; padding: 12px;">
-            ${currentCategory === 'transport' ? '🚚' : (currentCategory === 'infrastructure' ? '🏗️' : '🚜')} सामान्य भाडे (Standard Hire) — <strong>₹${currentSelectedEquip.hourly_rate}/तास</strong>
+          <div class="attachment-chip active" style="grid-column: 1/-1; padding: 14px;">
+            <div style="font-weight: 700; color: var(--gm-brand-navy); font-size: 14px;">सामान्य भाडे (Standard Hire)</div>
+            <div style="color: var(--gm-green-700); font-weight: 800; font-size: 15px; margin-top: 4px; font-family: var(--gm-font-mono);">
+              ₹${currentSelectedEquip.hourly_rate} <span style="font-size: 11px; font-weight: 500; color: var(--gm-gray-500); font-family: var(--gm-font-body);">/ तास</span>
+            </div>
           </div>
         `;
         currentSelectedService = 'base';
@@ -653,17 +733,17 @@
       currentSelectedService = entries[0][0];
 
       grid.innerHTML = entries.map(([key, s], idx) => `
-        <div class="chip-btn ${idx === 0 ? 'active' : ''}" onclick="selectAttachmentService('${key}', this)" style="text-align: left; padding: 10px 12px;">
-          <div style="font-weight: 700; color: var(--gm-brand-navy);">${s.name}</div>
-          <div style="color: var(--gm-green-700); font-weight: 800; font-size: 14px; margin-top: 4px;">
-            ₹${s.rate} <span style="font-size: 11px; font-weight: normal; color: var(--gm-gray-500);">/ तास</span>
+        <div class="attachment-chip ${idx === 0 ? 'active' : ''}" onclick="selectAttachmentService('${key}', this)">
+          <div style="font-weight: 700; color: var(--gm-brand-navy); font-size: 13.5px;">${s.name}</div>
+          <div style="color: var(--gm-green-700); font-weight: 800; font-size: 15px; margin-top: 6px; font-family: var(--gm-font-mono);">
+            ₹${s.rate} <span style="font-size: 11px; font-weight: 500; color: var(--gm-gray-500); font-family: var(--gm-font-body);">/ तास</span>
           </div>
         </div>
       `).join('');
     }
 
     function selectAttachmentService(serviceKey, el) {
-      document.querySelectorAll('#attachmentOptionsGrid .chip-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('#attachmentOptionsGrid .attachment-chip').forEach(b => b.classList.remove('active'));
       el.classList.add('active');
       currentSelectedService = serviceKey;
       recalculatePrice();
@@ -721,7 +801,7 @@
 
       const btn = document.getElementById('btnBookAction');
       btn.disabled = true;
-      btn.innerHTML = `<span>⏳</span> <span>बुकिंग प्रक्रिया सुरू आहे...</span>`;
+      btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="gm-spin"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg> <span>बुकिंग प्रक्रिया सुरू आहे...</span>`;
 
       const payload = {
         customer_name: name,
@@ -756,7 +836,7 @@
         alert('त्रुटी: ' + err.message);
       } finally {
         btn.disabled = false;
-        btn.innerHTML = `<span>🚀</span> <span>आत्ताच बुक करा (Book & Pay)</span>`;
+        btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> <span>आत्ताच बुक करा (Book &amp; Pay)</span>`;
       }
     }
   </script>
