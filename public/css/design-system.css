@@ -1,73 +1,75 @@
 /* ==========================================================================
-   GoMate Unified Design System — Clean, Neat, Classic
-   Specification: Space Grotesk + Inter + JetBrains Mono | Amber CTA + Charcoal + Logo Blue
+   GoMate Unified Design System — Industrial, Trustworthy, Modern & Utilitarian
+   Typography: Outfit (Display) + Inter / Noto Sans Devanagari (Body) + JetBrains Mono (Data/Rates)
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
 
 :root {
-  /* --- Primary Action (Amber/Orange) --- */
-  --gm-amber-500: #E67E22;
-  --gm-amber-600: #D35400;
-  --gm-amber-700: #B94A00;
-  --gm-amber-100: #FDEBD0;
-  --gm-amber-50:  #FEF9E7;
+  /* --- Primary Action (Industrial Amber/Orange) --- */
+  --gm-amber-500: #F37021;
+  --gm-amber-600: #D9530D;
+  --gm-amber-700: #B83F00;
+  --gm-amber-100: #FEE8D6;
+  --gm-amber-50:  #FFF5EB;
 
-  /* --- Brand Identity (from Logo Guide) --- */
+  /* --- Brand Identity & Heavy Tech Surfaces --- */
   --gm-brand-navy:   #0A1F44;
-  --gm-brand-blue:   #2E7DFF;
-  --gm-brand-dark:   #0D0D0D;
+  --gm-brand-navy-900: #061226;
+  --gm-brand-blue:   #1D63ED;
+  --gm-brand-dark:   #0F172A;
 
-  /* --- Secondary / Surface (Charcoal) --- */
-  --gm-charcoal-950: #141717;
-  --gm-charcoal-900: #1F2323;
-  --gm-charcoal-800: #2C3232;
-  --gm-charcoal-700: #3E4646;
+  /* --- Secondary Surfaces & Modern Slates --- */
+  --gm-charcoal-950: #0B0F17;
+  --gm-charcoal-900: #131B26;
+  --gm-charcoal-800: #1E293B;
+  --gm-charcoal-700: #334155;
 
-  /* --- Accent (Muted Leaf-Green) --- */
-  --gm-green-700: #3B5E44;
-  --gm-green-600: #5B8266;
-  --gm-green-500: #6D9878;
-  --gm-green-100: #E2ECE5;
-  --gm-green-50:  #F4F8F5;
+  /* --- Verification & Status (Clean Emerald/Forest) --- */
+  --gm-green-700: #15803D;
+  --gm-green-600: #16A34A;
+  --gm-green-500: #22C55E;
+  --gm-green-100: #DCFCE7;
+  --gm-green-50:  #F0FDF4;
 
   /* --- Neutrals Scale --- */
-  --gm-gray-900: #1E293B;
-  --gm-gray-800: #334155;
-  --gm-gray-700: #475569;
-  --gm-gray-600: #64748B;
-  --gm-gray-500: #94A3B8;
+  --gm-gray-900: #0F172A;
+  --gm-gray-800: #1E293B;
+  --gm-gray-700: #334155;
+  --gm-gray-600: #475569;
+  --gm-gray-500: #64748B;
+  --gm-gray-400: #94A3B8;
   --gm-gray-300: #CBD5E1;
   --gm-gray-200: #E2E8F0;
   --gm-gray-100: #F1F5F9;
   --gm-gray-50:  #F8FAFC;
   --gm-white:    #FFFFFF;
 
-  /* --- Semantics (Distinct from Brand) --- */
-  --gm-success:       #2E7D32;
-  --gm-success-bg:    #E8F5E9;
+  /* --- Semantics --- */
+  --gm-success:       #16A34A;
+  --gm-success-bg:    #F0FDF4;
   --gm-warning:       #D97706;
   --gm-warning-bg:    #FEF3C7;
   --gm-error:         #DC2626;
   --gm-error-bg:      #FEE2E2;
-  --gm-info:          #2563EB;
+  --gm-info:          #1D63ED;
   --gm-info-bg:       #EFF6FF;
 
-  /* --- Typography --- */
-  --gm-font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
-  --gm-font-body:    'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  /* --- Modern Industrial Typography System --- */
+  --gm-font-display: 'Outfit', 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  --gm-font-body:    'Inter', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, sans-serif;
   --gm-font-mono:    'JetBrains Mono', monospace;
 
   /* --- Type Scale --- */
   --gm-text-xs:   12px;
   --gm-text-sm:   14px;
   --gm-text-base: 16px;
-  --gm-text-lg:   20px;
-  --gm-text-xl:   24px;
-  --gm-text-2xl:  32px;
-  --gm-text-3xl:  48px;
+  --gm-text-lg:   18px;
+  --gm-text-xl:   22px;
+  --gm-text-2xl:  30px;
+  --gm-text-3xl:  44px;
 
-  /* --- Spacing Scale (8px Base) --- */
+  /* --- Spacing Scale --- */
   --gm-space-1: 4px;
   --gm-space-2: 8px;
   --gm-space-3: 12px;
@@ -80,22 +82,28 @@
   --gm-space-16: 64px;
 
   /* --- Shape & Border --- */
-  --gm-radius-sm:   4px;
-  --gm-radius-md:   8px;
-  --gm-radius-lg:   12px;
+  --gm-radius-sm:   6px;
+  --gm-radius-md:   10px;
+  --gm-radius-lg:   14px;
   --gm-radius-pill: 9999px;
 
   --gm-border-width: 1px;
-  --gm-border-color: var(--gm-gray-200);
+  --gm-border-color: #E2E8F0;
 
-  /* --- Shadows (Restrained & Classic) --- */
-  --gm-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --gm-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06);
-  --gm-shadow-md: 0 4px 8px rgba(0, 0, 0, 0.08);
-  --gm-shadow-lg: 0 12px 24px -4px rgba(0, 0, 0, 0.12);
+  /* --- Premium Diffused Shadows --- */
+  --gm-shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --gm-shadow-sm: 0 2px 6px -1px rgba(15, 23, 42, 0.06), 0 1px 4px -1px rgba(15, 23, 42, 0.04);
+  --gm-shadow-md: 0 8px 16px -3px rgba(15, 23, 42, 0.08), 0 3px 6px -2px rgba(15, 23, 42, 0.04);
+  --gm-shadow-lg: 0 16px 32px -4px rgba(10, 31, 68, 0.12), 0 4px 12px -2px rgba(10, 31, 68, 0.04);
+  --gm-shadow-xl: 0 24px 48px -8px rgba(10, 31, 68, 0.18);
+
+  /* --- Background Textures / Dot Grids --- */
+  --gm-bg-dots-light: radial-gradient(#CBD5E1 1px, transparent 1px);
+  --gm-bg-dots-dark: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  --gm-bg-mesh: radial-gradient(circle at 50% 0%, #1e3a8a 0%, #0A1F44 65%, #061226 100%);
 
   /* --- Motion --- */
-  --gm-transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  --gm-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Base Resets */
@@ -112,14 +120,32 @@ body {
   font-size: var(--gm-text-base);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--gm-font-display);
-  color: var(--gm-brand-dark);
+  color: var(--gm-brand-navy);
   font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.25;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+
+/* Inline SVG Standard Helper */
+.gm-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.gm-icon svg {
+  width: 1em;
+  height: 1em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 a {

@@ -36,23 +36,26 @@
 
 /* Hero Section */
 .hero-section {
-  padding: 80px 24px 60px;
-  background: linear-gradient(180deg, #F8FAFC 0%, #FFFFFF 100%);
+  padding: 96px 24px 72px;
+  background: radial-gradient(circle at 50% -20%, #F1F5F9 0%, #FFFFFF 100%);
+  background-image: var(--gm-bg-dots-light), radial-gradient(circle at 50% -20%, #F1F5F9 0%, #FFFFFF 100%);
+  background-size: 24px 24px, 100% 100%;
   text-align: center;
   border-bottom: 1px solid var(--gm-gray-200);
+  position: relative;
 }
 
 .hero-container {
-  max-width: 900px;
+  max-width: 920px;
   margin: 0 auto;
 }
 
 .hero-title {
-  font-size: 52px;
-  font-weight: 700;
-  line-height: 1.15;
-  color: var(--gm-brand-dark);
-  letter-spacing: -1.5px;
+  font-size: 54px;
+  font-weight: 800;
+  line-height: 1.12;
+  color: var(--gm-brand-navy);
+  letter-spacing: -0.03em;
   margin-bottom: 20px;
 }
 
@@ -61,47 +64,53 @@
 }
 
 .hero-subtitle {
-  font-size: 18px;
-  color: var(--gm-gray-700);
+  font-size: 19px;
+  color: var(--gm-gray-600);
   line-height: 1.6;
-  max-width: 740px;
+  max-width: 720px;
   margin: 0 auto 36px;
+  font-weight: 400;
 }
 
 .hero-cta-group {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 14px;
   flex-wrap: wrap;
 }
 
 /* Trust / Traction Strip */
 .stats-banner {
   max-width: 1100px;
-  margin: -32px auto 60px;
+  margin: -36px auto 64px;
   background: #FFFFFF;
-  border-radius: var(--gm-radius-md);
-  padding: 24px 36px;
-  box-shadow: var(--gm-shadow-sm);
+  border-radius: var(--gm-radius-lg);
+  padding: 28px 40px;
+  box-shadow: var(--gm-shadow-md);
   border: 1px solid var(--gm-gray-200);
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 24px;
   text-align: center;
+  position: relative;
+  z-index: 10;
 }
 
 .stat-item h3 {
-  font-size: 32px;
-  font-weight: 700;
+  font-size: 34px;
+  font-weight: 800;
   color: var(--gm-brand-navy);
   font-family: var(--gm-font-display);
+  letter-spacing: -0.02em;
 }
 
 .stat-item p {
   font-size: 13px;
-  font-weight: 500;
-  color: var(--gm-gray-600);
+  font-weight: 600;
+  color: var(--gm-gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   margin-top: 4px;
 }
 
