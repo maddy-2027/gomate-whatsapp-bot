@@ -27,16 +27,16 @@ async function handleEquipmentSelect(phone, text, session) {
     const equip = results[idx];
     const lang = session.language || 'mr';
 
-    // If equipment has multi-service attachment rate card (e.g. Tractors)
-    if (equip.service_rates && Object.keys(equip.service_rates).length > 0) {
+    // Check category and present appropriate task options
+    if (equip.category === 'agriculture' && (equip.type === 'Tractor' || (equip.service_rates && equip.service_rates.rotavator))) {
       session.state = 'BOOKING_SERVICE_SELECT';
-      const sRates = equip.service_rates;
+      const sRates = equip.service_rates || {};
       
       let msg = '';
       if (lang === 'mr') {
-        msg = `🚜 *${equip.model} — कामाचा प्रकार व अवजार निवडा:*
+        msg = `🚜 *${equip.model} — शेती कामाचा प्रकार निवडा:*
 ━━━━━━━━━━━━━━━━━━━━
-मालकाचे विविध अवजारांनुसार प्रति तास दर खालीलप्रमाणे आहेत:
+मालकाचे विविध अवजारांनुसार प्रति तास दर:
 
 1️⃣ *रोटाव्हेटर काम (Rotavator)* — ₹${sRates.rotavator ? sRates.rotavator.rate : 800}/तास
 2️⃣ *कल्टीव्हेटर / मशागत (Cultivator)* — ₹${sRates.cultivation ? sRates.cultivation.rate : 900}/तास
@@ -45,18 +45,8 @@ async function handleEquipmentSelect(phone, text, session) {
 5️⃣ *संपूर्ण ट्रॅक्टर भाडे (General Day Hire)* — ₹${(equip.price_per_day || 1500).toLocaleString('en-IN')}/दिवस
 
 _हव्या असलेल्या अवजाराचा क्रमांक (१-५) निवडा:_`;
-      } else if (lang === 'hi') {
-        msg = `🚜 *${equip.model} — कार्य का प्रकार चुनें:*
-━━━━━━━━━━━━━━━━━━━━
-1️⃣ *रोटावेटर कार्य (Rotavator)* — ₹${sRates.rotavator ? sRates.rotavator.rate : 800}/घंटा
-2️⃣ *कल्टीवेटर (Cultivator)* — ₹${sRates.cultivation ? sRates.cultivation.rate : 900}/घंटा
-3️⃣ *ट्रॉली ढुलाई (Trolley)* — ₹${sRates.trolley ? sRates.trolley.rate : 600}/घंटा
-4️⃣ *जुताई (Deep Plough)* — ₹${sRates.ploughing ? sRates.ploughing.rate : 850}/घंटा
-5️⃣ *पूरा ट्रैक्टर (General Day Hire)* — ₹${(equip.price_per_day || 1500).toLocaleString('en-IN')}/दिन
-
-_कृपया विकल्प क्रमांक (१-५) चुनें:_`;
       } else {
-        msg = `🚜 *${equip.model} — Select Task / Attachment:*
+        msg = `🚜 *${equip.model} — Select Farm Attachment Task:*
 ━━━━━━━━━━━━━━━━━━━━
 1️⃣ *Rotavator Tilth* — ₹${sRates.rotavator ? sRates.rotavator.rate : 800}/hr
 2️⃣ *Cultivation / Weeding* — ₹${sRates.cultivation ? sRates.cultivation.rate : 900}/hr
@@ -67,6 +57,54 @@ _कृपया विकल्प क्रमांक (१-५) चुने
 _Reply with option number (1-5):_`;
       }
       return msg;
+    } else if (equip.category === 'transport') {
+      session.state = 'BOOKING_SERVICE_SELECT';
+      const hourlyRate = equip.hourly_rate || 350;
+      const dailyRate = equip.price_per_day || 1300;
+      
+      let msg = '';
+      if (lang === 'mr') {
+        msg = `🚚 *${equip.model} — मालवाहतूक पर्याय निवडा:*
+━━━━━━━━━━━━━━━━━━━━
+1️⃣ *स्थानिक मालवाहतूक (Local Village Haulage)* — ₹${hourlyRate}/तास
+2️⃣ *मार्केट ट्रिप / लांब पल्ला (Market Trip)* — ₹${hourlyRate + 100}/तास
+3️⃣ *पूर्ण दिवस भाडे (Full Day Transport)* — ₹${dailyRate.toLocaleString('en-IN')}/दिवस
+
+_पर्याय क्रमांक (१-३) निवडा:_`;
+      } else {
+        msg = `🚚 *${equip.model} — Select Transport Option:*
+━━━━━━━━━━━━━━━━━━━━
+1️⃣ *Local Village Haulage* — ₹${hourlyRate}/hr
+2️⃣ *Market / Long Distance Trip* — ₹${hourlyRate + 100}/hr
+3️⃣ *Full Day Transport Hire* — ₹${dailyRate.toLocaleString('en-IN')}/day
+
+_Reply with option number (1-3):_`;
+      }
+      return msg;
+    } else if (equip.category === 'infrastructure') {
+      session.state = 'BOOKING_SERVICE_SELECT';
+      const hourlyRate = equip.hourly_rate || 950;
+      const dailyRate = equip.price_per_day || 4500;
+
+      let msg = '';
+      if (lang === 'mr') {
+        msg = `🏗️ *${equip.model} — खोदकाम / बांधकाम पर्याय निवडा:*
+━━━━━━━━━━━━━━━━━━━━
+1️⃣ *शेततळे व चर खोदकाम (Trench & Farm Pond)* — ₹${hourlyRate}/तास
+2️⃣ *जमीन सपाटीकरण (Land Leveling)* — ₹${hourlyRate}/तास
+3️⃣ *पूर्ण दिवस ऑपरेटरसह (Full Day Hire)* — ₹${dailyRate.toLocaleString('en-IN')}/दिवस
+
+_पर्याय क्रमांक (१-३) निवडा:_`;
+      } else {
+        msg = `🏗️ *${equip.model} — Select Earthmoving Task:*
+━━━━━━━━━━━━━━━━━━━━
+1️⃣ *Trench & Farm Pond Digging* — ₹${hourlyRate}/hr
+2️⃣ *Land Leveling* — ₹${hourlyRate}/hr
+3️⃣ *Full Day Hire with Operator* — ₹${dailyRate.toLocaleString('en-IN')}/day
+
+_Reply with option number (1-3):_`;
+      }
+      return msg;
     }
 
     session.state = 'BOOKING_DATES';
@@ -74,7 +112,7 @@ _Reply with option number (1-5):_`;
     const location = session.data.location || equip.district || 'पुणे';
 
     if (lang === 'mr') {
-      return `📅 *GoMate आगाऊ बुकिंग शेड्युलिंग (Advance Schedule)* 🚜
+      return `📅 *GoMate आगाऊ बुकिंग शेड्युलिंग (Advance Schedule)*
 ━━━━━━━━━━━━━━━━━━━━
 उपकरण: *${equip.model}*
 दर: *₹${rate.toLocaleString('en-IN')}/दिवस*
@@ -89,7 +127,7 @@ _Reply with option number (1-5):_`;
 _किंवा तुमची तारीख व वेळ टाईप करा (उदा. 'उद्या सकाळी 9 वाजता 2 तास' किंवा '28 ऑगस्ट 8 am')_
 _(मुख्य मेनूसाठी *0* पाठवा)_`;
     } else {
-      return `📅 *GoMate Advance Equipment Scheduler* 🚜
+      return `📅 *GoMate Advance Equipment Scheduler*
 ━━━━━━━━━━━━━━━━━━━━
 Equipment: *${equip.model}*
 Daily Rate: *₹${rate.toLocaleString('en-IN')}/day*
@@ -109,33 +147,60 @@ _(Reply *0* for Main Menu)_`;
 }
 
 /**
- * Handle Service Attachment Selection (e.g. Rotavator @ 800/hr, Cultivator @ 900/hr, Trolley @ 600/hr)
+ * Handle Service Attachment / Task Selection (Category-Aware)
  */
 async function handleServiceSelect(phone, text, session) {
   const t = text.trim();
-  const equip = session.data.selectedEquipment;
+  const equip = session.data.selectedEquipment || {};
   const lang = session.language || 'mr';
+  const cat = equip.category || 'agriculture';
 
-  let serviceName = 'Base Tractor Hire';
-  let hourlyRate = 600;
+  let serviceName = 'Base Machine Hire';
+  let hourlyRate = equip.hourly_rate || 600;
   let unit = 'hr';
 
-  if (t === '1' || t.toLowerCase().includes('rotavator') || t.includes('रोटाव्हेटर')) {
-    serviceName = 'Rotavator (रोटाव्हेटर)';
-    hourlyRate = (equip.service_rates && equip.service_rates.rotavator && equip.service_rates.rotavator.rate) || 800;
-  } else if (t === '2' || t.toLowerCase().includes('cultivator') || t.includes('कल्टीव्हेटर')) {
-    serviceName = 'Cultivator (कल्टीव्हेटर / मशागत)';
-    hourlyRate = (equip.service_rates && equip.service_rates.cultivation && equip.service_rates.cultivation.rate) || 900;
-  } else if (t === '3' || t.toLowerCase().includes('trolley') || t.includes('ट्रॉली')) {
-    serviceName = 'Hydraulic Trolley (ट्रॉली वाहतूक)';
-    hourlyRate = (equip.service_rates && equip.service_rates.trolley && equip.service_rates.trolley.rate) || 600;
-  } else if (t === '4' || t.toLowerCase().includes('plough') || t.includes('नांगरट')) {
-    serviceName = 'Deep Plough (नांगरट)';
-    hourlyRate = (equip.service_rates && equip.service_rates.ploughing && equip.service_rates.ploughing.rate) || 850;
-  } else {
-    serviceName = 'General Tractor Day Hire';
-    hourlyRate = Math.round((equip.price_per_day || 1500) / 2.5);
-    unit = 'day';
+  if (cat === 'agriculture') {
+    if (t === '1' || t.toLowerCase().includes('rotavator') || t.includes('रोटाव्हेटर')) {
+      serviceName = 'Rotavator (रोटाव्हेटर)';
+      hourlyRate = (equip.service_rates && equip.service_rates.rotavator && equip.service_rates.rotavator.rate) || 800;
+    } else if (t === '2' || t.toLowerCase().includes('cultivator') || t.includes('कल्टीव्हेटर')) {
+      serviceName = 'Cultivator (कल्टीव्हेटर / मशागत)';
+      hourlyRate = (equip.service_rates && equip.service_rates.cultivation && equip.service_rates.cultivation.rate) || 900;
+    } else if (t === '3' || t.toLowerCase().includes('trolley') || t.includes('ट्रॉली')) {
+      serviceName = 'Hydraulic Trolley (ट्रॉली वाहतूक)';
+      hourlyRate = (equip.service_rates && equip.service_rates.trolley && equip.service_rates.trolley.rate) || 600;
+    } else if (t === '4' || t.toLowerCase().includes('plough') || t.includes('नांगरट')) {
+      serviceName = 'Deep Plough (नांगरट)';
+      hourlyRate = (equip.service_rates && equip.service_rates.ploughing && equip.service_rates.ploughing.rate) || 850;
+    } else {
+      serviceName = 'General Tractor Day Hire';
+      hourlyRate = Math.round((equip.price_per_day || 1500) / 2.5);
+      unit = 'day';
+    }
+  } else if (cat === 'transport') {
+    if (t === '1' || t.toLowerCase().includes('local') || t.includes('स्थानिक')) {
+      serviceName = 'Local Village Haulage (स्थानिक वाहतूक)';
+      hourlyRate = equip.hourly_rate || 350;
+    } else if (t === '2' || t.toLowerCase().includes('market') || t.includes('मार्केट')) {
+      serviceName = 'Market Produce Transport (मार्केट ट्रिप)';
+      hourlyRate = (equip.hourly_rate || 350) + 100;
+    } else {
+      serviceName = 'Full Day Vehicle Hire (पूर्ण दिवस भाडे)';
+      hourlyRate = Math.round((equip.price_per_day || 1300) / 4);
+      unit = 'day';
+    }
+  } else if (cat === 'infrastructure') {
+    if (t === '1' || t.includes('चर') || t.includes('शेततळे') || t.toLowerCase().includes('trench')) {
+      serviceName = 'Trench & Pond Digging (शेततळे व चर)';
+      hourlyRate = equip.hourly_rate || 950;
+    } else if (t === '2' || t.includes('सपाटीकरण') || t.toLowerCase().includes('level')) {
+      serviceName = 'Land Leveling (जमीन सपाटीकरण)';
+      hourlyRate = equip.hourly_rate || 950;
+    } else {
+      serviceName = 'Full Day Heavy Machinery Hire';
+      hourlyRate = Math.round((equip.price_per_day || 4500) / 4.5);
+      unit = 'day';
+    }
   }
 
   session.data.selectedService = {

@@ -743,10 +743,41 @@
       const cat = document.getElementById('selectedCategory').value;
       const idx = document.getElementById('equipTypeSelect').value;
       const preset = EQUIPMENT_PRESETS[cat] && EQUIPMENT_PRESETS[cat][idx];
+      const attachSection = document.getElementById('attachmentRatesSection');
+      const isMr = currentLang === 'mr';
+
       if (preset) {
         document.getElementById('equipModel').value = preset.model;
         document.getElementById('dailyRate').value = preset.price;
-        document.getElementById('equipServices').value = preset.services;
+        if (document.getElementById('equipServices')) {
+          document.getElementById('equipServices').value = preset.services;
+        }
+
+        // Show attachment rate card ONLY for agricultural Tractors!
+        if (cat === 'agriculture' && preset.type === 'Tractor') {
+          if (attachSection) attachSection.style.display = 'block';
+          document.getElementById('hourlyRate').value = Math.round(preset.price / 2.5);
+          document.getElementById('hintHourlyRate').textContent = isMr ? 'प्रति तास मूळ भाडे (उदा. ₹६००/तास)' : 'Base hourly rate (e.g. ₹600/hr)';
+          document.getElementById('hintDailyRate').textContent = isMr ? '८ तासांचे पूर्ण दिवस भाडे (उदा. ₹१,५००)' : '8-hour full day rate (e.g. ₹1,500)';
+        } else if (cat === 'transport') {
+          // HIDE tractor attachment rates for Goods Transport
+          if (attachSection) attachSection.style.display = 'none';
+          document.getElementById('hourlyRate').value = Math.round(preset.price / 4);
+          document.getElementById('hintHourlyRate').textContent = isMr ? 'प्रति तास दर (उदा. ₹३५०/तास स्थानिक मालवाहतूक)' : 'Hourly rate (e.g. ₹350/hr for local haulage)';
+          document.getElementById('hintDailyRate').textContent = isMr ? 'दिवस किंवा लांब ट्रिप भाडे (उदा. ₹१,३००)' : 'Full day or trip hire (e.g. ₹1,300)';
+        } else if (cat === 'infrastructure') {
+          // HIDE tractor attachment rates for Construction/Earthworks
+          if (attachSection) attachSection.style.display = 'none';
+          document.getElementById('hourlyRate').value = Math.round(preset.price / 4.5);
+          document.getElementById('hintHourlyRate').textContent = isMr ? 'प्रति तास दर (उदा. ₹९५०/तास जेसीबी)' : 'Hourly rate (e.g. ₹950/hr for JCB)';
+          document.getElementById('hintDailyRate').textContent = isMr ? '८ तासांचे पूर्ण दिवस भाडे (उदा. ₹४,५००)' : '8-hour full day rate (e.g. ₹4,500)';
+        } else {
+          // Other agriculture equipment without independent attachments (e.g. Harvester, Drone)
+          if (attachSection) attachSection.style.display = 'none';
+          document.getElementById('hourlyRate').value = Math.round(preset.price / 3);
+          document.getElementById('hintHourlyRate').textContent = isMr ? 'प्रति तास दर (उदा. ₹८००/तास)' : 'Hourly rate (e.g. ₹800/hr)';
+          document.getElementById('hintDailyRate').textContent = isMr ? 'पूर्ण दिवस भाडे' : 'Full day rate';
+        }
       }
     }
 

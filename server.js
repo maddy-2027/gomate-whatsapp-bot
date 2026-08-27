@@ -252,6 +252,27 @@ app.post('/api/booking/calculate-hourly', async (req, res) => {
     } else if (service_id === 'seeding') {
       unitRate = 750;
       serviceName = 'Seed Drill (पेरणी)';
+    } else if (service_id === 'local_haul') {
+      unitRate = 350;
+      serviceName = 'स्थानिक गाव मालवाहतूक (Local Village Haulage)';
+    } else if (service_id === 'market_haul') {
+      unitRate = 450;
+      serviceName = 'मार्केट भाजीपाला वाहतूक (Market Transport)';
+    } else if (service_id === 'water_supply') {
+      unitRate = 850;
+      serviceName = 'पाणी टँकर पुरवठा (Water Tanker)';
+    } else if (service_id === 'dumping') {
+      unitRate = 900;
+      serviceName = 'डंपर मुरूम वाहतूक (Tipper Haulage)';
+    } else if (service_id === 'jcb_trench' || service_id === 'jcb_level') {
+      unitRate = 950;
+      serviceName = 'जेसीबी खोदकाम व सपाटीकरण (JCB Excavation)';
+    } else if (service_id === 'poklen' || service_id === 'poklen_rock') {
+      unitRate = 1500;
+      serviceName = 'पोकलेन विहीर व खडक उत्खनन (Poklen Excavator)';
+    } else if (service_id === 'dozer') {
+      unitRate = 1600;
+      serviceName = 'बुलडोझर जमीन सपाटीकरण (Bulldozer Leveling)';
     }
 
     const durationHours = Math.max(1, Number(hours) || 1);

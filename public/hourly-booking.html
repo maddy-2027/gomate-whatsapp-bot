@@ -282,13 +282,13 @@
             </select>
           </div>
 
-          <!-- Agriculture Attachment Services (Different Hourly Rates) -->
+          <!-- Task / Attachment Services (Category-Specific) -->
           <div id="serviceAttachmentsWrapper">
-            <label class="form-label" style="font-size: 13px; font-weight: 700; color: var(--gm-brand-navy);">
+            <label id="lblTaskSection" class="form-label" style="font-size: 13px; font-weight: 700; color: var(--gm-brand-navy);">
               🚜 आवश्यक काम / अवजार निवडा (Select Task / Attachment) *
             </label>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px;" id="attachmentOptionsGrid">
-              <!-- Rendered dynamically with rates like Rotavator ₹800/hr, Cultivator ₹900/hr, Trolley ₹600/hr -->
+              <!-- Rendered dynamically per category -->
             </div>
           </div>
         </div>
@@ -509,7 +509,8 @@
           model: 'Tata Ace Gold (छोटा हत्ती)',
           hourly_rate: 350,
           service_rates: {
-            local_haul: { name: 'Local Village Transport', rate: 350 }
+            local_haul: { name: 'स्थानिक गाव मालवाहतूक (Local Village Haulage)', rate: 350 },
+            market_haul: { name: 'सांगली/सांगोला मार्केट ट्रिप (Market Trip)', rate: 450 }
           }
         },
         {
@@ -517,7 +518,8 @@
           model: 'Ashok Leyland Dost Plus (1.5 Tonne)',
           hourly_rate: 450,
           service_rates: {
-            market_haul: { name: 'Market Vegetable Transport', rate: 450 }
+            market_haul: { name: '1.5 टन कृषी उत्पन्न वाहतूक (Market Transport)', rate: 450 },
+            intercity: { name: 'लांब पल्ला मालवाहतूक (Long Haul)', rate: 550 }
           }
         },
         {
@@ -525,7 +527,7 @@
           model: 'BharatBenz 12KL Water Tanker',
           hourly_rate: 850,
           service_rates: {
-            water_supply: { name: 'Water Tanker Supply (पाणी टँकर)', rate: 850 }
+            water_supply: { name: '12,000L शेती पाणी टँकर पुरवठा (Water Tanker)', rate: 850 }
           }
         },
         {
@@ -533,7 +535,7 @@
           model: 'Ashok Leyland Tipper (डंपर)',
           hourly_rate: 900,
           service_rates: {
-            dumping: { name: 'Tipper Haulage (मुरूम/खडी वाहतूक)', rate: 900 }
+            dumping: { name: 'मुरूम, माती व खडी वाहतूक (Tipper Dumper)', rate: 900 }
           }
         }
       ],
@@ -543,8 +545,8 @@
           model: 'JCB 3DX Super Backhoe Loader',
           hourly_rate: 950,
           service_rates: {
-            jcb_trench: { name: 'Farm Pond & Trench Digging (शेततळे/चर)', rate: 950 },
-            jcb_level: { name: 'Land Leveling (सपाटीकरण)', rate: 950 }
+            jcb_trench: { name: 'शेततळे व चर खोदकाम (Trench & Farm Pond)', rate: 950 },
+            jcb_level: { name: 'जमीन सपाटीकरण (Land Leveling)', rate: 950 }
           }
         },
         {
@@ -552,7 +554,8 @@
           model: 'Komatsu PC210 Heavy Excavator (पोकलेन)',
           hourly_rate: 1500,
           service_rates: {
-            poklen: { name: 'Rock & Well Excavation (विहीर/खडक)', rate: 1500 }
+            poklen: { name: 'विहीर व खडक उत्खनन (Rock Excavation)', rate: 1500 },
+            poklen_pond: { name: 'मोठे शेततळे खोदकाम (Deep Farm Pond)', rate: 1500 }
           }
         },
         {
@@ -560,7 +563,7 @@
           model: 'CAT D6 Crawler Bulldozer',
           hourly_rate: 1600,
           service_rates: {
-            dozer: { name: 'Heavy Dozer Leveling (जमीन सपाटीकरण)', rate: 1600 }
+            dozer: { name: 'बुलडोझर जमीन सपाटीकरण (Heavy Dozer Leveling)', rate: 1600 }
           }
         }
       ]
@@ -617,13 +620,25 @@
 
     function renderAttachmentOptions() {
       const grid = document.getElementById('attachmentOptionsGrid');
+      const lblTask = document.getElementById('lblTaskSection');
       const rates = (currentSelectedEquip && currentSelectedEquip.service_rates) || {};
+
+      // Category-aware label update
+      if (lblTask) {
+        if (currentCategory === 'transport') {
+          lblTask.textContent = '🚚 मालवाहतूक कामाचा प्रकार निवडा (Select Transport Option) *';
+        } else if (currentCategory === 'infrastructure') {
+          lblTask.textContent = '🏗️ खोदकाम / बांधकाम काम निवडा (Select Earthmoving Task) *';
+        } else {
+          lblTask.textContent = '🚜 शेती काम / अवजार निवडा (Select Farm Attachment / Task) *';
+        }
+      }
       
       const entries = Object.entries(rates);
       if (entries.length === 0) {
         grid.innerHTML = `
           <div class="chip-btn active" style="grid-column: 1/-1; text-align: left; padding: 12px;">
-            🚜 सामान्य भाडे (Base Hire) — <strong>₹${currentSelectedEquip.hourly_rate}/तास</strong>
+            ${currentCategory === 'transport' ? '🚚' : (currentCategory === 'infrastructure' ? '🏗️' : '🚜')} सामान्य भाडे (Standard Hire) — <strong>₹${currentSelectedEquip.hourly_rate}/तास</strong>
           </div>
         `;
         currentSelectedService = 'base';
