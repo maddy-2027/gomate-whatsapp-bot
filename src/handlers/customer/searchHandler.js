@@ -4,26 +4,26 @@ const { findJathVillage, isJathLocation } = require('../../data/jathVillages');
 
 const CATALOG = {
   agriculture: [
-    { id: 101, category: 'agriculture', type: 'Tractor', model: 'Mahindra 575 DI (45 HP)', price_per_day: 1500, rating: 4.9, services: 'नांगरणी, रोटाव्हेटर, पेरणी व ट्रॉली' },
-    { id: 102, category: 'agriculture', type: 'Tractor', model: 'John Deere 5310 (55 HP 4WD)', price_per_day: 1800, rating: 4.9, services: '4WD अवजड कामे, बागायत शेती' },
-    { id: 103, category: 'agriculture', type: 'Rotavator', model: 'Shaktiman Semi Champion Rotavator', price_per_day: 850, rating: 4.8, services: 'जमीन भुसभुशीत करणे' },
-    { id: 104, category: 'agriculture', type: 'Harvester', model: 'Claas Crop Tiger 30 Harvester', price_per_day: 4200, rating: 4.9, services: 'गहू, हरभरा, बाजरी व मका काढणी' },
-    { id: 105, category: 'agriculture', type: 'Sprayer', model: 'ASPEE HTP 500L Tractor Sprayer', price_per_day: 700, rating: 4.7, services: 'डाळिंब व द्राक्ष बागायत फवारणी' },
-    { id: 106, category: 'agriculture', type: 'Drone (spraying)', model: 'GoMate Agri Spray Drone 10L', price_per_day: 2500, rating: 4.9, services: 'अचूक व जलद औषध फवारणी' },
-    { id: 107, category: 'agriculture', type: 'Trailer', model: 'GoMate 4-Tonne Tipping Trailer', price_per_day: 800, rating: 4.6, services: 'धान्य, ऊस व शेतमाल वाहतूक' }
+    { id: 101, category: 'agriculture', type: 'Tractor', model: 'Mahindra 575 DI (45 HP)', price_per_day: 1500, rating: 4.9, services: 'नांगरणी, रोटाव्हेटर, पेरणी व ट्रॉली', image_url: '/assets/equipment/agri_tractor_3d.jpg' },
+    { id: 102, category: 'agriculture', type: 'Tractor', model: 'John Deere 5310 (55 HP 4WD)', price_per_day: 1800, rating: 4.9, services: '4WD अवजड कामे, बागायत शेती', image_url: '/assets/equipment/agri_tractor_3d.jpg' },
+    { id: 103, category: 'agriculture', type: 'Rotavator', model: 'Shaktiman Semi Champion Rotavator', price_per_day: 850, rating: 4.8, services: 'जमीन भुसभुशीत करणे', image_url: '/assets/equipment/agri_hero.jpg' },
+    { id: 104, category: 'agriculture', type: 'Harvester', model: 'Claas Crop Tiger 30 Harvester', price_per_day: 4200, rating: 4.9, services: 'गहू, हरभरा, बाजरी व मका काढणी', image_url: '/assets/equipment/agri_hero.jpg' },
+    { id: 105, category: 'agriculture', type: 'Sprayer', model: 'ASPEE HTP 500L Tractor Sprayer', price_per_day: 700, rating: 4.7, services: 'डाळिंब व द्राक्ष बागायत फवारणी', image_url: '/assets/equipment/agri_hero.jpg' },
+    { id: 106, category: 'agriculture', type: 'Drone (spraying)', model: 'GoMate Agri Spray Drone 10L', price_per_day: 2500, rating: 4.9, services: 'अचूक व जलद औषध फवारणी', image_url: '/assets/equipment/heavy_drone_3d.jpg' },
+    { id: 107, category: 'agriculture', type: 'Trailer', model: 'GoMate 4-Tonne Tipping Trailer', price_per_day: 800, rating: 4.6, services: 'धान्य, ऊस व शेतमाल वाहतूक', image_url: '/assets/equipment/agri_hero.jpg' }
   ],
   transport: [
-    { id: 201, category: 'transport', type: 'Delivery Trucks', model: 'Tata Ace Gold (छोटा हत्ती)', price_per_day: 1300, rating: 4.8, services: 'जत तालुका अंतर्गत स्थानिक वाहतूक' },
-    { id: 202, category: 'transport', type: 'Delivery Trucks', model: 'Ashok Leyland Dost Plus Pickup', price_per_day: 1600, rating: 4.8, services: '1.5 टन शेतमाल व भाजीपाला मार्केट' },
-    { id: 203, category: 'transport', type: 'Trucks', model: 'Tata 407 LPT Medium Truck (4 Tonne)', price_per_day: 2600, rating: 4.7, services: 'सांगली/सांगोला/विजापूर मार्केट वाहतूक' },
-    { id: 204, category: 'transport', type: 'Tanker Trucks', model: 'BharatBenz 12KL Water Tanker', price_per_day: 3800, rating: 4.8, services: 'शेती व पिण्यासाठी पाणी टँकर' },
-    { id: 205, category: 'transport', type: 'Dump Trucks', model: 'Ashok Leyland Tipper (डंपर)', price_per_day: 4000, rating: 4.7, services: 'मुरूम, माती व खडी वाहतूक' }
+    { id: 201, category: 'transport', type: 'Delivery Trucks', model: 'Tata Ace Gold (छोटा हत्ती)', price_per_day: 1300, rating: 4.8, services: 'जत तालुका अंतर्गत स्थानिक वाहतूक', image_url: '/assets/equipment/transport_cab_3d.jpg' },
+    { id: 202, category: 'transport', type: 'Delivery Trucks', model: 'Ashok Leyland Dost Plus Pickup', price_per_day: 1600, rating: 4.8, services: '1.5 टन शेतमाल व भाजीपाला मार्केट', image_url: '/assets/equipment/transport_cab_3d.jpg' },
+    { id: 203, category: 'transport', type: 'Trucks', model: 'Tata 407 LPT Medium Truck (4 Tonne)', price_per_day: 2600, rating: 4.7, services: 'सांगली/सांगोला/विजापूर मार्केट वाहतूक', image_url: '/assets/equipment/heavy_drone_3d.jpg' },
+    { id: 204, category: 'transport', type: 'Tanker Trucks', model: 'BharatBenz 12KL Water Tanker', price_per_day: 3800, rating: 4.8, services: 'शेती व पिण्यासाठी पाणी टँकर', image_url: '/assets/equipment/heavy_drone_3d.jpg' },
+    { id: 205, category: 'transport', type: 'Dump Trucks', model: 'Ashok Leyland Tipper (डंपर)', price_per_day: 4000, rating: 4.7, services: 'मुरूम, माती व खडी वाहतूक', image_url: '/assets/equipment/heavy_drone_3d.jpg' }
   ],
   infrastructure: [
-    { id: 301, category: 'infrastructure', type: 'Backhoe Loaders', model: 'JCB 3DX Super EcoXcellence', price_per_day: 4500, rating: 4.9, services: 'शेततळे, चर, सपाटीकरण व बांधकाम' },
-    { id: 302, category: 'infrastructure', type: 'Backhoe Loaders', model: 'JCB 4DX Heavy Duty Loader', price_per_day: 5200, rating: 4.8, services: 'अवजड शेततळे व चर खोदकाम' },
-    { id: 303, category: 'infrastructure', type: 'Excavators', model: 'Komatsu PC210 Heavy Excavator (पोकलेन)', price_per_day: 7500, rating: 4.9, services: 'मोठे शेततळे, विहीर व खडक फोडणे' },
-    { id: 304, category: 'infrastructure', type: 'Bulldozers', model: 'CAT D6 Crawler Dozer (बुलडोझर)', price_per_day: 8000, rating: 4.9, services: 'जमीन सपाटीकरण, बांध व माळरान साफ' }
+    { id: 301, category: 'infrastructure', type: 'Backhoe Loaders', model: 'JCB 3DX Super EcoXcellence', price_per_day: 4500, rating: 4.9, services: 'शेततळे, चर, सपाटीकरण व बांधकाम', image_url: '/assets/equipment/infra_jcb_3d.jpg' },
+    { id: 302, category: 'infrastructure', type: 'Backhoe Loaders', model: 'JCB 4DX Heavy Duty Loader', price_per_day: 5200, rating: 4.8, services: 'अवजड शेततळे व चर खोदकाम', image_url: '/assets/equipment/infra_jcb_3d.jpg' },
+    { id: 303, category: 'infrastructure', type: 'Excavators', model: 'Komatsu PC210 Heavy Excavator (पोकलेन)', price_per_day: 7500, rating: 4.9, services: 'मोठे शेततळे, विहीर व खडक फोडणे', image_url: '/assets/equipment/infra_jcb_3d.jpg' },
+    { id: 304, category: 'infrastructure', type: 'Bulldozers', model: 'CAT D6 Crawler Dozer (बुलडोझर)', price_per_day: 8000, rating: 4.9, services: 'जमीन सपाटीकरण, बांध व माळरान साफ', image_url: '/assets/equipment/infra_jcb_3d.jpg' }
   ]
 };
 

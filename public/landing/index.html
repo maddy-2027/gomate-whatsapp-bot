@@ -164,35 +164,45 @@
         <p>Equally weighted across Agricultural, Transport, and Infrastructure sectors</p>
       </div>
 
-      <!-- 3D Category Hero Banners -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 40px;">
+      <!-- 3D Category Hero Banners (4 Domains) -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-bottom: 40px;">
         
-        <div class="gm-card" style="padding: 0; overflow: hidden;">
-          <img src="/assets/equipment/agri_hero.jpg" alt="Agriculture Fleet" style="width: 100%; height: 190px; object-fit: cover; display: block;">
+        <div class="gm-card" style="padding: 0; overflow: hidden; border-radius: 12px; transition: transform 0.2s ease;">
+          <img src="/assets/equipment/agri_tractor_3d.jpg" alt="Agricultural Machinery — Mahindra 575 DI Tractor" style="width: 100%; height: 200px; object-fit: cover; display: block;">
           <div style="padding: 20px;">
-            <span class="card-badge" style="background: var(--gm-green-100); color: var(--gm-green-700);">🌾 8 Equipment Types</span>
+            <span class="card-badge" style="background: var(--gm-green-100); color: var(--gm-green-700);">🌾 Agriculture</span>
             <h3 style="font-size: 18px; margin: 6px 0;">Agricultural Fleet</h3>
-            <p style="font-size: 13px; color: var(--gm-gray-600); margin-bottom: 16px;">Tractors, Cultivators, Harvesters, Rotavators, Seed Drills & Spray Drones.</p>
+            <p style="font-size: 13px; color: var(--gm-gray-600); margin-bottom: 16px;">Mahindra 575 DI, John Deere 4WD, Rotavators, Harvesters & Spray Drones.</p>
             <button class="gm-btn gm-btn-outline" style="width: 100%;" onclick="showCatalog('agri')">View Agriculture (8)</button>
           </div>
         </div>
 
-        <div class="gm-card" style="padding: 0; overflow: hidden;">
-          <img src="/assets/equipment/transport_hero.jpg" alt="Transport Fleet" style="width: 100%; height: 190px; object-fit: cover; display: block;">
+        <div class="gm-card" style="padding: 0; overflow: hidden; border-radius: 12px; transition: transform 0.2s ease;">
+          <img src="/assets/equipment/transport_cab_3d.jpg" alt="Transportation — Cabs and Auto Rickshaws" style="width: 100%; height: 200px; object-fit: cover; display: block;">
           <div style="padding: 20px;">
-            <span class="card-badge" style="background: var(--gm-info-bg); color: var(--gm-info);">🚚 5 Transport Types</span>
-            <h3 style="font-size: 18px; margin: 6px 0;">Transport & Logistics</h3>
-            <p style="font-size: 13px; color: var(--gm-gray-600); margin-bottom: 16px;">Tata Ace, Dost Plus, Cargo Vans, Heavy Trucks, Dumpers & Tankers.</p>
-            <button class="gm-btn gm-btn-outline" style="width: 100%;" onclick="showCatalog('transport')">View Transport (5)</button>
+            <span class="card-badge" style="background: var(--gm-info-bg); color: var(--gm-info);">🚖 Passenger Transport</span>
+            <h3 style="font-size: 18px; margin: 6px 0;">Cabs & Taxis</h3>
+            <p style="font-size: 13px; color: var(--gm-gray-600); margin-bottom: 16px;">City cabs, auto-rickshaws, and passenger mobility for local & intercity travel.</p>
+            <button class="gm-btn gm-btn-outline" style="width: 100%;" onclick="showCatalog('transport')">View Cabs & Transport</button>
           </div>
         </div>
 
-        <div class="gm-card" style="padding: 0; overflow: hidden;">
-          <img src="/assets/equipment/infra_hero.jpg" alt="Infrastructure Machinery" style="width: 100%; height: 190px; object-fit: cover; display: block;">
+        <div class="gm-card" style="padding: 0; overflow: hidden; border-radius: 12px; transition: transform 0.2s ease;">
+          <img src="/assets/equipment/heavy_drone_3d.jpg" alt="Heavy Transport and Cargo Drones" style="width: 100%; height: 200px; object-fit: cover; display: block;">
           <div style="padding: 20px;">
-            <span class="card-badge" style="background: var(--gm-warning-bg); color: var(--gm-warning);">🏗️ 3 Heavy Machinery Types</span>
-            <h3 style="font-size: 18px; margin: 6px 0;">Construction & Earthworks</h3>
-            <p style="font-size: 13px; color: var(--gm-gray-600); margin-bottom: 16px;">JCB 3DX/4DX Backhoe Loaders, Heavy Hydraulic Excavators & Bulldozers.</p>
+            <span class="card-badge" style="background: #ede9fe; color: #6b21a8;">🚚 Heavy Logistics & Drones</span>
+            <h3 style="font-size: 18px; margin: 6px 0;">Heavy Vehicles & Drones</h3>
+            <p style="font-size: 13px; color: var(--gm-gray-600); margin-bottom: 16px;">Tata 407, Ashok Leyland Tipper, Heavy Haulage trucks & Cargo Hexacopters.</p>
+            <button class="gm-btn gm-btn-outline" style="width: 100%;" onclick="showCatalog('transport')">View Heavy Logistics</button>
+          </div>
+        </div>
+
+        <div class="gm-card" style="padding: 0; overflow: hidden; border-radius: 12px; transition: transform 0.2s ease;">
+          <img src="/assets/equipment/infra_jcb_3d.jpg" alt="Infrastructure Machinery — JCB 3DX Backhoe Loader" style="width: 100%; height: 200px; object-fit: cover; display: block;">
+          <div style="padding: 20px;">
+            <span class="card-badge" style="background: var(--gm-warning-bg); color: var(--gm-warning);">🏗️ Earthmoving</span>
+            <h3 style="font-size: 18px; margin: 6px 0;">Infrastructure & JCB</h3>
+            <p style="font-size: 13px; color: var(--gm-gray-600); margin-bottom: 16px;">JCB 3DX Super backhoe loaders, heavy hydraulic excavators & bulldozers.</p>
             <button class="gm-btn gm-btn-outline" style="width: 100%;" onclick="showCatalog('infra')">View Infrastructure (3)</button>
           </div>
         </div>
