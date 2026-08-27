@@ -7,7 +7,7 @@ if (rawUrl.endsWith('/rest/v1')) rawUrl = rawUrl.replace('/rest/v1', '');
 if (rawUrl.endsWith('/')) rawUrl = rawUrl.slice(0, -1);
 
 const supabaseUrl = rawUrl;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY;
+const supabaseKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY;
 
 
 let supabase = null;
