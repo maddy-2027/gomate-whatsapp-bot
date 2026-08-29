@@ -544,40 +544,16 @@ app.post('/api/simulator/send-voice', async (req, res) => {
     const session = getSession(phone);
     const { processVoiceNote, formatVoiceAcknowledgment } = require('./src/services/voiceService');
 
-    let voiceResult = null;
-    if (audio) {
-      voiceResult = await processVoiceNote(audio, mimeType || 'audio/ogg', phone, session);
-    } else if (simulatedText) {
-      voiceResult = {
-        success: true,
-        transcript: simulatedText,
-        language: session.language || 'mr',
-        intent: 'book_equipment',
-        action_text: simulatedText
-      };
-    } else {
-      voiceResult = {
-        success: true,
-        transcript: 'मला जत तालुक्यात शेगावला रोटाव्हेटरसाठी ट्रॅक्टर हवा आहे.',
-        language: 'mr',
-        intent: 'book_equipment',
-        equipment: 'Tractor',
-        service: 'Rotavator',
-        village: 'Jath',
-        action_text: '1'
-      };
-    }
-
+    const voiceInput = audio || simulatedText || 'मला उद्या सकाळी शेगावला रोटाव्हेटरसाठी ट्रॅक्टर हवा आहे.';
+    const voiceResult = await processVoiceNote(voiceInput, mimeType || 'audio/ogg', phone, session);
     const voiceAck = formatVoiceAcknowledgment(voiceResult);
-    const textToRoute = voiceResult.action_text || voiceResult.transcript;
-    const botReply = await routeMessage(phone, textToRoute, session);
 
     res.json({
       success: true,
       phone,
       voiceResult,
       voiceAck,
-      reply: botReply,
+      reply: voiceAck,
       session: {
         state: session.state,
         language: session.language,
