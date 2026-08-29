@@ -274,6 +274,39 @@ ${invoiceUrl}
 });
 
 // ==========================================
+// Machinery Breakdown SOS & Emergency Reassignment
+// ==========================================
+app.get('/api/emergency/incidents', adminAuth, (req, res) => {
+  try {
+    const { getSosIncidents } = require('./src/services/sosService');
+    res.json({ success: true, incidents: getSosIncidents() });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/emergency/sos', async (req, res) => {
+  try {
+    const { triggerEmergencySos } = require('./src/services/sosService');
+    const { senderPhone, rawText, bookingRef } = req.body;
+    const result = await triggerEmergencySos({ senderPhone, rawText, bookingRef });
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/emergency/incidents/:id/resolve', adminAuth, (req, res) => {
+  try {
+    const { resolveSosIncident } = require('./src/services/sosService');
+    const inc = resolveSosIncident(req.params.id);
+    res.json({ success: !!inc, incident: inc });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ==========================================
 // Jath Villages & Owner Self-Registration API
 // ==========================================
 app.get('/api/jath/villages', (req, res) => {

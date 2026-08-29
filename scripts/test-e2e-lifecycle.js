@@ -356,6 +356,25 @@ async function runE2ETests() {
   assert(sendInvoiceRes.ok && sendInvoiceRes.data.invoice_url.includes('GM-TEST'), `Invoice WhatsApp message dispatched — PDF URL: ${sendInvoiceRes.data.invoice_url}`);
 
   // -------------------------------------------------------------
+  // Phase 14: Machinery Breakdown SOS & Emergency Reassignment
+  // -------------------------------------------------------------
+  console.log('\n--- Phase 14: Machinery Breakdown SOS & Emergency Dispatch ---');
+  const sosMsgRes = await request('/api/simulator/send', {
+    method: 'POST',
+    body: JSON.stringify({
+      phone: '+919876500001',
+      message: 'SOS शेतात ट्रॅक्टर नादुरुस्त झाला - तात्काळ पर्यायी ट्रॅक्टर पाहिजे'
+    })
+  });
+  assert(sosMsgRes.ok && sosMsgRes.data.reply.includes('आपत्कालीन मदत'), 'Machinery breakdown SOS keyword recognized and emergency reassurance triggered');
+  assert(sosMsgRes.ok && sosMsgRes.data.reply.includes('पर्यायी यंत्र'), 'Nearest idle replacement machinery matched and dispatched to farm');
+
+  const sosIncidentsRes = await request('/api/emergency/incidents', {
+    headers: { Authorization: `Bearer ${adminToken}` }
+  });
+  assert(sosIncidentsRes.ok && sosIncidentsRes.data.incidents.length > 0, `Admin HQ tracked active SOS incident ticket ${sosIncidentsRes.data.incidents[0].id}`);
+
+  // -------------------------------------------------------------
   // Test Summary
   // -------------------------------------------------------------
   console.log('\n===============================================================');

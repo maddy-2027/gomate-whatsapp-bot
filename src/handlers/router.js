@@ -10,6 +10,7 @@ const subscriptionHandler = require('./owner/subscriptionHandler');
 const { generateChatResponse } = require('../services/gemini');
 const { hasPendingDispatch, handleOwnerResponse } = require('../services/dispatchService');
 const { hasPendingFeedback, handleFeedbackResponse } = require('../services/feedbackService');
+const { isSosKeyword, triggerEmergencySos } = require('../services/sosService');
 
 const userProfileCache = new Map();
 
@@ -40,6 +41,12 @@ async function routeMessage(phone, text, session) {
   if (hasPendingFeedback(phone)) {
     const feedbackReply = await handleFeedbackResponse(phone, rawText, session);
     if (feedbackReply) return feedbackReply;
+  }
+
+  // 0.2 Check if this is an Emergency SOS / Machinery Breakdown trigger
+  if (isSosKeyword(rawText)) {
+    const sosResult = await triggerEmergencySos({ senderPhone: phone, rawText, bookingRef: session.bookingRef });
+    return sosResult.farmerReply;
   }
 
   const isSingleDigit = /^[0-9]+$/.test(t);
