@@ -301,6 +301,33 @@
         </div>
       </div>
 
+      <!-- Tractor Preventive Maintenance & Service Due Scheduler (Emoji-Free) -->
+      <div class="gm-card" style="margin-bottom: 24px; border: 1px solid #CBD5E1; border-top: 4px solid #2563EB;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+              <h2 style="font-size: 18px; font-weight: 800; color: #0F172A; margin: 0;">
+                ट्रॅक्टर सर्व्हिस व देखभाल वेळापत्रक (Service Scheduler)
+              </h2>
+              <span id="maintHealthBadge" class="gm-badge" style="background: #FEF3C7; color: #92400E; font-weight: 700;">
+                आरोग्य स्कोअर: 84%
+              </span>
+            </div>
+            <p style="font-size: 12px; color: var(--gm-gray-600); margin: 3px 0 0 0;">
+              दैनंदिन नोंदीनुसार एकूण इंजिन तास: <strong id="maintTotalHoursText" style="color: #0F172A;">240 तास</strong> &bull; वेळच्या वेळी सर्व्हिस केल्याने डिझेल मायलेज उत्तम राहते
+            </p>
+          </div>
+          <button onclick="sendMaintenanceWhatsAppReminder()" class="gm-btn gm-btn-outline" style="border-color: #2563EB; color: #1D4ED8; font-size: 12px; font-weight: 700; padding: 8px 16px;">
+            WhatsApp वर सर्व्हिस स्मरणपत्र पाठवा
+          </button>
+        </div>
+
+        <!-- Service Interval Cards Grid -->
+        <div id="maintCardsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;">
+          <!-- Rendered dynamically by owner.js -->
+        </div>
+      </div>
+
       <!-- Expense Actions & Logbook Table -->
       <div class="gm-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">

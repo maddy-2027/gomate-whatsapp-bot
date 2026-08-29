@@ -411,6 +411,7 @@ async function fetchOwnerExpenses() {
     const data = await res.json();
     ownerExpensesData = data;
     renderExpenses();
+    fetchOwnerMaintenance();
   } catch (err) {
     console.error('Error loading expenses:', err);
   }
@@ -604,5 +605,120 @@ async function sendOwnerPnlWhatsApp() {
     }
   } catch (err) {
     showToast('अहवाल पाठवता आला नाही.', 'error');
+  }
+}
+
+// ==========================================================================
+// Machinery Preventive Maintenance & Service Due Scheduler
+// ==========================================================================
+let ownerMaintenanceData = null;
+
+async function fetchOwnerMaintenance() {
+  try {
+    const res = await fetch(`/api/owner/maintenance?phone=${encodeURIComponent(currentOwnerPhone)}`);
+    if (!res.ok) throw new Error('Failed to load maintenance schedule');
+    const data = await res.json();
+    ownerMaintenanceData = data.schedule;
+    renderOwnerMaintenance();
+  } catch (err) {
+    console.error('Error loading maintenance data:', err);
+  }
+}
+
+function renderOwnerMaintenance() {
+  if (!ownerMaintenanceData) return;
+
+  const totalHoursEl = document.getElementById('maintTotalHoursText');
+  if (totalHoursEl) {
+    totalHoursEl.textContent = `${ownerMaintenanceData.total_engine_hours} तास`;
+  }
+
+  const badgeEl = document.getElementById('maintHealthBadge');
+  if (badgeEl) {
+    badgeEl.textContent = `आरोग्य स्कोअर: ${ownerMaintenanceData.overall_health_score}`;
+    if (ownerMaintenanceData.urgent_alerts_count > 0) {
+      badgeEl.style.background = '#FEF3C7';
+      badgeEl.style.color = '#92400E';
+    } else {
+      badgeEl.style.background = '#DCFCE7';
+      badgeEl.style.color = '#166534';
+    }
+  }
+
+  const grid = document.getElementById('maintCardsGrid');
+  if (!grid) return;
+
+  const items = ownerMaintenanceData.items || [];
+  grid.innerHTML = items.map(item => {
+    let barColor = '#16A34A';
+    if (item.status === 'OVERDUE') barColor = '#DC2626';
+    else if (item.status === 'DUE_SOON') barColor = '#D97706';
+
+    return `
+      <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+            <div style="font-weight: 700; font-size: 13.5px; color: #0F172A;">${item.nameMr}</div>
+            <span style="font-size: 11px; font-weight: 700; color: ${item.statusColor}; background: #FFFFFF; border: 1px solid ${item.statusColor}; padding: 2px 6px; border-radius: 4px;">
+              ${item.status === 'GOOD' ? 'उत्तम' : (item.status === 'OVERDUE' ? 'तातडीने' : 'लवकरच')}
+            </span>
+          </div>
+          <div style="font-size: 12px; color: var(--gm-gray-600); margin-bottom: 8px;">
+            दर ${item.intervalHours} तासांनी आवश्यक &bull; अंदाजे खर्च: ₹${item.costEst.toLocaleString('en-IN')}
+          </div>
+          
+          <!-- Progress Bar -->
+          <div style="background: #E2E8F0; border-radius: 6px; height: 8px; overflow: hidden; margin-bottom: 6px;">
+            <div style="background: ${barColor}; width: ${item.progressPercent}%; height: 100%;"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--gm-gray-600); margin-bottom: 10px;">
+            <span>सद्य वापर: ${item.hoursSinceService} तास</span>
+            <strong>${item.hoursRemaining > 0 ? item.hoursRemaining + ' तास बाकी' : 'वेळ संपली'}</strong>
+          </div>
+        </div>
+
+        <div style="border-top: 1px solid #E2E8F0; padding-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 11px; color: var(--gm-gray-500);">शेवटची सर्व्हिस: ${item.lastServicedDate}</span>
+          <button onclick="logServiceCompleted('${item.id}')" style="background: #FFFFFF; border: 1px solid #CBD5E1; color: #0F172A; border-radius: 4px; font-size: 11px; font-weight: 700; padding: 4px 8px; cursor: pointer;">
+            सर्व्हिस पूर्ण झाली (Reset)
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function sendMaintenanceWhatsAppReminder() {
+  try {
+    const res = await fetch('/api/owner/maintenance/send-alert', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: currentOwnerPhone })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('सर्व्हिस देखभाल सूचना WhatsApp वर पाठवली!', 'success');
+    }
+  } catch (err) {
+    showToast('सूचना पाठवता आली नाही.', 'error');
+  }
+}
+
+async function logServiceCompleted(serviceId) {
+  if (!confirm('या उपकरणाची सर्व्हिस पूर्ण झाली म्हणून नोंद करायची आहे का? (Reset counter?)')) return;
+
+  try {
+    const res = await fetch('/api/owner/maintenance/log-service', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: currentOwnerPhone, service_id: serviceId })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('सर्व्हिस यशस्वीरित्या नोंदवली गेली! काऊंटर रीसेट झाला.', 'success');
+      fetchOwnerMaintenance();
+    }
+  } catch (err) {
+    showToast('नोंद करता आली नाही.', 'error');
   }
 }

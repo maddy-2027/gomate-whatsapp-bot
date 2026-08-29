@@ -391,6 +391,26 @@ async function runE2ETests() {
   assert(pnlWaRes.ok && pnlWaRes.data.whatsapp_message.includes('नफा-तोटा'), 'Monthly P&L executive statement dispatched to owner on WhatsApp');
 
   // -------------------------------------------------------------
+  // Phase 16: Owner Machinery Preventive Maintenance Scheduler
+  // -------------------------------------------------------------
+  console.log('\n--- Phase 16: Owner Machinery Preventive Maintenance Scheduler ---');
+  const maintRes = await request('/api/owner/maintenance?phone=+919822012345');
+  assert(maintRes.ok && maintRes.data.schedule.total_engine_hours > 200, `Tractor cumulative engine hours computed: ${maintRes.data.schedule.total_engine_hours} hrs`);
+  assert(maintRes.ok && maintRes.data.schedule.items.length === 4, '4 Standard service intervals tracked (Oil, Air, Fuel, Hydraulic)');
+
+  const maintAlertRes = await request('/api/owner/maintenance/send-alert', {
+    method: 'POST',
+    body: JSON.stringify({ phone: '+919822012345' })
+  });
+  assert(maintAlertRes.ok && maintAlertRes.data.whatsapp_message.includes('देखभाल सूचना'), 'Preventive maintenance advisory dispatched to owner on WhatsApp');
+
+  const maintResetRes = await request('/api/owner/maintenance/log-service', {
+    method: 'POST',
+    body: JSON.stringify({ phone: '+919822012345', service_id: 'engine_oil' })
+  });
+  assert(maintResetRes.ok && maintResetRes.data.success, 'Engine oil service completed and counter reset');
+
+  // -------------------------------------------------------------
   // Test Summary
   // -------------------------------------------------------------
   console.log('\n===============================================================');

@@ -750,6 +750,40 @@ app.delete('/api/owner/expenses/:id', async (req, res) => {
   }
 });
 
+// Owner Machinery Preventive Maintenance Endpoints
+app.get('/api/owner/maintenance', async (req, res) => {
+  try {
+    const phone = req.query.phone || '+919822012345';
+    const { getOwnerMaintenanceSchedule } = require('./src/services/maintenanceService');
+    const schedule = await getOwnerMaintenanceSchedule(phone);
+    res.json({ success: true, schedule });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/owner/maintenance/send-alert', async (req, res) => {
+  try {
+    const { phone } = req.body;
+    const { sendMaintenanceWhatsAppAlert } = require('./src/services/maintenanceService');
+    const result = await sendMaintenanceWhatsAppAlert(phone || '+919822012345');
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/owner/maintenance/log-service', async (req, res) => {
+  try {
+    const { phone, service_id } = req.body;
+    const { markServiceCompleted } = require('./src/services/maintenanceService');
+    const result = markServiceCompleted(phone || '+919822012345', service_id || 'engine_oil');
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Automated WhatsApp Feedback & Reviews Endpoints
 app.post('/api/bookings/:id/complete-and-trigger-feedback', async (req, res) => {
   try {
