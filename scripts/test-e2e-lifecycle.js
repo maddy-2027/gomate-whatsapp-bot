@@ -456,6 +456,27 @@ async function runE2ETests() {
   assert(calRes.data.calendar.summary.occupancyRatePercent >= 50, `Fleet occupancy rate calculated: ${calRes.data.calendar.summary.occupancyRatePercent}%`);
 
   // -------------------------------------------------------------
+  // Phase 19: Farmer Loyalty & Village Referral Program Engine
+  // -------------------------------------------------------------
+  console.log('\n--- Phase 19: Farmer Loyalty & Village Referral Program Engine ---');
+
+  const loyaltyRes = await request('/api/farmer/loyalty?phone=+919876543210');
+  assert(loyaltyRes.ok && loyaltyRes.data.profile.points >= 300, `Farmer loyalty profile loaded with ${loyaltyRes.data.profile.points} points (${loyaltyRes.data.profile.tier})`);
+  assert(loyaltyRes.data.profile.referralCode.includes('GM-JATH'), `Personalized referral code generated: ${loyaltyRes.data.profile.referralCode}`);
+
+  const loyaltyWaRes = await request('/api/farmer/loyalty/send-whatsapp', {
+    method: 'POST',
+    body: JSON.stringify({ phone: '+919876543210' })
+  });
+  assert(loyaltyWaRes.ok && loyaltyWaRes.data.message.includes('लॉयल्टी'), 'Loyalty summary advisory and WhatsApp referral invite dispatched to farmer');
+
+  const applyRefRes = await request('/api/farmer/loyalty/apply-referral', {
+    method: 'POST',
+    body: JSON.stringify({ phone: '+919988776655', referral_code: 'GM-JATH3210' })
+  });
+  assert(applyRefRes.ok && applyRefRes.data.welcomeBonus === 100, 'Referred farmer successfully redeemed village coupon with ₹100 welcome bonus');
+
+  // -------------------------------------------------------------
   // Test Summary
   // -------------------------------------------------------------
   console.log('\n===============================================================');

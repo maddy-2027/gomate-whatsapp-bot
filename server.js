@@ -1185,6 +1185,44 @@ app.get('/api/owner/calendar', async (req, res) => {
   }
 });
 
+// =============================================================
+// Farmer Loyalty & Village Referral Program Endpoints
+// =============================================================
+const loyaltyService = require('./src/services/loyaltyService');
+
+/** GET /api/farmer/loyalty — farmer loyalty tier, reward points, and referral link */
+app.get('/api/farmer/loyalty', async (req, res) => {
+  try {
+    const { phone } = req.query;
+    const profile = await loyaltyService.getFarmerLoyaltyProfile(phone || '+919876543210');
+    res.json({ success: true, profile });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+/** POST /api/farmer/loyalty/send-whatsapp — dispatch loyalty balance and referral invite on WhatsApp */
+app.post('/api/farmer/loyalty/send-whatsapp', async (req, res) => {
+  try {
+    const { phone } = req.body;
+    const result = await loyaltyService.sendLoyaltyWhatsApp(phone || '+919876543210');
+    res.json(result);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+/** POST /api/farmer/loyalty/apply-referral — redeem village referral code */
+app.post('/api/farmer/loyalty/apply-referral', async (req, res) => {
+  try {
+    const { phone, referral_code } = req.body;
+    const result = await loyaltyService.applyReferralCode(phone, referral_code);
+    res.json(result);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.use((err, req, res, next) => { console.error(err.stack); res.status(500).send('Something broke!'); });
 
 app.listen(port, '0.0.0.0', () => {

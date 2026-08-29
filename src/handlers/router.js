@@ -11,6 +11,7 @@ const { generateChatResponse } = require('../services/gemini');
 const { hasPendingDispatch, handleOwnerResponse } = require('../services/dispatchService');
 const { hasPendingFeedback, handleFeedbackResponse } = require('../services/feedbackService');
 const { isSosKeyword, triggerEmergencySos } = require('../services/sosService');
+const { isLoyaltyKeyword, getFarmerLoyaltyProfile, formatLoyaltyWhatsAppMessage, applyReferralCode } = require('../services/loyaltyService');
 
 const userProfileCache = new Map();
 
@@ -47,6 +48,16 @@ async function routeMessage(phone, text, session) {
   if (isSosKeyword(rawText)) {
     const sosResult = await triggerEmergencySos({ senderPhone: phone, rawText, bookingRef: session.bookingRef });
     return sosResult.farmerReply;
+  }
+
+  // 0.3 Check if this is a Farmer Loyalty, Reward Points, or Referral query
+  if (isLoyaltyKeyword(rawText)) {
+    if (t.startsWith('ref-') || t.startsWith('gm-jath')) {
+      const refRes = await applyReferralCode(phone, rawText);
+      return refRes.messageMr;
+    }
+    const profile = await getFarmerLoyaltyProfile(phone);
+    return formatLoyaltyWhatsAppMessage(profile);
   }
 
   const isSingleDigit = /^[0-9]+$/.test(t);
