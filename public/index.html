@@ -443,15 +443,19 @@
       </div>
 
       <!-- Flow Quick Chips -->
-      <div class="quick-chips-bar">
+      <div class="quick-chips-bar" style="display: flex; gap: 6px; overflow-x: auto; padding: 8px 12px; background: #E4EFE7; border-top: 1px solid #CBD5E1;">
         <button class="chip-btn amber" onclick="sendQuick('hi')">👋 Start / Hi</button>
         <button class="chip-btn" onclick="sendQuick('1')">1️⃣ Agri / Marathi</button>
         <button class="chip-btn" onclick="sendQuick('2')">2️⃣ Transport / English</button>
         <button class="chip-btn" onclick="sendQuick('3')">3️⃣ Infra / Hindi</button>
-        <button class="chip-btn" onclick="sendQuick('Pune')">📍 Pune</button>
-        <button class="chip-btn" onclick="sendQuick('Nashik')">📍 Nashik</button>
-        <button class="chip-btn" onclick="sendQuick('Tomorrow 2 days')">📅 Tomorrow 2 Days</button>
+        <button class="chip-btn" onclick="sendQuick('Shegaon')">📍 शेगाव (Jath)</button>
+        <button class="chip-btn" onclick="sendQuick('Sankh')">📍 संख</button>
+        <button class="chip-btn" onclick="sendQuick('Umadi')">📍 उमदी</button>
+        <button class="chip-btn" onclick="sendQuick('Dafalapur')">📍 डफळापूर</button>
+        <button class="chip-btn" onclick="sendQuick('Tomorrow 2 days')">📅 2 Days Booking</button>
         <button class="chip-btn amber" onclick="sendQuick('CONFIRM')">✅ CONFIRM</button>
+        <button class="chip-btn" style="background: #FEE2E2; color: #DC2626; border-color: #FECACA; font-weight: 700;" onclick="sendQuick('SOS ट्रॅक्टर बिघाड झाला आहे')">🚨 SOS Breakdown</button>
+        <button class="chip-btn" style="background: #FEF3C7; color: #B45309; border-color: #FDE68A; font-weight: 700;" onclick="sendQuick('5 उत्तम काम झाले')">⭐ 5-Star Feedback</button>
         <button class="chip-btn" onclick="sendQuick('0')">↩️ Main Menu</button>
       </div>
 
@@ -460,11 +464,14 @@
         <button type="button" onclick="openVoiceModal()" class="gm-btn" style="border-radius: 50%; width: 40px; height: 40px; padding: 0; background: #e11d48; color: #fff; flex-shrink: 0;" title="Send Marathi Voice Note (व्हॉइस मेसेज)">
           🎙️
         </button>
+        <button type="button" onclick="sendGpsPinModal()" class="gm-btn" style="border-radius: 50%; width: 40px; height: 40px; padding: 0; background: #0284C7; color: #fff; flex-shrink: 0;" title="Share WhatsApp GPS Location Pin">
+          📍
+        </button>
         <input 
           type="text" 
           id="messageInput" 
           class="gm-input" 
-          placeholder="Type message or click 🎙️ for Voice Note..." 
+          placeholder="Type message or click 🎙️ / 📍 ..." 
           style="border-radius: 20px; padding: 10px 16px;" 
           autocomplete="off"
         />
@@ -572,14 +579,61 @@
         { type: 'bot', text: 'GoMate मध्ये आपले स्वागत आहे!\nकृपया आपली भाषा निवडा:\n1. *मराठी (Marathi)*\n2. *English*\n3. *हिंदी (Hindi)*', time: '10:00 AM' }
       ];
 
-      container.innerHTML = messages.map(m => `
+      container.innerHTML = messages.map((m, idx) => `
         <div class="bubble bubble-${m.type}">
           ${formatText(m.text)}
+          ${m.type === 'bot' && idx === messages.length - 1 ? renderInteractiveActionButtons(m.text) : ''}
           <div class="bubble-meta">${m.time}</div>
         </div>
       `).join('');
 
       container.scrollTop = container.scrollHeight;
+    }
+
+    function renderInteractiveActionButtons(text) {
+      if (!text) return '';
+      const buttons = [];
+
+      // Check if text has numbered options like "1.", "2.", "3."
+      const lines = text.split('\n');
+      lines.forEach(line => {
+        const match = line.match(/^(\d{1,2})\.\s*(.+)/);
+        if (match) {
+          const num = match[1];
+          let label = match[2].replace(/\*|_/g, '').trim();
+          if (label.length > 25) label = label.slice(0, 22) + '...';
+          buttons.push({ val: num, label: `${num}. ${label}` });
+        }
+      });
+
+      // Check for CONFIRM / CANCEL
+      if (text.includes('CONFIRM') || text.includes('Confirm') || text.includes('निश्चित करा')) {
+        buttons.push({ val: 'CONFIRM', label: '✅ CONFIRM', highlight: true });
+        buttons.push({ val: 'CANCEL', label: '❌ Cancel' });
+      }
+
+      // Check for Menu / Back
+      if (text.includes('0. Main Menu') || text.includes('0. मुख्य मेनू') || text.includes('0. मेनू')) {
+        buttons.push({ val: '0', label: '↩️ Main Menu' });
+      }
+
+      if (buttons.length === 0) return '';
+
+      return `
+        <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.08);">
+          ${buttons.map(b => `
+            <button onclick="sendQuick('${b.val}')" style="background: ${b.highlight ? '#22C55E' : '#FFFFFF'}; color: ${b.highlight ? '#FFFFFF' : '#075E54'}; border: 1px solid ${b.highlight ? '#16A34A' : '#CBD5E1'}; border-radius: 16px; padding: 4px 10px; font-size: 11.5px; font-weight: 700; cursor: pointer; transition: all 0.15s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+              ${b.label}
+            </button>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function sendGpsPinModal() {
+      const villages = ['शेगाव', 'जत', 'संख', 'उमदी', 'डफळापूर', 'बिळूर', 'मडग्याळ'];
+      const v = villages[Math.floor(Math.random() * villages.length)];
+      sendQuick(`📍 GPS Location Pin: ${v}, Jath (16.9854, 75.2145)`);
     }
 
     function formatText(t) {
