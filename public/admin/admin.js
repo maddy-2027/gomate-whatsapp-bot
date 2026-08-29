@@ -133,26 +133,35 @@ function renderBookings() {
 
   tbody.innerHTML = list.map(b => `
     <tr>
-      <td><strong>${b.booking_ref}</strong></td>
-      <td>${b.customer_phone}</td>
-      <td>${b.equipment_name || 'Equipment'}</td>
-      <td>${b.district || 'Maharashtra'}</td>
-      <td>${b.start_date || 'N/A'}</td>
-      <td>${b.duration_days} day(s)</td>
-      <td><strong>₹${(b.total_amount || 0).toLocaleString('en-IN')}</strong></td>
+      <td>
+        <span style="font-family: var(--gm-font-mono); font-weight: 700; color: #0F172A; font-size: 13px;">${b.booking_ref}</span>
+      </td>
+      <td>
+        <div style="font-size: 12px; font-weight: 600;">${b.customer_name || '—'}</div>
+        <div style="font-size: 11px; color: var(--gm-gray-500);">${b.customer_phone}</div>
+      </td>
+      <td style="max-width: 180px; font-size: 12px;">${b.equipment_name || 'Equipment'}</td>
+      <td style="font-size: 12px;">${b.village || b.district || 'Maharashtra'}</td>
+      <td style="font-size: 12px;">${b.start_date || b.created_at?.slice(0,10) || 'ASAP'}</td>
+      <td style="font-size: 12px;">${b.duration_days || b.duration_hours || 1} ${b.duration_hours ? 'hr(s)' : 'day(s)'}</td>
+      <td><strong style="font-family: var(--gm-font-mono);">₹${(b.total_amount || 0).toLocaleString('en-IN')}</strong></td>
       <td><span class="badge badge-${(b.status || 'pending').toLowerCase()}">${b.status || 'pending'}</span></td>
-      <td style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
-        ${b.status !== 'confirmed' ? `
-          <button class="btn btn-primary" style="padding: 4px 8px; font-size: 11px;" onclick="updateStatus('${b.id || b.booking_ref}', 'confirmed')">Confirm</button>
-        ` : `<span style="font-size: 12px; color: var(--gm-green-600);">✅ Done</span>`}
-        <a href="/api/bookings/${b.booking_ref}/invoice" target="_blank"
-           style="padding: 4px 8px; font-size: 11px; background: #1D4ED8; color: white; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 3px;">
-          📄 PDF
-        </a>
-        <button class="btn" style="padding: 4px 8px; font-size: 11px; background: #16A34A; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;"
-          onclick="sendInvoiceWhatsApp('${b.booking_ref}', '${b.customer_phone}')">
-          📲 WhatsApp
-        </button>
+      <td>
+        ${b.status !== 'confirmed' && b.status !== 'completed' ? `
+          <button class="btn btn-primary" style="padding: 5px 10px; font-size: 11px; white-space: nowrap;" onclick="updateStatus('${b.id || b.booking_ref}', 'confirmed')">✓ Confirm</button>
+        ` : `<span style="font-size: 12px; color: #16A34A; font-weight: 600;">✅ Confirmed</span>`}
+      </td>
+      <td>
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+          <a href="/api/bookings/${b.booking_ref}/invoice" target="_blank"
+             style="padding: 5px 10px; font-size: 11px; background: #1D4ED8; color: white; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">
+            📄 View PDF
+          </a>
+          <button style="padding: 5px 10px; font-size: 11px; background: #15803D; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; white-space: nowrap;"
+            onclick="sendInvoiceWhatsApp('${b.booking_ref}', '${b.customer_phone}')">
+            📲 Send via WA
+          </button>
+        </div>
       </td>
     </tr>
   `).join('');

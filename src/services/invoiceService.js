@@ -1,313 +1,268 @@
 /**
- * GoMate PDF Invoice & Receipt Generator
- * Generates bilingual (Marathi + English) professional PDF invoices
- * for machinery rental bookings — with UPI QR, GoMate guarantee stamp,
- * and itemised cost breakdown.
+ * GoMate PDF Invoice & Receipt Generator — v2
+ * Bilingual (Marathi + English) professional A4 invoice
+ * with itemised breakdown, GoMate guarantee, and UPI payment details.
  */
 
 const PDFDocument = require('pdfkit');
-const path = require('path');
-const fs = require('fs');
 
-// Ensure invoices directory exists
-const INVOICES_DIR = path.join(__dirname, '../../public/invoices');
-if (!fs.existsSync(INVOICES_DIR)) {
-  fs.mkdirSync(INVOICES_DIR, { recursive: true });
-}
-
-/**
- * Brand colours & layout constants
- */
 const BRAND = {
   green: '#16A34A',
   darkGreen: '#14532D',
+  lightGreen: '#DCFCE7',
   orange: '#D97706',
   slate: '#0F172A',
   slateLight: '#334155',
   gray: '#64748B',
-  grayLight: '#F1F5F9',
+  grayBg: '#F8FAFC',
+  lineColor: '#E2E8F0',
   red: '#DC2626',
   white: '#FFFFFF',
-  lineColor: '#E2E8F0',
+  blue: '#1D4ED8',
 };
 
-/**
- * Generate a PDF invoice Buffer for a booking
- * @param {object} booking - Booking record
- * @returns {Promise<Buffer>} - PDF buffer
- */
 function generateInvoicePDF(booking) {
   return new Promise((resolve, reject) => {
     try {
-      const doc = new PDFDocument({
-        size: 'A4',
-        margin: 0,
-        info: {
-          Title: `GoMate Invoice ${booking.booking_ref}`,
-          Author: 'GoMate AgriTech Platform',
-          Subject: 'Machinery Rental Invoice',
-        }
-      });
+      const doc = new PDFDocument({ size: 'A4', margin: 0, info: {
+        Title: `GoMate Invoice ${booking.booking_ref}`,
+        Author: 'GoMate AgriTech Platform',
+        Subject: 'Machinery Rental Invoice'
+      }});
 
       const chunks = [];
-      doc.on('data', chunk => chunks.push(chunk));
+      doc.on('data', c => chunks.push(c));
       doc.on('end', () => resolve(Buffer.concat(chunks)));
       doc.on('error', reject);
 
-      const W = 595.28; // A4 width in points
-      const M = 40;     // Side margin
+      const W = 595.28;
+      const M = 44;
+      const contentW = W - M * 2;
 
-      // ─── HEADER BLOCK ────────────────────────────────────────────────────
-      // Green top bar
-      doc.rect(0, 0, W, 90).fill(BRAND.green);
+      // ── GREEN HEADER ──────────────────────────────────────────────────────
+      doc.rect(0, 0, W, 110).fill(BRAND.green);
 
-      // GoMate logo text
-      doc.fillColor(BRAND.white)
-         .font('Helvetica-Bold')
-         .fontSize(26)
-         .text('GoMate', M, 22, { continued: true })
-         .font('Helvetica')
-         .fontSize(13)
-         .fillColor('#BBF7D0')
-         .text('  •  शेतीसाठी मशिनरी भाडे सेवा');
+      // Brand name
+      doc.fillColor(BRAND.white).font('Helvetica-Bold').fontSize(30)
+         .text('GoMate', M, 20);
 
-      doc.fillColor('#D1FAE5')
-         .font('Helvetica')
-         .fontSize(10)
-         .text('Jath Taluka, Sangli District, Maharashtra — 416404', M, 52);
+      // Tagline
+      doc.fillColor('#BBF7D0').font('Helvetica').fontSize(11)
+         .text('शेतकऱ्यांसाठी मशिनरी भाडे सेवा  •  Machinery Rental for Farmers', M, 56);
 
-      doc.fillColor('#D1FAE5')
-         .fontSize(9)
-         .text('📞 +91 98220 12345   |   🌐 gomate.in   |   ✉ support@gomate.in', M, 68);
+      // Contact strip
+      doc.fillColor('#D1FAE5').font('Helvetica').fontSize(9)
+         .text('gomate.in  |  +91 98220 12345  |  support@gomate.in  |  Jath Taluka, Sangli, MH – 416404', M, 74);
 
-      // INVOICE label on right
-      doc.fillColor(BRAND.white)
-         .font('Helvetica-Bold')
-         .fontSize(22)
-         .text('INVOICE', W - M - 110, 24, { width: 110, align: 'right' });
+      // "INVOICE" label — top right
+      doc.fillColor(BRAND.white).font('Helvetica-Bold').fontSize(28)
+         .text('INVOICE', 0, 22, { align: 'right', width: W - M });
+      doc.fillColor('#BBF7D0').font('Helvetica').fontSize(9)
+         .text('TAX INVOICE / अधिकृत पावती', 0, 56, { align: 'right', width: W - M });
 
-      doc.fillColor('#BBF7D0')
-         .font('Helvetica')
-         .fontSize(9)
-         .text('TAX INVOICE / पावती', W - M - 110, 52, { width: 110, align: 'right' });
+      // ── BOOKING REF STRIPE ─────────────────────────────────────────────
+      doc.rect(0, 110, W, 36).fill(BRAND.slate);
 
-      // ─── BOOKING REF BANNER ──────────────────────────────────────────────
-      doc.rect(0, 90, W, 38).fill(BRAND.slate);
+      const refDate = new Date(booking.created_at || Date.now())
+        .toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
 
-      doc.fillColor(BRAND.white)
-         .font('Helvetica-Bold')
-         .fontSize(11)
-         .text(`Booking Ref: ${booking.booking_ref || 'GM-XXXX'}`, M, 103, { continued: true });
+      doc.fillColor(BRAND.white).font('Helvetica-Bold').fontSize(12)
+         .text(`Ref: ${booking.booking_ref}`, M, 122, { continued: true });
+      doc.fillColor('#94A3B8').font('Helvetica').fontSize(11)
+         .text(`   ·   Invoice Date: ${refDate}`, { continued: true });
 
-      doc.fillColor('#94A3B8')
-         .font('Helvetica')
-         .fontSize(10)
-         .text(`   |   Date: ${new Date(booking.created_at || Date.now()).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}`, { continued: true });
+      const statusLabel = (booking.status || 'CONFIRMED').toUpperCase();
+      const statusCol = booking.status === 'completed' ? '#4ADE80' :
+                        booking.status === 'confirmed' ? '#86EFAC' : '#FCD34D';
+      doc.fillColor(statusCol).font('Helvetica-Bold').fontSize(11)
+         .text(`   ·   ${statusLabel}`);
 
-      const statusColor = booking.status === 'confirmed' ? '#4ADE80' :
-                          booking.status === 'completed' ? '#34D399' : '#FCD34D';
-      doc.fillColor(statusColor)
-         .font('Helvetica-Bold')
-         .fontSize(10)
-         .text(`   |   Status: ${(booking.status || 'CONFIRMED').toUpperCase()}`);
+      let y = 165;
 
-      let y = 148;
+      // ── PARTIES BLOCK ──────────────────────────────────────────────────
+      const halfW = contentW / 2 - 10;
+      const rightX = M + halfW + 20;
 
-      // ─── BILLING PARTIES ─────────────────────────────────────────────────
-      // Customer (left)
-      doc.fillColor(BRAND.slateLight)
-         .font('Helvetica-Bold')
-         .fontSize(9)
-         .text('BILLED TO (शेतकरी / Customer)', M, y);
+      // Left — Customer
+      doc.rect(M, y, halfW, 82).fill(BRAND.grayBg).stroke(BRAND.lineColor);
 
-      doc.fillColor(BRAND.slate)
-         .font('Helvetica-Bold')
-         .fontSize(13)
-         .text(booking.customer_name || 'Farmer Customer', M, y + 14);
+      doc.fillColor(BRAND.gray).font('Helvetica-Bold').fontSize(8)
+         .text('BILLED TO  ·  शेतकरी / Customer', M + 12, y + 10);
+      doc.fillColor(BRAND.slate).font('Helvetica-Bold').fontSize(14)
+         .text(booking.customer_name || 'Farmer Customer', M + 12, y + 24, { width: halfW - 20 });
+      doc.fillColor(BRAND.gray).font('Helvetica').fontSize(10)
+         .text(`📱 ${booking.customer_phone || '+91 XXXXXXXXXX'}`, M + 12, y + 44)
+         .text(`📍 ${booking.village || 'Jath Taluka'}, Sangli District`, M + 12, y + 58);
 
-      doc.fillColor(BRAND.gray)
-         .font('Helvetica')
-         .fontSize(10)
-         .text(`📱 ${booking.customer_phone || '+91 XXXXXXXXXX'}`, M, y + 32)
-         .text(`📍 ${booking.village || 'Jath Taluka'}, Sangli`, M, y + 46);
+      // Right — Owner
+      doc.rect(rightX, y, halfW, 82).fill(BRAND.grayBg).stroke(BRAND.lineColor);
 
-      // Owner / Service Provider (right)
-      const rightX = W / 2 + 10;
-      doc.fillColor(BRAND.slateLight)
-         .font('Helvetica-Bold')
-         .fontSize(9)
-         .text('SERVICE PROVIDER (मशिनरी मालक)', rightX, y);
+      doc.fillColor(BRAND.gray).font('Helvetica-Bold').fontSize(8)
+         .text('SERVICE BY  ·  मशिनरी मालक', rightX + 12, y + 10);
+      doc.fillColor(BRAND.slate).font('Helvetica-Bold').fontSize(14)
+         .text(booking.owner_name || 'Rajesh Patil', rightX + 12, y + 24, { width: halfW - 20 });
+      doc.fillColor(BRAND.gray).font('Helvetica').fontSize(10)
+         .text(`📱 ${booking.owner_phone || '+919822012345'}`, rightX + 12, y + 44);
+      doc.fillColor(BRAND.green).font('Helvetica-Bold').fontSize(9)
+         .text('✅ GoMate Verified Owner Pro', rightX + 12, y + 60);
 
-      doc.fillColor(BRAND.slate)
-         .font('Helvetica-Bold')
-         .fontSize(13)
-         .text(booking.owner_name || 'Rajesh Patil', rightX, y + 14);
+      y += 98;
 
-      doc.fillColor(BRAND.gray)
-         .font('Helvetica')
-         .fontSize(10)
-         .text(`📱 ${booking.owner_phone || '+91 98220 12345'}`, rightX, y + 32)
-         .text(`🚜 GoMate Verified Owner Pro ✓`, rightX, y + 46);
+      // ── WORK SUMMARY BOX ───────────────────────────────────────────────
+      doc.rect(M, y, contentW, 66).fill(BRAND.lightGreen).stroke(BRAND.green);
 
-      // Divider
-      y += 80;
-      doc.moveTo(M, y).lineTo(W - M, y).strokeColor(BRAND.lineColor).lineWidth(1).stroke();
-      y += 14;
+      doc.fillColor(BRAND.darkGreen).font('Helvetica-Bold').fontSize(9)
+         .text('WORK / SERVICE DETAILS  ·  काम व सेवा तपशील', M + 14, y + 10);
 
-      // ─── EQUIPMENT & SERVICE DETAILS ─────────────────────────────────────
-      doc.fillColor(BRAND.slateLight)
-         .font('Helvetica-Bold')
-         .fontSize(9)
-         .text('MACHINERY & SERVICE DETAILS (मशिनरी व सेवा तपशील)', M, y);
-
-      y += 14;
-      doc.rect(M, y, W - M * 2, 58).fill(BRAND.grayLight).stroke(BRAND.lineColor);
-
-      doc.fillColor(BRAND.slate)
-         .font('Helvetica-Bold')
-         .fontSize(12)
-         .text(booking.equipment_name || 'Mahindra 575 DI (45 HP) Tractor', M + 12, y + 10);
-
-      const attachment = booking.attachment || 'Rotavator (6-ft)';
-      const hours = booking.hours_booked || booking.duration_hours || 6;
-      const village = booking.village || 'Shegaon';
       const workDate = new Date(booking.work_date || booking.created_at || Date.now())
-                         .toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+        .toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
 
-      doc.fillColor(BRAND.gray)
-         .font('Helvetica')
-         .fontSize(10)
-         .text(`Attachment / अवजार: ${attachment}   |   Work Date: ${workDate}`, M + 12, y + 28)
-         .text(`Work Location: ${village}, Jath Taluka   |   Duration: ${hours} Hours`, M + 12, y + 42);
+      doc.fillColor(BRAND.slate).font('Helvetica-Bold').fontSize(13)
+         .text(booking.equipment_name || 'Mahindra 575 DI (45 HP) Tractor', M + 14, y + 24, { width: contentW * 0.6 });
 
-      y += 74;
+      // Right side work info
+      doc.fillColor(BRAND.slateLight).font('Helvetica').fontSize(10)
+         .text(`Attachment:  ${booking.attachment || 'Rotavator (6-ft)'}`, M + 14, y + 42)
+         .text(`Work Date:  ${workDate}   ·   Duration:  ${booking.hours_booked || 6} Hours   ·   Location:  ${booking.village || 'Shegaon'}, Jath`, M + 14, y + 55);
 
-      // ─── COST BREAKDOWN TABLE ─────────────────────────────────────────────
-      doc.fillColor(BRAND.slateLight)
-         .font('Helvetica-Bold')
-         .fontSize(9)
-         .text('ITEMISED COST BREAKDOWN (खर्चाचा तपशील)', M, y);
+      y += 82;
 
-      y += 12;
+      // ── ITEMISED TABLE ─────────────────────────────────────────────────
+      doc.fillColor(BRAND.slateLight).font('Helvetica-Bold').fontSize(9)
+         .text('ITEMISED COST BREAKDOWN  ·  खर्चाचा तपशील', M, y + 2);
+      y += 16;
 
-      // Table header
-      doc.rect(M, y, W - M * 2, 24).fill(BRAND.slate);
+      // Table Header
+      doc.rect(M, y, contentW, 26).fill(BRAND.slate);
       doc.fillColor(BRAND.white).font('Helvetica-Bold').fontSize(9);
-      doc.text('Description', M + 10, y + 8, { width: 230 });
-      doc.text('Qty / Hrs', M + 250, y + 8, { width: 80, align: 'center' });
-      doc.text('Rate (₹)', M + 340, y + 8, { width: 80, align: 'right' });
-      doc.text('Amount (₹)', M + 420, y + 8, { width: W - M * 2 - 420, align: 'right' });
+      doc.text('Description  (सेवेचे नाव)', M + 12, y + 9, { width: contentW * 0.46 });
+      doc.text('Qty / Hrs', M + contentW * 0.48, y + 9, { width: 60, align: 'center' });
+      doc.text('Rate (₹)', M + contentW * 0.63, y + 9, { width: 70, align: 'right' });
+      doc.text('Amount (₹)', M + contentW * 0.79, y + 9, { width: contentW * 0.21, align: 'right' });
 
-      y += 24;
+      y += 26;
 
-      const hourlyRate = booking.hourly_rate || 800;
-      const grossAmount = hourlyRate * hours;
-      const platformFee = Math.round(grossAmount * 0.08); // 8% platform fee
-      const gstOnFee = Math.round(platformFee * 0.18);   // 18% GST on platform fee
-      const totalAmount = grossAmount + platformFee + gstOnFee;
+      const hours = booking.hours_booked || 6;
+      const rate = booking.hourly_rate || 800;
+      const gross = rate * hours;
+      const platformFee = Math.round(gross * 0.08);
+      const gst = Math.round(platformFee * 0.18);
+      const total = gross + platformFee + gst;
 
-      const lineItems = [
-        { desc: `${booking.equipment_name || 'Tractor'} — Rental Charges`, descMr: 'यंत्र भाडे शुल्क', qty: `${hours} hrs`, rate: hourlyRate, amount: grossAmount },
-        { desc: attachment, descMr: 'अवजार व ऑपरेटर', qty: `${hours} hrs`, rate: 0, amount: 0, note: 'Included' },
-        { desc: 'GoMate Platform Service Fee (8%)', descMr: 'सेवा शुल्क', qty: '—', rate: 0, amount: platformFee },
-        { desc: 'GST @ 18% on Service Fee', descMr: 'जीएसटी', qty: '—', rate: 0, amount: gstOnFee },
+      const items = [
+        {
+          desc: `${booking.equipment_name || 'Tractor'} — Machinery Rental`,
+          descMr: 'यंत्र भाडे (Hourly Rate × Hours Worked)',
+          qty: `${hours} hrs`,
+          rate: `₹${rate.toLocaleString('en-IN')}/hr`,
+          amount: `₹${gross.toLocaleString('en-IN')}`,
+          amtColor: BRAND.slate,
+          bg: BRAND.white
+        },
+        {
+          desc: `${booking.attachment || 'Attachment & Operator'}`,
+          descMr: 'अवजार व ड्रायव्हर शुल्क — भाड्यात समाविष्ट',
+          qty: `${hours} hrs`,
+          rate: '—',
+          amount: 'INCLUDED',
+          amtColor: BRAND.green,
+          bg: BRAND.grayBg
+        },
+        {
+          desc: 'GoMate Platform Service Fee  (8%)',
+          descMr: 'गोमेट सेवा शुल्क — बुकिंग व गॅरंटी',
+          qty: '—',
+          rate: '8% of rental',
+          amount: `₹${platformFee.toLocaleString('en-IN')}`,
+          amtColor: BRAND.slate,
+          bg: BRAND.white
+        },
+        {
+          desc: 'GST on Service Fee  (18%)',
+          descMr: 'जीएसटी — GSTIN: 27AAGCG1234P1Z9',
+          qty: '—',
+          rate: '18% of fee',
+          amount: `₹${gst.toLocaleString('en-IN')}`,
+          amtColor: BRAND.slate,
+          bg: BRAND.grayBg
+        },
       ];
 
-      lineItems.forEach((item, idx) => {
-        const rowY = y + idx * 26;
-        if (idx % 2 === 0) {
-          doc.rect(M, rowY, W - M * 2, 26).fill('#F8FAFC').stroke(BRAND.lineColor);
-        } else {
-          doc.rect(M, rowY, W - M * 2, 26).fill(BRAND.white).stroke(BRAND.lineColor);
-        }
+      items.forEach((item, i) => {
+        const rowH = 32;
+        doc.rect(M, y, contentW, rowH).fill(item.bg).stroke(BRAND.lineColor);
 
-        doc.fillColor(BRAND.slate).font('Helvetica').fontSize(9)
-           .text(item.desc, M + 10, rowY + 8, { width: 230 });
-        doc.fillColor(BRAND.gray).fontSize(8)
-           .text(item.descMr, M + 10, rowY + 18, { width: 230 });
+        doc.fillColor(BRAND.slate).font('Helvetica-Bold').fontSize(10)
+           .text(item.desc, M + 12, y + 5, { width: contentW * 0.44 });
+        doc.fillColor(BRAND.gray).font('Helvetica').fontSize(8)
+           .text(item.descMr, M + 12, y + 18, { width: contentW * 0.44 });
 
         doc.fillColor(BRAND.slateLight).font('Helvetica').fontSize(10)
-           .text(item.note || item.qty, M + 250, rowY + 9, { width: 80, align: 'center' });
+           .text(item.qty, M + contentW * 0.48, y + 11, { width: 60, align: 'center' });
+        doc.fillColor(BRAND.gray).font('Helvetica').fontSize(9)
+           .text(item.rate, M + contentW * 0.63, y + 11, { width: 70, align: 'right' });
+        doc.fillColor(item.amtColor).font('Helvetica-Bold').fontSize(10)
+           .text(item.amount, M + contentW * 0.79, y + 11, { width: contentW * 0.21, align: 'right' });
 
-        if (item.rate > 0) {
-          doc.fillColor(BRAND.slateLight).font('Helvetica').fontSize(10)
-             .text(`₹${item.rate.toLocaleString('en-IN')}`, M + 340, rowY + 9, { width: 80, align: 'right' });
-        }
-
-        const amtStr = item.note ? 'INCLUDED' : `₹${item.amount.toLocaleString('en-IN')}`;
-        doc.fillColor(item.note ? BRAND.green : BRAND.slate).font('Helvetica-Bold').fontSize(10)
-           .text(amtStr, M + 420, rowY + 9, { width: W - M * 2 - 420, align: 'right' });
+        y += rowH;
       });
 
-      y += lineItems.length * 26 + 2;
+      // Sub-divider
+      doc.moveTo(M, y).lineTo(M + contentW, y).strokeColor(BRAND.lineColor).lineWidth(1).stroke();
+      y += 2;
 
-      // Total Row
-      doc.rect(M, y, W - M * 2, 34).fill(BRAND.slate);
-      doc.fillColor(BRAND.white)
-         .font('Helvetica-Bold')
-         .fontSize(13)
-         .text('TOTAL AMOUNT DUE', M + 10, y + 10, { width: 300 });
-      doc.fillColor('#4ADE80')
-         .font('Helvetica-Bold')
-         .fontSize(15)
-         .text(`₹${totalAmount.toLocaleString('en-IN')}`, M + 310, y + 9, { width: W - M * 2 - 320, align: 'right' });
+      // Subtotal row
+      doc.rect(M, y, contentW, 24).fill('#EFF6FF');
+      doc.fillColor(BRAND.blue).font('Helvetica-Bold').fontSize(10)
+         .text('Sub-total (Rental + Fees):', M + 12, y + 7, { width: contentW * 0.7 });
+      doc.fillColor(BRAND.slate).font('Helvetica-Bold').fontSize(11)
+         .text(`₹${total.toLocaleString('en-IN')}`, M, y + 7, { width: contentW + M - 12, align: 'right' });
+      y += 24;
 
-      y += 50;
+      // Total row
+      doc.rect(M, y, contentW, 40).fill(BRAND.slate);
+      doc.fillColor(BRAND.white).font('Helvetica-Bold').fontSize(14)
+         .text('TOTAL AMOUNT DUE  ·  एकूण देय रक्कम', M + 12, y + 12, { width: contentW * 0.6 });
+      doc.fillColor('#4ADE80').font('Helvetica-Bold').fontSize(18)
+         .text(`₹${total.toLocaleString('en-IN')}`, M, y + 10, { width: contentW + M - 12, align: 'right' });
+      y += 55;
 
-      // ─── PAYMENT & GUARANTEE SECTION ─────────────────────────────────────
-      // Left: Payment info
-      doc.fillColor(BRAND.slateLight)
-         .font('Helvetica-Bold')
-         .fontSize(9)
-         .text('PAYMENT METHOD (पेमेंट)', M, y);
+      // ── PAYMENT + GUARANTEE ─────────────────────────────────────────────
+      const colW = (contentW - 16) / 2;
 
-      doc.fillColor(BRAND.slate)
-         .font('Helvetica')
-         .fontSize(10)
-         .text('UPI: gomate@upi', M, y + 14)
-         .text('GPay / PhonePe / Paytm accepted', M, y + 28)
-         .text('A/C: 1234567890  •  IFSC: HDFC0001234', M, y + 42);
+      // Payment box (left)
+      doc.rect(M, y, colW, 90).fill(BRAND.grayBg).stroke(BRAND.lineColor);
+      doc.fillColor(BRAND.slateLight).font('Helvetica-Bold').fontSize(9)
+         .text('PAYMENT METHODS  ·  पेमेंट पर्याय', M + 12, y + 12);
+      doc.fillColor(BRAND.slate).font('Helvetica').fontSize(10)
+         .text('UPI ID:  gomate@upi', M + 12, y + 28)
+         .text('GPay / PhonePe / Paytm accepted', M + 12, y + 42)
+         .text('Bank: HDFC Bank', M + 12, y + 56)
+         .text('A/C: 1234567890  ·  IFSC: HDFC0001234', M + 12, y + 70);
 
-      // Right: GoMate Guarantee Box
-      const gBoxX = W / 2 + 10;
-      doc.rect(gBoxX, y, W - M - gBoxX, 80).fill('#F0FDF4').stroke(BRAND.green);
+      // Guarantee box (right)
+      const gX = M + colW + 16;
+      doc.rect(gX, y, colW, 90).fill('#F0FDF4').stroke(BRAND.green);
+      doc.fillColor(BRAND.darkGreen).font('Helvetica-Bold').fontSize(9)
+         .text('GOMATE QUALITY GUARANTEE  ·  गुणवत्ता हमी', gX + 12, y + 12);
+      doc.fillColor(BRAND.slateLight).font('Helvetica').fontSize(9)
+         .text("Backed by GoMate's Farmer Protection Policy. If the machinery did not arrive within 30 minutes of the scheduled ETA, you qualify for a full refund.", gX + 12, y + 28, { width: colW - 24 });
+      doc.fillColor(BRAND.green).font('Helvetica-Bold').fontSize(9)
+         .text('Helpline: +91 98220 12345  (8AM – 8PM)', gX + 12, y + 72);
 
-      doc.fillColor(BRAND.darkGreen)
-         .font('Helvetica-Bold')
-         .fontSize(10)
-         .text('✅ GoMate Quality Guarantee', gBoxX + 10, y + 10);
+      y += 106;
 
-      doc.fillColor(BRAND.slateLight)
-         .font('Helvetica')
-         .fontSize(8.5)
-         .text("This booking is backed by GoMate's Farmer Protection Guarantee. If the machinery did not arrive within 30 minutes of the ETA, you are eligible for a full refund.", gBoxX + 10, y + 26, { width: W - M - gBoxX - 20 });
-
-      doc.fillColor(BRAND.green)
-         .font('Helvetica-Bold')
-         .fontSize(8)
-         .text('📞 Helpline: +91 98220 12345 (8AM – 8PM)', gBoxX + 10, y + 64);
-
-      y += 96;
-
-      // ─── FOOTER ──────────────────────────────────────────────────────────
-      doc.moveTo(M, y).lineTo(W - M, y).strokeColor(BRAND.lineColor).lineWidth(1).stroke();
+      // ── FOOTER ──────────────────────────────────────────────────────────
+      doc.moveTo(M, y).lineTo(M + contentW, y).strokeColor(BRAND.lineColor).lineWidth(1).stroke();
       y += 10;
+      doc.fillColor(BRAND.gray).font('Helvetica').fontSize(8.5)
+         .text('Thank you for choosing GoMate!  •  GoMate वर विश्वास ठेवल्याबद्दल धन्यवाद!', 0, y, { align: 'center', width: W });
+      doc.fillColor(BRAND.gray).font('Helvetica').fontSize(7.5)
+         .text('This is a computer-generated invoice. No physical signature required.  |  GSTIN: 27AAGCG1234P1Z9  |  CIN: U01400MH2026PTC12345', 0, y + 13, { align: 'center', width: W });
 
-      doc.fillColor(BRAND.gray)
-         .font('Helvetica')
-         .fontSize(8.5)
-         .text('Thank you for choosing GoMate! • GoMate वर विश्वास ठेवल्याबद्दल धन्यवाद!', M, y, { align: 'center', width: W - M * 2 });
-
-      doc.fillColor(BRAND.gray)
-         .fontSize(7.5)
-         .text('This is a computer-generated invoice and does not require a physical signature. | GSTIN: 27AAGCG1234P1Z9', M, y + 14, { align: 'center', width: W - M * 2 });
-
-      // Green bottom accent
-      doc.rect(0, 820, W, 21.89).fill(BRAND.green);
-      doc.fillColor(BRAND.white)
-         .font('Helvetica-Bold')
-         .fontSize(8)
-         .text('GoMate AgriTech Platform  •  Jath Taluka  •  Powered by Gemini AI', 0, 825, { align: 'center', width: W });
+      doc.rect(0, 820, W, 22).fill(BRAND.green);
+      doc.fillColor(BRAND.white).font('Helvetica-Bold').fontSize(8.5)
+         .text('GoMate AgriTech Platform  ·  Jath Taluka, Sangli  ·  Powered by Gemini AI  ·  gomate.in', 0, 826, { align: 'center', width: W });
 
       doc.end();
     } catch (err) {
@@ -316,9 +271,6 @@ function generateInvoicePDF(booking) {
   });
 }
 
-/**
- * Build a standardised booking object with sensible defaults
- */
 function normaliseBooking(raw) {
   return {
     booking_ref: raw.booking_ref || raw.ref || `GM-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
