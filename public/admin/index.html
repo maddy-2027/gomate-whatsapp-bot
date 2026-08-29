@@ -355,11 +355,21 @@
                 </div>
 
                 <div>
-                  <label style="font-size: 12px; font-weight: 700; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">4. Message Content (मराठी मजकूर)</label>
-                  <textarea id="bcMessageText" class="gm-input" rows="8" style="font-family: var(--gm-font-body); font-size: 13px; line-height: 1.5;" oninput="updatePreviewBubble()"></textarea>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <label style="font-size: 12px; font-weight: 700; color: var(--gm-gray-700);">4. Message Content (मराठी मजकूर)</label>
+                    <span id="charCount" style="font-size: 11px; color: var(--gm-gray-500); font-family: var(--gm-font-mono);">0 chars</span>
+                  </div>
+                  <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;">
+                    <button type="button" class="gm-btn gm-btn-outline" style="font-size: 11px; padding: 4px 8px; border-radius: 6px;" onclick="applyQuickTemplate('kharif_ploughing')">🌾 Kharif Tractor</button>
+                    <button type="button" class="gm-btn gm-btn-outline" style="font-size: 11px; padding: 4px 8px; border-radius: 6px;" onclick="applyQuickTemplate('pomegranate_grape_spray')">🍇 Drone Spray</button>
+                    <button type="button" class="gm-btn gm-btn-outline" style="font-size: 11px; padding: 4px 8px; border-radius: 6px;" onclick="applyQuickTemplate('sugarcane_harvesting')">🚚 Sugarcane</button>
+                    <button type="button" class="gm-btn gm-btn-outline" style="font-size: 11px; padding: 4px 8px; border-radius: 6px;" onclick="applyQuickTemplate('owner_recruitment')">💼 Owner Trial</button>
+                    <button type="button" class="gm-btn gm-btn-outline" style="font-size: 11px; padding: 4px 8px; border-radius: 6px;" onclick="applyQuickTemplate('emergency_weather')">⚠️ Weather Alert</button>
+                  </div>
+                  <textarea id="bcMessageText" class="gm-input" rows="8" style="font-family: var(--gm-font-body); font-size: 13px; line-height: 1.5; width: 100%; box-sizing: border-box;" oninput="updatePreviewBubble()"></textarea>
                 </div>
 
-                <button onclick="sendBroadcast()" id="bcSendBtn" class="gm-btn gm-btn-primary" style="padding: 12px; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <button onclick="sendBroadcast()" id="bcSendBtn" class="gm-btn gm-btn-primary" style="padding: 12px; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;">
                   <span>🚀</span> <span>Broadcast on WhatsApp (प्रसारित करा)</span>
                 </button>
               </div>

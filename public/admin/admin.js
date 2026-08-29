@@ -332,19 +332,32 @@ async function loadBroadcastData() {
 
 function onTemplateChange() {
   const selectedId = document.getElementById('bcTemplate').value;
-  const tmpl = broadcastTemplates.find(t => t.id === selectedId);
+  applyQuickTemplate(selectedId);
+}
+
+function applyQuickTemplate(templateId) {
+  const tmpl = broadcastTemplates.find(t => t.id === templateId);
   if (tmpl) {
+    const select = document.getElementById('bcTemplate');
+    if (select) select.value = templateId;
     document.getElementById('bcMessageText').value = tmpl.messageMr;
     if (tmpl.target) {
       document.getElementById('bcTarget').value = tmpl.target;
     }
     updatePreviewBubble();
+    updateBroadcastPreview();
   }
 }
 
 function updatePreviewBubble() {
   const text = document.getElementById('bcMessageText').value || '';
   const bubble = document.getElementById('bcPreviewBubble');
+  const charCount = document.getElementById('charCount');
+  
+  if (charCount) {
+    charCount.textContent = `${text.length} chars`;
+  }
+
   if (bubble) {
     let formatted = text
       .replace(/\*([^\*]+)\*/g, '<strong>$1</strong>')
