@@ -78,6 +78,10 @@
           <span class="icon">🚨</span>
           <span>Breakdown SOS</span>
         </button>
+        <button class="nav-item" onclick="switchTab('fleet')">
+          <span class="icon">🗺️</span>
+          <span>Fleet Dispatch</span>
+        </button>
       </nav>
 
       <div class="sidebar-footer">
@@ -621,6 +625,128 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Fleet Route Optimizer & Dispatch Tab -->
+  <div id="tab-fleet" class="view-panel" style="display:none;">
+    <!-- KPI Row -->
+    <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); margin-bottom: 24px;">
+      <div class="kpi-card" style="border-top: 3px solid #F59E0B;">
+        <div class="kpi-header"><span>Pending Dispatch</span><span style="font-size:16px;">⏳</span></div>
+        <div class="kpi-value" id="fleetPendingCount">-</div>
+        <div class="kpi-footer">Bookings awaiting machine</div>
+      </div>
+      <div class="kpi-card" style="border-top: 3px solid #10B981;">
+        <div class="kpi-header"><span>Idle Machines</span><span style="font-size:16px;">🚜</span></div>
+        <div class="kpi-value" id="fleetIdleCount">6</div>
+        <div class="kpi-footer">Ready for dispatch across Jath</div>
+      </div>
+      <div class="kpi-card" style="border-top: 3px solid #2563EB;">
+        <div class="kpi-header"><span>Dispatched Today</span><span style="font-size:16px;">✅</span></div>
+        <div class="kpi-value" id="fleetDispatchedToday">0</div>
+        <div class="kpi-footer">Machines assigned & en route</div>
+      </div>
+      <div class="kpi-card" style="border-top: 3px solid #6366F1;">
+        <div class="kpi-header"><span>Avg Route ETA</span><span style="font-size:16px;">⏱️</span></div>
+        <div class="kpi-value" id="fleetAvgEta">-</div>
+        <div class="kpi-footer">Across Jath Taluka</div>
+      </div>
+    </div>
+
+    <!-- Pending Bookings Table -->
+    <div class="data-card" style="margin-bottom: 24px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+        <div>
+          <h3 style="font-size:16px; font-weight:700; margin:0;">Pending Booking Dispatch Queue</h3>
+          <p style="font-size:12px; color:var(--gm-gray-600); margin:2px 0 0;">Click "Find & Assign" to auto-route nearest idle machine to any booking</p>
+        </div>
+        <button onclick="loadFleetPending()" class="gm-btn gm-btn-outline" style="padding:6px 12px; font-size:12px;">🔄 Refresh Queue</button>
+      </div>
+      <div class="table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Booking Ref</th>
+              <th>Equipment Type</th>
+              <th>Farm Location</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Nearest Machine</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="fleetPendingTableBody">
+            <tr><td colspan="7" style="text-align:center; padding:20px; color:var(--gm-gray-500);">Loading dispatch queue...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Assignment Audit Log -->
+    <div class="data-card">
+      <h3 style="font-size:15px; font-weight:700; margin:0 0 14px;">Dispatch Assignment Log</h3>
+      <div class="table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Booking Ref</th>
+              <th>Machine Assigned</th>
+              <th>Driver</th>
+              <th>Farm Village</th>
+              <th>Distance</th>
+              <th>ETA</th>
+              <th>Assigned At</th>
+            </tr>
+          </thead>
+          <tbody id="fleetAssignLogBody">
+            <tr><td colspan="7" style="text-align:center; padding:20px; color:var(--gm-gray-500);">No assignments yet. Assign a booking above.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fleet Assign Modal -->
+  <div id="fleetAssignModal" class="modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:12px; padding:28px; max-width:560px; width:94%; max-height:90vh; overflow-y:auto;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+        <h2 style="font-size:17px; font-weight:800; margin:0; color:#0F172A;">🗺️ Route Optimizer — Assign Machine</h2>
+        <button onclick="closeFleetModal()" style="background:none; border:none; font-size:20px; cursor:pointer; color:#64748B;">&times;</button>
+      </div>
+
+      <!-- Booking Summary -->
+      <div id="fleetModalBookingSummary" style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:14px; margin-bottom:16px; font-size:13px;">
+        Loading...
+      </div>
+
+      <!-- Nearest Machines List -->
+      <h4 style="font-size:13px; font-weight:700; margin:0 0 10px; color:#0F172A;">Top-4 Nearest Idle Machines (Ranked by ETA)</h4>
+      <div id="fleetNearestMachines" style="display:flex; flex-direction:column; gap:10px; margin-bottom:18px;">
+        <div style="text-align:center; padding:16px; color:#94A3B8;">Calculating nearest machines...</div>
+      </div>
+
+      <!-- Driver Override -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+        <div>
+          <label style="font-size:11px; font-weight:700; color:#475569; display:block; margin-bottom:4px;">Driver Name (Optional Override)</label>
+          <input type="text" id="fleetDriverName" class="gm-input" placeholder="राजेश पाटील" style="font-size:13px;">
+        </div>
+        <div>
+          <label style="font-size:11px; font-weight:700; color:#475569; display:block; margin-bottom:4px;">Driver Phone</label>
+          <input type="text" id="fleetDriverPhone" class="gm-input" placeholder="+919822012345" style="font-size:13px;">
+        </div>
+      </div>
+
+      <!-- WhatsApp Preview -->
+      <div id="fleetWaPreview" style="display:none; background:#DCF8C6; border-radius:10px; padding:14px; font-size:12px; line-height:1.7; margin-bottom:16px; white-space:pre-wrap; font-family:monospace; color:#1B4332;"></div>
+
+      <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button onclick="closeFleetModal()" class="gm-btn gm-btn-outline" style="padding:8px 16px; font-size:13px;">Cancel</button>
+        <button id="fleetDispatchBtn" onclick="confirmFleetAssignment()" class="gm-btn gm-btn-primary" style="padding:8px 18px; font-size:13px; font-weight:700;" disabled>
+          🚜 Dispatch Machine & Send WhatsApp
+        </button>
+      </div>
     </div>
   </div>
 

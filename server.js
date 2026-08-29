@@ -1119,6 +1119,56 @@ app.get('/payment-success', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'demo-payment.html'));
 });
 
+// =============================================================
+// Admin Fleet Route Optimizer & Dispatch Endpoints
+// =============================================================
+const fleetRouteService = require('./src/services/fleetRouteService');
+
+/** GET /api/admin/fleet/pending — all bookings needing a machine assignment */
+app.get('/api/admin/fleet/pending', async (req, res) => {
+  try {
+    const bookings = await fleetRouteService.getPendingUnassignedBookings();
+    res.json({ success: true, bookings, count: bookings.length });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+/** GET /api/admin/fleet/nearest — top-4 nearest idle machines to a location */
+app.get('/api/admin/fleet/nearest', async (req, res) => {
+  try {
+    const { location, equipment_type } = req.query;
+    if (!location) return res.status(400).json({ error: 'location query param required' });
+    const machines = await fleetRouteService.findNearestIdleMachines(location, equipment_type || 'tractor');
+    res.json({ success: true, machines, nearest_machine: machines[0] || null });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+/** POST /api/admin/fleet/assign — assign a machine + driver and send WhatsApp dispatch */
+app.post('/api/admin/fleet/assign', async (req, res) => {
+  try {
+    const { booking_ref, machine_id, machine_model, driver_name, driver_phone, farmer_phone, farmer_village, eta_minutes, distance_km, equipment_type } = req.body;
+    if (!booking_ref || !machine_model) return res.status(400).json({ error: 'booking_ref and machine_model required' });
+    const result = await fleetRouteService.assignMachineToBooking({
+      bookingRef: booking_ref, machineId: machine_id, machineModel: machine_model,
+      driverName: driver_name, driverPhone: driver_phone, farmerPhone: farmer_phone,
+      farmerVillage: farmer_village, etaMinutes: eta_minutes, distanceKm: distance_km,
+      equipmentType: equipment_type
+    });
+    res.json(result);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+/** GET /api/admin/fleet/log — full assignment audit log */
+app.get('/api/admin/fleet/log', (req, res) => {
+  const log = fleetRouteService.getAssignmentLog();
+  res.json({ success: true, log, count: log.length });
+});
+
 app.use((err, req, res, next) => { console.error(err.stack); res.status(500).send('Something broke!'); });
 
 app.listen(port, '0.0.0.0', () => {

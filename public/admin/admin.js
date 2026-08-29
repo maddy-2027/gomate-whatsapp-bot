@@ -296,6 +296,9 @@ function switchTab(tabId) {
     loadHeatmapData();
   } else if (tabId === 'sos') {
     loadSosData();
+  } else if (tabId === 'fleet') {
+    loadFleetPending();
+    loadFleetAssignLog();
   }
 }
 
@@ -711,4 +714,260 @@ async function handleManualSosSubmit(e) {
   } catch (err) {
     alert('सर्व्हर त्रुटी: ' + err.message);
   }
+}
+
+// ==========================================================================
+// Fleet Route Optimizer & Dispatch — Client Logic
+// ==========================================================================
+let fleetCurrentBooking = null;
+let fleetSelectedMachine = null;
+let fleetDispatchedCount = 0;
+
+async function loadFleetPending() {
+  try {
+    const res = await fetch('/api/admin/fleet/pending', {
+      headers: { 'Authorization': `Bearer ${adminAuthToken}` }
+    });
+    const data = await res.json();
+    const bookings = data.bookings || [];
+
+    // Update KPI
+    const el = document.getElementById('fleetPendingCount');
+    if (el) el.textContent = bookings.length;
+
+    const tbody = document.getElementById('fleetPendingTableBody');
+    if (!tbody) return;
+
+    if (bookings.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px; color:#94A3B8;">All bookings are assigned. Fleet fully dispatched!</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = bookings.map(b => `
+      <tr>
+        <td><strong>${b.ref}</strong></td>
+        <td>${b.equipment_type}</td>
+        <td>📍 ${b.location}</td>
+        <td>${b.start_date} (${b.duration_days}d)</td>
+        <td><span class="badge badge-${b.status}">${b.status}</span></td>
+        <td id="nearest-${b.ref}" style="font-size:11px; color:#64748B;">—</td>
+        <td>
+          <button onclick="openFleetAssignModal('${b.ref}', '${b.equipment_type}', '${b.location}', '${b.customer_phone}')"
+            class="gm-btn gm-btn-primary"
+            style="padding:4px 10px; font-size:11px; font-weight:700;">
+            🗺️ Find & Assign
+          </button>
+        </td>
+      </tr>
+    `).join('');
+
+    // Background: pre-fetch nearest for each booking and fill cell
+    bookings.forEach(async b => {
+      try {
+        const nr = await fetch(`/api/admin/fleet/nearest?location=${encodeURIComponent(b.location)}&equipment_type=${encodeURIComponent(b.equipment_type)}`);
+        const nd = await nr.json();
+        const nearest = nd.nearest_machine;
+        const cell = document.getElementById(`nearest-${b.ref}`);
+        if (cell && nearest) {
+          cell.innerHTML = `<strong>${nearest.model}</strong><br>${nearest.distance_km} km · ${nearest.eta_minutes} min`;
+          cell.style.color = '#0F172A';
+        }
+      } catch {}
+    });
+
+    // Update avg ETA KPI
+    updateFleetAvgEta(bookings);
+  } catch (err) {
+    console.error('Fleet pending load error:', err);
+  }
+}
+
+async function updateFleetAvgEta(bookings) {
+  try {
+    if (!bookings.length) return;
+    const first = bookings[0];
+    const res = await fetch(`/api/admin/fleet/nearest?location=${encodeURIComponent(first.location)}&equipment_type=${encodeURIComponent(first.equipment_type)}`);
+    const data = await res.json();
+    const nearest = data.nearest_machine;
+    const etaEl = document.getElementById('fleetAvgEta');
+    if (etaEl && nearest) etaEl.textContent = `${nearest.eta_minutes} min`;
+  } catch {}
+}
+
+async function openFleetAssignModal(bookingRef, equipmentType, location, farmerPhone) {
+  fleetCurrentBooking = { ref: bookingRef, equipment_type: equipmentType, location, farmer_phone: farmerPhone };
+  fleetSelectedMachine = null;
+
+  const modal = document.getElementById('fleetAssignModal');
+  modal.style.display = 'flex';
+  document.getElementById('fleetDispatchBtn').disabled = true;
+  document.getElementById('fleetWaPreview').style.display = 'none';
+  document.getElementById('fleetDriverName').value = '';
+  document.getElementById('fleetDriverPhone').value = '';
+
+  // Fill booking summary
+  document.getElementById('fleetModalBookingSummary').innerHTML = `
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+      <div><span style="font-size:11px; color:#64748B; font-weight:700;">BOOKING REF</span><br><strong>${bookingRef}</strong></div>
+      <div><span style="font-size:11px; color:#64748B; font-weight:700;">EQUIPMENT NEEDED</span><br><strong>${equipmentType}</strong></div>
+      <div><span style="font-size:11px; color:#64748B; font-weight:700;">FARM LOCATION</span><br><strong>📍 ${location}</strong></div>
+      <div><span style="font-size:11px; color:#64748B; font-weight:700;">FARMER PHONE</span><br><strong>${farmerPhone}</strong></div>
+    </div>
+  `;
+
+  // Load nearest machines
+  document.getElementById('fleetNearestMachines').innerHTML =
+    '<div style="text-align:center; padding:16px; color:#94A3B8;">⏳ Calculating nearest machines via route engine...</div>';
+
+  try {
+    const res = await fetch(`/api/admin/fleet/nearest?location=${encodeURIComponent(location)}&equipment_type=${encodeURIComponent(equipmentType)}`);
+    const data = await res.json();
+    const machines = data.machines || [];
+
+    if (machines.length === 0) {
+      document.getElementById('fleetNearestMachines').innerHTML =
+        '<div style="text-align:center; padding:16px; color:#EF4444;">No idle machines found near this location.</div>';
+      return;
+    }
+
+    document.getElementById('fleetNearestMachines').innerHTML = machines.map((m, i) => `
+      <div id="machine-card-${m.id}"
+        onclick="selectFleetMachine(${JSON.stringify(m).replace(/"/g, '&quot;')})"
+        style="border:2px solid ${i===0 ? '#2563EB' : '#E2E8F0'}; border-radius:8px; padding:12px; cursor:pointer; background:${i===0 ? '#EFF6FF' : '#F8FAFC'}; transition:all 0.15s;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:4px;">
+          <div>
+            <strong style="font-size:13.5px; color:#0F172A;">${m.model}</strong>
+            ${i===0 ? '<span style="background:#2563EB; color:#fff; font-size:10px; font-weight:700; padding:1px 6px; border-radius:10px; margin-left:6px;">NEAREST</span>' : ''}
+          </div>
+          <strong style="font-size:13px; color:#15803D;">₹${m.price_per_day.toLocaleString('en-IN')}/day</strong>
+        </div>
+        <div style="font-size:12px; color:#475569;">
+          👤 ${m.owner_name} &nbsp;|&nbsp; 📍 Hub: ${m.hub}
+        </div>
+        <div style="font-size:12px; margin-top:6px; display:flex; gap:16px;">
+          <span style="color:#2563EB; font-weight:700;">📏 ${m.distance_km} km</span>
+          <span style="color:#D97706; font-weight:700;">⏱️ ${m.eta_minutes} min ETA</span>
+        </div>
+      </div>
+    `).join('');
+
+    // Auto-select nearest
+    selectFleetMachine(machines[0]);
+  } catch (err) {
+    document.getElementById('fleetNearestMachines').innerHTML =
+      `<div style="color:#EF4444;">Error loading machines: ${err.message}</div>`;
+  }
+}
+
+function selectFleetMachine(machine) {
+  fleetSelectedMachine = machine;
+
+  // Reset all card borders
+  document.querySelectorAll('[id^="machine-card-"]').forEach(el => {
+    el.style.border = '2px solid #E2E8F0';
+    el.style.background = '#F8FAFC';
+  });
+
+  // Highlight selected
+  const card = document.getElementById(`machine-card-${machine.id}`);
+  if (card) {
+    card.style.border = '2px solid #16A34A';
+    card.style.background = '#F0FDF4';
+  }
+
+  // Pre-fill driver name
+  document.getElementById('fleetDriverName').value = machine.owner_name || '';
+  document.getElementById('fleetDriverPhone').value = '+919822012345';
+
+  // Show WhatsApp preview
+  const farmerMsg = `नमस्कार! बुकिंग *${fleetCurrentBooking.ref}* साठी यंत्र निश्चित झाले:\n\nयंत्र: ${machine.model}\nचालक: ${machine.owner_name}\nअंतर: ${machine.distance_km} किमी | वेळ: ${machine.eta_minutes} मिनिटे\n\nGoMate Support: 1800-123-4567`;
+  const preview = document.getElementById('fleetWaPreview');
+  preview.textContent = farmerMsg;
+  preview.style.display = 'block';
+
+  document.getElementById('fleetDispatchBtn').disabled = false;
+}
+
+async function confirmFleetAssignment() {
+  if (!fleetCurrentBooking || !fleetSelectedMachine) return;
+
+  const driverName = document.getElementById('fleetDriverName').value || fleetSelectedMachine.owner_name;
+  const driverPhone = document.getElementById('fleetDriverPhone').value || '+919822012345';
+
+  document.getElementById('fleetDispatchBtn').disabled = true;
+  document.getElementById('fleetDispatchBtn').textContent = 'Dispatching...';
+
+  try {
+    const res = await fetch('/api/admin/fleet/assign', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminAuthToken}` },
+      body: JSON.stringify({
+        booking_ref: fleetCurrentBooking.ref,
+        machine_id: fleetSelectedMachine.id,
+        machine_model: fleetSelectedMachine.model,
+        driver_name: driverName,
+        driver_phone: driverPhone,
+        farmer_phone: fleetCurrentBooking.farmer_phone,
+        farmer_village: fleetCurrentBooking.location,
+        eta_minutes: fleetSelectedMachine.eta_minutes,
+        distance_km: fleetSelectedMachine.distance_km,
+        equipment_type: fleetCurrentBooking.equipment_type,
+      })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      fleetDispatchedCount++;
+      const dispatchedEl = document.getElementById('fleetDispatchedToday');
+      if (dispatchedEl) dispatchedEl.textContent = fleetDispatchedCount;
+
+      closeFleetModal();
+      alert(`✅ यंत्र यशस्वीरित्या डिस्पॅच झाले!\n\nबुकिंग: ${data.booking_ref}\nयंत्र: ${data.machine_model}\nचालक: ${data.driver_name}\nETA: ${data.eta_minutes} मिनिटे\n\nWhatsApp notifications sent to farmer & owner.`);
+      loadFleetPending();
+      loadFleetAssignLog();
+    } else {
+      alert('Dispatch failed: ' + (data.error || 'Unknown error'));
+    }
+  } catch (err) {
+    alert('Network error: ' + err.message);
+  } finally {
+    document.getElementById('fleetDispatchBtn').disabled = false;
+    document.getElementById('fleetDispatchBtn').textContent = '🚜 Dispatch Machine & Send WhatsApp';
+  }
+}
+
+async function loadFleetAssignLog() {
+  try {
+    const res = await fetch('/api/admin/fleet/log', {
+      headers: { 'Authorization': `Bearer ${adminAuthToken}` }
+    });
+    const data = await res.json();
+    const log = data.log || [];
+    const tbody = document.getElementById('fleetAssignLogBody');
+    if (!tbody) return;
+
+    if (log.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px; color:#94A3B8;">No assignments yet. Assign a booking above.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = log.slice().reverse().map(a => `
+      <tr>
+        <td><strong>${a.booking_ref}</strong></td>
+        <td>${a.machine_model}</td>
+        <td>${a.driver_name}</td>
+        <td>📍 ${a.farmer_village}</td>
+        <td>${a.distance_km} km</td>
+        <td><span style="color:#D97706; font-weight:700;">${a.eta_minutes} min</span></td>
+        <td style="font-size:11px; color:#64748B;">${new Date(a.assigned_at).toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'})}</td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    console.error('Fleet log error:', err);
+  }
+}
+
+function closeFleetModal() {
+  document.getElementById('fleetAssignModal').style.display = 'none';
+  fleetSelectedMachine = null;
 }
