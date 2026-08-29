@@ -308,6 +308,49 @@
     </div>
   </div>
 
+  <!-- Marathi Voice Note Simulation Modal -->
+  <div id="voiceModal" class="qr-modal-overlay">
+    <div class="qr-modal-card" style="max-width: 480px;">
+      <button class="qr-close-btn" onclick="closeVoiceModal()">✕</button>
+      
+      <div style="font-size: 32px; margin-bottom: 8px;">🎙️</div>
+      <h2 style="font-size: 18px; font-weight: 800; color: #0F172A; margin-bottom: 4px;">WhatsApp Voice Note (मराठी व्हॉइस ऑडिओ)</h2>
+      <p style="font-size: 12px; color: #64748B; line-height: 1.4; margin-bottom: 16px;">
+        Gemini 2.5 Flash understands authentic spoken Marathi, Hindi, and English voice notes from farmers. Choose a real voice sample below to simulate:
+      </p>
+
+      <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;">
+        <button class="gm-btn gm-btn-outline" style="text-align: left; padding: 10px 12px; font-size: 12px; display: flex; align-items: center; justify-content: space-between; border-color: #CBD5E1;" onclick="sendVoiceSimulation('मला उद्या सकाळी शेगावला रोटाव्हेटरसाठी ट्रॅक्टर हवाय')">
+          <span>🗣️ <em>"मला उद्या सकाळी शेगावला रोटाव्हेटरसाठी ट्रॅक्टर हवाय"</em></span>
+          <span style="color: #16A34A; font-weight: 700; font-size: 11px;">Send ▶</span>
+        </button>
+
+        <button class="gm-btn gm-btn-outline" style="text-align: left; padding: 10px 12px; font-size: 12px; display: flex; align-items: center; justify-content: space-between; border-color: #CBD5E1;" onclick="sendVoiceSimulation('जत मध्ये २ दिवसांसाठी जेसीबी पाहिजे')">
+          <span>🗣️ <em>"जत मध्ये २ दिवसांसाठी जेसीबी पाहिजे"</em></span>
+          <span style="color: #16A34A; font-weight: 700; font-size: 11px;">Send ▶</span>
+        </button>
+
+        <button class="gm-btn gm-btn-outline" style="text-align: left; padding: 10px 12px; font-size: 12px; display: flex; align-items: center; justify-content: space-between; border-color: #CBD5E1;" onclick="sendVoiceSimulation('डाळिंब बागेत औषध फवारणीसाठी ड्रोनचा दर काय आहे?')">
+          <span>🗣️ <em>"डाळिंब बागेत औषध फवारणीसाठी ड्रोनचा दर काय आहे?"</em></span>
+          <span style="color: #16A34A; font-weight: 700; font-size: 11px;">Send ▶</span>
+        </button>
+
+        <button class="gm-btn gm-btn-outline" style="text-align: left; padding: 10px 12px; font-size: 12px; display: flex; align-items: center; justify-content: space-between; border-color: #CBD5E1;" onclick="sendVoiceSimulation('मला माझी महिंद्रा ट्रॅक्टर गोमेटवर लिस्ट करायची आहे')">
+          <span>🗣️ <em>"मला माझी महिंद्रा ट्रॅक्टर गोमेटवर लिस्ट करायची आहे"</em></span>
+          <span style="color: #16A34A; font-weight: 700; font-size: 11px;">Send ▶</span>
+        </button>
+      </div>
+
+      <div style="border-top: 1px solid #E2E8F0; padding-top: 12px; text-align: left;">
+        <label style="font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase;">Custom Voice Input:</label>
+        <div style="display: flex; gap: 6px; margin-top: 6px;">
+          <input type="text" id="customVoiceInput" class="gm-input" placeholder="Type custom spoken sentence in Marathi..." style="font-size: 12px; padding: 8px 12px;" />
+          <button class="gm-btn gm-btn-primary" style="padding: 8px 14px; font-size: 12px; flex-shrink: 0;" onclick="sendCustomVoice()">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Top Tool Bar -->
   <header class="sim-top-nav">
     <div style="display: flex; align-items: center; gap: 12px;">
@@ -414,15 +457,18 @@
 
       <!-- Chat Input Form -->
       <form class="chat-input-row" onsubmit="handleSend(event)">
+        <button type="button" onclick="openVoiceModal()" class="gm-btn" style="border-radius: 50%; width: 40px; height: 40px; padding: 0; background: #e11d48; color: #fff; flex-shrink: 0;" title="Send Marathi Voice Note (व्हॉइस मेसेज)">
+          🎙️
+        </button>
         <input 
           type="text" 
           id="messageInput" 
           class="gm-input" 
-          placeholder="Type message or reply (e.g. '1', 'tractor in Pune', '0')..." 
+          placeholder="Type message or click 🎙️ for Voice Note..." 
           style="border-radius: 20px; padding: 10px 16px;" 
           autocomplete="off"
         />
-        <button type="submit" class="gm-btn gm-btn-primary" style="border-radius: 50%; width: 40px; height: 40px; padding: 0;">
+        <button type="submit" class="gm-btn gm-btn-primary" style="border-radius: 50%; width: 40px; height: 40px; padding: 0; flex-shrink: 0;">
           ➤
         </button>
       </form>
@@ -569,6 +615,48 @@
       } catch (err) {
         appendMessage('bot', '⚠️ Connection error. Please retry.');
       }
+    }
+
+    function openVoiceModal() {
+      document.getElementById('voiceModal').classList.add('active');
+    }
+
+    function closeVoiceModal() {
+      document.getElementById('voiceModal').classList.remove('active');
+    }
+
+    async function sendVoiceSimulation(spokenText) {
+      closeVoiceModal();
+      appendMessage('user', `🎙️ [ऑडिओ व्हॉइस संदेश]: "${spokenText}"`);
+
+      try {
+        const res = await fetch('/api/simulator/send-voice', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: activePhone, simulatedText: spokenText })
+        });
+        const data = await res.json();
+        
+        if (data.voiceAck) {
+          appendMessage('bot', data.voiceAck);
+        }
+        if (data.reply) {
+          appendMessage('bot', data.reply);
+        }
+        if (data.session) {
+          document.getElementById('flowStateBadge').textContent = data.session.state || 'IDLE';
+          document.getElementById('jsonPayload').textContent = JSON.stringify(data.session, null, 2);
+        }
+      } catch (err) {
+        appendMessage('bot', '⚠️ Voice processing error. Please retry.');
+      }
+    }
+
+    function sendCustomVoice() {
+      const val = document.getElementById('customVoiceInput').value.trim();
+      if (!val) return;
+      document.getElementById('customVoiceInput').value = '';
+      sendVoiceSimulation(val);
     }
 
     function sendQuick(txt) {

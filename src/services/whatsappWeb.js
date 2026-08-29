@@ -1,7 +1,7 @@
 // Ensure TLS connections succeed across local Windows network environments
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-const { makeWASocket, useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = require('@whiskeysockets/baileys');
+const { makeWASocket, useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion, downloadMediaMessage } = require('@whiskeysockets/baileys');
 const pino = require('pino');
 const qrcode = require('qrcode');
 const qrcodeTerminal = require('qrcode-terminal');
@@ -144,6 +144,25 @@ async function initWhatsAppWeb(onQrCallback, onReadyCallback) {
             const lng = msg.message.locationMessage?.degreesLongitude;
             body = `GPS_LOCATION:${lat},${lng}`;
             console.log(`📍 Real GPS location received: ${lat}, ${lng}`);
+          } else if (msgType === 'audioMessage') {
+            console.log(`🎙️ Real WhatsApp Voice Note received from ${from}`);
+            const { processVoiceNote, formatVoiceAcknowledgment } = require('./voiceService');
+            try {
+              const buffer = await downloadMediaMessage(msg, 'buffer', {});
+              const mimeType = msg.message.audioMessage?.mimetype || 'audio/ogg';
+              const rawNumber = from.replace('@s.whatsapp.net', '').replace(/:\d+/, '');
+              const userPhone = '+' + rawNumber;
+              const session = getSession(userPhone);
+
+              const voiceResult = await processVoiceNote(buffer, mimeType, userPhone, session);
+              if (voiceResult && voiceResult.transcript) {
+                const ackMsg = formatVoiceAcknowledgment(voiceResult);
+                await waSocket.sendMessage(from, { text: ackMsg });
+                body = voiceResult.action_text || voiceResult.transcript;
+              }
+            } catch (audioErr) {
+              console.warn('⚠️ [Baileys] Voice note download error:', audioErr.message);
+            }
           }
 
           body = (body || '').trim();

@@ -535,6 +535,62 @@ app.post('/api/simulator/send', async (req, res) => {
   }
 });
 
+// Simulator Voice Note Processing Endpoint
+app.post('/api/simulator/send-voice', async (req, res) => {
+  try {
+    const { phone, audio, mimeType, simulatedText } = req.body;
+    if (!phone) return res.status(400).json({ error: 'Phone is required' });
+
+    const session = getSession(phone);
+    const { processVoiceNote, formatVoiceAcknowledgment } = require('./src/services/voiceService');
+
+    let voiceResult = null;
+    if (audio) {
+      voiceResult = await processVoiceNote(audio, mimeType || 'audio/ogg', phone, session);
+    } else if (simulatedText) {
+      voiceResult = {
+        success: true,
+        transcript: simulatedText,
+        language: session.language || 'mr',
+        intent: 'book_equipment',
+        action_text: simulatedText
+      };
+    } else {
+      voiceResult = {
+        success: true,
+        transcript: 'मला जत तालुक्यात शेगावला रोटाव्हेटरसाठी ट्रॅक्टर हवा आहे.',
+        language: 'mr',
+        intent: 'book_equipment',
+        equipment: 'Tractor',
+        service: 'Rotavator',
+        village: 'Jath',
+        action_text: '1'
+      };
+    }
+
+    const voiceAck = formatVoiceAcknowledgment(voiceResult);
+    const textToRoute = voiceResult.action_text || voiceResult.transcript;
+    const botReply = await routeMessage(phone, textToRoute, session);
+
+    res.json({
+      success: true,
+      phone,
+      voiceResult,
+      voiceAck,
+      reply: botReply,
+      session: {
+        state: session.state,
+        language: session.language,
+        role: session.role,
+        data: session.data
+      }
+    });
+  } catch (err) {
+    console.error('Voice simulator error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.post('/api/simulator/reset', (req, res) => {
   const { phone } = req.body;
   if (!phone) return res.status(400).json({ error: 'Phone is required' });

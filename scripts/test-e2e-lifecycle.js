@@ -246,6 +246,20 @@ async function runE2ETests() {
   assert(aiQuery.ok && aiQuery.data.reply.length > 20, 'Gemini 3.5 AI returned accurate WhatsApp formatted advice');
 
   // -------------------------------------------------------------
+  // Phase 7: WhatsApp Voice Note & Multimodal Audio Processing
+  // -------------------------------------------------------------
+  console.log('\n--- Phase 7: WhatsApp Voice Note (Audio) Processing ---');
+  const voiceTest = await request('/api/simulator/send-voice', {
+    method: 'POST',
+    body: JSON.stringify({
+      phone: '+919876500088',
+      simulatedText: 'मला उद्या सकाळी शेगावला रोटाव्हेटरसाठी ट्रॅक्टर हवाय'
+    })
+  });
+  assert(voiceTest.ok && voiceTest.data.voiceAck.includes('व्हॉट्सअ‍ॅप ऑडिओ'), 'Voice Note transcribed and acknowledged with Marathi audio badge');
+  assert(voiceTest.ok && voiceTest.data.reply.length > 0, 'Voice Note automatically routed and generated catalog/booking response');
+
+  // -------------------------------------------------------------
   // Test Summary
   // -------------------------------------------------------------
   console.log('\n===============================================================');
