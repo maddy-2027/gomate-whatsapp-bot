@@ -241,7 +241,8 @@ function switchTab(tabId) {
     equipment: ['Equipment Fleet Directory', '16 canonical machinery types listed across Maharashtra'],
     owners: ['Machinery Owners & Subscriptions', '₹599/month subscription status and listings health'],
     revenue: ['Revenue & Platform Financials', 'Subscription MRR and equipment rental volume'],
-    broadcast: ['WhatsApp Seasonal Broadcast Center', 'Targeted agricultural announcements and seasonal demand alerts']
+    broadcast: ['WhatsApp Seasonal Broadcast Center', 'Targeted agricultural announcements and seasonal demand alerts'],
+    heatmap: ['Taluka Demand Heatmap & Fleet Deficit', 'Live demand density and machinery shortage alerts across Jath Taluka']
   };
 
   const currentBtn = Array.from(document.querySelectorAll('.nav-item')).find(b => b.textContent.toLowerCase().includes(tabId));
@@ -257,6 +258,8 @@ function switchTab(tabId) {
 
   if (tabId === 'broadcast') {
     loadBroadcastData();
+  } else if (tabId === 'heatmap') {
+    loadHeatmapData();
   }
 }
 
@@ -444,4 +447,84 @@ function renderBroadcastHistory() {
       <td>${new Date(b.sentAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</td>
     </tr>
   `).join('');
+}
+
+// ==========================================================================
+// Taluka Demand Heatmap & Fleet Deficit Management
+// ==========================================================================
+let heatmapData = {
+  clusters: [],
+  deficitAlerts: []
+};
+
+async function loadHeatmapData() {
+  try {
+    const res = await fetch('/api/admin/heatmap', {
+      headers: { 'Authorization': `Bearer ${adminAuthToken}` }
+    });
+    if (!res.ok) throw new Error('Failed to load heatmap');
+    const data = await res.json();
+    heatmapData = data;
+    renderHeatmap();
+  } catch (err) {
+    console.error('Error loading heatmap metrics:', err);
+  }
+}
+
+function renderHeatmap() {
+  const clusters = heatmapData.clusters || [];
+  const alerts = heatmapData.deficitAlerts || [];
+
+  if (document.getElementById('heatTotalDemand')) {
+    document.getElementById('heatTotalDemand').textContent = heatmapData.totalDemand || 149;
+  }
+  if (document.getElementById('heatTotalFleet')) {
+    document.getElementById('heatTotalFleet').textContent = heatmapData.totalListings || 93;
+  }
+  if (document.getElementById('heatDeficitCount')) {
+    const deficits = clusters.filter(c => c.status === 'CRITICAL_DEFICIT').length;
+    document.getElementById('heatDeficitCount').textContent = `${deficits} Clusters`;
+  }
+
+  // Render Alert Banner Text
+  const alertTextEl = document.getElementById('heatmapAlertText');
+  if (alertTextEl && alerts.length > 0) {
+    alertTextEl.innerHTML = alerts.map(a => a.alertMr.replace(/\*\*([^\*]+)\*\*/g, '<strong>$1</strong>')).join('<br>');
+  }
+
+  // Render Cluster Table
+  const tbody = document.getElementById('heatmapTableBody');
+  if (!tbody) return;
+
+  tbody.innerHTML = clusters.map(c => {
+    let statusBadge = '<span class="gm-badge gm-badge-success">BALANCED (संतुलित)</span>';
+    if (c.status === 'CRITICAL_DEFICIT') {
+      statusBadge = '<span class="gm-badge gm-badge-danger" style="background: #FEE2E2; color: #DC2626; font-weight: 700;">🔴 DEFICIT (तुटवडा)</span>';
+    } else if (c.status === 'SURPLUS') {
+      statusBadge = '<span class="gm-badge gm-badge-info">🟢 SURPLUS (अतिरिक्त)</span>';
+    }
+
+    return `
+      <tr>
+        <td>
+          <div style="font-weight: 700; color: #0F172A;">${c.nameMr}</div>
+          <div style="font-size: 11px; color: var(--gm-gray-500);">${c.name}</div>
+        </td>
+        <td>${c.coverageVillages} गावे</td>
+        <td><strong style="font-family: var(--gm-font-mono); font-size: 14px;">${c.demandCount}</strong> मागण्या</td>
+        <td><strong style="font-family: var(--gm-font-mono); font-size: 14px;">${c.activeListings}</strong> युनिट्स</td>
+        <td>${statusBadge}</td>
+        <td><span style="font-weight: 600; color: #D97706;">🚜 ${c.topNeededEquipment}</span></td>
+        <td>
+          ${c.status === 'CRITICAL_DEFICIT' ? `
+            <button onclick="switchTab('broadcast')" class="gm-btn gm-btn-primary" style="padding: 4px 8px; font-size: 11px;">
+              📢 अलर्ट पाठवा
+            </button>
+          ` : `
+            <span style="font-size: 12px; color: var(--gm-gray-500);">ऑप्टिमम</span>
+          `}
+        </td>
+      </tr>
+    `;
+  }).join('');
 }

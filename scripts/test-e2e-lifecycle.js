@@ -331,6 +331,16 @@ async function runE2ETests() {
   assert(ownerReviewsRes.ok && ownerReviewsRes.data.averageRating >= 4.5, `Owner reputation updated to ⭐ ${ownerReviewsRes.data.averageRating}/5`);
 
   // -------------------------------------------------------------
+  // Phase 12: Taluka Demand Heatmap & Fleet Deficit Engine
+  // -------------------------------------------------------------
+  console.log('\n--- Phase 12: Taluka Demand Heatmap & Fleet Deficit ---');
+  const heatRes = await request('/api/admin/heatmap', {
+    headers: { Authorization: `Bearer ${adminToken}` }
+  });
+  assert(heatRes.ok && heatRes.data.clusters.length >= 6, `Admin HQ computed demand density for all ${heatRes.data.clusters.length} Jath clusters`);
+  assert(heatRes.ok && heatRes.data.deficitAlerts.length > 0, `Fleet deficit alert generated: ${heatRes.data.deficitAlerts[0].clusterName}`);
+
+  // -------------------------------------------------------------
   // Test Summary
   // -------------------------------------------------------------
   console.log('\n===============================================================');

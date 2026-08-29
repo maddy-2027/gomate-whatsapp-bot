@@ -70,6 +70,10 @@
           <span class="icon">📢</span>
           <span>WhatsApp Broadcasts</span>
         </button>
+        <button class="nav-item" onclick="switchTab('heatmap')">
+          <span class="icon">🗺️</span>
+          <span>Demand Heatmap</span>
+        </button>
       </nav>
 
       <div class="sidebar-footer">
@@ -408,6 +412,74 @@
                   </tr>
                 </thead>
                 <tbody id="bcHistoryTableBody">
+                  <!-- Populated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 7: Taluka Demand Heatmap & Fleet Deficit Map -->
+        <div id="tab-heatmap" class="view-panel" style="display: none;">
+          <!-- Deficit Alert Banner -->
+          <div id="heatmapAlertBanner" style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 12px; padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: flex-start; gap: 14px;">
+            <div style="font-size: 24px; line-height: 1;">⚠️</div>
+            <div style="flex: 1;">
+              <h4 style="font-size: 15px; font-weight: 700; color: #991B1B; margin: 0 0 4px 0;">Fleet Deficit Warning — Jath Taluka (मशिनरी तुटवडा सूचना)</h4>
+              <p style="font-size: 13px; color: #B91C1C; margin: 0 0 8px 0;" id="heatmapAlertText">शेगाव व संख क्लस्टरमध्ये रब्बी पेरणीसाठी ट्रॅक्टर व रोटाव्हेटरची तीव्र कमतरता आहे.</p>
+              <button onclick="switchTab('broadcast')" class="gm-btn gm-btn-primary" style="font-size: 12px; padding: 6px 12px; background: #DC2626; border: none;">
+                📢 डफळापूरच्या अतिरिक्त मालकांना रिलोकेशन मेसेज पाठवा
+              </button>
+            </div>
+          </div>
+
+          <!-- Heatmap KPI Cards -->
+          <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr);">
+            <div class="kpi-card">
+              <div class="kpi-header"><span>Total Taluka Demand</span><span>📈</span></div>
+              <div class="kpi-value" id="heatTotalDemand">149</div>
+              <div class="kpi-footer">Inquiries & Bookings this week</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-header"><span>Active Fleet Stations</span><span>🚜</span></div>
+              <div class="kpi-value" id="heatTotalFleet">93</div>
+              <div class="kpi-footer">Available machinery units</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-header"><span>Deficit Clusters</span><span>🔴</span></div>
+              <div class="kpi-value" style="color: #DC2626;" id="heatDeficitCount">3</div>
+              <div class="kpi-footer">Shegaon, Sankh, Madgyal</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-header"><span>Fleet Utilization</span><span>⚡</span></div>
+              <div class="kpi-value" style="color: #16A34A;" id="heatUtilization">88%</div>
+              <div class="kpi-footer">Optimum seasonal load</div>
+            </div>
+          </div>
+
+          <!-- Cluster Demand Table & Cards -->
+          <div class="gm-card">
+            <div class="table-header-row">
+              <div>
+                <h3 style="font-size: 16px;">Jath Taluka Cluster Demand & Fleet Balance (125 Villages)</h3>
+                <p style="font-size: 12px; color: var(--gm-gray-600); margin: 2px 0 0 0;">Real-time balance of farmer rental demand vs machinery owner fleet density</p>
+              </div>
+            </div>
+
+            <div class="gm-table-container">
+              <table class="gm-table">
+                <thead>
+                  <tr>
+                    <th>क्लस्टर / पट्टा (Cluster)</th>
+                    <th>कव्हरेज (Villages)</th>
+                    <th>मागणी (Demand)</th>
+                    <th>उपलब्ध मशिनरी (Fleet)</th>
+                    <th>तुटवडा स्थिती (Status)</th>
+                    <th>सर्वाधिक मागणी असलेले उपकरण (Top In-Demand)</th>
+                    <th>कृती (Action)</th>
+                  </tr>
+                </thead>
+                <tbody id="heatmapTableBody">
                   <!-- Populated via JS -->
                 </tbody>
               </table>

@@ -175,6 +175,17 @@ app.post('/api/admin/broadcast', adminAuth, async (req, res) => {
   }
 });
 
+// Admin Taluka Demand Heatmap & Deficit Endpoint
+app.get('/api/admin/heatmap', adminAuth, async (req, res) => {
+  try {
+    const { getTalukaHeatmapMetrics } = require('./src/services/heatmapService');
+    const metrics = await getTalukaHeatmapMetrics();
+    res.json(metrics);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ==========================================
 // Jath Villages & Owner Self-Registration API
 // ==========================================
