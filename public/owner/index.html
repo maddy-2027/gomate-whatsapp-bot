@@ -268,22 +268,42 @@
         </div>
       </div>
 
-      <!-- Monthly P&L Export Banner -->
-      <div class="gm-card" style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); color: #FFFFFF; margin-bottom: 20px; padding: 18px 22px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
-          <div>
-            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-              <span style="font-size: 20px;">📊</span>
-              <h3 style="font-size: 16px; font-weight: 700; color: #FFFFFF; margin: 0;">मासिक नफा-तोटा अहवाल (Monthly P&L Statement)</h3>
-              <span class="gm-badge gm-badge-confirmed" style="font-size: 11px; background: #16A34A; color: #FFFFFF;">ऑगस्ट २०२६</span>
+      <!-- Monthly P&L Export Banner (High-Contrast Vibrant Theme) -->
+      <div style="background: linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 50%, #EFF6FF 100%); border: 2px solid #86EFAC; border-left: 6px solid #16A34A; border-radius: 14px; box-shadow: 0 4px 16px rgba(22, 163, 74, 0.12); margin-bottom: 24px; padding: 22px 26px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+          <div style="flex: 1; min-width: 280px;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap;">
+              <span style="font-size: 24px; line-height: 1;">📊</span>
+              <h3 style="font-size: 18px; font-weight: 800; color: #064E3B; margin: 0; letter-spacing: -0.2px;">मासिक नफा-तोटा अहवाल (Monthly P&L Statement)</h3>
+              <span style="background: #16A34A; color: #FFFFFF; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 20px; box-shadow: 0 2px 6px rgba(22, 163, 74, 0.3);">
+                📅 ऑगस्ट २०२६
+              </span>
             </div>
-            <p style="font-size: 12px; color: #94A3B8; margin: 0;">Automated monthly summary of tractor running hours, fuel ROI, and net profit ledger</p>
+            <p style="font-size: 13px; color: #334155; margin: 0 0 12px 0; font-weight: 500;">
+              आपल्या ट्रॅक्टर व मशिनरीचे एकूण भाडे, डिझेल खर्च, दुरुस्ती आणि निव्वळ नफ्याचा अधिकृत ताळेबंद.
+            </p>
+            <!-- Live Month Mini Summary Chips -->
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+              <span style="background: #FFFFFF; border: 1px solid #CBD5E1; color: #0F172A; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                💰 उत्पन्न: <span style="color: #16A34A;" id="pnlMiniGross">₹48,500</span>
+              </span>
+              <span style="background: #FFFFFF; border: 1px solid #FECACA; color: #991B1B; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                ⛽ डिझेल: <span style="color: #DC2626;" id="pnlMiniDiesel">₹14,250</span>
+              </span>
+              <span style="background: #DCFCE7; border: 1px solid #86EFAC; color: #14532D; font-size: 12px; font-weight: 800; padding: 5px 12px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                🌟 निव्वळ नफा: <span style="color: #15803D;" id="pnlMiniNet">+₹30,050 (62%)</span>
+              </span>
+            </div>
           </div>
-          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <a id="ownerPnlPdfLink" href="/api/owner/pnl/pdf" target="_blank" class="gm-btn gm-btn-outline" style="color: #FFFFFF; border-color: rgba(255,255,255,0.3); font-size: 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
+
+          <!-- Action Buttons -->
+          <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+            <a id="ownerPnlPdfLink" href="/api/owner/pnl/pdf" target="_blank" class="gm-btn" style="background: #FFFFFF; color: #1D4ED8; border: 2px solid #2563EB; font-size: 13px; font-weight: 700; padding: 10px 18px; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; box-shadow: 0 2px 6px rgba(37, 99, 235, 0.15); transition: all 0.2s ease;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
               📄 Download PDF Statement
             </a>
-            <button onclick="sendOwnerPnlWhatsApp()" class="gm-btn gm-btn-primary" style="font-size: 12px; background: #16A34A; border: none; display: inline-flex; align-items: center; gap: 6px;">
+            <button onclick="sendOwnerPnlWhatsApp()" class="gm-btn" style="background: #16A34A; color: #FFFFFF; border: none; font-size: 13px; font-weight: 700; padding: 10px 20px; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.35); transition: all 0.2s ease;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
               📲 WhatsApp वर अहवाल पाठवा
             </button>
           </div>

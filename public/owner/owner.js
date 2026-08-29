@@ -454,6 +454,21 @@ function renderExpenses() {
     document.getElementById('expAvgMileage').textContent = `${summary.avgDieselPerHour || 3.4} L/hr`;
   }
 
+  // Update Monthly P&L Banner Mini Summary Chips
+  if (document.getElementById('pnlMiniGross')) {
+    document.getElementById('pnlMiniGross').textContent = `₹${(summary.totalGross || 0).toLocaleString('en-IN')}`;
+  }
+  if (document.getElementById('pnlMiniDiesel')) {
+    document.getElementById('pnlMiniDiesel').textContent = `₹${(summary.totalDieselCost || 0).toLocaleString('en-IN')}`;
+  }
+  if (document.getElementById('pnlMiniNet')) {
+    document.getElementById('pnlMiniNet').textContent = `+₹${(summary.totalNetProfit || 0).toLocaleString('en-IN')} (${summary.profitMarginPercent || 0}%)`;
+  }
+  const pnlPdfBtn = document.getElementById('ownerPnlPdfLink');
+  if (pnlPdfBtn) {
+    pnlPdfBtn.href = `/api/owner/pnl/pdf?phone=${encodeURIComponent(currentOwnerPhone)}&month=2026-08`;
+  }
+
   // Render Logbook Table
   const tbody = document.getElementById('expensesTableBody');
   if (!tbody) return;
