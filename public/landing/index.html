@@ -15,9 +15,9 @@
 
   <!-- OpenGraph / Facebook / WhatsApp Share Preview -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://gomate.in/">
-  <meta property="og:title" content="GoMate — Book equipment in minutes">
-  <meta property="og:description" content="Rent Tractors, Harvesters, JCBs, and Trucks directly on WhatsApp. Zero booking commission for farmers, flat ₹599/mo for machinery owners.">
+  <meta property="og:url" content="https://gomate-whatsapp-bot.onrender.com/landing">
+  <meta property="og:title" content="GoMate — Book Equipment on WhatsApp in Minutes">
+  <meta property="og:description" content="Rent Tractors, Harvesters, JCBs, and Trucks directly on WhatsApp across Jath Taluka. Zero booking commission for farmers, flat ₹599/mo for machinery owners.">
   <meta property="og:image" content="/assets/brand/og-banner.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="675">
@@ -39,8 +39,8 @@
     "provider": {
       "@type": "Organization",
       "name": "GoMate",
-      "logo": "https://gomate.in/assets/brand/logo.svg",
-      "url": "https://gomate.in",
+      "logo": "https://gomate-whatsapp-bot.onrender.com/assets/brand/logo.svg",
+      "url": "https://gomate-whatsapp-bot.onrender.com",
       "description": "WhatsApp-based equipment rental marketplace connecting farmers and contractors with local machinery owners in India."
     },
     "areaServed": {
@@ -59,31 +59,45 @@
   }
   </script>
 
-  <link rel="stylesheet" href="/css/design-system.css">
-  <link rel="stylesheet" href="/css/landing.css">
+  <link rel="stylesheet" href="/css/design-system.css?v=3.1">
+  <link rel="stylesheet" href="/css/landing.css?v=3.1">
 </head>
 <body>
+
+  <!-- Live Village Machinery Ticker Banner -->
+  <div class="live-ticker-banner">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span class="ticker-pulse"></span>
+      <span><strong>थेट उपलब्धता (Live Fleet):</strong> १०५+ वाहने व अवजारे जत तालुक्यात तत्काळ उपलब्ध</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <span class="ticker-chip">📍 जत केंद्र (१४ ट्रॅक्टर)</span>
+      <span class="ticker-chip">📍 शेगाव (८ रोटाव्हेटर)</span>
+      <span class="ticker-chip">📍 संख (६ जे.सी.बी.)</span>
+      <span class="ticker-chip">📍 उमदी (५ ड्रोन)</span>
+      <span class="ticker-chip">📍 डफळापूर (९ ट्रान्सपोर्ट)</span>
+    </div>
+  </div>
 
   <!-- Navigation -->
   <nav class="landing-nav">
     <div class="nav-container">
-      <a href="/landing" style="display: flex; align-items: center; gap: 8px;">
+      <a href="/landing" style="display: flex; align-items: center; gap: 8px; text-decoration: none;">
         <img src="/assets/brand/logo.svg" alt="GoMate" style="height: 38px; display: block;">
       </a>
       <div class="nav-links">
         <a href="#how-it-works">How It Works</a>
+        <a href="#crop-calendar">Crop Guide</a>
+        <a href="#machinery">Fleet Catalog</a>
+        <a href="#reviews">Farmer Reviews</a>
         <a href="/hourly-booking.html" style="color: var(--gm-brand-navy); font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
           प्रति तास बुकिंग (Hourly)
         </a>
-        <a href="#machinery">Equipment Fleet</a>
-        <a href="/owner/register.html" style="color: var(--gm-green-700); font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7.5" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+        <a href="/owner/register.html" style="color: var(--gm-green-700); font-weight: 700;">
           मालक नोंदणी (0% Fee)
         </a>
         <a href="/owner/index.html" target="_blank" style="color: var(--gm-brand-navy); font-weight: 700;">Owner Pro &nearr;</a>
-        <a href="https://wa.me/17372508034?text=Hi%20GoMate" target="_blank" class="gm-btn gm-btn-primary">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        <a href="https://wa.me/17372508034?text=Hi%20GoMate" target="_blank" class="gm-btn gm-btn-primary" style="padding: 8px 16px; font-weight: 700;">
           Book on WhatsApp
         </a>
       </div>
@@ -94,28 +108,24 @@
   <header class="hero-section">
     <div class="hero-container">
       <div class="gm-verified-id" style="margin-bottom: 20px;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
-        Trilingual WhatsApp Marketplace &bull; Jath Pilot (PIN: 416404)
+        Trilingual WhatsApp Marketplace &bull; Jath Taluka Pilot (PIN: 416404)
       </div>
       <h1 class="hero-title">
         Rent Farm, Transport &amp; Construction Equipment <span>in Minutes</span>
       </h1>
       <p class="hero-subtitle">
-        Connect directly with verified local machinery operators across 125 villages in Jath on WhatsApp. Zero booking fees for farmers.
+        Connect directly with verified local machinery operators across 125 villages in Jath on WhatsApp. <strong>Zero booking commission for farmers!</strong>
       </p>
 
       <div class="hero-cta-group" style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-        <a href="/hourly-booking.html" class="gm-btn gm-btn-primary" style="padding: 14px 24px; font-size: 15px; background: var(--gm-brand-navy); border-color: var(--gm-brand-navy); gap: 8px;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-          प्रति तास बुकिंग (Hourly Booking)
+        <a href="https://wa.me/17372508034?text=Hi%20GoMate" target="_blank" class="gm-btn gm-btn-primary" style="padding: 14px 28px; font-size: 15px; font-weight: 700; background: #25D366; border-color: #20BA5A; color: #FFFFFF; text-decoration: none;">
+          WhatsApp वर लगेच बुक करा
         </a>
-        <a href="https://wa.me/17372508034?text=Hi%20GoMate" target="_blank" class="gm-btn gm-btn-primary" style="padding: 14px 24px; font-size: 15px; gap: 8px;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-          WhatsApp वर बोला
+        <a href="/hourly-booking.html" class="gm-btn gm-btn-primary" style="padding: 14px 24px; font-size: 15px; font-weight: 700; background: var(--gm-brand-navy); border-color: var(--gm-brand-navy); text-decoration: none;">
+          प्रति तास दर तपासा (Hourly Rates)
         </a>
-        <a href="/owner/register.html" class="gm-btn gm-btn-secondary" style="padding: 14px 24px; font-size: 15px; background: var(--gm-green-600); color: #FFFFFF; border-color: var(--gm-green-600); gap: 8px;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7.5" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
-          मालक नोंदणी (०% कमिशन)
+        <a href="/owner/register.html" class="gm-btn gm-btn-secondary" style="padding: 14px 24px; font-size: 15px; font-weight: 700; background: var(--gm-green-600); color: #FFFFFF; border-color: var(--gm-green-600); text-decoration: none;">
+          मशिनरी मालक नोंदणी (०% कमिशन)
         </a>
       </div>
     </div>
@@ -124,20 +134,20 @@
   <!-- Trust & Traction Strip -->
   <section class="stats-banner">
     <div class="stat-item">
-      <h3>16</h3>
-      <p>Canonical Equipment Types</p>
+      <h3>105+</h3>
+      <p>Verified Live Machines</p>
     </div>
     <div class="stat-item">
       <h3>₹0</h3>
-      <p>Commission for Customers</p>
+      <p>Booking Fee for Farmers</p>
     </div>
     <div class="stat-item">
-      <h3>9+</h3>
-      <p>Maharashtra Districts</p>
+      <h3>125</h3>
+      <p>Jath Taluka Villages</p>
     </div>
     <div class="stat-item">
-      <h3>&lt; 2 min</h3>
-      <p>WhatsApp Response Time</p>
+      <h3>&lt; 30 sec</h3>
+      <p>Instant WhatsApp Connect</p>
     </div>
   </section>
 
@@ -145,31 +155,234 @@
   <section class="how-section" id="how-it-works">
     <div class="section-header">
       <h2>How It Works</h2>
-      <p>Three straightforward steps to hire equipment directly from local owners</p>
+      <p>Three straightforward steps to hire equipment directly from local owners on WhatsApp</p>
     </div>
 
     <div class="steps-grid">
       <div class="step-card">
         <div class="step-number">01</div>
         <h3>Message on WhatsApp</h3>
-        <p>Send "Hi" to our trilingual assistant. Select Marathi, Hindi, or English and specify your equipment category.</p>
+        <p>Send "Hi" to our trilingual assistant (+1 737-250-8034). Choose Marathi, Hindi, or English and specify your equipment need.</p>
       </div>
 
       <div class="step-card">
         <div class="step-number">02</div>
-        <h3>Share Location Pin</h3>
-        <p>Drop your WhatsApp GPS location pin or type your district. Our engine locates active machinery in your vicinity.</p>
+        <h3>Share Village or Location Pin</h3>
+        <p>Drop your GPS pin or select your Jath village (Shegaon, Sankh, Umadi, etc.). Our engine calculates arrival ETA and distance.</p>
       </div>
 
       <div class="step-card">
         <div class="step-number">03</div>
-        <h3>Connect with Owner</h3>
-        <p>Confirm your booking. The machinery owner receives an instant alert on WhatsApp and calls you directly for site delivery.</p>
+        <h3>Instant Match & Direct Delivery</h3>
+        <p>Confirm your booking. The nearest idle operator receives your job notification on WhatsApp and calls you directly for farm dispatch.</p>
       </div>
     </div>
   </section>
 
-  <!-- Equipment Showcase (3D Category Art) -->
+  <!-- Interactive Kharif & Rabi Seasonal Crop Operations Guide -->
+  <section class="crop-calendar-section" id="crop-calendar">
+    <div class="calendar-container">
+      <div class="section-header" style="text-align: center; margin-bottom: 28px;">
+        <span class="gm-badge gm-badge-agri" style="margin-bottom: 8px;">जत तालुका खरीप व रब्बी हंगाम</span>
+        <h2>शेती हंगाम व मशिनरी मार्गदर्शक (Crop Operations Guide)</h2>
+        <p>डाळिंब, द्राक्ष, सोयाबीन, ज्वारी व बाजरीसाठी आवश्यक अवजारे व योग्य वेळ</p>
+      </div>
+
+      <!-- Stage Selector Tabs -->
+      <div class="stage-tabs">
+        <button class="stage-tab-btn active" onclick="switchCropStage('tillage', this)">1. हंगामपूर्व मशागत (Land Prep)</button>
+        <button class="stage-tab-btn" onclick="switchCropStage('sowing', this)">2. पेरणी व लागवड (Sowing & Planting)</button>
+        <button class="stage-tab-btn" onclick="switchCropStage('spraying', this)">3. पीक संरक्षण व फवारणी (Spraying)</button>
+        <button class="stage-tab-btn" onclick="switchCropStage('harvesting', this)">4. काढणी व मळणी (Harvesting)</button>
+      </div>
+
+      <!-- Stage 1: Tillage -->
+      <div class="stage-cards-grid" id="stage-tillage">
+        <div class="stage-card">
+          <div>
+            <span class="gm-badge gm-badge-agri">मशागत &bull; अवजड काम</span>
+            <h3 style="font-size: 17px; margin: 10px 0 6px;">खोल नांगरट (Deep Hydraulic Plough)</h3>
+            <p style="font-size: 13.5px; color: var(--gm-gray-600); margin-bottom: 16px;">
+              ५५ HP ४-व्हील ड्राईव्ह ट्रॅक्टर व रिव्हर्सिबल नांगर. काळ्या कसदार जमिनीत खोल नांगरटीसाठी उत्तम.
+            </p>
+          </div>
+          <div style="border-top: 1px solid var(--gm-gray-200); padding-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <span style="font-size: 11px; color: var(--gm-gray-500);">अंदाजे दर:</span>
+              <div style="font-size: 16px; font-weight: 700; color: var(--gm-brand-navy);">₹९०० / तास</div>
+            </div>
+            <a href="https://wa.me/17372508034?text=%E0%A4%AE%E0%A4%B2%E0%A4%BE%20%E0%A4%96%E0%A5%8B%E0%A4%B2%20%E0%A4%A8%E0%A4%BE%E0%A4%82%E0%A4%97%E0%A4%B0%E0%A4%9F%20%E0%A4%AC%E0%A5%81%E0%A4%95%20%E0%A4%95%E0%A4%B0%E0%A4%BE%E0%A4%AF%E0%A4%9A%E0%A5%80%20%E0%A4%86%E0%A4%B9%E0%A5%87" target="_blank" class="gm-btn gm-btn-primary" style="padding: 6px 14px; font-size: 12px; font-weight: 700; text-decoration: none;">
+              Book on WA
+            </a>
+          </div>
+        </div>
+
+        <div class="stage-card">
+          <div>
+            <span class="gm-badge gm-badge-agri">मशागत &bull; जमीन भुसभुशीत करणे</span>
+            <h3 style="font-size: 17px; margin: 10px 0 6px;">रोटाव्हेटर मशागत (6-ft Rotavator)</h3>
+            <p style="font-size: 13.5px; color: var(--gm-gray-600); margin-bottom: 16px;">
+              शक्तिमान ६-फूट रोटाव्हेटर. ढेकळे फोडून पेरणीयोग्य मऊ जमीन अवघ्या एका फेरीत तयार करतो.
+            </p>
+          </div>
+          <div style="border-top: 1px solid var(--gm-gray-200); padding-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <span style="font-size: 11px; color: var(--gm-gray-500);">अंदाजे दर:</span>
+              <div style="font-size: 16px; font-weight: 700; color: var(--gm-brand-navy);">₹८०० / तास</div>
+            </div>
+            <a href="https://wa.me/17372508034?text=%E0%A4%AE%E0%A4%B2%E0%A4%BE%20%E0%A4%B0%E0%A5%8B%E0%A4%9F%E0%A4%BE%E0%A4%B5%E0%A5%8D%E0%A4%B9%E0%A5%87%E0%A4%9F%E0%A4%B0%20%E0%A4%AC%E0%A5%81%E0%A4%95%20%E0%A4%95%E0%A4%B0%E0%A4%BE%E0%A4%AF%E0%A4%9A%E0%A4%BE%20%E0%A4%86%E0%A4%B9%E0%A5%87" target="_blank" class="gm-btn gm-btn-primary" style="padding: 6px 14px; font-size: 12px; font-weight: 700; text-decoration: none;">
+              Book on WA
+            </a>
+          </div>
+        </div>
+
+        <div class="stage-card">
+          <div>
+            <span class="gm-badge gm-badge-warning">पाणी साठवण &bull; शेततळे</span>
+            <h3 style="font-size: 17px; margin: 10px 0 6px;">जेसीबी चर व शेततळे (JCB 3DX)</h3>
+            <p style="font-size: 13.5px; color: var(--gm-gray-600); margin-bottom: 16px;">
+              जेसीबी ३DX सुपर. शेततळे खोदकाम, पाईपलाईन चर, बांधबंदिस्ती आणि दगड-माती सपाटीकरण.
+            </p>
+          </div>
+          <div style="border-top: 1px solid var(--gm-gray-200); padding-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <span style="font-size: 11px; color: var(--gm-gray-500);">अंदाजे दर:</span>
+              <div style="font-size: 16px; font-weight: 700; color: var(--gm-brand-navy);">₹१,१०० / तास</div>
+            </div>
+            <a href="https://wa.me/17372508034?text=%E0%A4%AE%E0%A4%B2%E0%A4%BE%20JCB%20%E0%A4%96%E0%A5%8B%E0%A4%A6%E0%A4%95%E0%A4%BE%E0%A4%AE%20%E0%A4%AC%E0%A5%81%E0%A4%95%20%E0%A4%95%E0%A4%B0%E0%A4%BE%E0%A4%AF%E0%A4%9A%E0%A5%87%20%E0%A4%86%E0%A4%B9%E0%A5%87" target="_blank" class="gm-btn gm-btn-primary" style="padding: 6px 14px; font-size: 12px; font-weight: 700; text-decoration: none;">
+              Book on WA
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stage 2: Sowing -->
+      <div class="stage-cards-grid" id="stage-sowing" style="display: none;">
+        <div class="stage-card">
+          <div>
+            <span class="gm-badge gm-badge-agri">पेरणी &bull; अचूक बियाणे</span>
+            <h3 style="font-size: 17px; margin: 10px 0 6px;">स्वयंचलित पेरणी यंत्र (Seed Drill)</h3>
+            <p style="font-size: 13.5px; color: var(--gm-gray-600); margin-bottom: 16px;">
+              सोयाबीन, हरभरा, ज्वारी व बाजरीसाठी खत व बियाणे एकाच वेळी अचूक अंतरावर पेरणारे ऑटोमॅटिक यंत्र.
+            </p>
+          </div>
+          <div style="border-top: 1px solid var(--gm-gray-200); padding-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <span style="font-size: 11px; color: var(--gm-gray-500);">अंदाजे दर:</span>
+              <div style="font-size: 16px; font-weight: 700; color: var(--gm-brand-navy);">₹७५० / एकर</div>
+            </div>
+            <a href="https://wa.me/17372508034?text=%E0%A4%AE%E0%A4%B2%E0%A4%BE%20%E0%A4%AA%E0%A5%87%E0%A4%B0%E0%A4%A3%E0%A5%80%20%E0%A4%AF%E0%A4%82%E0%A4%A4%E0%A5%8D%E0%A4%B0%20%E0%A4%AC%E0%A5%81%E0%A4%95%20%E0%A4%95%E0%A4%B0%E0%A4%BE%E0%A4%AF%E0%A4%9A%E0%A5%87%20%E0%A4%86%E0%A4%B9%E0%A5%87" target="_blank" class="gm-btn gm-btn-primary" style="padding: 6px 14px; font-size: 12px; font-weight: 700; text-decoration: none;">
+              Book on WA
+            </a>
+          </div>
+        </div>
+
+        <div class="stage-card">
+          <div>
+            <span class="gm-badge gm-badge-agri">वाहतूक &bull; शेतीमाल</span>
+            <h3 style="font-size: 17px; margin: 10px 0 6px;">हायड्रॉलिक ट्रॉली वाहतूक (Tractor Trolley)</h3>
+            <p style="font-size: 13.5px; color: var(--gm-gray-600); margin-bottom: 16px;">
+              शेणखत, ऊस बेणे, पाईप, बियाणे आणि रासायनिक खते शेतात थेट वाहतुकीसाठी ५ टन डंपिंग ट्रॉली.
+            </p>
+          </div>
+          <div style="border-top: 1px solid var(--gm-gray-200); padding-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <span style="font-size: 11px; color: var(--gm-gray-500);">अंदाजे दर:</span>
+              <div style="font-size: 16px; font-weight: 700; color: var(--gm-brand-navy);">₹६०० / तास</div>
+            </div>
+            <a href="https://wa.me/17372508034?text=%E0%A4%AE%E0%A4%B2%E0%A4%BE%20%E0%A4%9F%E0%A5%8D%E0%A4%B0%E0%A5%89%E0%A4%B2%E0%A5%80%20%E0%A4%B5%E0%A4%BE%E0%A4%B9%E0%A4%A4%E0%A5%82%E0%A4%95%20%E0%A4%AC%E0%A5%81%E0%A4%95%20%E0%A4%95%E0%A4%B0%E0%A4%BE%E0%A4%AF%E0%A4%9A%E0%A5%80%20%E0%A4%86%E0%A4%B9%E0%A5%87" target="_blank" class="gm-btn gm-btn-primary" style="padding: 6px 14px; font-size: 12px; font-weight: 700; text-decoration: none;">
+              Book on WA
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stage 3: Spraying -->
+      <div class="stage-cards-grid" id="stage-spraying" style="display: none;">
+        <div class="stage-card">
+          <div>
+            <span class="gm-badge gm-badge-agri">अत्याधुनिक &bull; १० मिनिटांत एकर</span>
+            <h3 style="font-size: 17px; margin: 10px 0 6px;">कृषी ड्रोन फवारणी (Agri Drone 10L)</h3>
+            <p style="font-size: 13.5px; color: var(--gm-gray-600); margin-bottom: 16px;">
+              डाळिंब, द्राक्ष बागा व सोयाबीन पिकावर ९०% पाण्याची बचत व औषधाचे समान कव्हरेज देणारा शेती ड्रोन.
+            </p>
+          </div>
+          <div style="border-top: 1px solid var(--gm-gray-200); padding-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <span style="font-size: 11px; color: var(--gm-gray-500);">अंदाजे दर:</span>
+              <div style="font-size: 16px; font-weight: 700; color: var(--gm-brand-navy);">₹४५० / एकर</div>
+            </div>
+            <a href="https://wa.me/17372508034?text=%E0%A4%AE%E0%A4%B2%E0%A4%BE%20%E0%A4%A1%E0%A5%8D%E0%A4%B0%E0%A5%8B%E0%A4%A8%20%E0%A4%AB%E0%A4%B5%E0%A4%BE%E0%A4%B0%E0%A4%A3%E0%A5%80%20%E0%A4%AC%E0%A5%81%E0%A4%95%20%E0%A4%95%E0%A4%B0%E0%A4%BE%E0%A4%AF%E0%A4%9A%E0%A5%80%20%E0%A4%86%E0%A4%B9%E0%A5%87" target="_blank" class="gm-btn gm-btn-primary" style="padding: 6px 14px; font-size: 12px; font-weight: 700; text-decoration: none;">
+              Book on WA
+            </a>
+          </div>
+        </div>
+
+        <div class="stage-card">
+          <div>
+            <span class="gm-badge gm-badge-agri">बागायत &bull; उच्च दाबाने फवारणी</span>
+            <h3 style="font-size: 17px; margin: 10px 0 6px;">ट्रॅक्टर माउंटेड HTP स्प्रेअर (500L)</h3>
+            <p style="font-size: 13.5px; color: var(--gm-gray-600); margin-bottom: 16px;">
+              ५०० लिटर टाकी आणि ३०० फूट होस पाईप. द्राक्ष घड व डाळिंब झाडांच्या अंतर्गत भागापर्यंत अचूक फवारणी.
+            </p>
+          </div>
+          <div style="border-top: 1px solid var(--gm-gray-200); padding-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <span style="font-size: 11px; color: var(--gm-gray-500);">अंदाजे दर:</span>
+              <div style="font-size: 16px; font-weight: 700; color: var(--gm-brand-navy);">₹५०० / तास</div>
+            </div>
+            <a href="https://wa.me/17372508034?text=%E0%A4%AE%E0%A4%B2%E0%A4%BE%20HTP%20%E0%A4%B8%E0%A5%8D%E0%A4%AA%E0%A5%8D%E0%A4%B0%E0%A5%87%E0%A4%85%E0%A4%B0%20%E0%A4%AC%E0%A5%81%E0%A4%95%20%E0%A4%95%E0%A4%B0%E0%A4%BE%E0%A4%AF%E0%A4%9A%E0%A4%BE%20%E0%A4%86%E0%A4%B9%E0%A5%87" target="_blank" class="gm-btn gm-btn-primary" style="padding: 6px 14px; font-size: 12px; font-weight: 700; text-decoration: none;">
+              Book on WA
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stage 4: Harvesting -->
+      <div class="stage-cards-grid" id="stage-harvesting" style="display: none;">
+        <div class="stage-card">
+          <div>
+            <span class="gm-badge gm-badge-agri">काढणी &bull; झटपट मळणी</span>
+            <h3 style="font-size: 17px; margin: 10px 0 6px;">कम्बाईन हार्वेस्टर (Combine Harvester)</h3>
+            <p style="font-size: 13.5px; color: var(--gm-gray-600); margin-bottom: 16px;">
+              गहू, सोयाबीन, हरभरा आणि मका काढणी व मळणी एकाच वेळी करून स्वच्छ धान्य पोत्यात भरणारे यंत्र.
+            </p>
+          </div>
+          <div style="border-top: 1px solid var(--gm-gray-200); padding-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <span style="font-size: 11px; color: var(--gm-gray-500);">अंदाजे दर:</span>
+              <div style="font-size: 16px; font-weight: 700; color: var(--gm-brand-navy);">₹२,२०० / एकर</div>
+            </div>
+            <a href="https://wa.me/17372508034?text=%E0%A4%AE%E0%A4%B2%E0%A4%BE%20%E0%A4%B9%E0%A4%BE%E0%A4%B0%E0%A5%8D%E0%A4%B5%E0%A5%87%E0%A4%B8%E0%A5%8D%E0%A4%9F%E0%A4%B0%20%E0%A4%AC%E0%A5%81%E0%A4%95%20%E0%A4%95%E0%A4%B0%E0%A4%BE%E0%A4%AF%E0%A4%9A%E0%A5%87%20%E0%A4%86%E0%A4%B9%E0%A5%87" target="_blank" class="gm-btn gm-btn-primary" style="padding: 6px 14px; font-size: 12px; font-weight: 700; text-decoration: none;">
+              Book on WA
+            </a>
+          </div>
+        </div>
+
+        <div class="stage-card">
+          <div>
+            <span class="gm-badge gm-badge-info">बाजार वाहतूक &bull; मालवाहतूक</span>
+            <h3 style="font-size: 17px; margin: 10px 0 6px;">छोटा हत्ती / पिकअप (Tata Ace Gold)</h3>
+            <p style="font-size: 13.5px; color: var(--gm-gray-600); margin-bottom: 16px;">
+              शेतमाल, भाजीपाला, फळे जत, सांगली, विजापूर किंवा कोल्हापूर मार्केट यार्डला नेण्यासाठी मालवाहतूक गाडी.
+            </p>
+          </div>
+          <div style="border-top: 1px solid var(--gm-gray-200); padding-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <span style="font-size: 11px; color: var(--gm-gray-500);">अंदाजे दर:</span>
+              <div style="font-size: 16px; font-weight: 700; color: var(--gm-brand-navy);">₹१,३०० / दिवस</div>
+            </div>
+            <a href="https://wa.me/17372508034?text=%E0%A4%AE%E0%A4%B2%E0%A4%BE%20%E0%A4%AE%E0%A4%BE%E0%A4%B2%E0%A4%B5%E0%A4%BE%E0%A4%B9%E0%A4%A4%E0%A5%82%E0%A4%95%20%E0%A4%97%E0%A4%BE%E0%A4%A1%E0%A5%80%20%E0%A4%AC%E0%A5%81%E0%A4%95%20%E0%A4%95%E0%A4%B0%E0%A4%BE%E0%A4%AF%E0%A4%9A%E0%A5%80%20%E0%A4%86%E0%A4%B9%E0%A5%87" target="_blank" class="gm-btn gm-btn-primary" style="padding: 6px 14px; font-size: 12px; font-weight: 700; text-decoration: none;">
+              Book on WA
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Equipment Showcase (3D Category Art & Catalog) -->
   <section class="catalog-section" id="machinery">
     <div class="catalog-container">
       <div class="section-header">
@@ -177,42 +390,42 @@
         <p>Equally weighted across Agricultural, Transport, and Infrastructure sectors</p>
       </div>
 
-      <!-- 3D Category Hero Banners (3 Core Domains) -->
+      <!-- 3D Category Hero Banners -->
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 48px;">
         
         <div class="gm-card" style="padding: 0; overflow: hidden; border-radius: var(--gm-radius-lg); display: flex; flex-direction: column;">
-          <img src="/assets/equipment/agri_tractor_3d.jpg" alt="Agricultural Machinery — Mahindra 575 DI Tractor" style="width: 100%; height: 220px; object-fit: cover; display: block;">
+          <img src="/assets/equipment/agri_tractor_3d.jpg" alt="Agricultural Machinery Fleet" style="width: 100%; height: 220px; object-fit: cover; display: block;">
           <div style="padding: 24px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
               <span class="card-badge" style="background: var(--gm-green-50); color: var(--gm-green-700); border: 1px solid rgba(22, 163, 74, 0.3);">Agriculture &bull; 8 Types</span>
               <h3 style="font-size: 19px; margin: 8px 0 6px;">Agricultural Machinery Fleet</h3>
               <p style="font-size: 13.5px; color: var(--gm-gray-600); margin-bottom: 20px; line-height: 1.5;">Mahindra 575 DI, John Deere 4WD, Rotavators, Harvesters, Seed Drills &amp; Spray Drones.</p>
             </div>
-            <button class="gm-btn gm-btn-outline" style="width: 100%;" onclick="showCatalog('agri')">View Agriculture Fleet (8)</button>
+            <button class="gm-btn gm-btn-outline" style="width: 100%; font-weight: 700;" onclick="showCatalog('agri')">View Agriculture Fleet (8)</button>
           </div>
         </div>
 
         <div class="gm-card" style="padding: 0; overflow: hidden; border-radius: var(--gm-radius-lg); display: flex; flex-direction: column;">
-          <img src="/assets/equipment/heavy_drone_3d.jpg" alt="Rural Goods Transport and Logistics Fleet" style="width: 100%; height: 220px; object-fit: cover; display: block;">
+          <img src="/assets/equipment/heavy_drone_3d.jpg" alt="Rural Goods Transport Fleet" style="width: 100%; height: 220px; object-fit: cover; display: block;">
           <div style="padding: 24px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
               <span class="card-badge" style="background: var(--gm-info-bg); color: var(--gm-info); border: 1px solid rgba(29, 99, 237, 0.25);">Transport &bull; 5 Types</span>
               <h3 style="font-size: 19px; margin: 8px 0 6px;">Goods Transport &amp; Logistics</h3>
               <p style="font-size: 13.5px; color: var(--gm-gray-600); margin-bottom: 20px; line-height: 1.5;">Tata Ace (छोटा हत्ती), Dost Plus, 4-Tonne Trucks, Water Tankers &amp; Tipper Dumpers.</p>
             </div>
-            <button class="gm-btn gm-btn-outline" style="width: 100%;" onclick="showCatalog('transport')">View Freight Fleet (5)</button>
+            <button class="gm-btn gm-btn-outline" style="width: 100%; font-weight: 700;" onclick="showCatalog('transport')">View Freight Fleet (5)</button>
           </div>
         </div>
 
         <div class="gm-card" style="padding: 0; overflow: hidden; border-radius: var(--gm-radius-lg); display: flex; flex-direction: column;">
-          <img src="/assets/equipment/infra_jcb_3d.jpg" alt="Infrastructure Machinery — JCB 3DX Backhoe Loader" style="width: 100%; height: 220px; object-fit: cover; display: block;">
+          <img src="/assets/equipment/infra_jcb_3d.jpg" alt="Infrastructure Machinery Fleet" style="width: 100%; height: 220px; object-fit: cover; display: block;">
           <div style="padding: 24px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
               <span class="card-badge" style="background: var(--gm-warning-bg); color: #B45309; border: 1px solid rgba(217, 119, 6, 0.3);">Earthmoving &bull; 3 Types</span>
               <h3 style="font-size: 19px; margin: 8px 0 6px;">Infrastructure &amp; Earthmoving</h3>
               <p style="font-size: 13.5px; color: var(--gm-gray-600); margin-bottom: 20px; line-height: 1.5;">JCB 3DX Super backhoe loaders, heavy hydraulic excavators &amp; crawler bulldozers.</p>
             </div>
-            <button class="gm-btn gm-btn-outline" style="width: 100%;" onclick="showCatalog('infra')">View Earthmoving Fleet (3)</button>
+            <button class="gm-btn gm-btn-outline" style="width: 100%; font-weight: 700;" onclick="showCatalog('infra')">View Earthmoving Fleet (3)</button>
           </div>
         </div>
 
@@ -236,8 +449,7 @@
           <div class="card-desc">Mahindra 575 DI, John Deere 5310, Sonalika Tiger. Ideal for ploughing &amp; haulage.</div>
           <div class="card-pricing-row">
             <div class="card-price">₹1,500 <span>/day</span></div>
-            <a href="https://wa.me/17372508034?text=Book%20Tractor" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; gap: 4px;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <a href="https://wa.me/17372508034?text=Book%20Tractor" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; font-weight: 700; text-decoration: none;">
               Book
             </a>
           </div>
@@ -248,9 +460,8 @@
           <div class="card-model">Cultivators (9-Tyne)</div>
           <div class="card-desc">Fieldking heavy duty seedbed preparatory cultivators for fine tilth.</div>
           <div class="card-pricing-row">
-            <div class="card-price">₹600 <span>/day</span></div>
-            <a href="https://wa.me/17372508034?text=Book%20Cultivator" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; gap: 4px;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <div class="card-price">₹750 <span>/day</span></div>
+            <a href="https://wa.me/17372508034?text=Book%20Cultivator" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; font-weight: 700; text-decoration: none;">
               Book
             </a>
           </div>
@@ -258,12 +469,11 @@
 
         <div class="landing-equip-card" data-cat="agri">
           <span class="card-badge">Agriculture &bull; 03</span>
-          <div class="card-model">Tipping Trailers (4-Tonne)</div>
-          <div class="card-desc">Heavy dual-axle hydraulic tipping trolleys for sugarcane &amp; grain transport.</div>
+          <div class="card-model">Rotary Tillers (Rotavators)</div>
+          <div class="card-desc">Shaktiman 6-foot heavy rotavators for pulverizing soil in single pass.</div>
           <div class="card-pricing-row">
-            <div class="card-price">₹800 <span>/day</span></div>
-            <a href="https://wa.me/17372508034?text=Book%20Trailer" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; gap: 4px;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <div class="card-price">₹850 <span>/day</span></div>
+            <a href="https://wa.me/17372508034?text=Book%20Rotavator" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; font-weight: 700; text-decoration: none;">
               Book
             </a>
           </div>
@@ -271,12 +481,11 @@
 
         <div class="landing-equip-card" data-cat="agri">
           <span class="card-badge">Agriculture &bull; 04</span>
-          <div class="card-model">Seed Drills</div>
-          <div class="card-desc">National automatic seed &amp; fertilizer drill for precise multi-crop planting.</div>
+          <div class="card-model">Combine Harvesters</div>
+          <div class="card-desc">Claas Crop Tiger multi-crop track harvesters for wheat, soy, pulses &amp; millet.</div>
           <div class="card-pricing-row">
-            <div class="card-price">₹750 <span>/day</span></div>
-            <a href="https://wa.me/17372508034?text=Book%20Seed%20Drill" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; gap: 4px;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <div class="card-price">₹4,200 <span>/day</span></div>
+            <a href="https://wa.me/17372508034?text=Book%20Harvester" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; font-weight: 700; text-decoration: none;">
               Book
             </a>
           </div>
@@ -284,12 +493,11 @@
 
         <div class="landing-equip-card" data-cat="agri">
           <span class="card-badge">Agriculture &bull; 05</span>
-          <div class="card-model">Combine Harvesters</div>
-          <div class="card-desc">Claas Crop Tiger 30 &amp; Mahindra Arjun for rapid wheat, soybean &amp; paddy harvesting.</div>
+          <div class="card-model">Seed Drills (Automatic)</div>
+          <div class="card-desc">National 9-row automatic ferti-seed drills for precise sowing depth.</div>
           <div class="card-pricing-row">
-            <div class="card-price">₹4,200 <span>/day</span></div>
-            <a href="https://wa.me/17372508034?text=Book%20Harvester" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; gap: 4px;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <div class="card-price">₹950 <span>/day</span></div>
+            <a href="https://wa.me/17372508034?text=Book%20Seed%20Drill" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; font-weight: 700; text-decoration: none;">
               Book
             </a>
           </div>
@@ -297,12 +505,11 @@
 
         <div class="landing-equip-card" data-cat="agri">
           <span class="card-badge">Agriculture &bull; 06</span>
-          <div class="card-model">Tractor Sprayers (HTP 500L)</div>
-          <div class="card-desc">ASPEE HTP high-pressure sprayers for orchard &amp; crop pest protection.</div>
+          <div class="card-model">Agricultural Spray Drones (10L)</div>
+          <div class="card-desc">GoMate Agri Drone with radar terrain following for grape &amp; pomegranate orchards.</div>
           <div class="card-pricing-row">
-            <div class="card-price">₹700 <span>/day</span></div>
-            <a href="https://wa.me/17372508034?text=Book%20Sprayer" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; gap: 4px;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <div class="card-price">₹3,200 <span>/day</span></div>
+            <a href="https://wa.me/17372508034?text=Book%20Drone" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; font-weight: 700; text-decoration: none;">
               Book
             </a>
           </div>
@@ -310,12 +517,11 @@
 
         <div class="landing-equip-card" data-cat="agri">
           <span class="card-badge">Agriculture &bull; 07</span>
-          <div class="card-model">Rotavators (6-ft)</div>
-          <div class="card-desc">Shaktiman Semi Champion boron steel blade rotavator for fine field prep.</div>
+          <div class="card-model">Baler Machines</div>
+          <div class="card-desc">New Holland square fodder balers for sugarcane trash and straw management.</div>
           <div class="card-pricing-row">
-            <div class="card-price">₹850 <span>/day</span></div>
-            <a href="https://wa.me/17372508034?text=Book%20Rotavator" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; gap: 4px;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <div class="card-price">₹2,800 <span>/day</span></div>
+            <a href="https://wa.me/17372508034?text=Book%20Baler" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; font-weight: 700; text-decoration: none;">
               Book
             </a>
           </div>
@@ -323,12 +529,11 @@
 
         <div class="landing-equip-card" data-cat="agri">
           <span class="card-badge">Agriculture &bull; 08</span>
-          <div class="card-model">Agri Spraying Drones (10L)</div>
-          <div class="card-desc">Autonomous 10L Hexacopter drone for rapid precision crop spraying &amp; fertilizer.</div>
+          <div class="card-model">Pesticide Power Sprayers</div>
+          <div class="card-desc">ASPEE HTP 500L tractor mounted high-pressure diaphragm sprayers.</div>
           <div class="card-pricing-row">
-            <div class="card-price">₹2,500 <span>/day</span></div>
-            <a href="https://wa.me/17372508034?text=Book%20Drone" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; gap: 4px;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <div class="card-price">₹700 <span>/day</span></div>
+            <a href="https://wa.me/17372508034?text=Book%20Sprayer" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; font-weight: 700; text-decoration: none;">
               Book
             </a>
           </div>
@@ -337,12 +542,11 @@
         <!-- Transport (5 Types) -->
         <div class="landing-equip-card" data-cat="transport">
           <span class="card-badge">Transport &bull; 09</span>
-          <div class="card-model">Heavy Trucks (Tata / Blazo)</div>
-          <div class="card-desc">Tata 407 LPT, Mahindra Blazo X. Heavy inter-district agricultural freight.</div>
+          <div class="card-model">Flatbed Trucks (4-Tonne)</div>
+          <div class="card-desc">Eicher Pro 2049 14-foot open deck container trucks for farm-to-mandi transit.</div>
           <div class="card-pricing-row">
-            <div class="card-price">₹2,600 <span>/day</span></div>
-            <a href="https://wa.me/17372508034?text=Book%20Truck" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; gap: 4px;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <div class="card-price">₹2,400 <span>/day</span></div>
+            <a href="https://wa.me/17372508034?text=Book%20Truck" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; font-weight: 700; text-decoration: none;">
               Book
             </a>
           </div>
@@ -354,8 +558,7 @@
           <div class="card-desc">Ashok Leyland 2518 multi-axle 16 Cu.M tippers for sand, gravel, and earthworks.</div>
           <div class="card-pricing-row">
             <div class="card-price">₹4,000 <span>/day</span></div>
-            <a href="https://wa.me/17372508034?text=Book%20Dump%20Truck" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; gap: 4px;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <a href="https://wa.me/17372508034?text=Book%20Dump%20Truck" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; font-weight: 700; text-decoration: none;">
               Book
             </a>
           </div>
@@ -367,8 +570,7 @@
           <div class="card-desc">Maruti Suzuki Eeco cargo vans for rapid urban &amp; rural parcel deliveries.</div>
           <div class="card-pricing-row">
             <div class="card-price">₹1,100 <span>/day</span></div>
-            <a href="https://wa.me/17372508034?text=Book%20Van" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; gap: 4px;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <a href="https://wa.me/17372508034?text=Book%20Van" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; font-weight: 700; text-decoration: none;">
               Book
             </a>
           </div>
@@ -380,8 +582,7 @@
           <div class="card-desc">Tata Ace Gold (Chhota Hathi) &amp; Ashok Leyland Dost Plus for market haulage.</div>
           <div class="card-pricing-row">
             <div class="card-price">₹1,300 <span>/day</span></div>
-            <a href="https://wa.me/17372508034?text=Book%20Delivery%20Truck" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; gap: 4px;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <a href="https://wa.me/17372508034?text=Book%20Delivery%20Truck" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; font-weight: 700; text-decoration: none;">
               Book
             </a>
           </div>
@@ -393,8 +594,7 @@
           <div class="card-desc">BharatBenz 1617 12KL insulated water, dairy &amp; liquid fuel transport tankers.</div>
           <div class="card-pricing-row">
             <div class="card-price">₹4,200 <span>/day</span></div>
-            <a href="https://wa.me/17372508034?text=Book%20Tanker" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; gap: 4px;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <a href="https://wa.me/17372508034?text=Book%20Tanker" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; font-weight: 700; text-decoration: none;">
               Book
             </a>
           </div>
@@ -407,8 +607,7 @@
           <div class="card-desc">Komatsu PC210 &amp; Tata Hitachi EX 200 heavy hydraulic earthmovers.</div>
           <div class="card-pricing-row">
             <div class="card-price">₹7,500 <span>/day</span></div>
-            <a href="https://wa.me/17372508034?text=Book%20Excavator" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; gap: 4px;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <a href="https://wa.me/17372508034?text=Book%20Excavator" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; font-weight: 700; text-decoration: none;">
               Book
             </a>
           </div>
@@ -420,8 +619,7 @@
           <div class="card-desc">CAT D6 &amp; BEML BD65 crawler dozers for land leveling, grading &amp; pond digging.</div>
           <div class="card-pricing-row">
             <div class="card-price">₹8,500 <span>/day</span></div>
-            <a href="https://wa.me/17372508034?text=Book%20Bulldozer" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; gap: 4px;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <a href="https://wa.me/17372508034?text=Book%20Bulldozer" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; font-weight: 700; text-decoration: none;">
               Book
             </a>
           </div>
@@ -433,8 +631,7 @@
           <div class="card-desc">JCB 3DX Super &amp; JCB 4DX 4-in-1 loader bucket with heavy rear digger.</div>
           <div class="card-pricing-row">
             <div class="card-price">₹4,500 <span>/day</span></div>
-            <a href="https://wa.me/17372508034?text=Book%20JCB" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; gap: 4px;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <a href="https://wa.me/17372508034?text=Book%20JCB" class="gm-btn gm-btn-primary" style="padding: 6px 12px; font-size: 12px; font-weight: 700; text-decoration: none;">
               Book
             </a>
           </div>
@@ -444,11 +641,71 @@
     </div>
   </section>
 
+  <!-- Farmer 5-Star Reviews & Trust Showcase -->
+  <section class="reviews-section" id="reviews">
+    <div class="calendar-container">
+      <div class="section-header" style="text-align: center; margin-bottom: 36px;">
+        <span class="gm-badge gm-badge-success" style="margin-bottom: 8px;">जत तालुक्यातील शेतकऱ्यांचा विश्वास</span>
+        <h2>शेतकऱ्यांचे अनुभव (Verified Farmer Reviews)</h2>
+        <p>GoMate द्वारे शेती मशागत, फवारणी व वाहतूक केलेल्या शेतकऱ्यांचे प्रत्यक्ष अभिप्राय</p>
+      </div>
+
+      <div class="reviews-grid">
+        <div class="review-card">
+          <div>
+            <div class="review-stars">★★★★★</div>
+            <p class="review-quote">
+              "पावसाच्या तोंडावर तातडीने रोटाव्हेटर हवा होता. WhatsApp वर मेसेज करताच २० मिनिटांत शेगावातील ट्रॅक्टर मालकाशी संपर्क झाला आणि दुसऱ्या दिवशी सकाळीच मशागत पूर्ण झाली!"
+            </p>
+          </div>
+          <div class="review-author">
+            <div class="author-avatar">रुप</div>
+            <div>
+              <div style="font-weight: 700; font-size: 14.5px; color: var(--gm-brand-navy);">रमेश पाटील</div>
+              <div style="font-size: 12px; color: var(--gm-gray-600);">द्राक्ष व डाळिंब बागायतदार &bull; गाव: शेगाव (जत)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="review-card">
+          <div>
+            <div class="review-stars">★★★★★</div>
+            <p class="review-quote">
+              "५ एकर शेतात सोयाबीनसाठी खोल नांगरट करायची होती. गोमेटवर तासाचा दर स्पष्ट दिसला, कोणतीही छुपी दलाली नाही. ट्रॅक्टर चालकाने उत्तम काम केले."
+            </p>
+          </div>
+          <div class="review-author">
+            <div class="author-avatar">सुशि</div>
+            <div>
+              <div style="font-weight: 700; font-size: 14.5px; color: var(--gm-brand-navy);">सुरेश शिंदे</div>
+              <div style="font-size: 12px; color: var(--gm-gray-600);">सोयाबीन व बाजरी शेतकरी &bull; गाव: संख (जत)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="review-card">
+          <div>
+            <div class="review-stars">★★★★★</div>
+            <p class="review-quote">
+              "शेततळ्याचे खोदकाम करण्यासाठी जेसीबी ३DX तातडीने मिळाला. WhatsApp वर थेट लोकेशन पाठवून बुक करता आले, अतिशय सोपे आणि शेतकऱ्यांसाठी फायदेशीर आहे."
+            </p>
+          </div>
+          <div class="review-author">
+            <div class="author-avatar">तुमा</div>
+            <div>
+              <div style="font-weight: 700; font-size: 14.5px; color: var(--gm-brand-navy);">तुकाराम माळी</div>
+              <div style="font-size: 12px; color: var(--gm-gray-600);">प्रगतिशील शेतकरी &bull; गाव: उमदी (जत)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Equipment Owner CTA Section (Distinct Charcoal Background) -->
   <section class="owner-cta-section" id="owners">
     <div class="owner-cta-box">
       <span class="gm-badge gm-badge-success" style="margin-bottom: 20px; font-size: 12px; padding: 6px 14px;">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
         ७ दिवस मोफत ट्रायल (7-Day Free Trial) &bull; 0% Commission
       </span>
       <h2>जत तालुक्यातील मशिनरी मालक बना!</h2>
@@ -457,12 +714,10 @@
       </p>
 
       <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
-        <a href="/owner/register.html" class="gm-btn gm-btn-primary" style="padding: 14px 28px; font-size: 15px; background: var(--gm-green-600); border-color: var(--gm-green-700); gap: 8px;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7.5" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+        <a href="/owner/register.html" class="gm-btn gm-btn-primary" style="padding: 14px 28px; font-size: 15px; font-weight: 700; background: var(--gm-green-600); border-color: var(--gm-green-700); text-decoration: none;">
           मोफत नोंदणी करा (Join Free)
         </a>
-        <a href="/owner/index.html" class="gm-btn gm-btn-outline" style="padding: 14px 24px; font-size: 15px; background: transparent; color: #FFFFFF; border-color: var(--gm-charcoal-700); gap: 8px;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        <a href="/owner/index.html" class="gm-btn gm-btn-outline" style="padding: 14px 24px; font-size: 15px; font-weight: 600; background: transparent; color: #FFFFFF; border-color: var(--gm-charcoal-700); text-decoration: none;">
           मालक डॅशबोर्ड (Owner Pro Login)
         </a>
       </div>
@@ -480,7 +735,7 @@
       <div class="faq-item">
         <div class="faq-question" onclick="toggleFaq(this)">
           <span>How do I book equipment on WhatsApp?</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          <span style="font-weight: bold; font-size: 18px;">+</span>
         </div>
         <div class="faq-answer" style="display: none;">
           Send "Hi" to our WhatsApp number (+1 737-250-8034). Pick your language (Marathi, English, Hindi), choose your machine category, and share your GPS location pin. The bot displays verified nearby machines and guides you through booking in less than 2 minutes.
@@ -490,20 +745,20 @@
       <div class="faq-item">
         <div class="faq-question" onclick="toggleFaq(this)">
           <span>Is there any commission for farmers or customers?</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          <span style="font-weight: bold; font-size: 18px;">+</span>
         </div>
         <div class="faq-answer" style="display: none;">
-          No. Customer bookings are 100% free with zero commission. You pay the agreed daily hire rate directly to the machinery owner upon site delivery.
+          No. Customer bookings are 100% free with zero commission. You pay the agreed daily/hourly hire rate directly to the machinery owner upon site delivery.
         </div>
       </div>
 
       <div class="faq-item">
         <div class="faq-question" onclick="toggleFaq(this)">
           <span>How does the Owner Subscription work?</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          <span style="font-weight: bold; font-size: 18px;">+</span>
         </div>
         <div class="faq-answer" style="display: none;">
-          Machinery owners pay a flat ₹599/month subscription to list their fleet and receive instant booking notifications directly on WhatsApp.
+          Machinery owners pay a flat ₹599/month subscription to list their fleet and receive instant booking notifications directly on WhatsApp. First 7 days are completely free!
         </div>
       </div>
     </div>
@@ -517,14 +772,20 @@
         <span style="font-size: 12px; color: var(--gm-gray-500);">&copy; 2026 GoMate Marketplace &bull; Sangli PIN 416404</span>
       </div>
       <div style="display: flex; gap: 24px; font-weight: 500;">
-        <a href="/hourly-booking.html" style="color: var(--gm-gray-400);">Hourly Booking</a>
-        <a href="/marketing" style="color: var(--gm-green-400); font-weight: 700;">QR Posters & Flyers 🖨️</a>
-        <a href="/owner/register.html" style="color: var(--gm-gray-400);">Owner Registration</a>
-        <a href="/owner/index.html" style="color: var(--gm-gray-400);">Owner Pro</a>
-        <a href="/" style="color: var(--gm-gray-400);">Simulator</a>
+        <a href="/hourly-booking.html" style="color: var(--gm-gray-400); text-decoration: none;">Hourly Booking</a>
+        <a href="/marketing" style="color: var(--gm-green-400); font-weight: 700; text-decoration: none;">QR Posters & Flyers</a>
+        <a href="/owner/register.html" style="color: var(--gm-gray-400); text-decoration: none;">Owner Registration</a>
+        <a href="/owner/index.html" style="color: var(--gm-gray-400); text-decoration: none;">Owner Pro</a>
+        <a href="/" style="color: var(--gm-gray-400); text-decoration: none;">Simulator</a>
       </div>
     </div>
   </footer>
+
+  <!-- Floating 1-Tap WhatsApp Booking Button -->
+  <a href="https://wa.me/17372508034?text=Hi%20GoMate" target="_blank" class="floating-wa-launcher" title="Chat on WhatsApp">
+    <span>WhatsApp वर थेट बुकिंग</span>
+    <span style="background: rgba(255,255,255,0.25); padding: 2px 8px; border-radius: 12px; font-size: 11px;">1-Tap</span>
+  </a>
 
   <script>
     function showCatalog(category) {
@@ -549,11 +810,24 @@
       });
     }
 
+    function switchCropStage(stageId, btn) {
+      document.querySelectorAll('.stage-tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const stages = ['tillage', 'sowing', 'spraying', 'harvesting'];
+      stages.forEach(s => {
+        const el = document.getElementById('stage-' + s);
+        if (el) el.style.display = (s === stageId) ? 'grid' : 'none';
+      });
+    }
+
     function toggleFaq(el) {
       const item = el.parentElement;
       const ans = el.nextElementSibling;
       const isOpen = ans.style.display === 'block';
       ans.style.display = isOpen ? 'none' : 'block';
+      const icon = el.querySelector('span:last-child');
+      if (icon) icon.textContent = isOpen ? '+' : '−';
       if (isOpen) {
         item.classList.remove('open');
       } else {

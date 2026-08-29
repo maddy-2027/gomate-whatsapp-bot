@@ -380,3 +380,208 @@
   font-size: 13px;
   border-top: 1px solid var(--gm-charcoal-800);
 }
+
+/* ==========================================================================
+   Live Village Ticker, Seasonal Crop Calendar & Farmer Reviews
+   ========================================================================== */
+
+/* Live Village Machinery Ticker */
+.live-ticker-banner {
+  background: linear-gradient(90deg, #064E3B 0%, #065F46 50%, #047857 100%);
+  color: #FFFFFF;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+
+.ticker-pulse {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4ADE80;
+  box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+  animation: pulse-green 1.8s infinite;
+}
+
+@keyframes pulse-green {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(74, 222, 128, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0);
+  }
+}
+
+.ticker-chip {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  padding: 2px 10px;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Seasonal Crop Calendar Section */
+.crop-calendar-section {
+  padding: 80px 24px;
+  background: #F8FAFC;
+  border-top: 1px solid var(--gm-gray-200);
+  border-bottom: 1px solid var(--gm-gray-200);
+}
+
+.calendar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.stage-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.stage-tab-btn {
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 30px;
+  border: 1px solid var(--gm-gray-300);
+  background: #FFFFFF;
+  color: var(--gm-gray-700);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.stage-tab-btn.active {
+  background: #16A34A;
+  color: #FFFFFF;
+  border-color: #16A34A;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
+}
+
+.stage-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.stage-card {
+  background: #FFFFFF;
+  border: 1px solid var(--gm-gray-200);
+  border-radius: var(--gm-radius-lg);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: var(--gm-shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stage-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--gm-shadow-md);
+  border-color: #86EFAC;
+}
+
+/* Farmer Reviews Showcase */
+.reviews-section {
+  padding: 80px 24px;
+  background: #FFFFFF;
+}
+
+.reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.review-card {
+  background: #F8FAFC;
+  border: 1px solid var(--gm-gray-200);
+  border-radius: var(--gm-radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+
+.review-stars {
+  color: #F59E0B;
+  font-size: 16px;
+  margin-bottom: 10px;
+  letter-spacing: 2px;
+}
+
+.review-quote {
+  font-size: 14.5px;
+  color: var(--gm-gray-700);
+  line-height: 1.6;
+  margin-bottom: 16px;
+  font-style: italic;
+}
+
+.review-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid var(--gm-gray-200);
+  padding-top: 14px;
+}
+
+.author-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #DCFCE7;
+  color: #15803D;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 16px;
+}
+
+/* Floating WhatsApp Quick-Book Launcher */
+.floating-wa-launcher {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #25D366;
+  color: #FFFFFF;
+  padding: 12px 20px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+  transition: all 0.25s ease;
+}
+
+.floating-wa-launcher:hover {
+  transform: translateY(-2px);
+  background: #20BA5A;
+  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.55);
+}
