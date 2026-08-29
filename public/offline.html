@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GoMate — Offline Mode (ऑफलाइन मोड)</title>
+  <meta name="theme-color" content="#16a34a">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '"Noto Sans Devanagari"', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col items-center justify-between p-4 sm:p-6 antialiased selection:bg-brand-500 selection:text-white">
+
+  <!-- Top Brand -->
+  <header class="w-full max-w-md flex items-center justify-between pt-4 pb-6">
+    <div class="flex items-center space-x-2.5">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-xl shadow-lg shadow-brand-500/20">
+        🚜
+      </div>
+      <div>
+        <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-1.5">
+          GoMate <span class="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">Offline</span>
+        </h1>
+        <p class="text-[11px] text-slate-400">कृषी व अवजारे भाडे प्लॅटफॉर्म</p>
+      </div>
+    </div>
+
+    <!-- Live Network Ping Badge -->
+    <div id="netStatus" class="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30">
+      <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+      <span>ऑफलाइन (No Signal)</span>
+    </div>
+  </header>
+
+  <!-- Main Card -->
+  <main class="w-full max-w-md bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-2xl shadow-black/80 text-center relative overflow-hidden backdrop-blur-xl my-auto">
+    <div class="absolute -top-20 -right-20 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="w-16 h-16 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center text-3xl mx-auto mb-4 shadow-lg shadow-amber-500/10">
+      📡
+    </div>
+
+    <h2 class="text-xl sm:text-2xl font-bold text-white mb-1.5">
+      इंटरनेट कनेक्शन उपलब्ध नाही
+    </h2>
+    <p class="text-xs text-slate-400 mb-6">
+      You are currently offline. Don't worry, your saved GoMate data and emergency numbers are available below.
+    </p>
+
+    <!-- Auto-retry button -->
+    <button onclick="checkConnection()" id="retryBtn" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white font-bold text-sm shadow-lg shadow-brand-600/30 transition flex items-center justify-center gap-2 mb-6">
+      <span>🔄 पुन्हा प्रयत्न करा (Retry Connection)</span>
+    </button>
+
+    <!-- Offline Quick Reference Rates (Jath & Western MH) -->
+    <div class="text-left bg-slate-800/60 border border-slate-700/60 rounded-2xl p-4 mb-6">
+      <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+        <span>📋</span> अंदाजे चालू भाडे दर (Saved Reference Rates):
+      </h3>
+      <div class="space-y-2 text-xs text-slate-300">
+        <div class="flex items-center justify-between py-1 border-b border-slate-700/50">
+          <span>🚜 ट्रॅक्टर नांगरणी (Ploughing)</span>
+          <span class="font-bold text-brand-400">₹850 - ₹900/तास</span>
+        </div>
+        <div class="flex items-center justify-between py-1 border-b border-slate-700/50">
+          <span>🌾 रोटाव्हेटर (Rotavator)</span>
+          <span class="font-bold text-brand-400">₹800/तास</span>
+        </div>
+        <div class="flex items-center justify-between py-1 border-b border-slate-700/50">
+          <span>🏗️ JCB एक्सकॅव्हेटर (Excavator)</span>
+          <span class="font-bold text-brand-400">₹1,200 - ₹1,400/तास</span>
+        </div>
+        <div class="flex items-center justify-between py-1 border-b border-slate-700/50">
+          <span>🚚 हायड्रॉलिक ट्रॉली (Trolley)</span>
+          <span class="font-bold text-brand-400">₹600/तास</span>
+        </div>
+        <div class="flex items-center justify-between py-1">
+          <span>🚁 कृषी ड्रोन फवारणी (Drone Spray)</span>
+          <span class="font-bold text-brand-400">₹450/एकर</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Offline Emergency Helpline -->
+    <div class="text-left bg-brand-950/40 border border-brand-800/40 rounded-2xl p-4">
+      <h3 class="text-xs font-bold text-emerald-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+        <span>📞</span> थेट संपर्क व बुकिंग मदत:
+      </h3>
+      <p class="text-xs text-slate-300 mb-3">
+        इंटरनेट नसतानाही तुम्ही थेट फोन कॉल किंवा SMS द्वारे बुकिंग करू शकता:
+      </p>
+      <div class="space-y-2">
+        <a href="tel:18001234567" class="block w-full py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-center text-white transition">
+          📞 टोल-फ्री हेल्पलाइन: 1800-123-4567
+        </a>
+        <a href="tel:+919822012345" class="block w-full py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-center text-white transition">
+          📱 जत क्लस्टर हेल्पडेस्क: +91 98220 12345
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="w-full max-w-md text-center py-4 text-[11px] text-slate-500">
+    <p>GoMate PWA Offline Cache • ऑटो-रीकनेक्ट सक्रिय आहे</p>
+  </footer>
+
+  <script>
+    // Auto-reload as soon as internet is restored
+    window.addEventListener('online', () => {
+      const badge = document.getElementById('netStatus');
+      badge.className = 'flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30';
+      badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400"></span><span>ऑनलाइन (Connected!)</span>';
+      
+      const btn = document.getElementById('retryBtn');
+      btn.innerHTML = '<span>✅ इंटरनेट जोडले! लोड होत आहे...</span>';
+      btn.classList.add('animate-pulse');
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    });
+
+    function checkConnection() {
+      if (navigator.onLine) {
+        window.location.reload();
+      } else {
+        const btn = document.getElementById('retryBtn');
+        btn.innerHTML = '<span>⏳ कनेक्शन शोधत आहे...</span>';
+        setTimeout(() => {
+          btn.innerHTML = '<span>🔄 पुन्हा प्रयत्न करा (Retry Connection)</span>';
+          alert('अजूनही इंटरनेट उपलब्ध नाही. कृपया मोबाइल डेटा किंवा Wi-Fi तपासा.');
+        }, 1200);
+      }
+    }
+  </script>
+</body>
+</html>

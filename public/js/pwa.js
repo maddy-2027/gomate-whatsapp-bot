@@ -1,0 +1,147 @@
+/**
+ * GoMate PWA Client Integration
+ * Handles Service Worker registration, Install App prompts, and Offline/Online Toasts.
+ */
+
+(function () {
+  'use strict';
+
+  // 1. Register Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker
+        .register('/sw.js')
+        .then((reg) => {
+          console.log('✅ [GoMate PWA] Service Worker registered with scope:', reg.scope);
+
+          // Listen for updates
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            if (newWorker) {
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  console.log('🔄 [GoMate PWA] New update available.');
+                }
+              });
+            }
+          });
+        })
+        .catch((err) => {
+          console.warn('⚠️ [GoMate PWA] Service Worker registration skipped:', err.message);
+        });
+    });
+  }
+
+  // 2. Online / Offline Toast Notifications
+  function showToast(message, type = 'info') {
+    let toast = document.getElementById('gomate-net-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'gomate-net-toast';
+      toast.style.cssText = `
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%) translateY(100px);
+        background: #0f172a;
+        color: #f8fafc;
+        border: 1px solid #334155;
+        border-radius: 9999px;
+        padding: 10px 20px;
+        font-size: 13px;
+        font-weight: 600;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        z-index: 99999;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+        opacity: 0;
+        pointer-events: none;
+        max-width: 90vw;
+        text-align: center;
+      `;
+      document.body.appendChild(toast);
+    }
+
+    if (type === 'offline') {
+      toast.style.borderColor = 'rgba(245, 158, 11, 0.4)';
+      toast.style.background = '#1e1b4b';
+      toast.innerHTML = `<span style="color: #fbbf24;">📡</span> <span>ऑफलाइन मोड सक्रिय आहे (Offline Mode Active)</span>`;
+    } else if (type === 'online') {
+      toast.style.borderColor = 'rgba(34, 197, 94, 0.4)';
+      toast.style.background = '#064e3b';
+      toast.innerHTML = `<span style="color: #4ade80;">🟢</span> <span>इंटरनेट जोडले (Back Online!)</span>`;
+    }
+
+    // Show toast
+    setTimeout(() => {
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateX(-50%) translateY(0)';
+    }, 50);
+
+    // Hide after 3.5 seconds
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(-50%) translateY(100px)';
+    }, 3500);
+  }
+
+  window.addEventListener('offline', () => showToast('', 'offline'));
+  window.addEventListener('online', () => showToast('', 'online'));
+
+  // 3. Native "Install App" Promotion
+  let deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+
+    // Show custom floating install badge if on mobile
+    if (!document.getElementById('gomate-install-btn')) {
+      const installBtn = document.createElement('button');
+      installBtn.id = 'gomate-install-btn';
+      installBtn.style.cssText = `
+        position: fixed;
+        bottom: 24px;
+        right: 20px;
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        color: #ffffff;
+        border: none;
+        border-radius: 9999px;
+        padding: 10px 18px;
+        font-size: 13px;
+        font-weight: 700;
+        box-shadow: 0 10px 25px rgba(22, 163, 74, 0.4);
+        cursor: pointer;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: transform 0.2s, box-shadow 0.2s;
+        animation: bounce 2s infinite;
+      `;
+      installBtn.innerHTML = `<span>📲</span> <span>अ‍ॅप इंस्टॉल करा (Install)</span>`;
+      
+      installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice;
+          if (outcome === 'accepted') {
+            console.log('User installed GoMate PWA');
+          }
+          deferredPrompt = null;
+          installBtn.remove();
+        }
+      });
+
+      document.body.appendChild(installBtn);
+    }
+  });
+
+  window.addEventListener('appinstalled', () => {
+    console.log('🎉 GoMate PWA successfully installed!');
+    const installBtn = document.getElementById('gomate-install-btn');
+    if (installBtn) installBtn.remove();
+  });
+
+})();

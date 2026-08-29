@@ -1,12 +1,15 @@
 {
-  "name": "GoMate — Equipment Rental Marketplace",
+  "name": "GoMate — कृषी व अवजारे भाडे प्लॅटफॉर्म",
   "short_name": "GoMate",
-  "description": "Rent Farm, Transport, and Construction Equipment directly on WhatsApp across Maharashtra. Zero commission for farmers.",
+  "description": "Rent Farm Tractors, JCBs, Harvesters, and Drones directly across Maharashtra. Zero commission for farmers.",
   "start_url": "/landing",
+  "id": "/landing",
   "display": "standalone",
-  "background_color": "#F8FAFC",
-  "theme_color": "#0A1F44",
-  "orientation": "portrait",
+  "background_color": "#020617",
+  "theme_color": "#16a34a",
+  "orientation": "portrait-primary",
+  "lang": "mr-IN",
+  "categories": ["business", "shopping", "utilities"],
   "icons": [
     {
       "src": "/assets/brand/logo.svg",
@@ -17,7 +20,31 @@
     {
       "src": "/favicon.svg",
       "sizes": "48x48 72x72 96x96 144x144",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Tractor Booking (ट्रॅक्टर शोध)",
+      "short_name": "Book Tractor",
+      "description": "Quick search for available tractors and implements",
+      "url": "/landing#catalog",
+      "icons": [{ "src": "/favicon.svg", "sizes": "96x96" }]
+    },
+    {
+      "name": "Owner Fleet Portal (मालक पोर्टल)",
+      "short_name": "Owner Portal",
+      "description": "Manage your listed machinery fleet and bookings",
+      "url": "/owner",
+      "icons": [{ "src": "/favicon.svg", "sizes": "96x96" }]
+    },
+    {
+      "name": "Hourly Booking Calculator (दर कॅल्क्युलेटर)",
+      "short_name": "Hourly Rental",
+      "description": "Calculate hourly equipment rent and get instant receipt",
+      "url": "/hourly-booking.html",
+      "icons": [{ "src": "/favicon.svg", "sizes": "96x96" }]
     }
   ]
 }
