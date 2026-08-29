@@ -66,6 +66,10 @@
           <span class="icon">💰</span>
           <span>Revenue & MRR</span>
         </button>
+        <button class="nav-item" onclick="switchTab('broadcast')">
+          <span class="icon">📢</span>
+          <span>WhatsApp Broadcasts</span>
+        </button>
       </nav>
 
       <div class="sidebar-footer">
@@ -289,6 +293,115 @@
               • <strong>Owner Pro Subscription:</strong> Equipment owners pay a flat <strong>₹599/month</strong> to list their fleet and receive WhatsApp booking alerts.<br>
               • <strong>7-Day Free Trial:</strong> All new registered owners receive a 7-day trial before automated Razorpay subscription billing.
             </p>
+          </div>
+        </div>
+
+        <!-- Tab 6: Seasonal WhatsApp Broadcast Center -->
+        <div id="tab-broadcast" class="view-panel" style="display: none;">
+          <div class="kpi-grid" style="grid-template-columns: repeat(3, 1fr);">
+            <div class="kpi-card">
+              <div class="kpi-header"><span>Target Audience</span><span>👥</span></div>
+              <div class="kpi-value" id="broadcastAudienceCount">48</div>
+              <div class="kpi-footer">Farmers & Machinery Partners</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-header"><span>Active Channel</span><span>📱</span></div>
+              <div class="kpi-value" style="color: #16A34A;">WhatsApp API</div>
+              <div class="kpi-footer">Direct WhatsApp Broadcast</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-header"><span>Total Dispatched</span><span>🚀</span></div>
+              <div class="kpi-value" id="broadcastTotalSent">1</div>
+              <div class="kpi-footer">Seasonal Campaigns Delivered</div>
+            </div>
+          </div>
+
+          <div class="gm-card" style="margin-bottom: 24px;">
+            <div class="table-header-row" style="margin-bottom: 16px;">
+              <div>
+                <h3 style="font-size: 16px; margin-bottom: 4px;">📢 New Seasonal WhatsApp Broadcast Campaign</h3>
+                <p style="font-size: 12px; color: var(--gm-gray-600);">Send targeted Marathi announcements to farmers and owners across Jath Taluka</p>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              <!-- Left: Configuration Form -->
+              <div style="display: flex; flex-direction: column; gap: 14px;">
+                <div>
+                  <label style="font-size: 12px; font-weight: 700; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">1. Target Audience (लक्ष्य वर्ग)</label>
+                  <select id="bcTarget" class="gm-input" onchange="updateBroadcastPreview()">
+                    <option value="all">सर्व शेतकरी व मशिनरी मालक (All Users)</option>
+                    <option value="farmers" selected>केवळ शेतकरी / ग्राहक (Farmers Only)</option>
+                    <option value="owners">केवळ ट्रॅक्टर व मशिनरी मालक (Owners Only)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style="font-size: 12px; font-weight: 700; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">2. Region / Taluka (कार्यक्षेत्र)</label>
+                  <select id="bcTaluka" class="gm-input" onchange="updateBroadcastPreview()">
+                    <option value="all" selected>संपूर्ण जत तालुका (All 125 Villages)</option>
+                    <option value="Shegaon">शेगाव क्लस्टर (Shegaon)</option>
+                    <option value="Sankh">संख क्लस्टर (Sankh)</option>
+                    <option value="Umadi">उमदी क्लस्टर (Umadi)</option>
+                    <option value="Dafalapur">डफळापूर क्लस्टर (Dafalapur)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style="font-size: 12px; font-weight: 700; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">3. Seasonal Template (हंगामी टेम्पलेट)</label>
+                  <select id="bcTemplate" class="gm-input" onchange="onTemplateChange()">
+                    <!-- Populated via JS -->
+                  </select>
+                </div>
+
+                <div>
+                  <label style="font-size: 12px; font-weight: 700; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">4. Message Content (मराठी मजकूर)</label>
+                  <textarea id="bcMessageText" class="gm-input" rows="8" style="font-family: var(--gm-font-body); font-size: 13px; line-height: 1.5;" oninput="updatePreviewBubble()"></textarea>
+                </div>
+
+                <button onclick="sendBroadcast()" id="bcSendBtn" class="gm-btn gm-btn-primary" style="padding: 12px; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                  <span>🚀</span> <span>Broadcast on WhatsApp (प्रसारित करा)</span>
+                </button>
+              </div>
+
+              <!-- Right: Live WhatsApp Bubble Preview -->
+              <div>
+                <label style="font-size: 12px; font-weight: 700; color: var(--gm-gray-700); display: block; margin-bottom: 8px;">📱 Live WhatsApp Message Preview:</label>
+                <div style="background: #EFEAE2; border-radius: 16px; padding: 18px; min-height: 380px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.06); border: 1px solid #CBD5E1;">
+                  <div style="background: #FFFFFF; border-radius: 12px 12px 12px 2px; padding: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.15); max-width: 95%;">
+                    <div id="bcPreviewBubble" style="font-size: 13px; color: #111827; white-space: pre-wrap; line-height: 1.5; font-family: var(--gm-font-body);">
+                      <!-- Live Preview -->
+                    </div>
+                    <div style="text-align: right; font-size: 10px; color: #6B7280; margin-top: 6px;">10:30 AM • ✓✓ Sent</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Broadcast Audit Logs Table -->
+          <div class="gm-card">
+            <div class="table-header-row" style="margin-bottom: 12px;">
+              <h3 style="font-size: 16px;">Campaign Dispatch History & Audit Log</h3>
+            </div>
+            <div class="gm-table-container">
+              <table class="gm-table">
+                <thead>
+                  <tr>
+                    <th>Campaign ID</th>
+                    <th>Subject / Template</th>
+                    <th>Target</th>
+                    <th>Recipients</th>
+                    <th>Delivered</th>
+                    <th>Status</th>
+                    <th>Dispatched At</th>
+                  </tr>
+                </thead>
+                <tbody id="bcHistoryTableBody">
+                  <!-- Populated via JS -->
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 

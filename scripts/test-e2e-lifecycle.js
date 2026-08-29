@@ -268,6 +268,26 @@ async function runE2ETests() {
   assert(distRes.ok && distRes.data.etaMinutes > 0, `Arrival ETA calculated: ${distRes.data.etaMinutes} mins direct dispatch`);
 
   // -------------------------------------------------------------
+  // Phase 9: Admin WhatsApp Seasonal Broadcast Engine
+  // -------------------------------------------------------------
+  console.log('\n--- Phase 9: Admin WhatsApp Seasonal Broadcast Engine ---');
+  const bcTemplatesRes = await request('/api/admin/broadcast/templates', {
+    headers: { Authorization: `Bearer ${adminToken}` }
+  });
+  assert(bcTemplatesRes.ok && bcTemplatesRes.data.templates.length >= 4, `Admin HQ loaded ${bcTemplatesRes.data.templates.length} seasonal Marathi broadcast templates`);
+
+  const bcDispatchRes = await request('/api/admin/broadcast', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${adminToken}` },
+    body: JSON.stringify({
+      targetAudience: 'farmers',
+      taluka: 'all',
+      templateId: 'kharif_ploughing'
+    })
+  });
+  assert(bcDispatchRes.ok && bcDispatchRes.data.delivered > 0, `Broadcast campaign dispatched to ${bcDispatchRes.data.delivered} farmers across Jath Taluka`);
+
+  // -------------------------------------------------------------
   // Test Summary
   // -------------------------------------------------------------
   console.log('\n===============================================================');

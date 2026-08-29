@@ -155,6 +155,26 @@ app.get('/api/admin/owners', adminAuth, async (req, res) => {
   }
 });
 
+// Admin WhatsApp Broadcast Endpoints
+app.get('/api/admin/broadcast/templates', adminAuth, (req, res) => {
+  const { getBroadcastTemplates, getBroadcastHistory } = require('./src/services/broadcastService');
+  res.json({
+    templates: getBroadcastTemplates(),
+    history: getBroadcastHistory()
+  });
+});
+
+app.post('/api/admin/broadcast', adminAuth, async (req, res) => {
+  try {
+    const { targetAudience, taluka, templateId, customMessage } = req.body;
+    const { executeBroadcast } = require('./src/services/broadcastService');
+    const result = await executeBroadcast({ targetAudience, taluka, templateId, customMessage });
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ==========================================
 // Jath Villages & Owner Self-Registration API
 // ==========================================

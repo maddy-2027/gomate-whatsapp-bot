@@ -240,7 +240,8 @@ function switchTab(tabId) {
     bookings: ['Bookings Operations', 'Inspect and manage customer machinery rental requests'],
     equipment: ['Equipment Fleet Directory', '16 canonical machinery types listed across Maharashtra'],
     owners: ['Machinery Owners & Subscriptions', '₹599/month subscription status and listings health'],
-    revenue: ['Revenue & Platform Financials', 'Subscription MRR and equipment rental volume']
+    revenue: ['Revenue & Platform Financials', 'Subscription MRR and equipment rental volume'],
+    broadcast: ['WhatsApp Seasonal Broadcast Center', 'Targeted agricultural announcements and seasonal demand alerts']
   };
 
   const currentBtn = Array.from(document.querySelectorAll('.nav-item')).find(b => b.textContent.toLowerCase().includes(tabId));
@@ -252,6 +253,10 @@ function switchTab(tabId) {
   if (titles[tabId]) {
     document.getElementById('viewTitle').textContent = titles[tabId][0];
     document.getElementById('viewSubtitle').textContent = titles[tabId][1];
+  }
+
+  if (tabId === 'broadcast') {
+    loadBroadcastData();
   }
 }
 
@@ -289,4 +294,141 @@ function filterOwners() {
   rows.forEach(r => {
     r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';
   });
+}
+
+// ==========================================================================
+// WhatsApp Seasonal Broadcast Management
+// ==========================================================================
+let broadcastTemplates = [];
+let broadcastHistory = [];
+
+async function loadBroadcastData() {
+  try {
+    const res = await fetch('/api/admin/broadcast/templates', {
+      headers: { 'Authorization': `Bearer ${adminAuthToken}` }
+    });
+    const data = await res.json();
+    broadcastTemplates = data.templates || [];
+    broadcastHistory = data.history || [];
+
+    // Populate Template Select
+    const select = document.getElementById('bcTemplate');
+    if (select) {
+      select.innerHTML = broadcastTemplates.map((t, i) => 
+        `<option value="${t.id}" ${i === 0 ? 'selected' : ''}>${t.title}</option>`
+      ).join('');
+    }
+
+    if (broadcastTemplates.length > 0) {
+      document.getElementById('bcMessageText').value = broadcastTemplates[0].messageMr;
+      updatePreviewBubble();
+    }
+
+    renderBroadcastHistory();
+  } catch (err) {
+    console.error('Failed to load broadcast templates:', err);
+  }
+}
+
+function onTemplateChange() {
+  const selectedId = document.getElementById('bcTemplate').value;
+  const tmpl = broadcastTemplates.find(t => t.id === selectedId);
+  if (tmpl) {
+    document.getElementById('bcMessageText').value = tmpl.messageMr;
+    if (tmpl.target) {
+      document.getElementById('bcTarget').value = tmpl.target;
+    }
+    updatePreviewBubble();
+  }
+}
+
+function updatePreviewBubble() {
+  const text = document.getElementById('bcMessageText').value || '';
+  const bubble = document.getElementById('bcPreviewBubble');
+  if (bubble) {
+    let formatted = text
+      .replace(/\*([^\*]+)\*/g, '<strong>$1</strong>')
+      .replace(/_([^_]+)_/g, '<em>$1</em>');
+    bubble.innerHTML = formatted;
+  }
+}
+
+function updateBroadcastPreview() {
+  // Update audience estimation counter
+  const target = document.getElementById('bcTarget').value;
+  const countEl = document.getElementById('broadcastAudienceCount');
+  if (countEl) {
+    if (target === 'farmers') countEl.textContent = '42';
+    else if (target === 'owners') countEl.textContent = '7';
+    else countEl.textContent = '49';
+  }
+}
+
+async function sendBroadcast() {
+  const targetAudience = document.getElementById('bcTarget').value;
+  const taluka = document.getElementById('bcTaluka').value;
+  const templateId = document.getElementById('bcTemplate').value;
+  const customMessage = document.getElementById('bcMessageText').value.trim();
+
+  if (!customMessage) {
+    alert('Please enter a message to broadcast.');
+    return;
+  }
+
+  const confirmMsg = `Are you sure you want to broadcast this WhatsApp message to ${targetAudience.toUpperCase()} in ${taluka.toUpperCase()}?`;
+  if (!confirm(confirmMsg)) return;
+
+  const btn = document.getElementById('bcSendBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span>⏳</span> <span>Dispatched to WhatsApp Queue...</span>';
+
+  try {
+    const res = await fetch('/api/admin/broadcast', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminAuthToken}`
+      },
+      body: JSON.stringify({ targetAudience, taluka, templateId, customMessage })
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      alert(`✅ Broadcast successful!\nDelivered to ${data.delivered} WhatsApp recipients.`);
+      const totalSentEl = document.getElementById('broadcastTotalSent');
+      if (totalSentEl) {
+        totalSentEl.textContent = Number(totalSentEl.textContent || 1) + 1;
+      }
+      loadBroadcastData();
+    } else {
+      alert(`⚠️ Broadcast notice: ${data.error || 'Failed to dispatch'}`);
+    }
+  } catch (err) {
+    alert('Network error while dispatching broadcast.');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span>🚀</span> <span>Broadcast on WhatsApp (प्रसारित करा)</span>';
+  }
+}
+
+function renderBroadcastHistory() {
+  const tbody = document.getElementById('bcHistoryTableBody');
+  if (!tbody) return;
+
+  if (!broadcastHistory.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 16px;">No broadcast campaigns recorded yet.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = broadcastHistory.map(b => `
+    <tr>
+      <td><code>${b.id}</code></td>
+      <td><strong>${b.title}</strong></td>
+      <td><span class="gm-badge gm-badge-neutral">${b.target.toUpperCase()}</span></td>
+      <td>${b.recipientsCount} Users</td>
+      <td><span style="color: #16A34A; font-weight: 700;">✓ ${b.deliveredCount}</span></td>
+      <td><span class="gm-badge gm-badge-success">${b.status}</span></td>
+      <td>${new Date(b.sentAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</td>
+    </tr>
+  `).join('');
 }
