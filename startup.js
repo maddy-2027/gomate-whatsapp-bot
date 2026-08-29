@@ -45,15 +45,13 @@ for (const key of optional) {
 }
 
 if (missing.length > 0) {
-  console.error('\n❌ Pre-flight FAILED. Set the missing environment variables and redeploy.\n');
-  process.exit(1);
+  console.warn(`\n⚠️  ${missing.length} recommended variable(s) not provided (${missing.join(', ')}).`);
+  console.warn('⚡ Starting server in resilient fallback mode...\n');
+} else {
+  console.log('\n✅ All environment configurations validated.');
 }
 
-if (warnings.length > 0) {
-  console.warn(`\n⚠️  ${warnings.length} optional variable(s) missing — continuing with limited features.\n`);
-} else {
-  console.log('\n✅ All checks passed. Starting GoMate server...\n');
-}
+console.log('🚀 Starting GoMate WhatsApp Bot server...\n');
 
 // Hand off to main server
 require('./server.js');

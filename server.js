@@ -755,7 +755,7 @@ app.get('/payment-success', (req, res) => {
 
 app.use((err, req, res, next) => { console.error(err.stack); res.status(500).send('Something broke!'); });
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   console.log(`\n=================================================`);
   console.log(`🚜 GoMate WhatsApp Bot & Operations HQ Ready!`);
   console.log(`🌐 Web Simulator:  http://localhost:${port}`);
