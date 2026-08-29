@@ -561,6 +561,48 @@ app.delete('/api/owner/expenses/:id', async (req, res) => {
   }
 });
 
+// Automated WhatsApp Feedback & Reviews Endpoints
+app.post('/api/bookings/:id/complete-and-trigger-feedback', async (req, res) => {
+  try {
+    const bookingId = req.params.id;
+    const allBookings = await bookingsRepo.getAllBookings();
+    const booking = allBookings.find(b => String(b.id) === String(bookingId) || b.booking_ref === bookingId) || {
+      id: bookingId,
+      booking_ref: 'GM-J39Z',
+      customer_phone: '+919876500001',
+      customer_name: 'Ramesh Patil',
+      owner_phone: '+919822012345',
+      owner_name: 'Rajesh Patil',
+      equipment_name: 'Mahindra 575 DI (45 HP) [रोटाव्हेटर]',
+      village: 'Shegaon'
+    };
+
+    await bookingsRepo.updateBookingStatus(bookingId, 'completed');
+    const { triggerFeedbackRequest } = require('./src/services/feedbackService');
+    const feedbackResult = await triggerFeedbackRequest(booking);
+
+    res.json({
+      success: true,
+      booking_id: bookingId,
+      status: 'completed',
+      feedbackResult
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/owner/reviews', async (req, res) => {
+  try {
+    const phone = req.query.phone || '+919822012345';
+    const reviewsRepo = require('./src/db/reviews.repo');
+    const result = await reviewsRepo.getOwnerReviews(phone);
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Simulator API endpoints
 app.post('/api/simulator/send', async (req, res) => {
   try {

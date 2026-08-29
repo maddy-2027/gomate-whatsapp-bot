@@ -310,6 +310,27 @@ async function runE2ETests() {
   assert(expAddRes.ok && expAddRes.data.record.net_profit > 0, `New expense log created with net profit ₹${expAddRes.data.record.net_profit}`);
 
   // -------------------------------------------------------------
+  // Phase 11: Automated WhatsApp Feedback & Star Ratings
+  // -------------------------------------------------------------
+  console.log('\n--- Phase 11: Automated WhatsApp Feedback & Star Ratings ---');
+  const feedbackTrigger = await request('/api/bookings/1/complete-and-trigger-feedback', {
+    method: 'POST'
+  });
+  assert(feedbackTrigger.ok && feedbackTrigger.data.feedbackResult.prompt.includes('अभिप्राय'), 'Post-job 1-tap feedback request generated for farmer on WhatsApp');
+
+  const farmerRatingReply = await request('/api/simulator/send', {
+    method: 'POST',
+    body: JSON.stringify({
+      phone: '+919876500001',
+      message: '5 अतिशय वेळेवर व उत्तम रोटाव्हेटर काम झाले!'
+    })
+  });
+  assert(farmerRatingReply.ok && farmerRatingReply.data.reply.includes('5-स्टार'), 'Farmer 5-Star rating recorded and thank-you voucher returned');
+
+  const ownerReviewsRes = await request('/api/owner/reviews?phone=+919822012345');
+  assert(ownerReviewsRes.ok && ownerReviewsRes.data.averageRating >= 4.5, `Owner reputation updated to ⭐ ${ownerReviewsRes.data.averageRating}/5`);
+
+  // -------------------------------------------------------------
   // Test Summary
   // -------------------------------------------------------------
   console.log('\n===============================================================');

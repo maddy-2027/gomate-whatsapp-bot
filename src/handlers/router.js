@@ -9,6 +9,7 @@ const dashboardHandler = require('./owner/dashboardHandler');
 const subscriptionHandler = require('./owner/subscriptionHandler');
 const { generateChatResponse } = require('../services/gemini');
 const { hasPendingDispatch, handleOwnerResponse } = require('../services/dispatchService');
+const { hasPendingFeedback, handleFeedbackResponse } = require('../services/feedbackService');
 
 const userProfileCache = new Map();
 
@@ -33,6 +34,12 @@ async function routeMessage(phone, text, session) {
   if (hasPendingDispatch(phone)) {
     const dispatchReply = await handleOwnerResponse(phone, rawText);
     if (dispatchReply) return dispatchReply;
+  }
+
+  // 0.1 Check if this phone has a pending job feedback request (1-5 Star Rating)
+  if (hasPendingFeedback(phone)) {
+    const feedbackReply = await handleFeedbackResponse(phone, rawText, session);
+    if (feedbackReply) return feedbackReply;
   }
 
   const isSingleDigit = /^[0-9]+$/.test(t);
