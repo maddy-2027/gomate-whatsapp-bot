@@ -445,6 +445,17 @@ async function runE2ETests() {
   assert(fleetLogRes.ok && fleetLogRes.data.log.length >= 1, `Fleet assignment audit log contains ${fleetLogRes.data.count} records`);
 
   // -------------------------------------------------------------
+  // Phase 18: Owner Monthly Booking & Earnings Calendar Engine
+  // -------------------------------------------------------------
+  console.log('\n--- Phase 18: Owner Monthly Booking & Earnings Calendar Engine ---');
+
+  const calRes = await request('/api/owner/calendar?phone=+919822012345&month=2026-08');
+  assert(calRes.ok && calRes.data.calendar.days.length === 31, `Calendar engine built 31-day matrix for August 2026`);
+  assert(calRes.data.calendar.summary.bookedDays > 10, `Owner has ${calRes.data.calendar.summary.bookedDays} booked machinery days in month`);
+  assert(calRes.data.calendar.summary.totalNetProfit > 20000, `Owner monthly net profit computed: ₹${calRes.data.calendar.summary.totalNetProfit.toLocaleString('en-IN')}`);
+  assert(calRes.data.calendar.summary.occupancyRatePercent >= 50, `Fleet occupancy rate calculated: ${calRes.data.calendar.summary.occupancyRatePercent}%`);
+
+  // -------------------------------------------------------------
   // Test Summary
   // -------------------------------------------------------------
   console.log('\n===============================================================');

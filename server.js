@@ -1169,6 +1169,22 @@ app.get('/api/admin/fleet/log', (req, res) => {
   res.json({ success: true, log, count: log.length });
 });
 
+// =============================================================
+// Owner Monthly Booking & Earnings Calendar Endpoint
+// =============================================================
+const calendarService = require('./src/services/calendarService');
+
+/** GET /api/owner/calendar — owner monthly schedule, booked days, and net profits */
+app.get('/api/owner/calendar', async (req, res) => {
+  try {
+    const { phone, month } = req.query;
+    const calendar = await calendarService.getOwnerMonthlyCalendar(phone || '+919822012345', month || '2026-08');
+    res.json({ success: true, calendar });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.use((err, req, res, next) => { console.error(err.stack); res.status(500).send('Something broke!'); });
 
 app.listen(port, '0.0.0.0', () => {

@@ -97,6 +97,8 @@ function switchOwnerTab(tabId) {
 
   if (tabId === 'expenses') {
     fetchOwnerExpenses();
+  } else if (tabId === 'calendar') {
+    fetchOwnerCalendar();
   }
 }
 
@@ -721,4 +723,114 @@ async function logServiceCompleted(serviceId) {
   } catch (err) {
     showToast('नोंद करता आली नाही.', 'error');
   }
+}
+
+// ==========================================================================
+// Owner Monthly Booking & Earnings Calendar (Emoji-Free)
+// ==========================================================================
+let ownerCalendarData = null;
+let currentCalendarMonth = '2026-08';
+
+async function fetchOwnerCalendar(monthStr = '2026-08') {
+  currentCalendarMonth = monthStr;
+  try {
+    const res = await fetch(`/api/owner/calendar?phone=${encodeURIComponent(currentOwnerPhone)}&month=${encodeURIComponent(monthStr)}`);
+    if (!res.ok) throw new Error('Failed to load calendar');
+    const data = await res.json();
+    ownerCalendarData = data.calendar;
+    renderOwnerCalendar();
+  } catch (err) {
+    console.error('Error loading owner calendar:', err);
+  }
+}
+
+function renderOwnerCalendar() {
+  if (!ownerCalendarData) return;
+
+  const summary = ownerCalendarData.summary || {};
+  const days = ownerCalendarData.days || [];
+
+  // Update Summary KPIs
+  const bookedEl = document.getElementById('calKpiBookedDays');
+  if (bookedEl) bookedEl.textContent = `${summary.bookedDays || 0} दिवस`;
+
+  const occEl = document.getElementById('calKpiOccupancy');
+  if (occEl) occEl.textContent = `${summary.occupancyRatePercent || 0}% Fleet Occupancy`;
+
+  const idleEl = document.getElementById('calKpiIdleDays');
+  if (idleEl) idleEl.textContent = `${summary.idleDays || 0} दिवस`;
+
+  const maintEl = document.getElementById('calKpiMaintDays');
+  if (maintEl) maintEl.textContent = `${summary.maintenanceDays || 0} दिवस`;
+
+  const profitEl = document.getElementById('calKpiNetProfit');
+  if (profitEl) profitEl.textContent = `+₹${(summary.totalNetProfit || 0).toLocaleString('en-IN')}`;
+
+  const grossEl = document.getElementById('calKpiGrossRevenue');
+  if (grossEl) grossEl.textContent = `एकूण भाडे: ₹${(summary.totalGrossRevenue || 0).toLocaleString('en-IN')}`;
+
+  const grid = document.getElementById('ownerCalendarDaysGrid');
+  if (!grid) return;
+
+  grid.innerHTML = days.map(d => {
+    let bg = '#FFFFFF';
+    let borderColor = '#E2E8F0';
+    let badgeBg = '#F1F5F9';
+    let badgeColor = '#475569';
+    let statusText = 'मोकळा दिवस';
+
+    if (d.status === 'BOOKED') {
+      bg = '#F0FDF4';
+      borderColor = '#86EFAC';
+      badgeBg = '#DCFCE7';
+      badgeColor = '#166534';
+      statusText = 'बुकिंग चालू';
+    } else if (d.status === 'MAINTENANCE') {
+      bg = '#FFFBEB';
+      borderColor = '#FDE68A';
+      badgeBg = '#FEF3C7';
+      badgeColor = '#92400E';
+      statusText = 'सर्व्हिस देखभाल';
+    }
+
+    const todayBorder = d.isToday ? 'border: 2px solid #2563EB; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);' : `border: 1px solid ${borderColor};`;
+
+    return `
+      <div style="background: ${bg}; ${todayBorder} border-radius: 8px; padding: 10px; min-height: 110px; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.15s ease;">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-weight: 800; font-size: 14px; color: ${d.isToday ? '#2563EB' : '#0F172A'};">
+              ${d.day}
+            </span>
+            <span style="font-size: 10px; font-weight: 700; background: ${badgeBg}; color: ${badgeColor}; padding: 2px 5px; border-radius: 4px;">
+              ${statusText}
+            </span>
+          </div>
+
+          ${d.status === 'BOOKED' ? `
+            <div style="font-size: 11px; font-weight: 700; color: #0F172A; line-height: 1.3;">${d.farmer} (${d.village})</div>
+            <div style="font-size: 10.5px; color: #475569; margin-top: 2px;">${d.work} &bull; ${d.hours} तास</div>
+          ` : (d.status === 'MAINTENANCE' ? `
+            <div style="font-size: 11px; font-weight: 700; color: #92400E;">${d.work}</div>
+            <div style="font-size: 10.5px; color: #78350F; margin-top: 2px;">खर्च: ₹${d.maintenanceCost.toLocaleString('en-IN')}</div>
+          ` : `
+            <div style="font-size: 10.5px; color: #94A3B8; margin-top: 4px;">नवीन बुकिंगसाठी उपलब्ध</div>
+          `)}
+        </div>
+
+        <div style="border-top: 1px solid rgba(0,0,0,0.06); padding-top: 6px; margin-top: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
+          ${d.status === 'BOOKED' ? `
+            <span style="font-weight: 800; color: #15803D;">+₹${d.netProfit.toLocaleString('en-IN')}</span>
+            <span style="color: #64748B; font-size: 10px;">डिझेल: ₹${d.dieselCost}</span>
+          ` : (d.status === 'MAINTENANCE' ? `
+            <span style="font-weight: 700; color: #B45309;">-₹${d.maintenanceCost.toLocaleString('en-IN')}</span>
+            <span style="color: #64748B; font-size: 10px;">सर्व्हिस</span>
+          ` : `
+            <span style="color: #94A3B8; font-weight: 600;">₹0</span>
+            <span style="color: #94A3B8; font-size: 10px;">मोकळा</span>
+          `)}
+        </div>
+      </div>
+    `;
+  }).join('');
 }
