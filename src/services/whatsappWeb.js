@@ -1,3 +1,6 @@
+// Ensure TLS connections succeed across local Windows network environments
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 const { makeWASocket, useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = require('@whiskeysockets/baileys');
 const pino = require('pino');
 const qrcode = require('qrcode');
@@ -11,6 +14,7 @@ let currentQrDataUrl = null;
 let rawQrCode = null;
 let isReady = false;
 let connectedUser = null;
+let isInitializing = false;
 const AUTH_DIR = path.join(process.cwd(), '.baileys_auth');
 
 // In-memory debounce set to prevent loop replies
@@ -20,27 +24,36 @@ const recentReplies = new Set();
  * Initialize Baileys WhatsApp Web Multi-Device Client
  */
 async function initWhatsAppWeb(onQrCallback, onReadyCallback) {
+  if (isInitializing) return;
+  isInitializing = true;
+
   try {
     if (!fs.existsSync(AUTH_DIR)) {
       fs.mkdirSync(AUTH_DIR, { recursive: true });
     }
 
     const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
-    let version = [2, 3000, 1015901307];
+    
+    let version = undefined;
     try {
       const v = await fetchLatestBaileysVersion();
       if (v && v.version) version = v.version;
-    } catch (e) {}
+    } catch (e) {
+      // Fallback to Baileys default built-in version
+    }
 
     waSocket = makeWASocket({
       version,
       auth: state,
       printQRInTerminal: false,
       logger: pino({ level: 'silent' }),
-      browser: ['GoMate 24x7 Server', 'Chrome', '126.0.0.0'],
+      browser: ['GoMate Platform', 'Chrome', '126.0.0.0'],
       syncFullHistory: false,
       generateHighQualityLinkPreview: true,
       markOnlineOnConnect: true,
+      connectTimeoutMs: 60000,
+      defaultQueryTimeoutMs: 60000,
+      keepAliveIntervalMs: 25000,
     });
 
     waSocket.ev.on('creds.update', saveCreds);
@@ -78,6 +91,7 @@ async function initWhatsAppWeb(onQrCallback, onReadyCallback) {
 
       if (connection === 'close') {
         isReady = false;
+        isInitializing = false;
         currentQrDataUrl = null;
         const statusCode = lastDisconnect?.error?.output?.statusCode;
         const shouldReconnect = statusCode !== DisconnectReason.loggedOut;

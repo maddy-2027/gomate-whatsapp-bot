@@ -3,591 +3,290 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GoMate WhatsApp 24/7 SIM Connect</title>
+  <title>GoMate WhatsApp 24/7 Pairing Console</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primary: #15803d;
-      --primary-dark: #166534;
-      --accent: #f59e0b;
-      --bg: #090d16;
-      --card-bg: rgba(17, 24, 39, 0.85);
-      --text: #f3f4f6;
-      --text-muted: #9ca3af;
-      --border: rgba(255, 255, 255, 0.1);
-      --green-glow: 0 0 25px rgba(34, 197, 94, 0.35);
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
     }
-      --card-bg: #0f172a;
-      --border: #1e293b;
-      --text-muted: #94a3b8;
-      --green-glow: 0 0 20px rgba(22, 163, 74, 0.2);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body {
-      background: #020617;
-      color: #e2e8f0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .merchant-info h2 {
-      font-size: 17px;
-      font-weight: 700;
-    }
-
-    .merchant-info p {
-      font-size: 12px;
-      color: #a5b4fc;
-      margin-top: 2px;
-    }
-
-    .secure-badge {
-      margin-left: auto;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 11px;
-      color: #6ee7b7;
-      font-weight: 600;
-      flex-shrink: 0;
-    }
-
-    .lock-icon { font-size: 14px; }
-
-    /* Amount Block */
-    .amount-block {
-      background: #f8faff;
-      padding: 20px 24px;
-      border-bottom: 1px solid #e2e8f0;
-      text-align: center;
-    }
-
-    .amount-block .label {
-      font-size: 12px;
-      color: #64748b;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .amount-block .amount {
-      font-size: 40px;
-      font-weight: 800;
-      color: #0f172a;
-      letter-spacing: -1px;
-      margin: 4px 0;
-    }
-
-    .amount-block .plan-tag {
-      display: inline-block;
-      background: #dcfce7;
-      color: #166534;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 3px 10px;
-      border-radius: 20px;
-      margin-top: 4px;
-    }
-
-    /* Payment Body */
-    .card-body { padding: 24px; }
-
-    /* UPI Section */
-    .section-title {
-      font-size: 13px;
-      font-weight: 700;
-      color: #374151;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .upi-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .upi-option {
-      border: 2px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 14px 10px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      background: #fff;
-    }
-
-    .upi-option:hover, .upi-option.selected {
-      border-color: #4f46e5;
-      background: #eef2ff;
-    }
-
-    .upi-option .upi-icon { font-size: 24px; margin-bottom: 4px; }
-    .upi-option .upi-label {
-      font-size: 11px;
-      font-weight: 600;
-      color: #374151;
-    }
-
-    .upi-id-input-wrap {
-      margin-bottom: 20px;
-    }
-
-    .upi-id-input-wrap label {
-      font-size: 12px;
-      font-weight: 600;
-      color: #374151;
-      display: block;
-      margin-bottom: 6px;
-    }
-
-    .upi-id-input {
-      width: 100%;
-      padding: 12px 14px;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 10px;
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .upi-id-input:focus { border-color: #4f46e5; }
-
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: #94a3b8;
-      font-size: 12px;
-      margin: 16px 0;
-    }
-
-    .divider::before, .divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: #e2e8f0;
-    }
-
-    /* Pay Button */
-    .pay-btn {
-      width: 100%;
-      padding: 16px;
-      background: linear-gradient(135deg, #059669, #10b981);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      letter-spacing: 0.3px;
-    }
-
-    .pay-btn:hover { 
-      background: linear-gradient(135deg, #047857, #059669);
-      transform: translateY(-1px);
-      box-shadow: 0 8px 20px rgba(5, 150, 105, 0.3);
-    }
-
-    .pay-btn:active { transform: translateY(0); }
-
-    .pay-btn:disabled {
-      background: #d1d5db;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-
-    /* Footer */
-    .card-footer {
-      padding: 14px 24px;
-      background: #f8fafc;
-      border-top: 1px solid #e2e8f0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-
-    .card-footer span {
-      font-size: 11px;
-      color: #94a3b8;
-    }
-
-    .rzp-logo {
-      font-size: 11px;
-      font-weight: 700;
-      color: #3b82f6;
-    }
-
-    /* What You Get Block */
-    .benefits-block {
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      border-radius: 12px;
-      padding: 14px;
-      margin-bottom: 20px;
-    }
-
-    .benefits-block .benefits-title {
-      font-size: 12px;
-      font-weight: 700;
-      color: #166534;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .benefit-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      color: #374151;
-      margin-bottom: 4px;
-    }
-
-    .benefit-row:last-child { margin-bottom: 0; }
-
-    :root {
-      --card-bg: #0f172a;
-      --border: #1e293b;
-      --text-muted: #94a3b8;
-      --green-glow: 0 0 20px rgba(22, 163, 74, 0.2);
-    }
-    body {
-      background: #020617;
-      color: #e2e8f0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 20px;
-    }
-    .container {
-      max-width: 580px;
-      width: 100%;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 36px 28px;
-      backdrop-filter: blur(16px);
-      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-      text-align: center;
-    }
-    .brand {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-    .brand-icon {
-      font-size: 2.2rem;
-      background: #166534;
-      padding: 8px 14px;
-      border-radius: 16px;
-      box-shadow: var(--green-glow);
-    }
-    .brand-title {
-      font-size: 1.6rem;
-      font-weight: 800;
-      color: #fff;
-      letter-spacing: -0.5px;
-    }
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 14px;
-      border-radius: 9999px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-bottom: 24px;
-    }
-    .badge-connecting { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
-    .badge-live { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); box-shadow: var(--green-glow); }
-    .badge-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; animation: pulse 1.8s infinite; }
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-    
-    .qr-box {
-      background: #ffffff;
-      padding: 20px;
-      border-radius: 20px;
-      display: inline-block;
-      margin: 16px 0;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-      min-width: 250px;
-      min-height: 250px;
-      position: relative;
-    }
-    .qr-img {
-      width: 220px;
-      height: 220px;
-      display: block;
-      border-radius: 8px;
-      margin: 0 auto;
-    }
-    .spinner {
-      border: 3px solid rgba(0,0,0,0.1);
-      border-top: 3px solid #16a34a;
-      border-radius: 50%;
-      width: 36px;
-      height: 36px;
-      animation: spin 1s linear infinite;
-      margin: 90px auto;
-    }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-    .instructions {
-      text-align: left;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
-      padding: 18px 20px;
-      margin-top: 24px;
-      font-size: 0.92rem;
-      line-height: 1.6;
-    }
-    .instructions h4 {
-      color: #fff;
-      font-size: 0.95rem;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .instructions ol {
-      margin-left: 20px;
-      color: var(--text-muted);
-    }
-    .instructions li { margin-bottom: 6px; }
-    .instructions strong { color: #f3f4f6; }
-
-    .connected-card {
-      display: none;
-      background: rgba(34, 197, 94, 0.08);
-      border: 1px solid rgba(34, 197, 94, 0.25);
-      border-radius: 20px;
-      padding: 28px 20px;
-      margin-top: 10px;
-    }
-    .connected-card h3 {
-      font-size: 1.3rem;
-      color: #4ade80;
-      margin-bottom: 8px;
-    }
-    .connected-phone {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #fff;
-      margin: 12px 0;
-      letter-spacing: 0.5px;
-    }
-    .btn-unlink {
-      background: rgba(239, 68, 68, 0.15);
-      color: #f87171;
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      padding: 8px 18px;
-      border-radius: 10px;
-      font-weight: 600;
-      font-size: 0.85rem;
-      cursor: pointer;
-      margin-top: 16px;
-      transition: all 0.2s;
-    }
-    .btn-unlink:hover { background: rgba(239, 68, 68, 0.3); color: #fff; }
-    .links-footer {
-      margin-top: 24px;
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-      font-size: 0.85rem;
-    }
-    .links-footer a { color: #60a5fa; text-decoration: none; }
-    .links-footer a:hover { text-decoration: underline; }
-  </style>
+  </script>
 </head>
-<body>
-      <div class="benefits-block">
-        <div class="benefits-title">🎁 What you get with Owner Pro:</div>
-        <div class="benefit-row">✅ Unlimited equipment listings on GoMate</div>
-        <div class="benefit-row">✅ Real-time WhatsApp booking alerts</div>
-        <div class="benefit-row">✅ AI-powered customer matching</div>
-        <div class="benefit-row">✅ Trilingual support (मराठी / English / हिंदी)</div>
-      </div>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-white">
 
-      <!-- UPI Apps -->
-      <div class="section-title">📱 Pay with UPI App</div>
-      <div class="upi-grid">
-        <div class="upi-option" onclick="selectUPI('phonepe', this)">
-          <div class="upi-icon">💜</div>
-          <div class="upi-label">PhonePe</div>
+  <!-- Header & Navigation -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-xl shadow-lg shadow-brand-500/20">
+          🚜
         </div>
-        <div class="upi-option" onclick="selectUPI('gpay', this)">
-          <div class="upi-icon">🅖</div>
-          <div class="upi-label">Google Pay</div>
-        </div>
-        <div class="upi-option" onclick="selectUPI('paytm', this)">
-          <div class="upi-icon">🔵</div>
-          <div class="upi-label">Paytm</div>
-        </div>
-        <div class="upi-option" onclick="selectUPI('bhim', this)">
-          <div class="upi-icon">🏛️</div>
-          <div class="upi-label">BHIM UPI</div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="text-xl font-bold tracking-tight text-white">GoMate</span>
+            <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-400 border border-brand-500/30">WhatsApp 24/7 Engine</span>
+          </div>
+          <p class="text-xs text-slate-400">Maharashtra Agricultural & Machinery Marketplace</p>
         </div>
       </div>
 
-      <!-- Divider -->
-      <div class="divider">or enter UPI ID manually</div>
+      <!-- Quick Nav Links -->
+      <nav class="flex items-center space-x-2 sm:space-x-3 text-xs sm:text-sm font-medium">
+        <a href="/" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">Web Simulator</a>
+        <a href="/admin" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">Admin HQ</a>
+        <a href="/owner" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">Owner Pro</a>
+        <a href="/landing" class="px-3 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white transition font-semibold">Landing Page</a>
+      </nav>
+    </div>
+  </header>
 
-      <!-- UPI ID Input -->
-      <div class="upi-id-input-wrap">
-        <label>Your UPI ID</label>
-        <input
-          type="text"
-          class="upi-id-input"
-          id="upiIdInput"
-          placeholder="e.g. yourname@ybl, 9876543210@paytm"
-        />
+  <!-- Main Hero & Pairing Console -->
+  <main class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12 flex flex-col items-center">
+
+    <!-- Status Pill -->
+    <div id="statusPill" class="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30 mb-6">
+      <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+      <span id="statusText">Starting WhatsApp Baileys Engine...</span>
+    </div>
+
+    <!-- Central Interactive Pairing Card -->
+    <div class="w-full max-w-xl bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-black/60 relative overflow-hidden backdrop-blur-xl">
+      <div class="absolute -top-24 -right-24 w-48 h-48 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- State 1: QR Scanning Mode -->
+      <div id="qrContainer" class="flex flex-col items-center text-center">
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">
+          Link Real WhatsApp SIM
+        </h1>
+        <p class="text-sm text-slate-400 max-w-sm mb-6">
+          Scan this QR code using WhatsApp on your smartphone to activate 24/7 automated booking replies.
+        </p>
+
+        <!-- QR Frame -->
+        <div class="relative bg-white p-4 rounded-2xl shadow-xl flex items-center justify-center min-w-[240px] min-h-[240px] border border-slate-200">
+          <div id="qrLoadingSpinner" class="flex flex-col items-center justify-center space-y-3 py-10">
+            <svg class="animate-spin h-10 w-10 text-brand-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            <span class="text-xs font-semibold text-slate-600">Generating Secure Pairing QR...</span>
+          </div>
+          <img id="qrImage" class="w-56 h-56 rounded-lg hidden" alt="WhatsApp Web QR Code" />
+        </div>
+
+        <div class="mt-4 flex items-center space-x-2 text-xs text-slate-400">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span>Auto-refreshes every 20s until scanned</span>
+        </div>
+
+        <!-- 4 Step Easy Guide -->
+        <div class="w-full mt-8 pt-6 border-t border-slate-800/80 text-left">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">
+            <span>📲</span> How to Link in 10 Seconds
+          </h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+            <div class="p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/50 flex items-start space-x-2.5">
+              <span class="w-5 h-5 rounded-full bg-brand-500/20 text-brand-400 font-bold flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
+              <span class="text-slate-300">Open <strong>WhatsApp</strong> on your mobile phone</span>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/50 flex items-start space-x-2.5">
+              <span class="w-5 h-5 rounded-full bg-brand-500/20 text-brand-400 font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
+              <span class="text-slate-300">Tap <strong>Settings / 3 Dots (⋮)</strong></span>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/50 flex items-start space-x-2.5">
+              <span class="w-5 h-5 rounded-full bg-brand-500/20 text-brand-400 font-bold flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
+              <span class="text-slate-300">Select <strong>Linked Devices</strong></span>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/50 flex items-start space-x-2.5">
+              <span class="w-5 h-5 rounded-full bg-brand-500/20 text-brand-400 font-bold flex items-center justify-center flex-shrink-0 mt-0.5">4</span>
+              <span class="text-slate-300">Tap <strong>Link a Device</strong> & Scan QR above</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- Pay Button -->
-      <button class="pay-btn" id="payBtn" onclick="initiatePayment()">
-        🔐 Pay ₹599 Securely
-      </button>
+      <!-- State 2: Live Connected Mode -->
+      <div id="connectedContainer" class="hidden flex-col items-center text-center">
+        <div class="w-16 h-16 rounded-2xl bg-brand-500/20 border border-brand-500/40 text-brand-400 flex items-center justify-center text-3xl mb-4 shadow-xl shadow-brand-500/20">
+          ✅
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">
+          GoMate Bot is Live & Connected!
+        </h1>
+        <p class="text-sm text-slate-300 max-w-md mb-6">
+          Your WhatsApp number is paired. Farmers and contractors can now send messages and get instant automated quotes & bookings.
+        </p>
+
+        <!-- Connected Number Box -->
+        <div class="w-full bg-slate-800/70 border border-slate-700 rounded-2xl p-5 mb-6 text-left space-y-3">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-700/60">
+            <span class="text-xs font-semibold text-slate-400">Connected Phone Number</span>
+            <span class="text-xs font-bold text-emerald-400 flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Real WhatsApp Active
+            </span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span id="connectedPhone" class="text-xl font-mono font-bold text-white tracking-wide">+91 ...</span>
+            <a id="testChatBtn" href="#" target="_blank" class="px-3.5 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs transition flex items-center gap-1.5 shadow-md shadow-brand-600/30">
+              <span>💬 Test Chat</span>
+            </a>
+          </div>
+          <div class="text-[11px] text-slate-400 flex items-center justify-between pt-1">
+            <span>Protocol: Baileys Multi-Device v7</span>
+            <span>Uptime: 24/7 Keep-Alive Active</span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row items-center gap-3 w-full">
+          <a href="/" class="w-full sm:w-1/2 py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-semibold text-xs text-center transition">
+            Open Web Simulator
+          </a>
+          <button onclick="unlinkWhatsApp()" class="w-full sm:w-1/2 py-2.5 px-4 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 font-semibold text-xs transition">
+            Disconnect / Switch Number
+          </button>
+        </div>
+      </div>
     </div>
 
-    <!-- Success Screen (hidden initially) -->
-    <div class="success-screen" id="successScreen">
-      <div class="success-icon">✅</div>
-      <h2>Payment Successful!</h2>
-      <p>Your GoMate Owner Pro subscription is now <strong>active for 30 days</strong>.</p>
-  <div class="container">
-    <div class="brand">
-      <span class="brand-icon">🚜</span>
-      <div class="brand-title">GoMate WhatsApp 24/7</div>
-    </div>
-
-    <div id="statusBadge" class="badge badge-connecting">
-      <span class="badge-dot"></span>
-      <span id="statusText">Starting WhatsApp Engine...</span>
-    </div>
-
-    <!-- QR Section (Waiting for Scan) -->
-    <div id="qrSection">
-      <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 12px;">
-        Scan this QR Code with WhatsApp on your phone to connect:
-      </p>
-
-      <div class="qr-box">
-        <div id="spinner" class="spinner"></div>
-        <img id="qrImage" class="qr-img" style="display: none;" alt="WhatsApp QR Code">
+    <!-- Feature Grid below pairing -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full mt-10">
+      <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5">
+        <div class="w-9 h-9 rounded-lg bg-brand-500/10 text-brand-400 flex items-center justify-center text-lg mb-3">🚜</div>
+        <h2 class="text-sm font-bold text-white mb-1">Instant Machinery Search</h2>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          Tractors, Rotavators, JCB Excavators, Harvesters, and Agriculture Drones available on demand across Maharashtra talukas.
+        </p>
       </div>
 
-      <div class="instructions">
-        <h4>📲 How to connect in 10 seconds:</h4>
-        <ol>
-          <li>Open <strong>WhatsApp</strong> on your mobile phone.</li>
-          <li>Tap <strong>Settings</strong> (iOS) or <strong>Three Dots ⋮</strong> (Android).</li>
-          <li>Select <strong>Linked Devices</strong>.</li>
-          <li>Tap <strong>Link a Device</strong> and point camera at the QR code above.</li>
-        </ol>
+      <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5">
+        <div class="w-9 h-9 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center text-lg mb-3">🗣️</div>
+        <h2 class="text-sm font-bold text-white mb-1">Trilingual AI Assistant</h2>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          Speaks fluent <strong>मराठी (Marathi)</strong>, <strong>हिंदी (Hindi)</strong>, and <strong>English</strong> with voice note & GPS pin support.
+        </p>
+      </div>
+
+      <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5">
+        <div class="w-9 h-9 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-lg mb-3">🧾</div>
+        <h2 class="text-sm font-bold text-white mb-1">Automated Invoices & UPI</h2>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          Generates itemized tax invoices, hourly rental calculations, and Razorpay/UPI payment links delivered straight into WhatsApp.
+        </p>
       </div>
     </div>
 
-    <!-- Connected State Card -->
-    <div id="connectedSection" class="connected-card">
-      <h3>🎉 Connected & Online 24×7</h3>
-      <p style="color: var(--text-muted); font-size: 0.9rem;">Your GoMate bot is actively handling customer bookings on:</p>
-      <div id="phoneDisplay" class="connected-phone">+91 ...</div>
-      <p style="color: #94a3b8; font-size: 0.85rem;">
-        ⚡ Zero Twilio bills • Native WhatsApp Multi-Device • 24/7 Instant Replies
-      </p>
-      <button class="btn-unlink" onclick="unlinkDevice()">Unlink / Connect Another Number</button>
-    </div>
+  </main>
 
-    <div class="links-footer">
-      <a href="/">Web Simulator</a>
-      <span>•</span>
-      <a href="/admin">Admin Console</a>
-      <span>•</span>
-      <a href="/owner">Owner Portal</a>
+  <!-- Footer -->
+  <footer class="border-t border-slate-800/80 py-6 text-center text-xs text-slate-400">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <p>&copy; 2026 GoMate AgriTech Platform. Built for Indian Farmers & Machinery Owners.</p>
+      <div class="flex items-center space-x-4">
+        <span class="text-emerald-400 flex items-center gap-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> System Operational
+        </span>
+        <span>•</span>
+        <a href="/admin" class="hover:underline">Admin Login</a>
+      </div>
     </div>
-  </div>
+  </footer>
 
   <script>
-    let pollInterval = null;
+    let isPolling = true;
 
-    async function checkStatus() {
+    async function fetchWhatsAppStatus() {
+      if (!isPolling) return;
       try {
         const res = await fetch('/api/whatsapp/status');
         const data = await res.json();
 
-        const badge = document.getElementById('statusBadge');
+        const statusPill = document.getElementById('statusPill');
         const statusText = document.getElementById('statusText');
-        const qrSection = document.getElementById('qrSection');
-        const connectedSection = document.getElementById('connectedSection');
+        const qrContainer = document.getElementById('qrContainer');
+        const connectedContainer = document.getElementById('connectedContainer');
         const qrImage = document.getElementById('qrImage');
-        const spinner = document.getElementById('spinner');
-        const phoneDisplay = document.getElementById('phoneDisplay');
+        const qrLoadingSpinner = document.getElementById('qrLoadingSpinner');
+        const connectedPhone = document.getElementById('connectedPhone');
+        const testChatBtn = document.getElementById('testChatBtn');
 
         if (data.isReady || data.status === 'connected') {
-          badge.className = 'badge badge-live';
-          statusText.innerText = 'Online 24/7 (Connected)';
-          qrSection.style.display = 'none';
-          connectedSection.style.display = 'block';
-          phoneDisplay.innerText = data.phone || data.user || 'Connected Device';
+          // Connected state
+          statusPill.className = 'inline-flex items-center space-x-2 px-4 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 mb-6';
+          statusText.innerHTML = '🟢 WhatsApp Bot Active & Online 24/7';
+
+          qrContainer.classList.add('hidden');
+          connectedContainer.classList.remove('hidden');
+          connectedContainer.classList.add('flex');
+
+          const phone = data.phone || data.user || '+91-Real-WhatsApp';
+          connectedPhone.innerText = phone;
+          const cleanDigits = phone.replace(/[^0-9]/g, '');
+          testChatBtn.href = `https://wa.me/${cleanDigits}?text=Hi`;
+
         } else if (data.qrDataUrl) {
-          badge.className = 'badge badge-connecting';
-          statusText.innerText = 'Ready to Scan';
-          qrSection.style.display = 'block';
-          connectedSection.style.display = 'none';
-          spinner.style.display = 'none';
-          qrImage.style.display = 'block';
+          // Ready for scan state
+          statusPill.className = 'inline-flex items-center space-x-2 px-4 py-1.5 rounded-full text-xs font-semibold bg-brand-500/10 text-brand-400 border border-brand-500/30 mb-6';
+          statusText.innerHTML = '⚡ Ready for Scan — Point Camera at QR';
+
+          connectedContainer.classList.add('hidden');
+          connectedContainer.classList.remove('flex');
+          qrContainer.classList.remove('hidden');
+
+          qrLoadingSpinner.classList.add('hidden');
           qrImage.src = data.qrDataUrl;
+          qrImage.classList.remove('hidden');
+
         } else {
-          badge.className = 'badge badge-connecting';
-          statusText.innerText = 'Starting WhatsApp Engine...';
-          qrSection.style.display = 'block';
-          connectedSection.style.display = 'none';
-          spinner.style.display = 'block';
-          qrImage.style.display = 'none';
+          // Connecting / Generating state
+          statusPill.className = 'inline-flex items-center space-x-2 px-4 py-1.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30 mb-6';
+          statusText.innerHTML = '⏳ Initializing WhatsApp Multi-Device Gateway...';
+
+          connectedContainer.classList.add('hidden');
+          connectedContainer.classList.remove('flex');
+          qrContainer.classList.remove('hidden');
+
+          qrImage.classList.add('hidden');
+          qrLoadingSpinner.classList.remove('hidden');
         }
-      } catch (e) {
-        console.error('Error fetching WhatsApp status:', e);
+      } catch (err) {
+        console.warn('Status poll error:', err);
       }
     }
 
-    async function unlinkDevice() {
-      if (!confirm('Are you sure you want to disconnect this WhatsApp number?')) return;
+    async function unlinkWhatsApp() {
+      if (!confirm('Are you sure you want to disconnect this WhatsApp number? You can scan a new QR anytime.')) return;
       try {
         await fetch('/api/whatsapp/logout', { method: 'POST' });
-        checkStatus();
+        fetchWhatsAppStatus();
       } catch (e) {
-        alert('Error unlinking device');
+        alert('Failed to disconnect');
       }
     }
 
-    checkStatus();
-    pollInterval = setInterval(checkStatus, 2500);
+    // Initial check and regular polling
+    fetchWhatsAppStatus();
+    setInterval(fetchWhatsAppStatus, 2500);
   </script>
 </body>
 </html>
