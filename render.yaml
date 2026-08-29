@@ -7,11 +7,6 @@ services:
     buildCommand: npm ci --only=production
     startCommand: npm run start:prod
     healthCheckPath: /api/health
-    # Persist WhatsApp Baileys auth across deploys & container restarts
-    disk:
-      name: baileys-auth
-      mountPath: /opt/render/project/src/.baileys_auth
-      sizeGB: 1
     envVars:
       - key: PORT
         value: 3000
