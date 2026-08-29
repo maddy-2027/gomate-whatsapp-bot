@@ -1,109 +1,140 @@
-# GoMate — Production Cloud Deployment & Webhook Integration Guide
+# GoMate — Production Cloud Deployment Guide
 
-This guide details the step-by-step procedure to deploy the GoMate WhatsApp Bot and Operations HQ to production cloud infrastructure (Render, Railway, or VPS) and connect the live Twilio WhatsApp and Razorpay webhook endpoints.
-
----
-
-## 1. Quick Deploy Options
-
-### Option A: Deploy to Render.com (Recommended)
-1. Push this repository to GitHub or GitLab.
-2. Sign in to [Render Dashboard](https://dashboard.render.com/) and click **New + $\rightarrow$ Blueprint**.
-3. Connect your repository. Render will automatically detect [`render.yaml`](file:///C:/Users/udayp/.gemini/antigravity/scratch/gomate-whatsapp-bot/render.yaml) and use the Docker runtime.
-4. Fill in your environment variables (see Section 2).
-5. Click **Apply**. Render will build the container, install Chromium dependencies, and launch the service at `https://gomate-whatsapp-bot.onrender.com`.
-
-### Option B: Deploy to Railway.app
-1. Install Railway CLI or visit [Railway.app](https://railway.app/).
-2. Create **New Project $\rightarrow$ Deploy from GitHub Repo**.
-3. Railway automatically detects [`railway.json`](file:///C:/Users/udayp/.gemini/antigravity/scratch/gomate-whatsapp-bot/railway.json) and [`Dockerfile`](file:///C:/Users/udayp/.gemini/antigravity/scratch/gomate-whatsapp-bot/Dockerfile).
-4. Add the environment variables under **Variables**.
-5. Generate a Public Domain under **Settings $\rightarrow$ Networking**.
+This guide covers deploying GoMate to **Render.com** (recommended, free tier) or **Railway.app**, connecting your live WhatsApp SIM via Baileys QR pairing, and verifying all endpoints.
 
 ---
 
-## 2. Production Environment Variables Checklist
+## 1. Prerequisites Checklist
 
-Set these environment variables in your cloud provider's dashboard:
+Before deploying, confirm you have:
 
-| Variable | Description | Example / Production Value |
+- [x] GitHub repository pushed at `https://github.com/maddy-2027/gomate-whatsapp-bot`
+- [x] Supabase project with credentials (already in `.env`)
+- [x] Google Gemini API key (already in `.env`)
+- [ ] Razorpay live API keys (currently using `dummy_key_id` — replace before taking payments)
+- [ ] A real WhatsApp SIM/phone number to pair via QR after deployment
+
+---
+
+## 2. Deploy to Render.com (Recommended — Free Tier)
+
+### Step 1 — Connect Repository
+1. Open [dashboard.render.com](https://dashboard.render.com/) and sign in.
+2. Click **New +** → **Blueprint**.
+3. Connect your GitHub account and select the `gomate-whatsapp-bot` repository.
+4. Render auto-detects `render.yaml` — click **Apply**.
+
+### Step 2 — Set Secret Environment Variables
+The following variables are marked `sync: false` in `render.yaml` (they need manual entry in the Render dashboard under **Environment**):
+
+| Variable | Value |
+|---|---|
+| `GEMINI_API_KEY` | Your Google Gemini API key |
+| `SUPABASE_URL` | `https://ibtznblylmqyexfkyjrv.supabase.co` |
+| `SUPABASE_SERVICE_KEY` | Your Supabase service role key |
+| `SUPABASE_ANON_KEY` | Your Supabase anon key |
+| `RAZORPAY_KEY_ID` | Your Razorpay live key |
+| `RAZORPAY_KEY_SECRET` | Your Razorpay secret |
+| `TWILIO_ACCOUNT_SID` | Your Twilio SID (optional, Baileys is primary) |
+| `TWILIO_AUTH_TOKEN` | Your Twilio auth token (optional) |
+| `TWILIO_WHATSAPP_NUMBER` | `whatsapp:+17372508034` (optional) |
+
+### Step 3 — Deploy & Wait
+- Click **Save Changes** → Render starts the build.
+- Build time: ~2–4 minutes (installs `node_modules`, skips Chromium).
+- Once live, your URL will be: `https://gomate-whatsapp-bot.onrender.com`
+
+### Step 4 — Link Your WhatsApp SIM
+1. Open `https://gomate-whatsapp-bot.onrender.com/qr` in your browser.
+2. Scan the QR code using WhatsApp on your phone (Settings → Linked Devices → Link a Device).
+3. Once paired, the bot goes fully live. The Baileys auth session is persisted on the 1 GB Render Disk so **it survives service restarts and new deploys**.
+
+---
+
+## 3. Deploy to Railway.app (Alternative)
+
+1. Create account at [railway.app](https://railway.app/).
+2. Click **New Project** → **Deploy from GitHub Repo** → select `gomate-whatsapp-bot`.
+3. Railway auto-detects `railway.json` and `Dockerfile`.
+4. Go to **Variables** tab and add all env vars from Section 2 above.
+5. Go to **Settings → Networking** → **Generate Domain** to get a public URL.
+6. Open `https://<your-domain>.railway.app/qr` and scan the WhatsApp QR.
+
+> **Note:** Railway does not have persistent disk on free tier. Baileys auth will reset after restarts. Upgrade to a paid plan or use Railway Volumes.
+
+---
+
+## 4. Webhook Configuration (Optional — Twilio Fallback)
+
+If you want Twilio as a fallback channel alongside Baileys:
+
+1. Open [Twilio Console → Messaging → WhatsApp Sandbox Settings](https://console.twilio.com).
+2. Set **When a message comes in** to:
+   ```
+   https://gomate-whatsapp-bot.onrender.com/webhook/whatsapp
+   ```
+3. Method: **HTTP POST** → Save.
+
+---
+
+## 5. Razorpay Webhook
+
+1. Open [Razorpay Dashboard → Settings → Webhooks](https://dashboard.razorpay.com).
+2. Add New Webhook URL:
+   ```
+   https://gomate-whatsapp-bot.onrender.com/webhook/razorpay
+   ```
+3. Enable Events: `payment.captured`, `subscription.activated`, `subscription.charged`, `payment_link.paid`
+4. Click **Create Webhook**.
+
+---
+
+## 6. Verify All Endpoints Are Live
+
+Once deployed, test each endpoint:
+
+| URL | Expected | Purpose |
 |---|---|---|
-| `PORT` | Server listening port | `3000` |
-| `NODE_ENV` | Environment mode | `production` |
-| `ADMIN_PASSWORD` | Passkey for `/admin` HQ | `gomate2026` (or your strong secret) |
-| `TWILIO_ACCOUNT_SID` | Twilio Account SID | `ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx` |
-| `TWILIO_AUTH_TOKEN` | Twilio Auth Token | `your_twilio_auth_token_here` |
-| `TWILIO_WHATSAPP_NUMBER` | Twilio sender address | `whatsapp:+1XXXXXXXXXX` |
-| `GEMINI_API_KEY` | Google Gemini AI API key | `AQ.Ab8RN6KjQekgs...` |
-| `SUPABASE_URL` | Supabase project URL | `https://ibtznblylmqyexfkyjrv.supabase.co` |
-| `SUPABASE_SERVICE_KEY` | Supabase service role key | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` |
-| `SUPABASE_ANON_KEY` | Supabase anon public key | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` |
-| `RAZORPAY_KEY_ID` | Razorpay API Key | `rzp_live_XXXXXXXXXXXX` |
-| `RAZORPAY_KEY_SECRET` | Razorpay API Secret | `XXXXXXXXXXXXXXXXXXXXXXXX` |
+| `GET /api/health` | `200 OK` | Container health & uptime |
+| `GET /` | `200 OK` | WhatsApp Web Simulator |
+| `GET /qr` | `200 OK` | WhatsApp Pairing Dashboard |
+| `GET /landing` | `200 OK` | Public GoMate Marketing Page |
+| `GET /owner` | `200 OK` | Owner Pro Portal |
+| `GET /admin` | `200 OK` + Auth | Operations HQ |
+| `POST /webhook/whatsapp` | `200 OK` | Live message webhook |
+
+Run this quick health-check from your terminal:
+
+```powershell
+curl https://gomate-whatsapp-bot.onrender.com/api/health
+```
+
+Expected response:
+```json
+{
+  "status": "ok",
+  "service": "GoMate WhatsApp Bot & Operations HQ",
+  "uptime": 42,
+  "whatsapp": "qr_ready"
+}
+```
 
 ---
 
-## 3. Twilio WhatsApp Webhook Configuration
-
-To receive messages sent by customers from their physical WhatsApp apps to your Twilio number:
-
-1. Open the [Twilio Console $\rightarrow$ Messaging $\rightarrow$ Try WhatsApp](https://console.twilio.com/us1/develop/sms/try-sms/whatsapp-learn) (or **Senders $\rightarrow$ WhatsApp Senders** for production numbers).
-2. Under **Sandbox Settings** (or **Endpoint Configuration**), locate **"WHEN A MESSAGE COMES IN"**.
-3. Set the Webhook URL:
-   ```
-   https://<YOUR-CLOUD-DOMAIN>.onrender.com/webhook/whatsapp
-   ```
-4. Set HTTP Method to **`HTTP POST`**.
-5. Click **Save**.
-
-### Testing Twilio Webhook:
-* Send a message from your personal phone (e.g. `join <your-sandbox-keyword>` or `Hi`).
-* The GoMate bot will immediately respond with the Trilingual language selection menu!
-
----
-
-## 4. Razorpay Webhook Configuration
-
-To automatically activate owner subscriptions upon payment confirmation:
-
-1. Log in to the [Razorpay Dashboard](https://dashboard.razorpay.com/) $\rightarrow$ **Settings $\rightarrow$ Webhooks**.
-2. Click **Add New Webhook**.
-3. Enter Webhook URL:
-   ```
-   https://<YOUR-CLOUD-DOMAIN>.onrender.com/webhook/razorpay
-   ```
-4. Select the following **Active Events**:
-   - `subscription.activated`
-   - `subscription.charged`
-   - `subscription.cancelled`
-   - `payment.captured`
-   - `payment_link.paid`
-5. Click **Create Webhook**.
-
----
-
-## 5. Health Check & Operations Verification
-
-Once deployed, verify the system status:
-
-| Endpoint | Expected Status | Purpose |
-|---|---|---|
-| `GET https://<domain>/api/health` | `200 OK` | Automated uptime & container health monitor |
-| `GET https://<domain>/landing` | `200 OK` | Public marketing landing page |
-| `GET https://<domain>/owner` | `200 OK` | Owner Pro Portal (Fleet manager & ₹599/mo plan) |
-| `GET https://<domain>/admin` | `200 OK` | Operations HQ (Protected by password) |
-| `POST https://<domain>/webhook/whatsapp` | `200 OK` | WhatsApp message ingestion endpoint |
-
----
-
-## 6. Local Docker Test Command
-
-You can build and run the production Docker image locally to test container parity:
+## 7. Local Docker Test (Before Pushing)
 
 ```powershell
 # Build image
 docker build -t gomate-whatsapp-bot .
 
-# Run container with environment file
+# Run with environment file
 docker run -p 3000:3000 --env-file .env gomate-whatsapp-bot
 ```
+
+---
+
+## 8. Keep-Alive Anti-Sleep (Auto-configured)
+
+The `initKeepAlive()` service in `src/services/keepAlive.js` automatically pings  
+`https://gomate-whatsapp-bot.onrender.com/api/health` every 8 minutes to keep the  
+Render free-tier container warm and prevent cold-start delays for farmers.

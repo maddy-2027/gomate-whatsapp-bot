@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "start:prod": "node startup.js",
     "dev": "nodemon server.js",
     "seed": "node src/data/seed.js",
     "test": "node scripts/test-e2e-lifecycle.js"

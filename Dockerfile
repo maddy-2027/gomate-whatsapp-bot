@@ -1,47 +1,50 @@
 # =================================================================
 # GoMate Production Dockerfile
-# Optimized for Node.js 22 LTS + Chromium / WhatsApp-Web.js support
+# Node.js 22 LTS | Baileys Multi-Device WhatsApp | Optimised for Render/Railway
 # =================================================================
 
-FROM node:22-bullseye-slim
+FROM node:22-slim
 
-# Install Chromium and required OS dependencies for headless browser support
+# Install minimal system dependencies for Baileys WebSocket TLS + fonts
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    chromium \
-    fonts-ipafont-gothic \
-    fonts-wqy-zenhei \
-    fonts-thai-tlwg \
-    fonts-kacst \
-    fonts-freefont-ttf \
-    libxss1 \
     ca-certificates \
+    openssl \
+    curl \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Set Puppeteer executable path to use installed Chromium
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
-    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
-    NODE_ENV=production \
-    PORT=3000
+# Environment defaults
+ENV NODE_ENV=production \
+    PORT=3000 \
+    NODE_TLS_REJECT_UNAUTHORIZED=0
+
+# Create a non-root app user for security
+RUN groupadd -r gomate && useradd -r -g gomate -m -d /home/gomate gomate
 
 # Set working directory
 WORKDIR /usr/src/app
 
-# Copy dependency manifests
+# Copy dependency manifests first (for Docker layer caching)
 COPY package*.json ./
 
-# Install production dependencies
-RUN npm ci --only=production
+# Install production dependencies (skip dev tools)
+RUN npm ci --only=production --prefer-offline
 
 # Copy application source code
 COPY . .
 
+# Create persistent directories for Baileys auth and logs
+RUN mkdir -p .baileys_auth logs && chown -R gomate:gomate /usr/src/app
+
+# Switch to non-root user
+USER gomate
+
 # Expose HTTP port
 EXPOSE 3000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => {if (r.statusCode !== 200) process.exit(1);})"
+# Health check (wait up to 40s for Baileys init on cold start)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD curl -f http://localhost:3000/api/health || exit 1
 
 # Start production server
 CMD ["node", "server.js"]

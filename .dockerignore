@@ -6,6 +6,7 @@ npm-debug.log
 .gitignore
 .wwebjs_auth
 .wwebjs_cache
+.baileys_auth
 scratch
 .system_generated
 *.log
