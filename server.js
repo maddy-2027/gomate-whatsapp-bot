@@ -307,6 +307,64 @@ app.post('/api/emergency/incidents/:id/resolve', adminAuth, (req, res) => {
 });
 
 // ==========================================
+// Owner Monthly P&L Report Endpoints
+// ==========================================
+app.get('/api/owner/pnl', async (req, res) => {
+  try {
+    const { getOwnerMonthlyPnl } = require('./src/services/monthlyPnlService');
+    const phone = req.query.phone || '+919822012345';
+    const month = req.query.month || '2026-08';
+    const pnl = await getOwnerMonthlyPnl(phone, month);
+    res.json({ success: true, pnl });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/owner/pnl/pdf', async (req, res) => {
+  try {
+    const { getOwnerMonthlyPnl, generateMonthlyPnlPDF } = require('./src/services/monthlyPnlService');
+    const phone = req.query.phone || '+919822012345';
+    const month = req.query.month || '2026-08';
+    const pnl = await getOwnerMonthlyPnl(phone, month);
+    const pdfBuffer = await generateMonthlyPnlPDF(pnl);
+
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `inline; filename="GoMate-Monthly-PnL-${month}.pdf"`,
+      'Content-Length': pdfBuffer.length
+    });
+    res.send(pdfBuffer);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/owner/pnl/send-whatsapp', async (req, res) => {
+  try {
+    const { getOwnerMonthlyPnl, formatMonthlyPnlWhatsApp } = require('./src/services/monthlyPnlService');
+    const { phone, month } = req.body;
+    const targetPhone = phone || '+919822012345';
+    const pnl = await getOwnerMonthlyPnl(targetPhone, month || '2026-08');
+    const msg = formatMonthlyPnlWhatsApp(pnl);
+
+    try {
+      const { sendWhatsAppDirect } = require('./src/services/whatsappWeb');
+      await sendWhatsAppDirect(targetPhone, msg);
+    } catch (_) {}
+
+    res.json({
+      success: true,
+      phone: targetPhone,
+      month: pnl.month,
+      whatsapp_message: msg
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ==========================================
 // Jath Villages & Owner Self-Registration API
 // ==========================================
 app.get('/api/jath/villages', (req, res) => {

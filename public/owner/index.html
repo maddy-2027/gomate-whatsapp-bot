@@ -268,6 +268,28 @@
         </div>
       </div>
 
+      <!-- Monthly P&L Export Banner -->
+      <div class="gm-card" style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); color: #FFFFFF; margin-bottom: 20px; padding: 18px 22px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+              <span style="font-size: 20px;">📊</span>
+              <h3 style="font-size: 16px; font-weight: 700; color: #FFFFFF; margin: 0;">मासिक नफा-तोटा अहवाल (Monthly P&L Statement)</h3>
+              <span class="gm-badge gm-badge-confirmed" style="font-size: 11px; background: #16A34A; color: #FFFFFF;">ऑगस्ट २०२६</span>
+            </div>
+            <p style="font-size: 12px; color: #94A3B8; margin: 0;">Automated monthly summary of tractor running hours, fuel ROI, and net profit ledger</p>
+          </div>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <a id="ownerPnlPdfLink" href="/api/owner/pnl/pdf" target="_blank" class="gm-btn gm-btn-outline" style="color: #FFFFFF; border-color: rgba(255,255,255,0.3); font-size: 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
+              📄 Download PDF Statement
+            </a>
+            <button onclick="sendOwnerPnlWhatsApp()" class="gm-btn gm-btn-primary" style="font-size: 12px; background: #16A34A; border: none; display: inline-flex; align-items: center; gap: 6px;">
+              📲 WhatsApp वर अहवाल पाठवा
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Expense Actions & Logbook Table -->
       <div class="gm-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">

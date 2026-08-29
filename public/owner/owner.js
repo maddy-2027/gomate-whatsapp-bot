@@ -586,3 +586,19 @@ async function deleteExpenseLog(id) {
     showToast('नोंद काढता आली नाही.', 'error');
   }
 }
+
+async function sendOwnerPnlWhatsApp() {
+  try {
+    const res = await fetch('/api/owner/pnl/send-whatsapp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: currentOwnerPhone, month: '2026-08' })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('मासिक नफा-तोटा अहवाल WhatsApp वर पाठवला! 📊', 'success');
+    }
+  } catch (err) {
+    showToast('अहवाल पाठवता आला नाही.', 'error');
+  }
+}

@@ -375,6 +375,22 @@ async function runE2ETests() {
   assert(sosIncidentsRes.ok && sosIncidentsRes.data.incidents.length > 0, `Admin HQ tracked active SOS incident ticket ${sosIncidentsRes.data.incidents[0].id}`);
 
   // -------------------------------------------------------------
+  // Phase 15: Owner Monthly P&L Financial Report Engine
+  // -------------------------------------------------------------
+  console.log('\n--- Phase 15: Owner Monthly P&L Financial Report Engine ---');
+  const pnlJsonRes = await request('/api/owner/pnl?phone=+919822012345&month=2026-08');
+  assert(pnlJsonRes.ok && pnlJsonRes.data.pnl.net_profit > 0, `Owner monthly P&L calculated net profit: ₹${pnlJsonRes.data.pnl.net_profit.toLocaleString('en-IN')}`);
+
+  const pnlPdfRes = await request('/api/owner/pnl/pdf?phone=+919822012345&month=2026-08');
+  assert(pnlPdfRes.ok && pnlPdfRes.status === 200, 'Owner Monthly P&L PDF Statement streamed with HTTP 200');
+
+  const pnlWaRes = await request('/api/owner/pnl/send-whatsapp', {
+    method: 'POST',
+    body: JSON.stringify({ phone: '+919822012345', month: '2026-08' })
+  });
+  assert(pnlWaRes.ok && pnlWaRes.data.whatsapp_message.includes('नफा-तोटा'), 'Monthly P&L executive statement dispatched to owner on WhatsApp');
+
+  // -------------------------------------------------------------
   // Test Summary
   // -------------------------------------------------------------
   console.log('\n===============================================================');
