@@ -74,6 +74,10 @@
           <span class="icon">🗺️</span>
           <span>Demand Heatmap</span>
         </button>
+        <button class="nav-item" onclick="switchTab('sos')">
+          <span class="icon">🚨</span>
+          <span>Breakdown SOS</span>
+        </button>
       </nav>
 
       <div class="sidebar-footer">
@@ -488,8 +492,136 @@
           </div>
         </div>
 
+        <!-- Tab 8: Machinery Breakdown SOS & Emergency Control Room -->
+        <div id="tab-sos" class="view-panel" style="display: none;">
+          <!-- Emergency Alert Banner -->
+          <div style="background: linear-gradient(135deg, #FEF2F2 0%, #FFF1F2 100%); border: 1px solid #FECACA; border-left: 6px solid #EF4444; border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <div style="font-size: 32px; line-height: 1;">🚨</div>
+              <div>
+                <h4 style="font-size: 16px; font-weight: 800; color: #991B1B; margin: 0 0 4px 0;">
+                  Live Machinery Breakdown SOS Control Room (मशिनरी बिघाड नियंत्रण कक्ष)
+                </h4>
+                <p style="font-size: 13px; color: #7F1D1D; margin: 0; font-weight: 500;">
+                  शेतात नादुरुस्त झालेल्या ट्रॅक्टर व मशिनरीसाठी त्वरित जवळचे पर्यायी उपकरण शोधून शेतकऱ्याला मदत पुरवणारी २४x७ प्रणाली.
+                </p>
+              </div>
+            </div>
+            <button onclick="openManualSosModal()" class="gm-btn gm-btn-primary" style="background: #DC2626; border: none; font-size: 13px; font-weight: 700; padding: 10px 18px;">
+              🚨 + मॅन्युअल SOS नोंदवा (New Incident)
+            </button>
+          </div>
+
+          <!-- SOS KPI Cards -->
+          <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 24px;">
+            <div class="kpi-card" style="border-left: 4px solid #EF4444;">
+              <div class="kpi-header"><span>Active SOS Incidents</span><span>🚨</span></div>
+              <div class="kpi-value" id="sosActiveCount" style="color: #DC2626;">0</div>
+              <div class="kpi-footer">Awaiting or in dispatch</div>
+            </div>
+            <div class="kpi-card" style="border-left: 4px solid #10B981;">
+              <div class="kpi-header"><span>Standby Relief Units</span><span>🚜</span></div>
+              <div class="kpi-value" id="sosReliefCount" style="color: #16A34A;">4 Units</div>
+              <div class="kpi-footer">Jat, Sankh, Umadi, Dafalapur</div>
+            </div>
+            <div class="kpi-card" style="border-left: 4px solid #3B82F6;">
+              <div class="kpi-header"><span>Avg Replacement ETA</span><span>⏱️</span></div>
+              <div class="kpi-value" style="color: #1D4ED8;" id="sosAvgEta">14 Mins</div>
+              <div class="kpi-footer">Within 4.5 km radius</div>
+            </div>
+            <div class="kpi-card" style="border-left: 4px solid #6366F1;">
+              <div class="kpi-header"><span>Total Resolved Incidents</span><span>✅</span></div>
+              <div class="kpi-value" style="color: #4F46E5;" id="sosResolvedCount">1</div>
+              <div class="kpi-footer">100% Crop window saved</div>
+            </div>
+          </div>
+
+          <!-- Live SOS Incident Log Table -->
+          <div class="gm-card">
+            <div class="table-header-row">
+              <div>
+                <h3 style="font-size: 16px;">Active & Recent Breakdown Incidents (बिघाड नोंदी व पर्यायी वाटप)</h3>
+                <p style="font-size: 12px; color: var(--gm-gray-600); margin: 2px 0 0 0;">Real-time dispatch log of replacement tractors and emergency equipment</p>
+              </div>
+              <button class="gm-btn gm-btn-outline" style="padding: 4px 10px; font-size: 12px;" onclick="loadSosData()">
+                🔄 Refresh SOS Feed
+              </button>
+            </div>
+
+            <div class="gm-table-container">
+              <table class="gm-table">
+                <thead>
+                  <tr>
+                    <th>तिकीट क्र (Ticket ID)</th>
+                    <th>शेतकरी व गाव (Farmer & Village)</th>
+                    <th>नादुरुस्त मशिनरी (Broken Machine)</th>
+                    <th>वाटप केलेले पर्यायी उपकरण (Replacement Unit & Owner)</th>
+                    <th>अंतर व पोहोच वेळ (Distance & ETA)</th>
+                    <th>स्थिती (Status)</th>
+                    <th>कृती (Action)</th>
+                  </tr>
+                </thead>
+                <tbody id="sosTableBody">
+                  <!-- Populated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
       </div>
     </main>
+  </div>
+
+  <!-- Manual SOS Modal -->
+  <div id="manualSosModal" class="auth-overlay" style="display: none;">
+    <div class="auth-card" style="max-width: 520px; text-align: left;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 18px; font-weight: 800; color: #991B1B; margin: 0;">🚨 नवीन ब्रेकडाऊन SOS नोंदणी</h3>
+        <button onclick="closeManualSosModal()" style="background: transparent; border: none; font-size: 18px; font-weight: 700; cursor: pointer; color: var(--gm-gray-500);">✕</button>
+      </div>
+
+      <form onsubmit="handleManualSosSubmit(event)" style="display: flex; flex-direction: column; gap: 12px;">
+        <div>
+          <label style="font-size: 12px; font-weight: 600; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">शेतकरी / ऑपरेटर WhatsApp नंबर *</label>
+          <input type="text" id="sosFarmerPhone" class="gm-input" placeholder="+919876500001" required value="+919876500001">
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div>
+            <label style="font-size: 12px; font-weight: 600; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">घटना घडलेले गाव *</label>
+            <select id="sosVillageSelect" class="gm-select" required>
+              <option value="शेगाव" selected>शेगाव (Shegaon)</option>
+              <option value="जत">जत केंद्र (Jat)</option>
+              <option value="संख">संख (Sankh)</option>
+              <option value="उमदी">उमदी (Umadi)</option>
+              <option value="डफळापूर">डफळापूर (Dafalapur)</option>
+              <option value="बिळूर">बिळूर (Bilur)</option>
+              <option value="मडग्याळ">मडग्याळ (Madgyal)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 12px; font-weight: 600; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">बुकिंग संदर्भ (Ref)</label>
+            <input type="text" id="sosBookingRef" class="gm-input" placeholder="GM-XXXX" value="GM-J39Z">
+          </div>
+        </div>
+
+        <div>
+          <label style="font-size: 12px; font-weight: 600; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">बिघाडाचे स्वरूप (Breakdown Reason / Text)</label>
+          <textarea id="sosBreakdownText" class="gm-input" rows="2" placeholder="उदा. रोटाव्हेटरचे ब्लेड तुटले / ट्रॅक्टर गिअरबॉक्स बिघाड">ट्रॅक्टर शेतात नादुरुस्त झाला आहे. रोटाव्हेटरसाठी तातडीने पर्यायी ट्रॅक्टर हवा आहे.</textarea>
+        </div>
+
+        <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px; padding: 10px; font-size: 12px; color: #991B1B;">
+          ⚡ आपत्कालीन अल्गोरिदम आपोआप शेगाव क्लस्टरमधील सर्वात जवळचे मोकळे उपकरण शोधून शेतकऱ्याला WhatsApp वर पाठवेल.
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px;">
+          <button type="button" onclick="closeManualSosModal()" class="gm-btn gm-btn-outline">Cancel</button>
+          <button type="submit" class="gm-btn gm-btn-primary" style="background: #DC2626; border: none; font-weight: 700;">
+            🚨 आपत्कालीन ट्रॅक्टर डिस्पॅच करा
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script src="/admin/admin.js"></script>

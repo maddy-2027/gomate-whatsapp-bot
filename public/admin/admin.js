@@ -275,7 +275,8 @@ function switchTab(tabId) {
     owners: ['Machinery Owners & Subscriptions', '₹599/month subscription status and listings health'],
     revenue: ['Revenue & Platform Financials', 'Subscription MRR and equipment rental volume'],
     broadcast: ['WhatsApp Seasonal Broadcast Center', 'Targeted agricultural announcements and seasonal demand alerts'],
-    heatmap: ['Taluka Demand Heatmap & Fleet Deficit', 'Live demand density and machinery shortage alerts across Jath Taluka']
+    heatmap: ['Taluka Demand Heatmap & Fleet Deficit', 'Live demand density and machinery shortage alerts across Jath Taluka'],
+    sos: ['Machinery Breakdown SOS Control Room', 'Live on-field breakdown monitor, replacement fleet dispatch, and emergency resolution']
   };
 
   const currentBtn = Array.from(document.querySelectorAll('.nav-item')).find(b => b.textContent.toLowerCase().includes(tabId));
@@ -293,6 +294,8 @@ function switchTab(tabId) {
     loadBroadcastData();
   } else if (tabId === 'heatmap') {
     loadHeatmapData();
+  } else if (tabId === 'sos') {
+    loadSosData();
   }
 }
 
@@ -560,4 +563,152 @@ function renderHeatmap() {
       </tr>
     `;
   }).join('');
+}
+
+// ==========================================================================
+// Machinery Breakdown SOS & Emergency Control Room Management
+// ==========================================================================
+let sosIncidentsList = [];
+
+async function loadSosData() {
+  try {
+    const res = await fetch('/api/emergency/incidents', {
+      headers: { 'Authorization': `Bearer ${adminAuthToken}` }
+    });
+    if (!res.ok) throw new Error('Failed to load SOS incidents');
+    const data = await res.json();
+    sosIncidentsList = data.incidents || [];
+    renderSosIncidents();
+  } catch (err) {
+    console.error('Error loading SOS incidents:', err);
+  }
+}
+
+function renderSosIncidents() {
+  const activeCount = sosIncidentsList.filter(i => (i.status || '').toUpperCase() === 'ACTIVE').length;
+  const resolvedCount = sosIncidentsList.filter(i => (i.status || '').toUpperCase() === 'RESOLVED').length;
+
+  if (document.getElementById('sosActiveCount')) {
+    document.getElementById('sosActiveCount').textContent = `${activeCount} Incidents`;
+  }
+  if (document.getElementById('sosResolvedCount')) {
+    document.getElementById('sosResolvedCount').textContent = `${resolvedCount} Saved`;
+  }
+
+  const tbody = document.getElementById('sosTableBody');
+  if (!tbody) return;
+
+  if (sosIncidentsList.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 24px; color: var(--gm-gray-500);">कोणत्याही बिघाडाच्या नोंदी नाहीत (No active breakdown incidents).</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = sosIncidentsList.map(inc => {
+    const isResolved = (inc.status || '').toUpperCase() === 'RESOLVED';
+    const statusBadge = isResolved
+      ? '<span class="gm-badge gm-badge-success">✅ RESOLVED (मार्ग निघाला)</span>'
+      : '<span class="gm-badge gm-badge-danger" style="background: #FEE2E2; color: #DC2626; font-weight: 700;">🚨 ACTIVE DISPATCH (मदत मार्गावर)</span>';
+
+    return `
+      <tr>
+        <td>
+          <span style="font-family: var(--gm-font-mono); font-weight: 700; color: #991B1B; font-size: 13px;">${inc.id}</span>
+          <div style="font-size: 11px; color: var(--gm-gray-500);">${inc.booking_ref ? 'Ref: ' + inc.booking_ref : 'Direct SOS'}</div>
+        </td>
+        <td>
+          <div style="font-weight: 700; color: #0F172A;">${inc.farmer_name || 'शेतकरी'}</div>
+          <div style="font-size: 12px; color: #15803D; font-weight: 600;">📍 गाव: ${inc.village || 'शेगाव'}</div>
+          <div style="font-size: 11px; color: var(--gm-gray-500);">${inc.farmer_phone || '—'}</div>
+        </td>
+        <td style="max-width: 180px;">
+          <div style="font-size: 12px; font-weight: 700; color: #DC2626;">⚠️ ${inc.broken_machine || 'ट्रॅक्टर बिघाड'}</div>
+          <div style="font-size: 11px; color: var(--gm-gray-600);">${inc.original_owner || 'स्थानिक ऑपरेटर'}</div>
+        </td>
+        <td style="max-width: 220px;">
+          <div style="font-size: 12px; font-weight: 700; color: #16A34A;">🚜 ${inc.replacement_machine || 'पर्यायी ट्रॅक्टर'}</div>
+          <div style="font-size: 11px; color: var(--gm-gray-600);">${inc.replacement_owner || 'स्थानिक मालक'}</div>
+        </td>
+        <td>
+          <div><strong style="font-family: var(--gm-font-mono); font-size: 13px;">${inc.distance_km || 3.8} km</strong></div>
+          <div style="font-size: 11px; color: #1D4ED8; font-weight: 700;">⏱️ ${inc.eta_mins || 15} मिनिटे ETA</div>
+        </td>
+        <td>${statusBadge}</td>
+        <td>
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            ${!isResolved ? `
+              <button onclick="resolveSosIncident('${inc.id}')" class="gm-btn gm-btn-primary" style="padding: 5px 10px; font-size: 11px; background: #16A34A; border: none; white-space: nowrap;">
+                ✅ Resolve (पूर्ण झाले)
+              </button>
+            ` : `
+              <span style="font-size: 12px; color: #16A34A; font-weight: 600;">निवारण झाले</span>
+            `}
+            <a href="https://wa.me/${(inc.farmer_phone || '').replace(/\D/g, '')}?text=${encodeURIComponent('GoMate SOS Update: आपल्या ' + (inc.village || 'शेतात') + ' पर्यायी ट्रॅक्टर ' + (inc.replacement_machine || '') + ' रवाना झाले आहे.')}" target="_blank" class="gm-btn gm-btn-outline" style="padding: 4px 8px; font-size: 11px; text-decoration: none; text-align: center; white-space: nowrap;">
+              📲 शेतकरी WhatsApp
+            </a>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+async function resolveSosIncident(incidentId) {
+  if (!confirm(`SOS घटना ${incidentId} निवारण झाली म्हणून मार्क करायची आहे का?`)) return;
+
+  try {
+    const res = await fetch(`/api/emergency/incidents/${incidentId}/resolve`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminAuthToken}`
+      }
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert(`✅ घटना ${incidentId} यशस्वीरीत्या सोडवली गेली.`);
+      loadSosData();
+    } else {
+      alert('त्रुटी: घटना अपडेट करता आली नाही.');
+    }
+  } catch (err) {
+    alert('सर्व्हर त्रुटी: ' + err.message);
+  }
+}
+
+function openManualSosModal() {
+  document.getElementById('manualSosModal').style.display = 'flex';
+}
+
+function closeManualSosModal() {
+  document.getElementById('manualSosModal').style.display = 'none';
+}
+
+async function handleManualSosSubmit(e) {
+  e.preventDefault();
+  const phone = document.getElementById('sosFarmerPhone').value.trim();
+  const village = document.getElementById('sosVillageSelect').value;
+  const ref = document.getElementById('sosBookingRef').value.trim();
+  const text = document.getElementById('sosBreakdownText').value.trim();
+
+  try {
+    const res = await fetch('/api/emergency/sos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        senderPhone: phone,
+        bookingRef: ref,
+        rawText: `${village}: ${text}`
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert(`🚨 आपत्कालीन रिलीफ ट्रॅक्टर यशस्वीरीत्या मॅच झाला!\n\nतिकीट क्र: ${data.incident.id}\nपर्यायी उपकरण: ${data.incident.replacement_machine}\nअंतर: ${data.incident.distance_km} किमी (ETA: ${data.incident.eta_mins} मिनिटे)`);
+      closeManualSosModal();
+      loadSosData();
+    } else {
+      alert('त्रुटी: SOS नोंदवता आला नाही.');
+    }
+  } catch (err) {
+    alert('सर्व्हर त्रुटी: ' + err.message);
+  }
 }
