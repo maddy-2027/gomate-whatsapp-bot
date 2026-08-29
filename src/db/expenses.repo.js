@@ -50,12 +50,31 @@ let EXPENSE_RECORDS = [
   }
 ];
 
+const supabase = require('./supabase');
+
 /**
  * Get all expense logs for a specific owner phone
  */
 async function getOwnerExpenses(ownerPhone) {
   const cleanPhone = String(ownerPhone).trim().replace(/[^\d+]/g, '');
-  const logs = EXPENSE_RECORDS.filter(r => r.owner_phone === cleanPhone || cleanPhone.includes(r.owner_phone.slice(-10)));
+  let logs = [];
+
+  try {
+    const { data, error } = await supabase
+      .from('expense_logs')
+      .select('*')
+      .eq('owner_phone', cleanPhone)
+      .order('date', { ascending: false });
+    if (!error && data && data.length > 0) {
+      logs = data;
+    }
+  } catch (err) {
+    // fallback to memory
+  }
+
+  if (logs.length === 0) {
+    logs = EXPENSE_RECORDS.filter(r => r.owner_phone === cleanPhone || cleanPhone.includes(r.owner_phone.slice(-10)));
+  }
 
   // Compute aggregated KPI stats
   const totalGross = logs.reduce((sum, r) => sum + (Number(r.gross_earnings) || 0), 0);
@@ -111,6 +130,20 @@ async function addExpenseRecord(data) {
     notes: data.notes || 'शेती काम'
   };
 
+  try {
+    const { data: dbData, error } = await supabase
+      .from('expense_logs')
+      .insert([newRecord])
+      .select()
+      .single();
+    if (!error && dbData) {
+      EXPENSE_RECORDS.unshift(dbData);
+      return dbData;
+    }
+  } catch (err) {
+    // fallback
+  }
+
   EXPENSE_RECORDS.unshift(newRecord);
   return newRecord;
 }
@@ -119,6 +152,11 @@ async function addExpenseRecord(data) {
  * Delete an expense record
  */
 async function deleteExpenseRecord(id) {
+  try {
+    await supabase.from('expense_logs').delete().eq('id', id);
+  } catch (err) {
+    // fallback
+  }
   const initialLen = EXPENSE_RECORDS.length;
   EXPENSE_RECORDS = EXPENSE_RECORDS.filter(r => r.id !== id);
   return EXPENSE_RECORDS.length < initialLen;

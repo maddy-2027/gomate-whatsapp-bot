@@ -43,6 +43,8 @@ let REVIEWS_STORE = [
   }
 ];
 
+const supabase = require('./supabase');
+
 /**
  * Add a new farmer review and compute updated owner rating
  */
@@ -61,7 +63,20 @@ async function addReview(data) {
     created_at: new Date().toISOString()
   };
 
-  REVIEWS_STORE.unshift(newReview);
+  try {
+    const { data: dbData, error } = await supabase
+      .from('reviews')
+      .insert([newReview])
+      .select()
+      .single();
+    if (!error && dbData) {
+      REVIEWS_STORE.unshift(dbData);
+    } else {
+      REVIEWS_STORE.unshift(newReview);
+    }
+  } catch (err) {
+    REVIEWS_STORE.unshift(newReview);
+  }
 
   // Compute updated average rating for this owner
   const ownerReviews = REVIEWS_STORE.filter(r => r.owner_phone === newReview.owner_phone);
@@ -83,7 +98,25 @@ async function addReview(data) {
  */
 async function getOwnerReviews(ownerPhone) {
   const clean = String(ownerPhone).trim().replace(/[^\d+]/g, '');
-  const reviews = REVIEWS_STORE.filter(r => r.owner_phone === clean || clean.includes(r.owner_phone.slice(-10)));
+  let reviews = [];
+
+  try {
+    const { data, error } = await supabase
+      .from('reviews')
+      .select('*')
+      .eq('owner_phone', clean)
+      .order('created_at', { ascending: false });
+    if (!error && data && data.length > 0) {
+      reviews = data;
+    }
+  } catch (err) {
+    // fallback
+  }
+
+  if (reviews.length === 0) {
+    reviews = REVIEWS_STORE.filter(r => r.owner_phone === clean || clean.includes(r.owner_phone.slice(-10)));
+  }
+
   const totalStars = reviews.reduce((sum, r) => sum + r.rating, 0);
   const avgRating = reviews.length > 0 ? Math.round((totalStars / reviews.length) * 10) / 10 : 4.9;
 
