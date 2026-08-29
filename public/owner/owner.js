@@ -155,13 +155,9 @@ function renderListings(equipmentList) {
   if (!equipmentList || equipmentList.length === 0) {
     grid.innerHTML = `
       <div style="grid-column: 1 / -1; text-align: center; padding: 48px 24px; background: var(--gm-white); border-radius: var(--gm-radius-lg); border: 1px solid var(--gm-gray-200);">
-        <div style="width: 54px; height: 54px; border-radius: 50%; background: var(--gm-gray-100); color: var(--gm-gray-500); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-        </div>
-        <h3 style="font-size: 18px; margin-bottom: 4px;">No machinery listed yet</h3>
+        <h3 style="font-size: 18px; margin-bottom: 4px; font-weight: 700;">No machinery listed yet</h3>
         <p style="color: var(--gm-gray-600); font-size: 14px; margin-top: 4px; margin-bottom: 16px;">Add your tractors, trucks, or JCBs to start receiving customer bookings on WhatsApp.</p>
-        <button class="gm-btn gm-btn-primary" onclick="openAddMachineModal()" style="display: inline-flex; align-items: center; gap: 6px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        <button class="gm-btn gm-btn-primary" onclick="openAddMachineModal()" style="font-weight: 700;">
           Add Machinery Listing
         </button>
       </div>
@@ -251,8 +247,7 @@ function renderBookings(bookingsList) {
         <td><strong style="font-family: var(--gm-font-mono);">₹${(b.total_amount || 0).toLocaleString('en-IN')}</strong></td>
         <td><span class="gm-badge ${badgeClass}">${b.status || 'Pending'}</span></td>
         <td>
-          <a href="https://wa.me/${(b.customer_phone || '').replace(/\D/g, '')}" target="_blank" class="gm-btn gm-btn-primary" style="padding: 4px 10px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          <a href="https://wa.me/${(b.customer_phone || '').replace(/\D/g, '')}" target="_blank" class="gm-btn gm-btn-primary" style="padding: 4px 10px; font-size: 11px; font-weight: 700; text-decoration: none;">
             WhatsApp
           </a>
         </td>
@@ -393,13 +388,7 @@ function showToast(msg, type = 'info') {
     document.body.appendChild(toast);
   }
 
-  let iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
-  if (type === 'success') {
-    iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-  } else if (type === 'error') {
-    iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>';
-  }
-  toast.innerHTML = `<span>${iconSvg}</span> <span>${msg}</span>`;
+  toast.innerHTML = `<span style="font-weight: 600;">${msg}</span>`;
   toast.style.opacity = '1';
 
   setTimeout(() => {
@@ -496,8 +485,8 @@ function renderExpenses() {
       </td>
       <td style="font-size: 12px; color: var(--gm-gray-600); max-width: 220px;">${l.notes || '-'}</td>
       <td>
-        <button onclick="deleteExpenseLog('${l.id}')" style="background: transparent; border: none; color: #EF4444; cursor: pointer; font-size: 13px; padding: 4px;" title="Delete">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        <button onclick="deleteExpenseLog('${l.id}')" style="background: transparent; border: 1px solid #FCA5A5; color: #DC2626; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; padding: 3px 8px;" title="Delete">
+          Delete
         </button>
       </td>
     </tr>
