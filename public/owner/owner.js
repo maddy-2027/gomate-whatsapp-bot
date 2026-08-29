@@ -497,7 +497,7 @@ function renderExpenses() {
       <td style="font-size: 12px; color: var(--gm-gray-600); max-width: 220px;">${l.notes || '-'}</td>
       <td>
         <button onclick="deleteExpenseLog('${l.id}')" style="background: transparent; border: none; color: #EF4444; cursor: pointer; font-size: 13px; padding: 4px;" title="Delete">
-          🗑️
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
         </button>
       </td>
     </tr>
@@ -611,7 +611,7 @@ async function sendOwnerPnlWhatsApp() {
     });
     const data = await res.json();
     if (data.success) {
-      showToast('मासिक नफा-तोटा अहवाल WhatsApp वर पाठवला! 📊', 'success');
+      showToast('मासिक नफा-तोटा अहवाल WhatsApp वर पाठवला!', 'success');
     }
   } catch (err) {
     showToast('अहवाल पाठवता आला नाही.', 'error');

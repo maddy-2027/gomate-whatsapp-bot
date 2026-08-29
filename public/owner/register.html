@@ -260,7 +260,7 @@
 
     <div style="display: flex; align-items: center; gap: 12px;">
       <button onclick="toggleLanguage()" class="lang-toggle-btn" id="langToggleBtn">
-        🌐 <span id="langLabel">English</span>
+        <span id="langLabel">English</span>
       </button>
       <a href="/owner/index.html" style="color: #FFFFFF; text-decoration: none; font-size: 13px; font-weight: 600; opacity: 0.9;">
         <span id="txtLoginLink">मालक लॉगिन (Login)</span> &rarr;
@@ -612,7 +612,7 @@
       en: {
         langBtn: 'मराठी',
         loginLink: 'Owner Login',
-        heroBadge: '✨ Jath Taluka Pilot Project (PIN: 416404)',
+        heroBadge: 'Jath Taluka Pilot Project (PIN: 416404)',
         heroTitle: 'List Your Tractor, JCB or Truck & Earn Daily Rental Income!',
         heroSub: 'Receive direct WhatsApp rental bookings from farmers across 125 villages in Jath. <strong>0% Booking Commission!</strong>',
         perk1Title: '7-Day Free Trial',
@@ -631,9 +631,9 @@
         step2Title: 'Machinery Listing',
         step2Sub: 'Add your tractor, truck, or excavator to start receiving bookings',
         lblSector: 'Select Machinery Sector *',
-        txtAgri: '🌾 Agriculture Fleet',
-        txtTrans: '🚚 Goods Transport',
-        txtInfra: '🏗️ Infrastructure & JCB',
+        txtAgri: 'Agriculture Fleet',
+        txtTrans: 'Goods Transport',
+        txtInfra: 'Infrastructure & JCB',
         lblEquipType: 'Equipment Type *',
         lblModel: 'Brand & Model Name *',
         lblDailyRate: 'Daily Hire Rate (₹ / Day) *',
@@ -784,7 +784,7 @@
       
       const submitBtn = document.getElementById('btnSubmit');
       submitBtn.disabled = true;
-      submitBtn.innerHTML = `<span>⏳</span> <span>नोंदणी होत आहे... / Registering...</span>`;
+      submitBtn.innerHTML = `<span>नोंदणी होत आहे... / Registering...</span>`;
 
       const cat = document.getElementById('selectedCategory').value;
       const idx = document.getElementById('equipTypeSelect').value;
@@ -854,7 +854,7 @@
         alert('त्रुटी: ' + err.message);
       } finally {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = `<span>🚀</span> <span>${STRINGS[currentLang].btnSubmit}</span>`;
+        submitBtn.innerHTML = `<span>${STRINGS[currentLang].btnSubmit}</span>`;
       }
     }
   </script>
