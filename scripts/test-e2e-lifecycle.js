@@ -288,6 +288,28 @@ async function runE2ETests() {
   assert(bcDispatchRes.ok && bcDispatchRes.data.delivered > 0, `Broadcast campaign dispatched to ${bcDispatchRes.data.delivered} farmers across Jath Taluka`);
 
   // -------------------------------------------------------------
+  // Phase 10: Owner Daily Diesel & Maintenance Expense Engine
+  // -------------------------------------------------------------
+  console.log('\n--- Phase 10: Owner Diesel & Maintenance Logbook ---');
+  const expListRes = await request('/api/owner/expenses?phone=+919822012345');
+  assert(expListRes.ok && expListRes.data.logs.length > 0, `Owner loaded ${expListRes.data.logs.length} diesel expense log records`);
+  assert(expListRes.ok && expListRes.data.summary.totalNetProfit > 0, `Owner net profit calculated: ₹${expListRes.data.summary.totalNetProfit.toLocaleString('en-IN')}`);
+
+  const expAddRes = await request('/api/owner/expenses', {
+    method: 'POST',
+    body: JSON.stringify({
+      owner_phone: '+919822012345',
+      equipment_name: 'Mahindra 575 DI (45 HP)',
+      hours_worked: 5.0,
+      diesel_litres: 17.5,
+      diesel_cost: 1662,
+      gross_earnings: 4000,
+      notes: 'जत शेत रोटाव्हेटर चाचणी'
+    })
+  });
+  assert(expAddRes.ok && expAddRes.data.record.net_profit > 0, `New expense log created with net profit ₹${expAddRes.data.record.net_profit}`);
+
+  // -------------------------------------------------------------
   // Test Summary
   // -------------------------------------------------------------
   console.log('\n===============================================================');

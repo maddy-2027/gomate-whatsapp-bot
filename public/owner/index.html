@@ -49,6 +49,7 @@
         <button class="owner-tab-btn active" data-tab="dashboard" onclick="switchOwnerTab('dashboard')">Dashboard</button>
         <button class="owner-tab-btn" data-tab="listings" onclick="switchOwnerTab('listings')">My Listings</button>
         <button class="owner-tab-btn" data-tab="bookings" onclick="switchOwnerTab('bookings')">Bookings</button>
+        <button class="owner-tab-btn" data-tab="expenses" onclick="switchOwnerTab('expenses')">⛽ Diesel & Expenses</button>
         <button class="owner-tab-btn" data-tab="subscription" onclick="switchOwnerTab('subscription')">Subscription</button>
         <button class="owner-tab-btn" data-tab="profile" onclick="switchOwnerTab('profile')">Profile</button>
       </nav>
@@ -236,6 +237,73 @@
       </div>
     </div>
 
+    <!-- Tab 4: Diesel & Maintenance Expense Logbook -->
+    <div id="tab-expenses" class="owner-panel" style="display: none;">
+      <!-- KPI Stats Grid -->
+      <div class="owner-kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 24px;">
+        <div class="owner-kpi-card" style="border-top: 3px solid #10B981;">
+          <div class="owner-kpi-title">एकूण उत्पन्न (Gross Earnings)</div>
+          <div class="owner-kpi-value" id="expTotalGross">₹0</div>
+          <div class="owner-kpi-sub">Total rental revenue</div>
+        </div>
+        <div class="owner-kpi-card" style="border-top: 3px solid #EF4444;">
+          <div class="owner-kpi-title">एकूण डिझेल खर्च (Diesel Fuel)</div>
+          <div class="owner-kpi-value" id="expTotalDiesel">₹0</div>
+          <div class="owner-kpi-sub" id="expTotalLitres">0 Litres consumed</div>
+        </div>
+        <div class="owner-kpi-card" style="border-top: 3px solid #F59E0B;">
+          <div class="owner-kpi-title">देखभाल व मजुरी (Maint & Wages)</div>
+          <div class="owner-kpi-value" id="expTotalMaint">₹0</div>
+          <div class="owner-kpi-sub">Repairs + Driver wages</div>
+        </div>
+        <div class="owner-kpi-card" style="border-top: 3px solid #6366F1; background: linear-gradient(180deg, #FFFFFF 0%, #EEF2FF 100%);">
+          <div class="owner-kpi-title">निव्वळ नफा (In-Hand Profit)</div>
+          <div class="owner-kpi-value" id="expNetProfit" style="color: #4F46E5;">₹0</div>
+          <div class="owner-kpi-sub" id="expProfitMargin">0% Profit Margin</div>
+        </div>
+        <div class="owner-kpi-card" style="border-top: 3px solid #06B6D4;">
+          <div class="owner-kpi-title">सरासरी मायलेज (Fuel Efficiency)</div>
+          <div class="owner-kpi-value" id="expAvgMileage">3.4 L/hr</div>
+          <div class="owner-kpi-sub">Hourly consumption rate</div>
+        </div>
+      </div>
+
+      <!-- Expense Actions & Logbook Table -->
+      <div class="gm-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h2 style="font-size: 18px; margin-bottom: 4px;">⛽ दैनिक डिझेल, देखभाल व नफा हिशोबवही (Daily Logbook)</h2>
+            <p style="font-size: 12px; color: var(--gm-gray-600);">Track tractor running hours, fuel expenses, maintenance, and daily net profit</p>
+          </div>
+          <button onclick="openAddExpenseModal()" class="gm-btn gm-btn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            + नवीन खर्च नोंदवा (Add Entry)
+          </button>
+        </div>
+
+        <div class="gm-table-container">
+          <table class="gm-table">
+            <thead>
+              <tr>
+                <th>तारीख (Date)</th>
+                <th>मशिनरी (Machine)</th>
+                <th>तास (Hours)</th>
+                <th>डिझेल (Diesel)</th>
+                <th>देखभाल/मजुरी (Maint)</th>
+                <th>एकूण भाडे (Gross)</th>
+                <th>निव्वळ नफा (Net Profit)</th>
+                <th>नोंद (Work Details)</th>
+                <th>कृती</th>
+              </tr>
+            </thead>
+            <tbody id="expensesTableBody">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <!-- Tab 5: Profile -->
     <div id="tab-profile" class="owner-panel" style="display: none;">
       <div style="max-width: 650px; margin: 0 auto;">
@@ -311,11 +379,89 @@
           </div>
         </div>
 
-        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+          <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
           <button type="button" onclick="closeAddMachineModal()" class="gm-btn gm-btn-outline">Cancel</button>
           <button type="submit" class="gm-btn gm-btn-primary" style="display: inline-flex; align-items: center; gap: 6px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
             Publish Listing
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Daily Expense Log Modal -->
+  <div id="addExpenseModal" class="gm-modal-overlay" style="display: none;">
+    <div class="gm-modal-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h2 style="font-size: 18px;">⛽ नवीन दैनिक खर्च व उत्पन्न नोंदवा (Daily Log)</h2>
+        <button onclick="closeAddExpenseModal()" style="background: transparent; border: none; font-size: 18px; cursor: pointer; color: var(--gm-gray-500);">✕</button>
+      </div>
+      
+      <form onsubmit="handleAddExpenseSubmit(event)" style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div>
+            <label style="font-size: 12px; font-weight: 600; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">तारीख (Date)</label>
+            <input type="date" id="expDate" class="gm-input" required>
+          </div>
+          <div>
+            <label style="font-size: 12px; font-weight: 600; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">मशिनरी (Machine)</label>
+            <select id="expMachineSelect" class="gm-select" required>
+              <option value="Mahindra 575 DI (45 HP) [रोटाव्हेटर]">Mahindra 575 DI (रोटाव्हेटर)</option>
+              <option value="Mahindra 575 DI (45 HP) [नांगरट]">Mahindra 575 DI (नांगरट)</option>
+              <option value="JCB 3DX Super EcoXcellence">JCB 3DX (खोदकाम)</option>
+              <option value="GoMate Agri Drone 10L">Agri Drone (फवारणी)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div>
+            <label style="font-size: 12px; font-weight: 600; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">कामाचे तास (Run Hours)</label>
+            <input type="number" step="0.5" id="expHours" class="gm-input" placeholder="6.0" oninput="calcExpenseLive()" required min="0.5">
+          </div>
+          <div>
+            <label style="font-size: 12px; font-weight: 600; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">डिझेल लिटर (Litres)</label>
+            <input type="number" step="0.5" id="expLitres" class="gm-input" placeholder="21" oninput="calcExpenseLive()" required min="0">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div>
+            <label style="font-size: 12px; font-weight: 600; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">डिझेल खर्च (₹ @ ₹95/L)</label>
+            <input type="number" id="expDieselCost" class="gm-input" placeholder="1995" oninput="calcNetLive()" required>
+          </div>
+          <div>
+            <label style="font-size: 12px; font-weight: 600; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">देखभाल / सुटे भाग (₹)</label>
+            <input type="number" id="expMaintCost" class="gm-input" placeholder="350" value="0" oninput="calcNetLive()">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div>
+            <label style="font-size: 12px; font-weight: 600; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">ड्रायव्हर मजुरी / भत्ता (₹)</label>
+            <input type="number" id="expWages" class="gm-input" placeholder="500" value="0" oninput="calcNetLive()">
+          </div>
+          <div>
+            <label style="font-size: 12px; font-weight: 600; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">एकूण मिळालेले भाडे (Gross ₹)</label>
+            <input type="number" id="expGross" class="gm-input" placeholder="4800" oninput="calcNetLive()" required>
+          </div>
+        </div>
+
+        <div>
+          <label style="font-size: 12px; font-weight: 600; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">कामाची नोंद / शेतकरी नाव / गाव</label>
+          <input type="text" id="expNotes" class="gm-input" placeholder="उदा. शेगाव तुकाराम पाटील शेतात रोटाव्हेटर">
+        </div>
+
+        <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 13px; font-weight: 600; color: #166534;">अंदाजे निव्वळ नफा (Net Profit):</span>
+          <span id="expNetLivePreview" style="font-size: 16px; font-weight: 700; color: #15803D;">₹0</span>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+          <button type="button" onclick="closeAddExpenseModal()" class="gm-btn gm-btn-outline">Cancel</button>
+          <button type="submit" class="gm-btn gm-btn-primary">
+            नोंद सेव्ह करा (Save Log)
           </button>
         </div>
       </form>

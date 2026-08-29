@@ -94,6 +94,10 @@ function switchOwnerTab(tabId) {
 
   const panel = document.getElementById(`tab-${tabId}`);
   if (panel) panel.style.display = 'block';
+
+  if (tabId === 'expenses') {
+    fetchOwnerExpenses();
+  }
 }
 
 function handleOwnerChange(phone) {
@@ -401,4 +405,184 @@ function showToast(msg, type = 'info') {
   setTimeout(() => {
     toast.style.opacity = '0';
   }, 3500);
+}
+
+// ==========================================================================
+// Machinery Owner Diesel & Expense Logbook Management
+// ==========================================================================
+let ownerExpensesData = {
+  logs: [],
+  summary: {}
+};
+
+async function fetchOwnerExpenses() {
+  try {
+    const res = await fetch(`/api/owner/expenses?phone=${encodeURIComponent(currentOwnerPhone)}`);
+    if (!res.ok) throw new Error('Failed to load expenses');
+    const data = await res.json();
+    ownerExpensesData = data;
+    renderExpenses();
+  } catch (err) {
+    console.error('Error loading expenses:', err);
+  }
+}
+
+function renderExpenses() {
+  const summary = ownerExpensesData.summary || {};
+  const logs = ownerExpensesData.logs || [];
+
+  // Update Summary KPI Cards
+  if (document.getElementById('expTotalGross')) {
+    document.getElementById('expTotalGross').textContent = `₹${(summary.totalGross || 0).toLocaleString('en-IN')}`;
+  }
+  if (document.getElementById('expTotalDiesel')) {
+    document.getElementById('expTotalDiesel').textContent = `₹${(summary.totalDieselCost || 0).toLocaleString('en-IN')}`;
+  }
+  if (document.getElementById('expTotalLitres')) {
+    document.getElementById('expTotalLitres').textContent = `${summary.totalDieselLitres || 0} Litres consumed`;
+  }
+  if (document.getElementById('expTotalMaint')) {
+    document.getElementById('expTotalMaint').textContent = `₹${((summary.totalMaintenance || 0) + (summary.totalWages || 0)).toLocaleString('en-IN')}`;
+  }
+  if (document.getElementById('expNetProfit')) {
+    document.getElementById('expNetProfit').textContent = `₹${(summary.totalNetProfit || 0).toLocaleString('en-IN')}`;
+  }
+  if (document.getElementById('expProfitMargin')) {
+    document.getElementById('expProfitMargin').textContent = `${summary.profitMarginPercent || 0}% Profit Margin`;
+  }
+  if (document.getElementById('expAvgMileage')) {
+    document.getElementById('expAvgMileage').textContent = `${summary.avgDieselPerHour || 3.4} L/hr`;
+  }
+
+  // Render Logbook Table
+  const tbody = document.getElementById('expensesTableBody');
+  if (!tbody) return;
+
+  if (!logs.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 24px; color: var(--gm-gray-500);">कोणतीही नोंद आढळली नाही. नवीन डिझेल व खर्च नोंदवण्यासाठी वरील बटण दाबा.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = logs.map(l => `
+    <tr>
+      <td><strong>${l.date}</strong></td>
+      <td>${l.equipment_name}</td>
+      <td><span class="gm-badge gm-badge-neutral">${l.hours_worked} hrs</span></td>
+      <td>
+        <div><strong>₹${l.diesel_cost.toLocaleString('en-IN')}</strong></div>
+        <div style="font-size: 11px; color: var(--gm-gray-500);">${l.diesel_litres} Litres</div>
+      </td>
+      <td>₹${((l.maintenance_cost || 0) + (l.operator_wages || 0)).toLocaleString('en-IN')}</td>
+      <td><strong style="color: #0F172A;">₹${l.gross_earnings.toLocaleString('en-IN')}</strong></td>
+      <td>
+        <span class="gm-badge gm-badge-confirmed" style="font-size: 12px; font-weight: 700;">
+          +₹${l.net_profit.toLocaleString('en-IN')}
+        </span>
+      </td>
+      <td style="font-size: 12px; color: var(--gm-gray-600); max-width: 220px;">${l.notes || '-'}</td>
+      <td>
+        <button onclick="deleteExpenseLog('${l.id}')" style="background: transparent; border: none; color: #EF4444; cursor: pointer; font-size: 13px; padding: 4px;" title="Delete">
+          🗑️
+        </button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openAddExpenseModal() {
+  document.getElementById('addExpenseModal').style.display = 'flex';
+  document.getElementById('expDate').value = new Date().toISOString().split('T')[0];
+  calcExpenseLive();
+}
+
+function closeAddExpenseModal() {
+  document.getElementById('addExpenseModal').style.display = 'none';
+}
+
+function calcExpenseLive() {
+  const hours = parseFloat(document.getElementById('expHours').value) || 0;
+  let litres = parseFloat(document.getElementById('expLitres').value);
+  
+  if (isNaN(litres) || litres === 0) {
+    litres = Math.round((hours * 3.5) * 10) / 10;
+    document.getElementById('expLitres').value = litres;
+  }
+
+  const dieselCost = Math.round(litres * 95);
+  document.getElementById('expDieselCost').value = dieselCost;
+
+  const gross = Math.round(hours * 800);
+  if (!document.getElementById('expGross').value) {
+    document.getElementById('expGross').value = gross;
+  }
+
+  calcNetLive();
+}
+
+function calcNetLive() {
+  const gross = parseFloat(document.getElementById('expGross').value) || 0;
+  const diesel = parseFloat(document.getElementById('expDieselCost').value) || 0;
+  const maint = parseFloat(document.getElementById('expMaintCost').value) || 0;
+  const wages = parseFloat(document.getElementById('expWages').value) || 0;
+
+  const net = gross - (diesel + maint + wages);
+  const preview = document.getElementById('expNetLivePreview');
+  if (preview) {
+    preview.textContent = `₹${net.toLocaleString('en-IN')} (${gross > 0 ? Math.round((net/gross)*100) : 0}% नफा)`;
+    preview.style.color = net >= 0 ? '#15803D' : '#DC2626';
+  }
+}
+
+async function handleAddExpenseSubmit(e) {
+  e.preventDefault();
+  const date = document.getElementById('expDate').value;
+  const equipment_name = document.getElementById('expMachineSelect').value;
+  const hours_worked = parseFloat(document.getElementById('expHours').value) || 1;
+  const diesel_litres = parseFloat(document.getElementById('expLitres').value) || 0;
+  const diesel_cost = parseFloat(document.getElementById('expDieselCost').value) || 0;
+  const maintenance_cost = parseFloat(document.getElementById('expMaintCost').value) || 0;
+  const operator_wages = parseFloat(document.getElementById('expWages').value) || 0;
+  const gross_earnings = parseFloat(document.getElementById('expGross').value) || 0;
+  const notes = document.getElementById('expNotes').value.trim();
+
+  try {
+    const res = await fetch('/api/owner/expenses', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        owner_phone: currentOwnerPhone,
+        date,
+        equipment_name,
+        hours_worked,
+        diesel_litres,
+        diesel_cost,
+        maintenance_cost,
+        operator_wages,
+        gross_earnings,
+        notes
+      })
+    });
+
+    if (!res.ok) throw new Error('Failed to save log');
+
+    closeAddExpenseModal();
+    showToast('दैनिक हिशोब नोंद सेव्ह झाली! (Log saved)', 'success');
+    fetchOwnerExpenses();
+  } catch (err) {
+    console.error('Error saving expense:', err);
+    showToast('नोंद सेव्ह करताना त्रुटी आली.', 'error');
+  }
+}
+
+async function deleteExpenseLog(id) {
+  if (!confirm('ही हिशोब नोंद काढून टाकायची आहे का? (Delete this log?)')) return;
+
+  try {
+    const res = await fetch(`/api/owner/expenses/${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error('Failed to delete');
+    showToast('नोंद काढली. (Log deleted)', 'info');
+    fetchOwnerExpenses();
+  } catch (err) {
+    showToast('नोंद काढता आली नाही.', 'error');
+  }
 }

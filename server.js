@@ -529,6 +529,38 @@ app.post('/api/owner/subscription/create', async (req, res) => {
   }
 });
 
+// Owner Diesel & Expense Logbook Endpoints
+app.get('/api/owner/expenses', async (req, res) => {
+  try {
+    const phone = req.query.phone || '+919822012345';
+    const expensesRepo = require('./src/db/expenses.repo');
+    const result = await expensesRepo.getOwnerExpenses(phone);
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/owner/expenses', async (req, res) => {
+  try {
+    const expensesRepo = require('./src/db/expenses.repo');
+    const record = await expensesRepo.addExpenseRecord(req.body);
+    res.json({ success: true, record });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/owner/expenses/:id', async (req, res) => {
+  try {
+    const expensesRepo = require('./src/db/expenses.repo');
+    const success = await expensesRepo.deleteExpenseRecord(req.params.id);
+    res.json({ success });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Simulator API endpoints
 app.post('/api/simulator/send', async (req, res) => {
   try {
