@@ -118,13 +118,18 @@ async function handleLocationInput(phone, text, session) {
   session.data.searchResults = results;
   session.state = 'BOOKING_SELECT';
   
-  const header = getText(session.language, 'search_results_header', { type: category.toUpperCase(), location: displayVillage });
+  const { calculateDistanceAndETA } = require('../../services/distanceService');
+  const proximity = calculateDistanceAndETA(district, 'जत', category);
+
+  const header = getText(session.language, 'search_results_header', { type: category.toUpperCase(), location: displayVillage }) + 
+    `\n${session.language === 'mr' ? proximity.formattedBadgeMr : proximity.formattedBadgeEn}\n`;
+
   const cards = results.map((r, i) => {
     let card = getText(session.language, 'equipment_card', { 
       index: i + 1, 
       model: r.model, 
       price: r.price_per_day, 
-      location: `${displayVillage} (स्थानिक जत केंद्र)`, 
+      location: `${displayVillage} (${proximity.distanceKm} km)`, 
       rating: r.rating || 4.9 
     });
     if (r.services || r.description) {

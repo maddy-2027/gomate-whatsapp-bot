@@ -260,6 +260,14 @@ async function runE2ETests() {
   assert(voiceTest.ok && voiceTest.data.reply.length > 0, 'Voice Note automatically routed and generated catalog/booking response');
 
   // -------------------------------------------------------------
+  // Phase 8: Village GPS Distance & Arrival ETA Engine
+  // -------------------------------------------------------------
+  console.log('\n--- Phase 8: Village GPS Distance & Arrival ETA Engine ---');
+  const distRes = await request('/api/villages/distance?from=शेगाव&to=जत&type=tractor');
+  assert(distRes.ok && distRes.data.distanceKm > 0, `Road distance calculated: ${distRes.data.distanceKm} km (Shegaon ➔ Jat)`);
+  assert(distRes.ok && distRes.data.etaMinutes > 0, `Arrival ETA calculated: ${distRes.data.etaMinutes} mins direct dispatch`);
+
+  // -------------------------------------------------------------
   // Test Summary
   // -------------------------------------------------------------
   console.log('\n===============================================================');

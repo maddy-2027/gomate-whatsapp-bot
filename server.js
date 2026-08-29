@@ -581,6 +581,18 @@ app.get('/api/simulator/session', (req, res) => {
   res.json({ session });
 });
 
+// GPS Distance & Village ETA API Endpoint
+app.get('/api/villages/distance', (req, res) => {
+  try {
+    const { from, to, type } = req.query;
+    const { calculateDistanceAndETA } = require('./src/services/distanceService');
+    const result = calculateDistanceAndETA(from || 'शेगाव', to || 'जत', type || 'tractor');
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // WhatsApp Web status & live QR code endpoint
 app.get('/api/whatsapp/status', (req, res) => {
   res.json(getWhatsAppStatus());

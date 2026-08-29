@@ -225,6 +225,8 @@ Return ONLY a JSON object:
  */
 function formatVoiceAcknowledgment(voiceResult) {
   const { transcript, equipment, service, modelName, hourlyRate, village, hours, timing, language = 'mr' } = voiceResult;
+  const { calculateDistanceAndETA } = require('./distanceService');
+  const proximity = calculateDistanceAndETA(village, 'जत', equipment);
 
   const rentalTotal = hourlyRate * hours;
   const platformFee = 49;
@@ -239,6 +241,7 @@ function formatVoiceAcknowledgment(voiceResult) {
 🚜 *उपकरण:* ${modelName}
 🌾 *जोडणी काम:* ${service}
 📍 *स्थान:* ${village} (जत तालुका)
+🚗 *अंतर व पोहोच वेळ:* ${proximity.distanceKm} किमी • *${proximity.etaMinutes} मिनिटांत शेतात हजर ⚡*
 ⏱️ *वेळ:* ${timing} (${hours} तास)
 💰 *भाडे दर:* ₹${hourlyRate}/तास (एकूण: ₹${rentalTotal.toLocaleString('en-IN')})
 🛡️ *गोमेट सुरक्षा व सहाय्य फी:* ₹${platformFee}
@@ -258,6 +261,7 @@ function formatVoiceAcknowledgment(voiceResult) {
 🚜 *Equipment:* ${modelName}
 🌾 *Service:* ${service}
 📍 *Location:* ${village} (Jath Cluster)
+🚗 *Distance & ETA:* ${proximity.distanceKm} km • *${proximity.etaMinutes} mins arrival ⚡*
 ⏱️ *Schedule:* ${timing} (${hours} Hours)
 💰 *Rental Rate:* ₹${hourlyRate}/hr (Subtotal: ₹${rentalTotal.toLocaleString('en-IN')})
 🛡️ *GoMate Protection Fee:* ₹${platformFee}
