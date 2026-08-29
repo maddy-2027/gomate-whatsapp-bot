@@ -59,6 +59,11 @@ app.get('/style-guide', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'style-guide', 'index.html'));
 });
 
+// Printable Marketing Posters & QR Stickers Suite
+app.get(['/marketing', '/flyers', '/posters'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'marketing', 'index.html'));
+});
+
 // Health check & 24/7 Heartbeat Endpoint
 app.get('/api/health', (req, res) => {
   res.status(200).json({

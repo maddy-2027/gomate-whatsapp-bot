@@ -44,7 +44,7 @@ async function runE2ETests() {
   const health = await request('/api/health');
   assert(health.ok && health.data.status === 'ok', 'API Health Check returns 200 OK');
 
-  const surfaces = ['/landing', '/admin', '/owner', '/style-guide', '/'];
+  const surfaces = ['/landing', '/admin', '/owner', '/style-guide', '/marketing', '/'];
   for (const s of surfaces) {
     const res = await request(s);
     assert(res.ok, `Surface ${s} responds with 200 OK`);
