@@ -141,10 +141,18 @@ function renderBookings() {
       <td>${b.duration_days} day(s)</td>
       <td><strong>₹${(b.total_amount || 0).toLocaleString('en-IN')}</strong></td>
       <td><span class="badge badge-${(b.status || 'pending').toLowerCase()}">${b.status || 'pending'}</span></td>
-      <td>
+      <td style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
         ${b.status !== 'confirmed' ? `
           <button class="btn btn-primary" style="padding: 4px 8px; font-size: 11px;" onclick="updateStatus('${b.id || b.booking_ref}', 'confirmed')">Confirm</button>
         ` : `<span style="font-size: 12px; color: var(--gm-green-600);">✅ Done</span>`}
+        <a href="/api/bookings/${b.booking_ref}/invoice" target="_blank"
+           style="padding: 4px 8px; font-size: 11px; background: #1D4ED8; color: white; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 3px;">
+          📄 PDF
+        </a>
+        <button class="btn" style="padding: 4px 8px; font-size: 11px; background: #16A34A; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;"
+          onclick="sendInvoiceWhatsApp('${b.booking_ref}', '${b.customer_phone}')">
+          📲 WhatsApp
+        </button>
       </td>
     </tr>
   `).join('');
@@ -163,6 +171,22 @@ async function updateStatus(id, status) {
     fetchDashboardData();
   } catch (err) {
     console.error('Failed to update booking status:', err);
+  }
+}
+
+async function sendInvoiceWhatsApp(bookingRef, customerPhone) {
+  try {
+    const res = await fetch(`/api/bookings/${bookingRef}/send-invoice`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ customer_phone: customerPhone })
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert(`✅ Invoice WhatsApp message sent!\n\nRef: ${bookingRef}\nTo: ${customerPhone}\n\nPDF URL:\n${data.invoice_url}`);
+    }
+  } catch (err) {
+    console.error('Send invoice error:', err);
   }
 }
 

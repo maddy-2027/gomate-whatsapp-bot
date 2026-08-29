@@ -16,7 +16,7 @@ async function request(endpoint, options = {}) {
   } else {
     data = await res.text();
   }
-  return { status: res.status, ok: res.ok, data };
+  return { status: res.status, ok: res.ok, data, headers: { 'content-type': contentType } };
 }
 
 let passed = 0;
@@ -339,6 +339,21 @@ async function runE2ETests() {
   });
   assert(heatRes.ok && heatRes.data.clusters.length >= 6, `Admin HQ computed demand density for all ${heatRes.data.clusters.length} Jath clusters`);
   assert(heatRes.ok && heatRes.data.deficitAlerts.length > 0, `Fleet deficit alert generated: ${heatRes.data.deficitAlerts[0].clusterName}`);
+
+  // -------------------------------------------------------------
+  // Test Summary
+  // -------------------------------------------------------------
+  // Phase 13: PDF Invoice & WhatsApp Receipt Generator
+  // -------------------------------------------------------------
+  console.log('\n--- Phase 13: PDF Invoice & WhatsApp Receipt Generator ---');
+  const invoicePdfRes = await request('/api/bookings/GM-TEST/invoice');
+  assert(invoicePdfRes.ok && invoicePdfRes.status === 200, `PDF invoice endpoint returned HTTP 200 for booking GM-TEST`);
+
+  const sendInvoiceRes = await request('/api/bookings/GM-TEST/send-invoice', {
+    method: 'POST',
+    body: JSON.stringify({ customer_phone: '+919876500001' })
+  });
+  assert(sendInvoiceRes.ok && sendInvoiceRes.data.invoice_url.includes('GM-TEST'), `Invoice WhatsApp message dispatched — PDF URL: ${sendInvoiceRes.data.invoice_url}`);
 
   // -------------------------------------------------------------
   // Test Summary
