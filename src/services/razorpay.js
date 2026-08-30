@@ -12,7 +12,7 @@ if (process.env.RAZORPAY_KEY_ID &&
 }
 
 async function createPaymentLink(phone, ownerName = 'Equipment Owner') {
-  const baseUrl = process.env.RENDER_EXTERNAL_URL || 'https://gomate-whatsapp-bot-1.onrender.com';
+  const baseUrl = process.env.RENDER_EXTERNAL_URL || 'https://gomate-whatsapp-bot.onrender.com';
   if (!razorpay) {
     const encodedPhone = encodeURIComponent(phone || '+919876543210');
     return {
@@ -55,7 +55,7 @@ async function createPaymentLink(phone, ownerName = 'Equipment Owner') {
 }
 
 async function createBookingPaymentLink(phone, amount, bookingRef, equipmentModel) {
-  const baseUrl = process.env.RENDER_EXTERNAL_URL || 'https://gomate-whatsapp-bot-1.onrender.com';
+  const baseUrl = process.env.RENDER_EXTERNAL_URL || 'https://gomate-whatsapp-bot.onrender.com';
   if (!razorpay) {
     const encodedPhone = encodeURIComponent(phone || '+919876543210');
     return {
