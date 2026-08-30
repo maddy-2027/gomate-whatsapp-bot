@@ -125,10 +125,11 @@ async function handleLocationInput(phone, text, session) {
     `\n${session.language === 'mr' ? proximity.formattedBadgeMr : proximity.formattedBadgeEn}\n`;
 
   const cards = results.map((r, i) => {
+    const hourlyRate = r.hourly_rate || r.price_per_hour || Math.round((r.price_per_day || 1500) / 2.5);
     let card = getText(session.language, 'equipment_card', { 
       index: i + 1, 
       model: r.model, 
-      price: r.price_per_day, 
+      price: hourlyRate, 
       location: `${displayVillage} (${proximity.distanceKm} km)`, 
       rating: r.rating || 4.9 
     });

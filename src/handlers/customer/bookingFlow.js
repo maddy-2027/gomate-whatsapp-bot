@@ -313,120 +313,79 @@ async function handleDateInput(phone, text, session) {
 
   // Otherwise, transition to BOOKING_DURATION step
   session.state = 'BOOKING_DURATION';
-  const equip = session.data.selectedEquipment || { model: 'Mahindra 575 DI Tractor', price_per_day: 1500 };
+  const equip = session.data.selectedEquipment || { model: 'Mahindra 575 DI Tractor (45 HP)', hourly_rate: 750, price_per_day: 1500 };
   const selectedService = session.data.selectedService;
+  const rate = selectedService ? (selectedService.hourly_rate || 750) : (equip.hourly_rate || Math.round((equip.price_per_day || 1500) / 2.5));
 
-  if (isHourly && selectedService) {
-    const rate = selectedService.hourly_rate || 800;
-    if (lang === 'mr') {
-      return `⏱️ *पायरी २/२: कामाचे तास निवडा:*
+  if (lang === 'mr') {
+    return `⏱️ *पायरी २/२: कामाचे तास (Hours) निवडा:*
 ━━━━━━━━━━━━━━━━━━━━
-🚜 काम: *${selectedService.name}*
+🚜 उपकरण: *${selectedService ? `${equip.model} (${selectedService.name})` : equip.model}*
 📅 तारीख: *${startDate}* (${startTime})
-💰 दर: *₹${rate}/तास*
+💰 दर: *₹${rate}/तास (Hourly Rate)*
 
 1️⃣ *१ तास* (₹${rate * 1 + 49})
-2️⃣ *२ तास* (₹${rate * 2 + 49}) ⭐️ लोकप्रिय
+2️⃣ *२ तास* (₹${rate * 2 + 49}) ⭐️ शेतकरी पसंती
 3️⃣ *३ तास* (₹${rate * 3 + 49})
 4️⃣ *४ तास (अर्धा दिवस)* (₹${rate * 4 + 49})
 5️⃣ *६ तास* (₹${rate * 6 + 49})
+6️⃣ *८ तास (पूर्ण दिवस)* (₹${rate * 8 + 49})
 
-_किंवा तासांची संख्या टाईप करा (उदा. '२ तास' किंवा '३')_
+_किंवा तासांची संख्या टाईप करा (उदा. '२ तास', '३ तास' किंवा '४')_
 _(रद्द करण्यासाठी *0* पाठवा)_`;
-    } else {
-      return `⏱️ *Step 2 of 2: Select Duration in Hours:*
+  } else if (lang === 'hi') {
+    return `⏱️ *चरण २/२: काम के घंटे (Hours) चुनें:*
 ━━━━━━━━━━━━━━━━━━━━
-🚜 Task: *${selectedService.name}*
+🚜 मशीनरी: *${selectedService ? `${equip.model} (${selectedService.name})` : equip.model}*
+📅 दिनांक: *${startDate}* (${startTime})
+💰 दर: *₹${rate}/घंटा (Hourly Rate)*
+
+1️⃣ *१ घंटा* (₹${rate * 1 + 49})
+2️⃣ *२ घंटे* (₹${rate * 2 + 49}) ⭐️ लोकप्रिय
+3️⃣ *३ घंटे* (₹${rate * 3 + 49})
+4️⃣ *४ घंटे (आधा दिन)* (₹${rate * 4 + 49})
+5️⃣ *६ घंटे* (₹${rate * 6 + 49})
+6️⃣ *८ घंटे (पूरा दिन)* (₹${rate * 8 + 49})
+
+_या घंटों की संख्या टाइप करें (उदा. '2 घंटे' या '3')_
+_(रद्द करने के लिए *0* भेजें)_`;
+  } else {
+    return `⏱️ *Step 2 of 2: Select Duration in Hours:*
+━━━━━━━━━━━━━━━━━━━━
+🚜 Equipment: *${selectedService ? `${equip.model} (${selectedService.name})` : equip.model}*
 📅 Scheduled: *${startDate}* (${startTime})
-💰 Rate: *₹${rate}/hr*
+💰 Rate: *₹${rate}/hour (Hourly Rate)*
 
 1️⃣ *1 Hour* (₹${rate * 1 + 49})
-2️⃣ *2 Hours* (₹${rate * 2 + 49}) ⭐️ Popular
+2️⃣ *2 Hours* (₹${rate * 2 + 49}) ⭐️ Most Popular
 3️⃣ *3 Hours* (₹${rate * 3 + 49})
 4️⃣ *4 Hours (Half Day)* (₹${rate * 4 + 49})
 5️⃣ *6 Hours* (₹${rate * 6 + 49})
+6️⃣ *8 Hours (Full Day)* (₹${rate * 8 + 49})
 
-_Or reply with hours (e.g. '2 hours' or '3')_
-_(Reply *0* to cancel)_`;
-    }
-  }
-
-  const dailyRate = equip.price_per_day || 1500;
-
-  if (lang === 'mr') {
-    return `⏱️ *पायरी २/२: भाडे कालावधी (दिवस) निवडा:*
-━━━━━━━━━━━━━━━━━━━━
-🚜 उपकरण: *${equip.model}*
-📅 शेड्युल तारीख: *${startDate}*
-⏰ डिलिव्हरी वेळ: *${startTime}*
-
-1️⃣ *१ दिवस* (₹${(dailyRate * 1).toLocaleString('en-IN')} + ₹49 सुरक्षा फी)
-2️⃣ *२ दिवस* (₹${(dailyRate * 2).toLocaleString('en-IN')} + ₹49 सुरक्षा फी) ⭐️ लोकप्रिय
-3️⃣ *३ दिवस* (₹${(dailyRate * 3).toLocaleString('en-IN')} + ₹49 सुरक्षा फी)
-4️⃣ *१ आठवडा / ७ दिवस* (₹${(dailyRate * 7).toLocaleString('en-IN')} + ₹49 सुरक्षा फी)
-
-_किंवा दिवसांची संख्या टाईप करा (उदा. '४ दिवस' किंवा '५')_
-_(रद्द करण्यासाठी *0* पाठवा)_`;
-  } else if (lang === 'hi') {
-    return `⏱️ *चरण २/२: किराया अवधि (दिन) चुनें:*
-━━━━━━━━━━━━━━━━━━━━
-🚜 मशीनरी: *${equip.model}*
-📅 निर्धारित दिनांक: *${startDate}*
-⏰ डिलीवरी समय: *${startTime}*
-
-1️⃣ *१ दिन* (₹${(dailyRate * 1).toLocaleString('en-IN')} + ₹49 सुरक्षा शुल्क)
-2️⃣ *२ दिन* (₹${(dailyRate * 2).toLocaleString('en-IN')} + ₹49 सुरक्षा शुल्क) ⭐️ लोकप्रिय
-3️⃣ *३ दिन* (₹${(dailyRate * 3).toLocaleString('en-IN')} + ₹49 सुरक्षा शुल्क)
-4️⃣ *१ सप्ताह / ७ दिन* (₹${(dailyRate * 7).toLocaleString('en-IN')} + ₹49 सुरक्षा शुल्क)
-
-_या दिनों की संख्या लिखें (उदा. '४ दिन' या '५')_
-_(रद्द करने के लिए *0* भेजें)_`;
-  } else {
-    return `⏱️ *Step 2 of 2: Select Rental Duration (Days)*
-━━━━━━━━━━━━━━━━━━━━
-🚜 Equipment: *${equip.model}*
-📅 Scheduled Date: *${startDate}*
-⏰ Delivery Time: *${startTime}*
-
-1️⃣ *1 Day* (₹${(dailyRate * 1).toLocaleString('en-IN')} + ₹49 Protection Fee)
-2️⃣ *2 Days* (₹${(dailyRate * 2).toLocaleString('en-IN')} + ₹49 Protection Fee) ⭐️ Most Popular
-3️⃣ *3 Days* (₹${(dailyRate * 3).toLocaleString('en-IN')} + ₹49 Protection Fee)
-4️⃣ *1 Week / 7 Days* (₹${(dailyRate * 7).toLocaleString('en-IN')} + ₹49 Protection Fee)
-
-_Or reply with number of days (e.g. '4 days' or '5')_
+_Or reply with required hours (e.g. '2 hours' or '3')_
 _(Reply *0* to cancel)_`;
   }
 }
 
 /**
- * Step 3: Handle Duration Input (Hours or Days)
+ * Step 3: Handle Duration Input (Always in Hours)
  */
 async function handleDurationInput(phone, text, session) {
   const t = (text || '').trim();
   const lower = t.toLowerCase();
-  const isHourly = !!session.data.selectedService && session.data.selectedService.unit === 'hr';
 
-  let duration = 1;
+  let duration = 2; // Default 2 hours for tractor / equipment
 
-  if (isHourly) {
-    if (t === '1' || lower.includes('1 तास') || lower.includes('1 hr') || lower.includes('1 hour')) duration = 1;
-    else if (t === '2' || lower.includes('2 तास') || lower.includes('2 hr') || lower.includes('2 hours')) duration = 2;
-    else if (t === '3' || lower.includes('3 तास') || lower.includes('3 hr') || lower.includes('3 hours')) duration = 3;
-    else if (t === '4' || lower.includes('4 तास') || lower.includes('4 hr') || lower.includes('4 hours') || lower.includes('half day')) duration = 4;
-    else if (t === '5' || lower.includes('6 तास') || lower.includes('6 hr') || lower.includes('6 hours')) duration = 6;
-    else {
-      const numMatch = t.match(/\b([1-9][0-9]?)\b/);
-      if (numMatch) duration = parseInt(numMatch[1]);
-    }
-  } else {
-    if (t === '1' || lower === '1 day' || lower === '१ दिवस' || lower === '1 दिन') duration = 1;
-    else if (t === '2' || lower === '2 days' || lower === '२ दिवस' || lower === '2 दिन') duration = 2;
-    else if (t === '3' || lower === '3 days' || lower === '३ दिवस' || lower === '3 दिन') duration = 3;
-    else if (t === '4' || lower.includes('week') || lower.includes('7') || lower.includes('आठवडा') || lower.includes('सप्ताह')) duration = 7;
-    else {
-      const numMatch = t.match(/\b([1-9][0-9]?)\b/);
-      if (numMatch) duration = parseInt(numMatch[1]);
-    }
+  if (t === '1' || lower.includes('1 तास') || lower.includes('1 hr') || lower.includes('1 hour') || lower.includes('1 घंटा')) duration = 1;
+  else if (t === '2' || lower.includes('2 तास') || lower.includes('2 hr') || lower.includes('2 hours') || lower.includes('2 घंटे')) duration = 2;
+  else if (t === '3' || lower.includes('3 तास') || lower.includes('3 hr') || lower.includes('3 hours') || lower.includes('3 घंटे')) duration = 3;
+  else if (t === '4' || lower.includes('4 तास') || lower.includes('4 hr') || lower.includes('4 hours') || lower.includes('4 घंटे') || lower.includes('half day') || lower.includes('अर्धा दिवस')) duration = 4;
+  else if (t === '5' || lower.includes('6 तास') || lower.includes('6 hr') || lower.includes('6 hours') || lower.includes('6 घंटे')) duration = 6;
+  else if (t === '6' || lower.includes('8 तास') || lower.includes('8 hr') || lower.includes('8 hours') || lower.includes('8 घंटे') || lower.includes('full day') || lower.includes('पूर्ण दिवस')) duration = 8;
+  else {
+    const numMatch = t.match(/\b([1-9][0-9]?)\b/);
+    if (numMatch) duration = parseInt(numMatch[1]);
   }
 
   session.data.duration = duration;
@@ -451,7 +410,7 @@ async function createFinalBookingAndPayment(phone, session) {
   const quantity = session.data.quantity || 1;
   const startDate = session.data.startDate || getOffsetDateString(1);
   const startTime = session.data.startTime || '08:00 AM';
-  const unitRate = isHourly ? (selectedService.hourly_rate || 800) : (equip.price_per_day || 1500);
+  const unitRate = selectedService ? (selectedService.hourly_rate || 750) : (equip.hourly_rate || Math.round((equip.price_per_day || 1500) / 2.5));
   const PLATFORM_FEE = 49;
   const rentalAmount = unitRate * duration * quantity;
   const totalAmount = rentalAmount + PLATFORM_FEE;
@@ -517,11 +476,11 @@ async function createFinalBookingAndPayment(phone, session) {
 🔖 बुकिंग संदर्भ: *${booking.booking_ref}*
 📅 शेड्युल तारीख: *${startDate}*
 ⏰ पोहोचण्याची वेळ: *${startTime} (अचूक वेळेत)*
-⏱️ कालावधी: *${duration} ${isHourly ? 'तास' : 'दिवस'}*
+⏱️ कामाचे तास: *${duration} तास (Hours)*
 📍 कार्यक्षेत्र: *${session.data.location || 'महाराष्ट्र शेत/साइट'}*
 👤 ऑपरेटर/चालक: *व्हेरिफाइड ड्रायव्हर समाविष्ट (GoMate हमी)*
 ━━━━━━━━━━━━━━━━━━━━
-• भाडे दर: *₹${rentalAmount.toLocaleString('en-IN')}* (₹${unitRate} x ${duration} ${isHourly ? 'तास' : 'दिवस'})
+• भाडे दर: *₹${rentalAmount.toLocaleString('en-IN')}* (₹${unitRate}/तास x ${duration} तास)
 • गोमेट सुरक्षा व सहाय्य फी: *₹${PLATFORM_FEE}*
 💰 *एकूण देय रक्कम: ₹${totalAmount.toLocaleString('en-IN')}*
 ━━━━━━━━━━━━━━━━━━━━
@@ -544,11 +503,11 @@ _रद्द करण्यासाठी *CANCEL* किंवा मेन�
 🔖 बुकिंग संदर्भ: *${booking.booking_ref}*
 📅 निर्धारित दिनांक: *${startDate}*
 ⏰ पहुंचने का समय: *${startTime} (सटीक समय पर)*
-⏱️ अवधि: *${duration} ${isHourly ? 'घंटे' : 'दिन'}*
+⏱️ अवधि: *${duration} घंटे (Hours)*
 📍 स्थान: *${session.data.location || 'खेत / साइट'}*
 👤 ऑपरेटर/चालक: *सत्यापित ड्राइवर सम्मिलित (GoMate गारंटी)*
 ━━━━━━━━━━━━━━━━━━━━
-• किराया: *₹${rentalAmount.toLocaleString('en-IN')}* (₹${unitRate} x ${duration} ${isHourly ? 'घंटे' : 'दिन'})
+• किराया: *₹${rentalAmount.toLocaleString('en-IN')}* (₹${unitRate}/घंटा x ${duration} घंटे)
 • गोमेट सुरक्षा शुल्क: *₹${PLATFORM_FEE}*
 💰 *कुल देय राशि: ₹${totalAmount.toLocaleString('en-IN')}*
 ━━━━━━━━━━━━━━━━━━━━
@@ -559,38 +518,38 @@ _(PhonePe, Google Pay, Paytm या BHIM UPI द्वारा तुरंत 
 
 📋 *Uber-Style डिलीवरी प्रक्रिया:*
 1️⃣ *UPI भुगतान पूरा करें:* ऊपर दिए गए लिंक पर क्लिक कर ₹${totalAmount.toLocaleString('en-IN')} का भुगतान करें।
-2️⃣ *मालिक व ड्राइवर विवरण:* भुगतान होते ही मशीन मालिक व ड्राइवर का फोन नंबर WhatsApp पर प्राप्त होगा।
-3️⃣ *समय पर डिलीवरी:* मालिक निर्धारित समय (${startDate}, ${startTime}) पर मशीन आपके स्थान पर पहुंचाएंगे।
-4️⃣ *१००% सुरक्षा:* काम शुरू होने तक आपका पैसा GoMate द्वारा सुरक्षित रहेगा।
+2️⃣ *मालिक व ड्राइवर विवरण:* भुगतान के तुरंत बाद ऑपरेटर का नंबर और लोकेशन WhatsApp पर प्राप्त होगी।
+3️⃣ *समय पर डिलीवरी:* मशीनरी तय समय पर (${startDate}, ${startTime}) आपके खेत पहुंचेगी।
+4️⃣ *१००% सुरक्षा:* काम शुरू होने तक आपका भुगतान GoMate द्वारा सुरक्षित!
 
 _रद्द करने के लिए *CANCEL* या मेनू के लिए *0* भेजें।_`;
   } else {
-    return `🎉 *Your Equipment is Scheduled (Advance Booking)!* 🚜
+    return `🎉 *Your Equipment is Scheduled Successfully!* 🚜
 ━━━━━━━━━━━━━━━━━━━━
 🚜 Equipment / Task: *${selectedService ? `${modelText} (${selectedService.name})` : modelText}*
-🔖 Booking Ref: *${booking.booking_ref}*
+🔖 Booking Reference: *${booking.booking_ref}*
 📅 Scheduled Date: *${startDate}*
-⏰ Arrival / Dispatch Time: *${startTime} (Sharp)*
-⏱️ Duration: *${duration} ${isHourly ? 'hour(s)' : 'day(s)'}*
-📍 Location: *${session.data.location || 'Local Farm/Site'}*
-👤 Operator / Driver: *Verified Operator Included (100% GoMate Guarantee)*
+⏰ Arrival Time: *${startTime} (Guaranteed)*
+⏱️ Duration: *${duration} Hours*
+📍 Destination: *${session.data.location || 'Farm/Site'}*
+👤 Operator: *Verified Driver Included (GoMate Guarantee)*
 ━━━━━━━━━━━━━━━━━━━━
-• Rental Rate: *₹${rentalAmount.toLocaleString('en-IN')}* (₹${unitRate} x ${duration} ${isHourly ? 'hr' : 'days'})
-• GoMate Protection & Support Fee: *₹${PLATFORM_FEE}*
-💰 *Total Amount to Pay: ₹${totalAmount.toLocaleString('en-IN')}*
+• Rental Charge: *₹${rentalAmount.toLocaleString('en-IN')}* (₹${unitRate}/hr x ${duration} hrs)
+• GoMate Protection Fee: *₹${PLATFORM_FEE}*
+💰 *Total Payable: ₹${totalAmount.toLocaleString('en-IN')}*
 ━━━━━━━━━━━━━━━━━━━━
 
-👉 *Click to Confirm Booking & Pay via UPI:*
+👉 *Complete UPI Advance to Confirm Booking:*
 🔗 ${payLink}
-_(Pay instantly with PhonePe, Google Pay, Paytm, or Cards)_
+_(Instant pay via PhonePe, Google Pay, Paytm or BHIM UPI)_
 
-📋 *How Uber-Style Dispatch Works:*
-1️⃣ *Complete UPI Payment:* Click the link above to pay ₹${totalAmount.toLocaleString('en-IN')}.
-2️⃣ *Direct Owner & Driver Connect:* Verified owner name, phone & dispatch tracking sent to WhatsApp instantly.
-3️⃣ *Guaranteed On-Time Delivery:* Machinery arrives at your site on scheduled date (${startDate} at ${startTime}).
-4️⃣ *100% Protected:* Payment is held safely by GoMate until equipment begins work.
+📋 *Uber-Style Delivery Workflow:*
+1️⃣ *Pay via UPI:* Click the link above and pay ₹${totalAmount.toLocaleString('en-IN')}.
+2️⃣ *Driver Details:* You will receive the owner and driver's direct contact and live GPS location on WhatsApp.
+3️⃣ *Timely Delivery:* Equipment arrives at your farm on ${startDate} at ${startTime}.
+4️⃣ *100% Escrow Protection:* Your money is held safe until field work commences.
 
-_Reply *0* for Main Menu or *CANCEL* to cancel._`;
+_Reply *CANCEL* to cancel or *0* for Menu._`;
   }
 }
 

@@ -104,6 +104,7 @@ async function runE2ETests() {
     body: JSON.stringify({ phone: testCustomerPhone, message: 'Pune' })
   });
   assert(step5.ok && step5.data.reply.includes('Mahindra 575 DI'), 'Search returned Pune machinery catalog');
+  assert(step5.data.reply.includes('/hr') || step5.data.reply.includes('/hour') || step5.data.reply.includes('/तास'), 'Equipment catalog displays rates on an hourly basis (₹/hr)');
 
   // 8. Select Equipment 1
   const step6 = await request('/api/simulator/send', {
@@ -121,7 +122,7 @@ async function runE2ETests() {
     assert(stepService.ok && stepService.data.session.state === 'BOOKING_DATES', 'Selected attachment service');
   }
 
-  // 9. Enter Dates & Duration
+  // 9. Enter Dates & Duration (3 Hours)
   let step7 = await request('/api/simulator/send', {
     method: 'POST',
     body: JSON.stringify({ phone: testCustomerPhone, message: '18/08/2026' })
@@ -136,6 +137,7 @@ async function runE2ETests() {
 
   const replyText = (step7.data && step7.data.reply) || '';
   assert(step7.ok && replyText.includes('GM-'), 'Booking Confirmed with GM-XXXX reference generated');
+  assert(replyText.includes('Hours') || replyText.includes('तास') || replyText.includes('/hr'), 'Booking confirmation records duration in hours and computes hourly pricing');
 
   // Extract generated reference number
   const refMatch = replyText.match(/GM-[A-Z0-9]{4}/);

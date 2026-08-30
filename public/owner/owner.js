@@ -206,7 +206,7 @@ function renderListings(equipmentList) {
           <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--gm-gray-200); padding-top: 12px; margin-top: auto;">
             <div>
               <span style="font-size: 11px; color: var(--gm-gray-500);">Hire Rate:</span>
-              <div style="font-size: 17px; font-weight: 700; color: var(--gm-brand-navy); font-family: var(--gm-font-mono);">₹${Number(item.daily_rate || 1500).toLocaleString('en-IN')}<span style="font-size: 11px; font-weight: normal; color: var(--gm-gray-500); font-family: var(--gm-font-body);">/day</span></div>
+              <div style="font-size: 17px; font-weight: 700; color: var(--gm-brand-navy); font-family: var(--gm-font-mono);">₹${Number(item.hourly_rate || Math.round((item.daily_rate || 1500) / 2.5)).toLocaleString('en-IN')}<span style="font-size: 11px; font-weight: normal; color: var(--gm-gray-500); font-family: var(--gm-font-body);">/hour</span></div>
             </div>
             <span class="gm-badge ${isAvailable ? 'gm-badge-confirmed' : 'gm-badge-cancelled'}" id="status-badge-${item.id}">
               ${isAvailable ? 'Available' : 'Paused'}
