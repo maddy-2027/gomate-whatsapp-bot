@@ -12,6 +12,7 @@ const { hasPendingDispatch, handleOwnerResponse } = require('../services/dispatc
 const { hasPendingFeedback, handleFeedbackResponse } = require('../services/feedbackService');
 const { isSosKeyword, triggerEmergencySos } = require('../services/sosService');
 const { isLoyaltyKeyword, getFarmerLoyaltyProfile, formatLoyaltyWhatsAppMessage, applyReferralCode } = require('../services/loyaltyService');
+const { isMandiKeyword, getJathMandiPrices, formatMandiWhatsAppMessage } = require('../services/mandiService');
 
 const userProfileCache = new Map();
 
@@ -58,6 +59,12 @@ async function routeMessage(phone, text, session) {
     }
     const profile = await getFarmerLoyaltyProfile(phone);
     return formatLoyaltyWhatsAppMessage(profile);
+  }
+
+  // 0.4 Check if this is a Jath APMC Mandi / Live Market Rate query
+  if (isMandiKeyword(rawText)) {
+    const mandiData = getJathMandiPrices(rawText);
+    return formatMandiWhatsAppMessage(mandiData);
   }
 
   const isSingleDigit = /^[0-9]+$/.test(t);

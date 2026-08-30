@@ -1223,6 +1223,33 @@ app.post('/api/farmer/loyalty/apply-referral', async (req, res) => {
   }
 });
 
+// =============================================================
+// Jath APMC Krishi Mandi Live Crop Rates Endpoints
+// =============================================================
+const mandiService = require('./src/services/mandiService');
+
+/** GET /api/mandi/prices — get live Jath APMC crop market rates */
+app.get('/api/mandi/prices', (req, res) => {
+  try {
+    const { crop } = req.query;
+    const data = mandiService.getJathMandiPrices(crop);
+    res.json({ success: true, ...data });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+/** POST /api/mandi/send-whatsapp — dispatch mandi rates to farmer on WhatsApp */
+app.post('/api/mandi/send-whatsapp', async (req, res) => {
+  try {
+    const { phone, crop } = req.body;
+    const result = await mandiService.sendMandiWhatsAppAlert(phone || '+919876543210', crop || '');
+    res.json(result);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.use((err, req, res, next) => { console.error(err.stack); res.status(500).send('Something broke!'); });
 
 app.listen(port, '0.0.0.0', () => {

@@ -477,6 +477,22 @@ async function runE2ETests() {
   assert(applyRefRes.ok && applyRefRes.data.welcomeBonus === 100, 'Referred farmer successfully redeemed village coupon with ₹100 welcome bonus');
 
   // -------------------------------------------------------------
+  // Phase 20: Jath APMC Krishi Mandi Live Crop Rates & Harvester Advisory
+  // -------------------------------------------------------------
+  console.log('\n--- Phase 20: Jath APMC Krishi Mandi Live Crop Rates & Harvester Advisory ---');
+
+  const mandiRes = await request('/api/mandi/prices');
+  assert(mandiRes.ok && mandiRes.data.crops.length === 6, `Jath APMC live market prices loaded for 6 cash crops`);
+  assert(mandiRes.data.crops.some(c => c.id === 'crop-pom' && c.modalPrice > 100), `Pomegranate (Bhagwa) APMC rate verified: ₹${mandiRes.data.crops.find(c => c.id === 'crop-pom')?.modalPrice}/kg`);
+  assert(mandiRes.data.crops.some(c => c.id === 'crop-soy' && c.modalPrice > 4000), `Soybean APMC rate verified: ₹${mandiRes.data.crops.find(c => c.id === 'crop-soy')?.modalPrice}/quintal`);
+
+  const mandiWaRes = await request('/api/mandi/send-whatsapp', {
+    method: 'POST',
+    body: JSON.stringify({ phone: '+919876543210', crop: 'सोयाबीन' })
+  });
+  assert(mandiWaRes.ok && mandiWaRes.data.message.includes('बाजारभाव'), 'Mandi rates advisory & harvester recommendation dispatched to farmer on WhatsApp');
+
+  // -------------------------------------------------------------
   // Test Summary
   // -------------------------------------------------------------
   console.log('\n===============================================================');
