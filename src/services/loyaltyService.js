@@ -88,7 +88,7 @@ async function getFarmerLoyaltyProfile(phone = '+919876543210') {
   }
 
   const referralCode = generateReferralCode(phone);
-  const referralLink = `https://wa.me/17372508034?text=${encodeURIComponent(referralCode)}`;
+  const referralLink = `https://wa.me/918605470552?text=${encodeURIComponent(referralCode)}`;
 
   return {
     phone,
