@@ -1,4 +1,4 @@
-﻿// Ensure TLS connections succeed across local Windows network environments
+// Ensure TLS connections succeed across all network environments
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const {
@@ -8,6 +8,8 @@ const {
   downloadMediaMessage,
   initAuthCreds,
   BufferJSON,
+  proto,
+  makeCacheableSignalKeyStore
 } = require('@whiskeysockets/baileys');
 const pino = require('pino');
 const qrcode = require('qrcode');
@@ -24,114 +26,190 @@ let isReady = false;
 let connectedUser = null;
 let isInitializing = false;
 
-// Fallback local auth dir (used only when Supabase is unavailable)
+// Fallback local auth dir (used for local dev / file cache)
 const AUTH_DIR = path.join(process.cwd(), '.baileys_auth');
 
 // In-memory debounce set to prevent loop replies
 const recentReplies = new Set();
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Supabase-backed Auth State
-// Stores creds + keys in the `whatsapp_session` table so they survive deploys.
-// Falls back to local filesystem if Supabase is not available.
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ──────────────────────────────────────────────────────────────────────────
+// Supabase-backed Persistent Signal Auth State Engine
+// Stores creds + all cryptographic signal keys in Supabase so they survive
+// all cloud server restarts, container rebuilds, and code redeploys.
+// ──────────────────────────────────────────────────────────────────────────
 
 /**
  * Check if Supabase is a real client (not the mock fallback)
  */
 function isSupabaseReal() {
   try {
-    return typeof supabase.auth !== 'undefined';
+    return typeof supabase.auth !== 'undefined' || (process.env.SUPABASE_URL && process.env.SUPABASE_SECRET_KEY);
   } catch {
     return false;
   }
 }
 
 /**
- * Load session row from Supabase
+ * Load full auth state (creds + keys) from Supabase
  */
 async function loadSessionFromSupabase() {
   try {
-    const { data, error } = await supabase
+    // 1. Primary check in whatsapp_session table
+    let { data, error } = await supabase
       .from('whatsapp_session')
       .select('creds, keys')
       .eq('id', 'main')
       .single();
-    if (error || !data) return null;
-    return data;
+
+    // 2. Backup check in sessions table if whatsapp_session returned nothing
+    if (error || !data || !data.creds) {
+      const fallback = await supabase
+        .from('sessions')
+        .select('flow_state')
+        .eq('phone', 'whatsapp_auth_main')
+        .single();
+      if (fallback.data && fallback.data.flow_state && fallback.data.flow_state.creds) {
+        data = fallback.data.flow_state;
+      }
+    }
+
+    if (!data || !data.creds) return null;
+
+    const creds = typeof data.creds === 'string'
+      ? JSON.parse(data.creds, BufferJSON.reviver)
+      : data.creds;
+
+    const keys = typeof data.keys === 'string'
+      ? JSON.parse(data.keys, BufferJSON.reviver)
+      : (data.keys || {});
+
+    return { creds, keys };
   } catch (err) {
-    console.warn('âš ï¸ [Session] Could not load from Supabase:', err.message);
+    console.warn('⚠️ [Session] Could not load from Supabase:', err.message);
     return null;
   }
 }
 
 /**
- * Save session data back to Supabase
+ * Save full auth state (creds + all signal keys) to Supabase with dual-table redundancy
  */
 async function saveSessionToSupabase(creds, keys) {
   try {
-    await supabase
+    const credsJson = JSON.parse(JSON.stringify(creds, BufferJSON.replacer));
+    const keysJson = JSON.parse(JSON.stringify(keys, BufferJSON.replacer));
+
+    // 1. Primary save to whatsapp_session
+    const { error } = await supabase
       .from('whatsapp_session')
       .upsert(
-        { id: 'main', creds, keys, updated_at: new Date().toISOString() },
+        { id: 'main', creds: credsJson, keys: keysJson, updated_at: new Date().toISOString() },
         { onConflict: 'id' }
       );
+
+    // 2. Redundant backup save to sessions table
+    await supabase
+      .from('sessions')
+      .upsert(
+        { phone: 'whatsapp_auth_main', flow_state: { creds: credsJson, keys: keysJson }, last_message_at: new Date().toISOString() },
+        { onConflict: 'phone' }
+      ).catch(() => {});
+
+    if (!error) {
+      // Also backup to local disk cache if writable
+      try {
+        if (!fs.existsSync(AUTH_DIR)) fs.mkdirSync(AUTH_DIR, { recursive: true });
+        fs.writeFileSync(path.join(AUTH_DIR, 'session_backup.json'), JSON.stringify({ creds: credsJson, keys: keysJson }), 'utf8');
+      } catch (e) {}
+    }
   } catch (err) {
-    console.warn('âš ï¸ [Session] Could not save to Supabase:', err.message);
+    console.warn('⚠️ [Session] Could not save to Supabase:', err.message);
   }
 }
 
 /**
- * Delete session row from Supabase (on logout)
+ * Delete session row from Supabase (only on explicit user logout)
  */
 async function deleteSessionFromSupabase() {
   try {
     await supabase.from('whatsapp_session').delete().eq('id', 'main');
+    await supabase.from('sessions').delete().eq('phone', 'whatsapp_auth_main');
+    try { fs.rmSync(AUTH_DIR, { recursive: true, force: true }); } catch (e) {}
+    console.log('🗑️ [Session] Cleared WhatsApp session from database.');
   } catch (err) {
-    console.warn('âš ï¸ [Session] Could not delete from Supabase:', err.message);
+    console.warn('⚠️ [Session] Could not delete from Supabase:', err.message);
   }
 }
 
 /**
- * Custom auth state backed by Supabase.
- * Compatible with the same interface as useMultiFileAuthState.
+ * Full Baileys AuthenticationState backed by Supabase with SignalKeyStore
  */
 async function useSupabaseAuthState() {
-  const existing = await loadSessionFromSupabase();
+  const loaded = await loadSessionFromSupabase();
 
   let creds;
-  let keys = {};
+  const keyCache = new Map();
 
-  if (existing && existing.creds) {
-    try {
-      creds = typeof existing.creds === 'string'
-        ? JSON.parse(existing.creds, BufferJSON.reviver)
-        : existing.creds;
-      keys = typeof existing.keys === 'string'
-        ? JSON.parse(existing.keys, BufferJSON.reviver)
-        : (existing.keys || {});
-      console.log('âœ… [Session] WhatsApp session loaded from Supabase â€” no QR needed!');
-    } catch (e) {
-      console.warn('âš ï¸ [Session] Corrupt Supabase session, starting fresh:', e.message);
-      creds = initAuthCreds();
-      keys = {};
+  if (loaded && loaded.creds) {
+    creds = loaded.creds;
+    if (loaded.keys) {
+      for (const [k, v] of Object.entries(loaded.keys)) {
+        keyCache.set(k, v);
+      }
     }
+    console.log('✅ [Session] Restored active WhatsApp session from Supabase — no QR scan needed!');
   } else {
     creds = initAuthCreds();
-    keys = {};
-    console.log('â„¹ï¸ [Session] No saved session found â€” QR scan required.');
+    console.log('ℹ️ [Session] No previous WhatsApp session found in database — QR scan required.');
   }
 
-  const state = { creds, keys };
+  let saveTimer = null;
+  const scheduleSave = () => {
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(async () => {
+      const keysObj = {};
+      for (const [k, v] of keyCache.entries()) {
+        keysObj[k] = v;
+      }
+      await saveSessionToSupabase(creds, keysObj);
+    }, 400); // 400ms debounce
+  };
+
+  const keys = {
+    get: async (type, ids) => {
+      const data = {};
+      for (const id of ids) {
+        const fileKey = `${type}-${id}`;
+        let value = keyCache.get(fileKey);
+        if (value && type === 'app-state-sync-key') {
+          value = proto.Message.AppStateSyncKeyData.fromObject(value);
+        }
+        data[id] = value || null;
+      }
+      return data;
+    },
+    set: async (data) => {
+      for (const category in data) {
+        for (const id in data[category]) {
+          const fileKey = `${category}-${id}`;
+          const value = data[category][id];
+          if (value) {
+            keyCache.set(fileKey, value);
+          } else {
+            keyCache.delete(fileKey);
+          }
+        }
+      }
+      scheduleSave();
+    }
+  };
+
+  const state = {
+    creds,
+    keys: makeCacheableSignalKeyStore(keys, pino({ level: 'silent' }))
+  };
 
   const saveCreds = async () => {
-    try {
-      const credsJson = JSON.parse(JSON.stringify(state.creds, BufferJSON.replacer));
-      const keysJson = JSON.parse(JSON.stringify(state.keys, BufferJSON.replacer));
-      await saveSessionToSupabase(credsJson, keysJson);
-    } catch (e) {
-      console.warn('âš ï¸ [Session] saveCreds error:', e.message);
-    }
+    scheduleSave();
   };
 
   return { state, saveCreds };
@@ -148,13 +226,13 @@ async function useLocalAuthState() {
   return await useMultiFileAuthState(AUTH_DIR);
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Main WhatsApp Initialization
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ──────────────────────────────────────────────────────────────────────────
+// Main WhatsApp Initialization & Lifecycle Management
+// ──────────────────────────────────────────────────────────────────────────
 
 /**
  * Initialize Baileys WhatsApp Web Multi-Device Client.
- * Session is persisted to Supabase automatically â€” survives all redeploys.
+ * Session is persisted to Supabase automatically — survives all redeploys.
  */
 async function initWhatsAppWeb(onQrCallback, onReadyCallback) {
   if (isInitializing) return;
@@ -167,7 +245,7 @@ async function initWhatsAppWeb(onQrCallback, onReadyCallback) {
       : await useLocalAuthState();
 
     if (!useSupabase) {
-      console.warn('âš ï¸ [Session] Supabase unavailable â€” using local filesystem (session will reset on deploy).');
+      console.warn('⚠️ [Session] Supabase unavailable — using local filesystem (session will reset on deploy).');
     }
 
     let version = undefined;
@@ -203,8 +281,8 @@ async function initWhatsAppWeb(onQrCallback, onReadyCallback) {
         try {
           currentQrDataUrl = await qrcode.toDataURL(qr);
           console.log('\n======================================================');
-          console.log('âš¡ Scan this WhatsApp QR code to link your phone number:');
-          console.log('ðŸŒ Web Dashboard: https://gomate-whatsapp-bot.onrender.com/qr');
+          console.log('⚡ Scan this WhatsApp QR code to link your phone number:');
+          console.log('🌐 Web Dashboard: https://gomate-whatsapp-bot.onrender.com/qr');
           console.log('======================================================\n');
           qrcodeTerminal.generate(qr, { small: true });
           if (onQrCallback) onQrCallback(currentQrDataUrl);
@@ -217,11 +295,12 @@ async function initWhatsAppWeb(onQrCallback, onReadyCallback) {
         isReady = true;
         currentQrDataUrl = null;
         rawQrCode = null;
+        isInitializing = false;
         connectedUser = waSocket.user ? (waSocket.user.name || waSocket.user.id) : 'Connected';
         const cleanPhone = waSocket.user?.id ? '+' + waSocket.user.id.split(':')[0] : 'Your Phone';
-        console.log('\nðŸŽ‰ ======================================================');
-        console.log(`ðŸš€ GoMate WhatsApp Bot is LIVE & CONNECTED on ${cleanPhone}!`);
-        console.log(`ðŸ“± Session saved to Supabase â€” auto-reconnects after any deploy.`);
+        console.log('\n🎉 ======================================================');
+        console.log(`🚀 GoMate WhatsApp Bot is LIVE & CONNECTED on ${cleanPhone}!`);
+        console.log(`📱 Session saved to Supabase — auto-reconnects after any deploy.`);
         console.log('======================================================\n');
         if (onReadyCallback) onReadyCallback();
       }
@@ -233,17 +312,16 @@ async function initWhatsAppWeb(onQrCallback, onReadyCallback) {
         const statusCode = lastDisconnect?.error?.output?.statusCode;
         const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
 
-        console.log(`âš ï¸ WhatsApp connection closed (Reason: ${statusCode || 'Unknown'}). Reconnecting: ${shouldReconnect}`);
+        console.log(`⚠️ WhatsApp connection closed (Reason: ${statusCode || 'Unknown'}). Reconnecting: ${shouldReconnect}`);
 
         if (shouldReconnect) {
           setTimeout(() => {
             initWhatsAppWeb(onQrCallback, onReadyCallback);
           }, 3000);
         } else {
-          // User explicitly logged out â€” clear Supabase session too
-          console.log('ðŸ”’ WhatsApp logged out. Clearing Supabase session...');
+          // User explicitly logged out from WhatsApp on their phone — clear Supabase session too
+          console.log('🔒 WhatsApp logged out from phone. Clearing Supabase session...');
           await deleteSessionFromSupabase();
-          try { fs.rmSync(AUTH_DIR, { recursive: true, force: true }); } catch (e) {}
           setTimeout(() => {
             initWhatsAppWeb(onQrCallback, onReadyCallback);
           }, 2000);
@@ -251,144 +329,117 @@ async function initWhatsAppWeb(onQrCallback, onReadyCallback) {
       }
     });
 
-    // Listen for incoming WhatsApp messages
-    waSocket.ev.on('messages.upsert', async ({ messages, type }) => {
-      if (type !== 'notify') return;
+    // Handle Incoming Messages
+    waSocket.ev.on('messages.upsert', async (m) => {
+      if (m.type !== 'notify') return;
 
-      for (const msg of messages) {
+      for (const msg of m.messages) {
+        if (msg.key.fromMe) continue;
+        if (!msg.message) continue;
+
+        const senderJid = msg.key.remoteJid;
+        if (!senderJid || senderJid.endsWith('@g.us') || senderJid.includes('status@broadcast')) continue;
+
+        const cleanPhone = '+' + senderJid.replace('@s.whatsapp.net', '');
+        const messageId = msg.key.id;
+
+        // Debounce recent message IDs to prevent duplicate processing
+        if (recentReplies.has(messageId)) continue;
+        recentReplies.add(messageId);
+        setTimeout(() => recentReplies.delete(messageId), 30000);
+
+        let incomingText = '';
+        let isAudioMessage = false;
+
+        if (msg.message.conversation) {
+          incomingText = msg.message.conversation;
+        } else if (msg.message.extendedTextMessage?.text) {
+          incomingText = msg.message.extendedTextMessage.text;
+        } else if (msg.message.audioMessage) {
+          isAudioMessage = true;
+          incomingText = '[VOICE_NOTE_AUDIO]';
+        } else if (msg.message.locationMessage) {
+          const loc = msg.message.locationMessage;
+          incomingText = `GPS_LOCATION:${loc.degreesLatitude},${loc.degreesLongitude}`;
+        }
+
+        if (!incomingText && !isAudioMessage) continue;
+
+        console.log(`📩 [WhatsApp Web] From ${cleanPhone}: ${incomingText}`);
+
         try {
-          if (!msg.message) continue;
-          const from = msg.key.remoteJid;
-
-          // Ignore status broadcasts and group messages
-          if (!from || from === 'status@broadcast' || from.endsWith('@g.us')) continue;
-
-          // Ignore bot's own outbound messages
-          if (msg.key.fromMe) continue;
-
-          // Extract message text content
-          const msgType = Object.keys(msg.message)[0];
-          let body = '';
-
-          if (msgType === 'conversation') {
-            body = msg.message.conversation;
-          } else if (msgType === 'extendedTextMessage') {
-            body = msg.message.extendedTextMessage?.text || '';
-          } else if (msgType === 'imageMessage') {
-            body = msg.message.imageMessage?.caption || '';
-          } else if (msgType === 'locationMessage') {
-            const lat = msg.message.locationMessage?.degreesLatitude;
-            const lng = msg.message.locationMessage?.degreesLongitude;
-            body = `GPS_LOCATION:${lat},${lng}`;
-            console.log(`ðŸ“ Real GPS location received: ${lat}, ${lng}`);
-          } else if (msgType === 'audioMessage') {
-            console.log(`ðŸŽ™ï¸ Real WhatsApp Voice Note received from ${from}`);
-            const { processVoiceNote, formatVoiceAcknowledgment } = require('./voiceService');
-            try {
-              const buffer = await downloadMediaMessage(msg, 'buffer', {});
-              const mimeType = msg.message.audioMessage?.mimetype || 'audio/ogg';
-              const rawNumber = from.replace('@s.whatsapp.net', '').replace(/:\d+/, '');
-              const userPhone = '+' + rawNumber;
-              const session = getSession(userPhone);
-
-              const voiceResult = await processVoiceNote(buffer, mimeType, userPhone, session);
-              if (voiceResult && voiceResult.transcript) {
-                const ackMsg = formatVoiceAcknowledgment(voiceResult);
-                await waSocket.sendMessage(from, { text: ackMsg });
-                body = voiceResult.action_text || voiceResult.transcript;
-              }
-            } catch (audioErr) {
-              console.warn('âš ï¸ [Baileys] Voice note download error:', audioErr.message);
-            }
-          }
-
-          body = (body || '').trim();
-          if (!body) continue;
-
-          // Anti-loop protection
-          if (recentReplies.has(body)) {
-            recentReplies.delete(body);
-            continue;
-          }
-
-          const rawNumber = from.replace('@s.whatsapp.net', '').replace(/:\d+/, '');
-          const phone = '+' + rawNumber;
-
-          console.log(`ðŸ“± Real WhatsApp Inbound from ${phone}: "${body}"`);
-
+          const session = getSession(cleanPhone);
           const { routeMessage } = require('../handlers/router');
-          const session = getSession(phone);
-          const replyText = await routeMessage(phone, body, session);
+          const replyText = await routeMessage(cleanPhone, incomingText, session);
 
           if (replyText) {
-            recentReplies.add(replyText.trim());
-            setTimeout(() => recentReplies.delete(replyText.trim()), 30000);
-
-            console.log(`ðŸ’¬ Replying to ${phone}: "${replyText.substring(0, 50)}..."`);
-            await waSocket.sendMessage(from, { text: replyText });
+            await waSocket.sendMessage(senderJid, { text: replyText });
+            console.log(`📤 [WhatsApp Web] Replied to ${cleanPhone}`);
           }
         } catch (err) {
-          console.error('Error handling Baileys message:', err);
+          console.error(`❌ [WhatsApp Web] Error handling message from ${cleanPhone}:`, err);
         }
       }
     });
 
   } catch (err) {
-    console.error('Failed to initialize Baileys:', err);
     isInitializing = false;
+    console.error('❌ Failed to initialize Baileys WhatsApp client:', err);
   }
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Public API
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-function getWhatsAppStatus() {
-  const cleanPhone = waSocket?.user?.id ? '+' + waSocket.user.id.split(':')[0] : null;
-  return {
-    isReady,
-    status: isReady ? 'connected' : (currentQrDataUrl ? 'qr_ready' : 'connecting'),
-    qrDataUrl: currentQrDataUrl,
-    phone: cleanPhone,
-    user: connectedUser
-  };
-}
-
+/**
+ * Send WhatsApp text message directly
+ */
 async function sendWhatsAppDirect(phone, text) {
   if (!waSocket || !isReady) {
-    console.warn(`[Baileys] Cannot send message to ${phone}: WhatsApp is not connected.`);
+    console.warn(`⚠️ WhatsApp Web socket not connected. Could not send message to ${phone}`);
     return false;
   }
   try {
-    const rawNumber = phone.replace(/[^0-9]/g, '');
-    const jid = `${rawNumber}@s.whatsapp.net`;
+    const cleanNumber = phone.replace(/[^0-9]/g, '');
+    const jid = `${cleanNumber}@s.whatsapp.net`;
     await waSocket.sendMessage(jid, { text });
-    console.log(`âœ… Direct message sent to ${phone}`);
     return true;
   } catch (err) {
-    console.error(`Error sending message to ${phone}:`, err.message || err);
+    console.error(`❌ Error sending direct WhatsApp to ${phone}:`, err.message);
     return false;
   }
 }
 
+/**
+ * Log out from current WhatsApp session
+ */
 async function logoutWhatsApp() {
-  try {
-    if (waSocket) await waSocket.logout();
-    await deleteSessionFromSupabase();
-    try { fs.rmSync(AUTH_DIR, { recursive: true, force: true }); } catch (e) {}
-    isReady = false;
-    currentQrDataUrl = null;
+  if (waSocket) {
+    try {
+      await waSocket.logout();
+    } catch (e) {}
     waSocket = null;
-    isInitializing = false;
-    return { success: true, message: 'Logged out and session cleared from Supabase' };
-  } catch (e) {
-    return { success: false, error: e.message };
   }
+  await deleteSessionFromSupabase();
+  isReady = false;
+  connectedUser = null;
+  currentQrDataUrl = null;
+  rawQrCode = null;
+  isInitializing = false;
+}
+
+/**
+ * Get current status of WhatsApp Web connection
+ */
+function getWhatsAppStatus() {
+  return {
+    isReady,
+    connectedUser,
+    hasQr: !!currentQrDataUrl,
+    qrDataUrl: currentQrDataUrl,
+    rawQr: rawQrCode
+  };
 }
 
 module.exports = {
   initWhatsAppWeb,
-  initBaileys: initWhatsAppWeb,
   getWhatsAppStatus,
   sendWhatsAppDirect,
   logoutWhatsApp
