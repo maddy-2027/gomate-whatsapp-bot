@@ -8,17 +8,17 @@
           stroke-linejoin="round"
           stroke-linecap="round"
           fill="none"/>
-    <!-- Blue Forward Chevron / Arrow -->
+    <!-- Vibrant Agri Green Forward Chevron -->
     <path d="M22 24 L52 40 L22 56 L32 40 Z" 
-          fill="#2E7DFF" 
-          stroke="#2E7DFF" 
+          fill="#16A34A" 
+          stroke="#16A34A" 
           stroke-width="2" 
           stroke-linejoin="round"/>
   </g>
 
   <!-- Wordmark "GoMate" in Space Grotesk Style -->
-  <text x="110" y="58" font-family="'Space Grotesk', -apple-system, sans-serif" font-size="44" font-weight="700" fill="#0D0D0D" letter-spacing="-1.5">GoMate</text>
+  <text x="110" y="58" font-family="'Space Grotesk', -apple-system, sans-serif" font-size="44" font-weight="700" fill="#0A1F44" letter-spacing="-1.5">Go<tspan fill="#16A34A">Mate</tspan></text>
   
   <!-- Tagline -->
-  <text x="112" y="80" font-family="'Inter', -apple-system, sans-serif" font-size="13" font-weight="500" fill="#64748B" letter-spacing="-0.2">Book equipment in minutes</text>
+  <text x="112" y="80" font-family="'Inter', -apple-system, sans-serif" font-size="13" font-weight="600" fill="#64748B" letter-spacing="0.2">Book equipment in minutes</text>
 </svg>

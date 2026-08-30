@@ -1,24 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 100" fill="none" width="100%" height="100%">
-  <!-- GoMate Hexagon + Chevron Icon (White/Light Variant) -->
+  <!-- GoMate Hexagon + Chevron Icon (Dark Background Variant) -->
   <g transform="translate(10, 10)">
-    <!-- White / Ice Hexagon Frame -->
+    <!-- White Hexagon Frame -->
     <path d="M40 0 L74.64 20 L74.64 60 L40 80 L5.36 60 L5.36 20 Z" 
           stroke="#FFFFFF" 
           stroke-width="7" 
           stroke-linejoin="round"
           stroke-linecap="round"
           fill="none"/>
-    <!-- Blue Forward Chevron / Arrow -->
+    <!-- Vibrant High-Contrast Green Forward Chevron -->
     <path d="M22 24 L52 40 L22 56 L32 40 Z" 
-          fill="#2E7DFF" 
-          stroke="#2E7DFF" 
+          fill="#22C55E" 
+          stroke="#22C55E" 
           stroke-width="2" 
           stroke-linejoin="round"/>
   </g>
 
-  <!-- Wordmark "GoMate" in White -->
-  <text x="110" y="58" font-family="'Space Grotesk', -apple-system, sans-serif" font-size="44" font-weight="700" fill="#FFFFFF" letter-spacing="-1.5">GoMate</text>
+  <!-- Wordmark "GoMate" in White & Green -->
+  <text x="110" y="58" font-family="'Space Grotesk', -apple-system, sans-serif" font-size="44" font-weight="700" fill="#FFFFFF" letter-spacing="-1.5">Go<tspan fill="#4ADE80">Mate</tspan></text>
   
   <!-- Tagline -->
-  <text x="112" y="80" font-family="'Inter', -apple-system, sans-serif" font-size="13" font-weight="500" fill="#94A3B8" letter-spacing="-0.2">Book equipment in minutes</text>
+  <text x="112" y="80" font-family="'Inter', -apple-system, sans-serif" font-size="13" font-weight="500" fill="#94A3B8" letter-spacing="0.2">Book equipment in minutes</text>
 </svg>
