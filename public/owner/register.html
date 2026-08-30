@@ -247,6 +247,18 @@
       from { transform: scale(0.9); opacity: 0; }
       to { transform: scale(1); opacity: 1; }
     }
+
+    @media (max-width: 640px) {
+      .reg-navbar { padding: 10px 14px; }
+      .reg-container { margin: 16px auto; padding: 0 12px 32px; }
+      .hero-banner { padding: 20px 16px; border-radius: var(--gm-radius-md); }
+      .perks-grid { grid-template-columns: 1fr; gap: 8px; }
+      .equip-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .equip-card { padding: 12px 8px; }
+      .attachments-grid { grid-template-columns: 1fr; }
+      .reg-card { padding: 20px 16px; }
+      .form-row { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
