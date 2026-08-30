@@ -295,26 +295,26 @@ async function generateChatResponse(message, language = 'en', context = '', sess
 
 👉 *मशीनरी बुक करने के लिए नाम भेजें या मेनू के लिए '0' भेजें।*`;
     } else {
-      rateText = `📊 *GoMate Official Rental Rate Card (Per Day)*
+      rateText = `📊 *GoMate Official Rental Rates (Hourly & Daily)* 🚜
 ━━━━━━━━━━━━━━━━━━━━
-🌾 *Agriculture Equipment:*
-• Mahindra Tractor (45 HP): *₹1,500/day*
-• Combine Harvester: *₹4,200/day*
-• Shaktiman Rotavator: *₹850/day*
-• Agri Spraying Drone: *₹2,500/day*
+🌾 *Agriculture Machinery:*
+• 🚜 Mahindra Tractor (45 HP): *₹600/hr* (₹1,500/day)
+• 🌾 Combine Harvester: *₹1,600/hr* (₹4,200/day)
+• ⚙️ Shaktiman Rotavator: *₹450/hr* (₹850/day)
+• 🚁 Agri Spraying Drone: *₹900/hr* (₹2,500/day)
 
 🚚 *Transport & Logistics:*
-• Tata Ace (Chhota Hathi): *₹1,300/day*
-• Bolero / Dost Pickup: *₹1,600/day*
-• Tata 407 Truck: *₹2,600/day*
+• 🛻 Tata Ace (Chhota Hathi): *₹350/hr* (₹1,300/day)
+• 🚚 Bolero / Dost Pickup: *₹450/hr* (₹1,600/day)
+• 🚛 Tata 407 Heavy Truck: *₹700/hr* (₹2,600/day)
 
-🏗️ *Infrastructure & Construction:*
-• JCB 3DX Backhoe Loader: *₹4,500/day*
-• Hydraulic Excavator (Poklane): *₹7,000/day*
+🏗️ *Infrastructure & Earthmoving:*
+• 🚜 JCB 3DX Backhoe Loader: *₹950/hr* (₹4,500/day)
+• 🏗️ Hydraulic Excavator (Poklane): *₹1,500/hr* (₹7,500/day)
 ━━━━━━━━━━━━━━━━━━━━
-🛡️ GoMate Protection & Support Fee: *Flat ₹49*
+🛡️ GoMate Protection & Escrow Fee: *Flat ₹49*
 
-👉 *To get a quote, type machinery name (e.g. '1 JCB for 2 days') or reply '0' for Menu.*`;
+👉 *To book, type machine name (e.g. 'Tractor for 3 hours') or reply '0' for Menu 🏠*`;
     }
     responseCache.set(cacheKey, rateText);
     return rateText;
@@ -323,8 +323,8 @@ async function generateChatResponse(message, language = 'en', context = '', sess
   // Contact & Helpline
   if (cleanMsg.includes('contact') || cleanMsg.includes('helpline') || cleanMsg.includes('कॉल') || cleanMsg.includes('फोन') || cleanMsg.includes('संपर्क') || cleanMsg.includes('number')) {
     const contactText = effectiveLang === 'mr' 
-      ? `📞 *GoMate शेतकरी व ग्राहक मदत केंद्र*\n\nटोल-फ्री नंबर: *1800-123-4567*\nWhatsApp: *+91 98220 12345*\nवेळ: सकाळी 7:00 ते रात्री 10:00 (सर्व 7 दिवस)\n\n👉 मेनूसाठी *0* पाठवा.`
-      : `📞 *GoMate Farmer & Customer Helpline*\n\nToll-Free Number: *1800-123-4567*\nWhatsApp: *+91 98220 12345*\nHours: 7:00 AM – 10:00 PM (All 7 days)\n\n👉 Reply *0* for Main Menu.`;
+      ? `📞 *GoMate शेतकरी व ग्राहक मदत केंद्र* 🌾\n\nWhatsApp & Helpline: *+91 86054 70552* 📱\n📍 मुख्य केंद्र: *जत, सांगली (पिन 416404)*\n⏱️ वेळ: *सकाळी ७:०० ते रात्री १०:००* (सर्व ७ दिवस)\n\n👉 मुख्य मेनूसाठी *0* पाठवा 🏠`
+      : `📞 *GoMate Farmer & Customer Helpline* 🌾\n\nWhatsApp & Helpline: *+91 86054 70552* 📱\n📍 Hub: *Jath, Sangli (PIN 416404)*\n⏱️ Hours: *7:00 AM – 10:00 PM* (All 7 days)\n\n👉 Reply *0* for Main Menu 🏠`;
     responseCache.set(cacheKey, contactText);
     return contactText;
   }
