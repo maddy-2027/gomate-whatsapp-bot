@@ -1250,6 +1250,33 @@ app.post('/api/mandi/send-whatsapp', async (req, res) => {
   }
 });
 
+// =============================================================
+// Jath Taluka Hyperlocal Weather & Spraying Advisory Endpoints
+// =============================================================
+const weatherService = require('./src/services/weatherService');
+
+/** GET /api/weather/forecast — village weather & chemical spraying window index */
+app.get('/api/weather/forecast', (req, res) => {
+  try {
+    const { village } = req.query;
+    const data = weatherService.getVillageWeatherForecast(village || 'शेगाव');
+    res.json({ success: true, ...data });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+/** POST /api/weather/send-whatsapp — dispatch weather advisory to farmer on WhatsApp */
+app.post('/api/weather/send-whatsapp', async (req, res) => {
+  try {
+    const { phone, village } = req.body;
+    const result = await weatherService.sendWeatherWhatsAppAlert(phone || '+919876543210', village || 'शेगाव');
+    res.json(result);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.use((err, req, res, next) => { console.error(err.stack); res.status(500).send('Something broke!'); });
 
 app.listen(port, '0.0.0.0', () => {

@@ -13,6 +13,7 @@ const { hasPendingFeedback, handleFeedbackResponse } = require('../services/feed
 const { isSosKeyword, triggerEmergencySos } = require('../services/sosService');
 const { isLoyaltyKeyword, getFarmerLoyaltyProfile, formatLoyaltyWhatsAppMessage, applyReferralCode } = require('../services/loyaltyService');
 const { isMandiKeyword, getJathMandiPrices, formatMandiWhatsAppMessage } = require('../services/mandiService');
+const { isWeatherKeyword, getVillageWeatherForecast, formatWeatherWhatsAppMessage } = require('../services/weatherService');
 
 const userProfileCache = new Map();
 
@@ -65,6 +66,12 @@ async function routeMessage(phone, text, session) {
   if (isMandiKeyword(rawText)) {
     const mandiData = getJathMandiPrices(rawText);
     return formatMandiWhatsAppMessage(mandiData);
+  }
+
+  // 0.5 Check if this is a Hyperlocal Weather & Spraying Forecast query
+  if (isWeatherKeyword(rawText)) {
+    const weatherData = getVillageWeatherForecast(rawText);
+    return formatWeatherWhatsAppMessage(weatherData);
   }
 
   const isSingleDigit = /^[0-9]+$/.test(t);

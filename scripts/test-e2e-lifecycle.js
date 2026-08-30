@@ -493,6 +493,22 @@ async function runE2ETests() {
   assert(mandiWaRes.ok && mandiWaRes.data.message.includes('बाजारभाव'), 'Mandi rates advisory & harvester recommendation dispatched to farmer on WhatsApp');
 
   // -------------------------------------------------------------
+  // Phase 21: Jath Taluka Hyperlocal Weather & Spraying Advisory Engine
+  // -------------------------------------------------------------
+  console.log('\n--- Phase 21: Jath Taluka Hyperlocal Weather & Spraying Advisory Engine ---');
+
+  const weatherRes = await request('/api/weather/forecast?village=शेगाव');
+  assert(weatherRes.ok && weatherRes.data.weather.temperatureC > 20, `Village weather loaded: ${weatherRes.data.village} (${weatherRes.data.weather.temperatureC}°C, ${weatherRes.data.weather.conditionMr})`);
+  assert(weatherRes.data.sprayingWindow.suitabilityScore >= 90, `Drone spraying feasibility score computed: ${weatherRes.data.sprayingWindow.suitabilityScore}% (${weatherRes.data.sprayingWindow.statusMr})`);
+  assert(weatherRes.data.weather.windSpeedKmh <= 15, `Wind speed safety threshold verified: ${weatherRes.data.weather.windSpeedKmh} km/h`);
+
+  const weatherWaRes = await request('/api/weather/send-whatsapp', {
+    method: 'POST',
+    body: JSON.stringify({ phone: '+919876543210', village: 'शेगाव' })
+  });
+  assert(weatherWaRes.ok && weatherWaRes.data.message.includes('हवामान व फवारणी सल्ला'), 'Village weather forecast & drone spraying advisory dispatched to farmer on WhatsApp');
+
+  // -------------------------------------------------------------
   // Test Summary
   // -------------------------------------------------------------
   console.log('\n===============================================================');
