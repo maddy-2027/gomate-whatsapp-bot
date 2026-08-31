@@ -86,14 +86,19 @@ async function loadJathVillages() {
 }
 
 function switchOwnerTab(tabId) {
-  document.querySelectorAll('.owner-tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.owner-tab-btn').forEach(btn => {
+    const isCurrent = btn.getAttribute('data-tab') === tabId;
+    btn.classList.toggle('active', isCurrent);
+    if (isCurrent) btn.setAttribute('aria-current', 'page');
+    else btn.removeAttribute('aria-current');
+  });
   document.querySelectorAll('.owner-panel').forEach(p => p.style.display = 'none');
-
-  const currentBtn = Array.from(document.querySelectorAll('.owner-tab-btn')).find(b => b.getAttribute('data-tab') === tabId);
-  if (currentBtn) currentBtn.classList.add('active');
 
   const panel = document.getElementById(`tab-${tabId}`);
   if (panel) panel.style.display = 'block';
+
+  document.querySelectorAll('.owner-mobile-menu[open]').forEach(menu => { menu.open = false; });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 
   if (tabId === 'expenses') {
     fetchOwnerExpenses();
@@ -128,13 +133,32 @@ function renderOwnerPortal() {
 
   // Header & Identity
   const nameDisplay = document.getElementById('ownerNameDisplay');
-  if (nameDisplay) nameDisplay.textContent = `${owner.name} (${owner.district})`;
+  if (nameDisplay) nameDisplay.textContent = `${owner.name} (${owner.village || owner.district || 'जत'})`;
+  const firstNameDisplay = document.getElementById('ownerFirstName');
+  if (firstNameDisplay) firstNameDisplay.textContent = (owner.name || 'मालक').trim().split(/\s+/)[0];
 
   // KPIs
-  document.getElementById('kpiEarnings').textContent = `₹${(kpis.totalEarnings || 0).toLocaleString('en-IN')}`;
-  document.getElementById('kpiActiveMachinery').textContent = `${kpis.activeListings || equipment.length} Units`;
-  document.getElementById('kpiBookingsCount').textContent = `${bookings.length} Bookings`;
-  document.getElementById('kpiSubStatus').textContent = `${owner.subscription_status === 'active' ? 'Owner Pro Active' : 'Trial (7 Days)'}`;
+  const earnings = document.getElementById('kpiEarnings');
+  const machinery = document.getElementById('kpiActiveMachinery');
+  const bookingCount = document.getElementById('kpiBookingsCount');
+  const subscriptionStatus = document.getElementById('kpiSubStatus');
+  if (earnings) earnings.textContent = `₹${(kpis.totalEarnings || 0).toLocaleString('en-IN')}`;
+  if (machinery) machinery.textContent = `${kpis.activeListings || equipment.length} मशिनरी`;
+  if (bookingCount) bookingCount.textContent = `${bookings.length} बुकिंग`;
+  if (subscriptionStatus) subscriptionStatus.textContent = `${owner.subscription_status === 'active' ? 'Owner Pro Active' : 'Trial (7 Days)'}`;
+
+  const nextStepTitle = document.getElementById('ownerNextStepTitle');
+  const nextStepText = document.getElementById('ownerNextStepText');
+  const bookingHelper = document.getElementById('kpiBookingsHelper');
+  if (bookings.length) {
+    if (nextStepTitle) nextStepTitle.textContent = `तुमच्यासाठी ${bookings.length} बुकिंग ${bookings.length === 1 ? 'आहे' : 'आहेत'}`;
+    if (nextStepText) nextStepText.textContent = 'तपशील पहा आणि गरज असल्यास ग्राहकाला WhatsApp वर संपर्क करा.';
+    if (bookingHelper) bookingHelper.textContent = 'ग्राहकाशी थेट WhatsApp वर बोलू शकता';
+  } else {
+    if (nextStepTitle) nextStepTitle.textContent = 'नवीन बुकिंगची वाट पाहत आहे';
+    if (nextStepText) nextStepText.textContent = 'नवीन विनंती आली की ती इथे दिसेल.';
+    if (bookingHelper) bookingHelper.textContent = 'नवीन विनंत्या आल्यावर सूचना मिळेल';
+  }
 
   // Listings Tab
   renderListings(equipment);
@@ -152,15 +176,15 @@ function renderOwnerPortal() {
 function renderListings(equipmentList) {
   const grid = document.getElementById('ownerListingsGrid');
   const countBadge = document.getElementById('listingsCountTitle');
-  if (countBadge) countBadge.textContent = `My Equipment Listings (${equipmentList.length})`;
+  if (countBadge) countBadge.textContent = `माझी मशिनरी (${equipmentList.length})`;
 
   if (!equipmentList || equipmentList.length === 0) {
     grid.innerHTML = `
       <div style="grid-column: 1 / -1; text-align: center; padding: 48px 24px; background: var(--gm-white); border-radius: var(--gm-radius-lg); border: 1px solid var(--gm-gray-200);">
-        <h3 style="font-size: 18px; margin-bottom: 4px; font-weight: 700;">No machinery listed yet</h3>
-        <p style="color: var(--gm-gray-600); font-size: 14px; margin-top: 4px; margin-bottom: 16px;">Add your tractors, trucks, or JCBs to start receiving customer bookings on WhatsApp.</p>
+        <h3 style="font-size: 18px; margin-bottom: 4px; font-weight: 700;">अजून मशिनरी जोडलेली नाही</h3>
+        <p style="color: var(--gm-gray-600); font-size: 14px; margin-top: 4px; margin-bottom: 16px;">ट्रॅक्टर, गाडी किंवा जेसीबी जोडा. नवीन बुकिंग इथे दिसतील.</p>
         <button class="gm-btn gm-btn-primary" onclick="openAddMachineModal()" style="font-weight: 700;">
-          Add Machinery Listing
+          + मशिनरी जोडा
         </button>
       </div>
     `;
@@ -170,16 +194,16 @@ function renderListings(equipmentList) {
   grid.innerHTML = equipmentList.map(item => {
     let img = '/assets/equipment/agri_tractor_3d.jpg';
     let badgeClass = 'gm-badge-agri';
-    let catLabel = 'Agriculture';
+    let catLabel = 'शेतीची मशिनरी';
 
     if (item.category === 'transport') {
       img = '/assets/equipment/heavy_drone_3d.jpg';
       badgeClass = 'gm-badge-info';
-      catLabel = 'Goods Transport';
+      catLabel = 'मालवाहतूक';
     } else if (item.category === 'infrastructure') {
       img = '/assets/equipment/infra_jcb_3d.jpg';
       badgeClass = 'gm-badge-warning';
-      catLabel = 'Earthmoving & JCB';
+      catLabel = 'जेसीबी व बांधकाम';
     }
 
     const isAvailable = item.available !== false;
@@ -193,23 +217,23 @@ function renderListings(equipmentList) {
               <span class="gm-badge ${badgeClass}">${catLabel}</span>
               <h3 style="font-size: 16px; margin-top: 6px; font-weight: 700;">${item.name || item.model}</h3>
             </div>
-            <label class="toggle-switch" title="Toggle active machinery availability">
+            <label class="toggle-switch" title="ही मशिनरी ग्राहकांना दिसावी का?">
               <input type="checkbox" ${isAvailable ? 'checked' : ''} onchange="toggleMachineAvailability('${item.id}', this.checked)">
               <span class="slider"></span>
             </label>
           </div>
 
           <p style="font-size: 13px; color: var(--gm-gray-600); margin: 6px 0;">
-            ${item.equipment_type || item.model} • ${item.district || 'Jath'}
+            ${item.equipment_type || item.model} • ${item.district || 'जत'}
           </p>
 
           <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--gm-gray-200); padding-top: 12px; margin-top: auto;">
             <div>
-              <span style="font-size: 11px; color: var(--gm-gray-500);">Hire Rate:</span>
-              <div style="font-size: 17px; font-weight: 700; color: var(--gm-brand-navy); font-family: var(--gm-font-mono);">₹${Number(item.hourly_rate || Math.round((item.daily_rate || 1500) / 2.5)).toLocaleString('en-IN')}<span style="font-size: 11px; font-weight: normal; color: var(--gm-gray-500); font-family: var(--gm-font-body);">/hour</span></div>
+              <span style="font-size: 11px; color: var(--gm-gray-500);">प्रति तास दर</span>
+              <div style="font-size: 17px; font-weight: 700; color: var(--gm-brand-navy); font-family: var(--gm-font-mono);">₹${Number(item.hourly_rate || Math.round((item.daily_rate || 1500) / 2.5)).toLocaleString('en-IN')}<span style="font-size: 11px; font-weight: normal; color: var(--gm-gray-500); font-family: var(--gm-font-body);">/तास</span></div>
             </div>
             <span class="gm-badge ${isAvailable ? 'gm-badge-confirmed' : 'gm-badge-cancelled'}" id="status-badge-${item.id}">
-              ${isAvailable ? 'Available' : 'Paused'}
+              ${isAvailable ? 'चालू' : 'थांबलेली'}
             </span>
           </div>
         </div>
@@ -223,11 +247,16 @@ function renderBookings(bookingsList) {
   const recentTableBody = document.getElementById('ownerRecentBookingsBody');
   // All bookings table on bookings tab
   const allTableBody = document.getElementById('ownerAllBookingsBody');
+  const recentCards = document.getElementById('ownerRecentBookingCards');
+  const allCards = document.getElementById('ownerAllBookingCards');
 
   if (!bookingsList || bookingsList.length === 0) {
     const emptyRow = `<tr><td colspan="7" style="text-align: center; padding: 24px; color: var(--gm-gray-500);">No booking notifications yet. Active WhatsApp bookings will show here.</td></tr>`;
+    const emptyCards = `<div class="owner-booking-mini-card"><strong>सध्या कोणतीही बुकिंग नाही</strong><p class="owner-booking-mini-card__customer">नवीन विनंती आली की ती इथे दिसेल.</p></div>`;
     if (recentTableBody) recentTableBody.innerHTML = emptyRow;
     if (allTableBody) allTableBody.innerHTML = emptyRow;
+    if (recentCards) recentCards.innerHTML = emptyCards;
+    if (allCards) allCards.innerHTML = emptyCards;
     return;
   }
 
@@ -259,6 +288,38 @@ function renderBookings(bookingsList) {
 
   if (recentTableBody) recentTableBody.innerHTML = rowsHtml;
   if (allTableBody) allTableBody.innerHTML = rowsHtml;
+
+  const cardsHtml = bookingsList.map(b => createBookingCard(b)).join('');
+  if (recentCards) recentCards.innerHTML = cardsHtml;
+  if (allCards) allCards.innerHTML = cardsHtml;
+}
+
+function createBookingCard(booking) {
+  const status = String(booking.status || 'pending').toLowerCase();
+  const statusNames = { confirmed: 'निश्चित', completed: 'पूर्ण', cancelled: 'रद्द', pending: 'नवीन विनंती' };
+  const badgeClass = status === 'confirmed' || status === 'completed' ? 'gm-badge-confirmed' : (status === 'cancelled' ? 'gm-badge-cancelled' : 'gm-badge-pending');
+  const phone = String(booking.customer_phone || '').replace(/\D/g, '');
+  const equipment = booking.equipment_name || 'मशिनरी';
+  const customer = booking.customer_name || 'ग्राहक';
+  const date = booking.start_date || 'तारीख ठरवायची आहे';
+  const duration = booking.duration_days ? `${booking.duration_days} दिवस` : '';
+  const amount = Number(booking.total_amount || 0).toLocaleString('en-IN');
+
+  return `
+    <article class="owner-booking-mini-card">
+      <div class="owner-booking-mini-card__top">
+        <span style="font-family: var(--gm-font-mono); font-size: 12px; color: var(--owner-muted);">${booking.booking_ref || 'GM-XXXX'}</span>
+        <span class="gm-badge ${badgeClass}">${statusNames[status] || 'नवीन विनंती'}</span>
+      </div>
+      <div class="owner-booking-mini-card__machine">${equipment}</div>
+      <div class="owner-booking-mini-card__customer">${customer}${phone ? ` · ${booking.customer_phone}` : ''}</div>
+      <div class="owner-booking-mini-card__date">${date}${duration ? ` · ${duration}` : ''}</div>
+      <div class="owner-booking-mini-card__bottom">
+        <strong class="owner-booking-mini-card__amount">₹${amount}</strong>
+        ${phone ? `<a href="https://wa.me/${phone}" target="_blank" rel="noopener" class="gm-btn gm-btn-primary">WhatsApp वर बोला</a>` : ''}
+      </div>
+    </article>
+  `;
 }
 
 // Toggle Machine Availability (Active / Paused)
@@ -834,3 +895,4 @@ function renderOwnerCalendar() {
     `;
   }).join('');
 }
+
