@@ -10,6 +10,33 @@ let dashboardData = {
   owners: []
 };
 
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>'"]/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' })[char]);
+}
+
+function bookingStatus(status) {
+  const normalized = String(status || 'pending').toLowerCase();
+  return ['pending', 'confirmed', 'completed', 'cancelled'].includes(normalized) ? normalized : 'pending';
+}
+
+function bookingCard(booking, includeReview = false) {
+  const status = bookingStatus(booking.status);
+  const reference = escapeHtml(booking.booking_ref || 'Pending request');
+  const machine = escapeHtml(booking.equipment_name || 'Equipment to be confirmed');
+  const customer = escapeHtml(booking.customer_name || booking.customer_phone || 'Customer');
+  const location = escapeHtml(booking.village || booking.district || 'Maharashtra');
+  const date = escapeHtml(booking.start_date || booking.created_at?.slice(0, 10) || 'ASAP');
+  const duration = Number(booking.duration_days || booking.duration_hours || 1);
+  const amount = Number(booking.total_amount || 0).toLocaleString('en-IN');
+  return `<article class="booking-card" data-booking-status="${status}">
+    <div class="booking-card__top"><span class="booking-card__ref">${reference}</span><span class="status-chip status-chip--${status}">${escapeHtml(status)}</span></div>
+    <div class="booking-card__machine">${machine}</div>
+    <div class="booking-card__customer">${customer} · ${location}</div>
+    <div class="booking-card__meta"><span>${date}</span><span>${duration} ${booking.duration_hours ? 'hr' : 'day'}${duration === 1 ? '' : 's'}</span></div>
+    <div class="booking-card__footer"><span class="booking-card__amount">₹${amount}</span>${includeReview ? '<button class="gm-btn gm-btn-outline" type="button" onclick="switchTab(\'bookings\')">Review</button>' : ''}</div>
+  </article>`;
+}
+
 // Check existing login on load
 window.addEventListener('DOMContentLoaded', () => {
   if (adminAuthToken) {
@@ -36,11 +63,11 @@ async function handleLogin(e) {
       sessionStorage.setItem('gm_admin_token', adminAuthToken);
       unlockDashboard();
     } else {
-      errorEl.textContent = data.message || 'Invalid password';
+      errorEl.textContent = data.message || 'Unable to sign in';
       errorEl.style.display = 'block';
     }
   } catch (err) {
-    errorEl.textContent = 'Server connection failed';
+    errorEl.textContent = 'Server connection failed. Please try again.';
     errorEl.style.display = 'block';
   }
 }
@@ -102,63 +129,71 @@ function renderOverview() {
 
   // Render recent 5 bookings in overview table
   const tbody = document.querySelector('#recentBookingsTable tbody');
+  const cards = document.getElementById('recentBookingCards');
   const recent = (dashboardData.bookings || []).slice(0, 5);
 
   if (!recent.length) {
     tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 16px;">No bookings recorded yet.</td></tr>';
+    if (cards) cards.innerHTML = '<p class="admin-empty-state">No recent bookings yet.</p>';
     return;
   }
 
+  if (cards) cards.innerHTML = recent.map(booking => bookingCard(booking, true)).join('');
+
   tbody.innerHTML = recent.map(b => `
     <tr>
-      <td><strong>${b.booking_ref}</strong></td>
-      <td>${b.customer_phone || b.customer_name || 'Customer'}</td>
-      <td>${b.equipment_name || 'Equipment'}</td>
-      <td>${b.district || 'Maharashtra'}</td>
-      <td>${b.start_date || 'ASAP'} (${b.duration_days || 1}d)</td>
+      <td><strong>${escapeHtml(b.booking_ref)}</strong></td>
+      <td>${escapeHtml(b.customer_phone || b.customer_name || 'Customer')}</td>
+      <td>${escapeHtml(b.equipment_name || 'Equipment')}</td>
+      <td>${escapeHtml(b.district || 'Maharashtra')}</td>
+      <td>${escapeHtml(b.start_date || 'ASAP')} (${escapeHtml(b.duration_days || 1)}d)</td>
       <td><strong>₹${(b.total_amount || 0).toLocaleString('en-IN')}</strong></td>
-      <td><span class="badge badge-${(b.status || 'pending').toLowerCase()}">${b.status || 'pending'}</span></td>
+      <td><span class="status-chip status-chip--${bookingStatus(b.status)}">${escapeHtml(bookingStatus(b.status))}</span></td>
     </tr>
   `).join('');
 }
 
 function renderBookings() {
   const tbody = document.getElementById('bookingsTableBody');
+  const cards = document.getElementById('allBookingCards');
   const list = dashboardData.bookings || [];
 
   if (!list.length) {
     tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 20px;">No bookings found.</td></tr>';
+    if (cards) cards.innerHTML = '<p class="admin-empty-state">No booking requests found.</p>';
     return;
   }
+
+  if (cards) cards.innerHTML = list.map(booking => bookingCard(booking)).join('');
 
   tbody.innerHTML = list.map(b => `
     <tr>
       <td>
-        <span style="font-family: var(--gm-font-mono); font-weight: 700; color: #0F172A; font-size: 13px;">${b.booking_ref}</span>
+        <span style="font-family: var(--gm-font-mono); font-weight: 700; color: #0F172A; font-size: 13px;">${escapeHtml(b.booking_ref)}</span>
       </td>
       <td>
-        <div style="font-size: 12px; font-weight: 600;">${b.customer_name || '—'}</div>
-        <div style="font-size: 11px; color: var(--gm-gray-500);">${b.customer_phone}</div>
+        <div style="font-size: 12px; font-weight: 600;">${escapeHtml(b.customer_name || '—')}</div>
+        <div style="font-size: 11px; color: var(--gm-gray-500);">${escapeHtml(b.customer_phone || '')}</div>
       </td>
-      <td style="max-width: 180px; font-size: 12px;">${b.equipment_name || 'Equipment'}</td>
-      <td style="font-size: 12px;">${b.village || b.district || 'Maharashtra'}</td>
-      <td style="font-size: 12px;">${b.start_date || b.created_at?.slice(0,10) || 'ASAP'}</td>
+      <td style="max-width: 180px; font-size: 12px;">${escapeHtml(b.equipment_name || 'Equipment')}</td>
+      <td style="font-size: 12px;">${escapeHtml(b.village || b.district || 'Maharashtra')}</td>
+      <td style="font-size: 12px;">${escapeHtml(b.start_date || b.created_at?.slice(0,10) || 'ASAP')}</td>
       <td style="font-size: 12px;">${b.duration_days || b.duration_hours || 1} ${b.duration_hours ? 'hr(s)' : 'day(s)'}</td>
       <td><strong style="font-family: var(--gm-font-mono);">₹${(b.total_amount || 0).toLocaleString('en-IN')}</strong></td>
-      <td><span class="badge badge-${(b.status || 'pending').toLowerCase()}">${b.status || 'pending'}</span></td>
+      <td><span class="status-chip status-chip--${bookingStatus(b.status)}">${escapeHtml(bookingStatus(b.status))}</span></td>
       <td>
-        ${b.status !== 'confirmed' && b.status !== 'completed' ? `
-          <button class="btn btn-primary" style="padding: 5px 10px; font-size: 11px; white-space: nowrap;" onclick="updateStatus('${b.id || b.booking_ref}', 'confirmed')">✓ Confirm</button>
+        ${bookingStatus(b.status) !== 'confirmed' && bookingStatus(b.status) !== 'completed' ? `
+          <button class="btn btn-primary" style="padding: 5px 10px; font-size: 11px; white-space: nowrap;" onclick="updateStatus('${escapeHtml(b.id || b.booking_ref)}', 'confirmed')">✓ Confirm</button>
         ` : `<span style="font-size: 12px; color: #16A34A; font-weight: 600;">✅ Confirmed</span>`}
       </td>
       <td>
         <div style="display: flex; flex-direction: column; gap: 5px;">
-          <a href="/api/bookings/${b.booking_ref}/invoice" target="_blank"
+          <a href="/api/bookings/${encodeURIComponent(b.booking_ref || '')}/invoice" target="_blank"
              style="padding: 5px 10px; font-size: 11px; background: #1D4ED8; color: white; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">
             📄 View PDF
           </a>
           <button style="padding: 5px 10px; font-size: 11px; background: #15803D; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; white-space: nowrap;"
-            onclick="sendInvoiceWhatsApp('${b.booking_ref}', '${b.customer_phone}')">
+            onclick="sendInvoiceWhatsApp('${escapeHtml(b.booking_ref)}', '${escapeHtml(b.customer_phone)}')">
             📲 Send via WA
           </button>
         </div>
@@ -187,7 +222,7 @@ async function sendInvoiceWhatsApp(bookingRef, customerPhone) {
   try {
     const res = await fetch(`/api/bookings/${bookingRef}/send-invoice`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminAuthToken}` },
       body: JSON.stringify({ customer_phone: customerPhone })
     });
     const data = await res.json();
@@ -265,7 +300,7 @@ function renderRevenue() {
 
 // Tab Switching
 function switchTab(tabId) {
-  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
   document.querySelectorAll('.view-panel').forEach(p => p.style.display = 'none');
 
   const titles = {
@@ -276,11 +311,9 @@ function switchTab(tabId) {
     revenue: ['Revenue & Platform Financials', 'Subscription MRR and equipment rental volume'],
     broadcast: ['WhatsApp Seasonal Broadcast Center', 'Targeted agricultural announcements and seasonal demand alerts'],
     heatmap: ['Taluka Demand Heatmap & Fleet Deficit', 'Live demand density and machinery shortage alerts across Jath Taluka'],
-    sos: ['Machinery Breakdown SOS Control Room', 'Live on-field breakdown monitor, replacement fleet dispatch, and emergency resolution']
+    sos: ['Machinery Breakdown SOS Control Room', 'Live on-field breakdown monitor, replacement fleet dispatch, and emergency resolution'],
+    fleet: ['Fleet Dispatch', 'Assign the nearest available machine and keep the farmer informed']
   };
-
-  const currentBtn = Array.from(document.querySelectorAll('.nav-item')).find(b => b.textContent.toLowerCase().includes(tabId));
-  if (currentBtn) currentBtn.classList.add('active');
 
   const panel = document.getElementById(`tab-${tabId}`);
   if (panel) panel.style.display = 'block';
@@ -300,6 +333,16 @@ function switchTab(tabId) {
     loadFleetPending();
     loadFleetAssignLog();
   }
+  document.getElementById('adminSidebar')?.classList.remove('is-open');
+  document.querySelector('.admin-mobile-menu')?.setAttribute('aria-expanded', 'false');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleAdminMenu() {
+  const sidebar = document.getElementById('adminSidebar');
+  const menu = document.querySelector('.admin-mobile-menu');
+  const open = sidebar?.classList.toggle('is-open');
+  menu?.setAttribute('aria-expanded', String(Boolean(open)));
 }
 
 // Filters
@@ -313,6 +356,11 @@ function filterBookings() {
     const matchesQ = text.includes(q);
     const matchesStatus = status === 'all' || text.includes(status);
     r.style.display = (matchesQ && matchesStatus) ? '' : 'none';
+  });
+  document.querySelectorAll('#allBookingCards .booking-card').forEach(card => {
+    const matchesQ = card.textContent.toLowerCase().includes(q);
+    const matchesStatus = status === 'all' || card.dataset.bookingStatus === status;
+    card.style.display = (matchesQ && matchesStatus) ? '' : 'none';
   });
 }
 
@@ -696,7 +744,7 @@ async function handleManualSosSubmit(e) {
   try {
     const res = await fetch('/api/emergency/sos', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminAuthToken}` },
       body: JSON.stringify({
         senderPhone: phone,
         bookingRef: ref,
@@ -764,7 +812,7 @@ async function loadFleetPending() {
     // Background: pre-fetch nearest for each booking and fill cell
     bookings.forEach(async b => {
       try {
-        const nr = await fetch(`/api/admin/fleet/nearest?location=${encodeURIComponent(b.location)}&equipment_type=${encodeURIComponent(b.equipment_type)}`);
+        const nr = await fetch(`/api/admin/fleet/nearest?location=${encodeURIComponent(b.location)}&equipment_type=${encodeURIComponent(b.equipment_type)}`, { headers: { 'Authorization': `Bearer ${adminAuthToken}` } });
         const nd = await nr.json();
         const nearest = nd.nearest_machine;
         const cell = document.getElementById(`nearest-${b.ref}`);
@@ -786,7 +834,7 @@ async function updateFleetAvgEta(bookings) {
   try {
     if (!bookings.length) return;
     const first = bookings[0];
-    const res = await fetch(`/api/admin/fleet/nearest?location=${encodeURIComponent(first.location)}&equipment_type=${encodeURIComponent(first.equipment_type)}`);
+    const res = await fetch(`/api/admin/fleet/nearest?location=${encodeURIComponent(first.location)}&equipment_type=${encodeURIComponent(first.equipment_type)}`, { headers: { 'Authorization': `Bearer ${adminAuthToken}` } });
     const data = await res.json();
     const nearest = data.nearest_machine;
     const etaEl = document.getElementById('fleetAvgEta');
@@ -820,7 +868,7 @@ async function openFleetAssignModal(bookingRef, equipmentType, location, farmerP
     '<div style="text-align:center; padding:16px; color:#94A3B8;">⏳ Calculating nearest machines via route engine...</div>';
 
   try {
-    const res = await fetch(`/api/admin/fleet/nearest?location=${encodeURIComponent(location)}&equipment_type=${encodeURIComponent(equipmentType)}`);
+    const res = await fetch(`/api/admin/fleet/nearest?location=${encodeURIComponent(location)}&equipment_type=${encodeURIComponent(equipmentType)}`, { headers: { 'Authorization': `Bearer ${adminAuthToken}` } });
     const data = await res.json();
     const machines = data.machines || [];
 
