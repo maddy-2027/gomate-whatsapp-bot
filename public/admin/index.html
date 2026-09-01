@@ -8,7 +8,7 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="manifest" href="/manifest.json">
   <link rel="stylesheet" href="/css/design-system.css">
-  <link rel="stylesheet" href="/admin/admin.css">
+  <link rel="stylesheet" href="/admin/admin.css?v=2.0">
 </head>
 <body>
 
@@ -19,15 +19,15 @@
         <img src="/assets/brand/logo.svg" alt="GoMate" style="width: 100%;">
       </div>
       <h2>Admin Operations HQ</h2>
-      <p style="font-size: 13px; color: var(--gm-gray-600); margin-bottom: 20px;">Enter passkey to access marketplace management</p>
+      <p class="auth-card__copy">Secure access for GoMate operations staff.</p>
       
       <form id="authForm" onsubmit="handleLogin(event)" style="display: flex; flex-direction: column; gap: 12px; text-align: left;">
         <div>
-          <label style="font-size: 12px; font-weight: 600; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">Admin Passkey</label>
-          <input type="password" id="adminPass" class="gm-input" placeholder="gomate2026" required autofocus autocomplete="current-password">
+          <label class="auth-label" for="adminPass">Admin passphrase</label>
+          <input type="password" id="adminPass" class="gm-input" placeholder="Enter your passphrase" required autofocus autocomplete="current-password">
         </div>
         <button type="submit" class="gm-btn gm-btn-primary" style="padding: 10px; width: 100%;">
-          Unlock Dashboard 🔐
+          Sign in securely
         </button>
         <div id="authError" class="auth-error">Incorrect password. Please try again.</div>
       </form>
@@ -37,8 +37,10 @@
   <!-- Main Dashboard App Layout -->
   <div class="admin-layout" id="appLayout" style="display: none;">
     
-    <!-- Fixed Left Sidebar (Charcoal) -->
-    <aside class="admin-sidebar">
+    <button class="admin-mobile-menu" type="button" aria-expanded="false" aria-controls="adminSidebar" onclick="toggleAdminMenu()"><span>☰</span> Menu</button>
+
+    <!-- Operations sidebar -->
+    <aside class="admin-sidebar" id="adminSidebar">
       <div class="sidebar-brand">
         <a href="/admin" style="display: block;">
           <img src="/assets/brand/logo-white.svg" alt="GoMate" style="height: 44px; display: block;">
@@ -46,41 +48,44 @@
       </div>
 
       <nav class="sidebar-nav">
-        <button class="nav-item active" onclick="switchTab('overview')">
+        <p class="nav-group-label">Operations</p>
+        <button class="nav-item active" data-tab="overview" onclick="switchTab('overview')">
           <span class="icon">📊</span>
           <span>Dashboard Home</span>
         </button>
-        <button class="nav-item" onclick="switchTab('bookings')">
+        <button class="nav-item" data-tab="bookings" onclick="switchTab('bookings')">
           <span class="icon">📅</span>
           <span>Bookings Pipeline</span>
         </button>
-        <button class="nav-item" onclick="switchTab('equipment')">
-          <span class="icon">🚜</span>
-          <span>Fleet Directory (16)</span>
-        </button>
-        <button class="nav-item" onclick="switchTab('owners')">
-          <span class="icon">👥</span>
-          <span>Owners (₹599/mo)</span>
-        </button>
-        <button class="nav-item" onclick="switchTab('revenue')">
-          <span class="icon">💰</span>
-          <span>Revenue & MRR</span>
-        </button>
-        <button class="nav-item" onclick="switchTab('broadcast')">
-          <span class="icon">📢</span>
-          <span>WhatsApp Broadcasts</span>
-        </button>
-        <button class="nav-item" onclick="switchTab('heatmap')">
+        <button class="nav-item" data-tab="fleet" onclick="switchTab('fleet')">
           <span class="icon">🗺️</span>
-          <span>Demand Heatmap</span>
+          <span>Fleet Dispatch</span>
         </button>
-        <button class="nav-item" onclick="switchTab('sos')">
+        <button class="nav-item nav-item--urgent" data-tab="sos" onclick="switchTab('sos')">
           <span class="icon">🚨</span>
           <span>Breakdown SOS</span>
         </button>
-        <button class="nav-item" onclick="switchTab('fleet')">
+        <p class="nav-group-label">Marketplace</p>
+        <button class="nav-item" data-tab="equipment" onclick="switchTab('equipment')">
+          <span class="icon">🚜</span>
+          <span>Fleet Directory (16)</span>
+        </button>
+        <button class="nav-item" data-tab="owners" onclick="switchTab('owners')">
+          <span class="icon">👥</span>
+          <span>Owners (₹599/mo)</span>
+        </button>
+        <button class="nav-item" data-tab="heatmap" onclick="switchTab('heatmap')">
           <span class="icon">🗺️</span>
-          <span>Fleet Dispatch</span>
+          <span>Demand Heatmap</span>
+        </button>
+        <p class="nav-group-label">Growth</p>
+        <button class="nav-item" data-tab="revenue" onclick="switchTab('revenue')">
+          <span class="icon">💰</span>
+          <span>Revenue & MRR</span>
+        </button>
+        <button class="nav-item" data-tab="broadcast" onclick="switchTab('broadcast')">
+          <span class="icon">📢</span>
+          <span>WhatsApp Broadcasts</span>
         </button>
       </nav>
 
@@ -103,12 +108,12 @@
           <p id="viewSubtitle">Real-time demand, fleet availability, and owner subscription metrics</p>
         </div>
         <div class="header-right">
-          <a href="/style-guide" target="_blank" class="gm-btn gm-btn-outline" style="padding: 6px 12px; font-size: 12px;">Style Guide</a>
+          <span class="header-live-status"><i></i> Live operations</span>
           <button class="gm-btn gm-btn-outline" onclick="fetchDashboardData()" style="padding: 6px 12px; font-size: 12px;">
-            🔄 Refresh
+            ↻ <span class="header-action-label">Refresh</span>
           </button>
-          <button class="gm-btn gm-btn-outline" onclick="handleLogout()" style="padding: 6px 12px; font-size: 12px; color: var(--gm-error);">
-            🚪 Logout
+          <button class="gm-btn gm-btn-outline admin-logout" onclick="handleLogout()" style="padding: 6px 12px; font-size: 12px;">
+            <span class="header-action-label">Log out</span> ↗
           </button>
         </div>
       </header>
@@ -166,7 +171,7 @@
           </div>
 
           <!-- Live Bookings Section -->
-          <div class="gm-card">
+          <div class="gm-card admin-bookings-summary">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
               <h3 style="font-size: 16px;">Recent Booking Activity</h3>
               <button class="gm-btn gm-btn-outline" style="padding: 4px 10px; font-size: 11px;" onclick="switchTab('bookings')">View All</button>
@@ -189,6 +194,7 @@
                 </tbody>
               </table>
             </div>
+            <div class="booking-card-list" id="recentBookingCards" aria-live="polite"></div>
           </div>
         </div>
 
@@ -228,6 +234,7 @@
                 </tbody>
               </table>
             </div>
+            <div class="booking-card-list" id="allBookingCards" aria-live="polite"></div>
           </div>
         </div>
 
