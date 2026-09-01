@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 560" fill="none">
+  <title>GoMate machinery journey illustration</title>
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <path d="M106 403C242 314 394 302 523 369C619 419 682 422 772 375C906 304 1052 289 1334 374" stroke="#7A936F" stroke-width="10" opacity=".62"/>
+    <path d="M106 403C242 314 394 302 523 369C619 419 682 422 772 375C906 304 1052 289 1334 374" stroke="#DDE8D7" stroke-width="3" stroke-dasharray="10 18" opacity=".9"/>
+    <g transform="translate(190 278)">
+      <path d="M52 74H158L179 47H225V101H52Z" fill="#54755E" stroke="#42624E" stroke-width="5"/>
+      <path d="M117 74V19H170L193 74" fill="#D9E6D8" stroke="#42624E" stroke-width="5"/>
+      <path d="M136 26V68M170 26L190 68" stroke="#78926F" stroke-width="4"/>
+      <path d="M39 80H230" stroke="#42624E" stroke-width="7"/>
+      <circle cx="82" cy="106" r="31" fill="#5B5147" stroke="#443D36" stroke-width="5"/>
+      <circle cx="82" cy="106" r="12" fill="#C8BA9C"/>
+      <circle cx="193" cy="106" r="20" fill="#5B5147" stroke="#443D36" stroke-width="5"/>
+      <circle cx="193" cy="106" r="8" fill="#C8BA9C"/>
+      <path d="M220 61H241" stroke="#C78349" stroke-width="7"/>
+      <path d="M121 19V3" stroke="#42624E" stroke-width="5"/>
+    </g>
+    <g transform="translate(618 118)">
+      <path d="M40 327C59 290 83 272 119 272H199C222 272 243 286 252 307L270 348C278 366 269 385 251 390C237 394 223 387 216 375L205 355L198 404C194 431 171 450 143 450H89C53 450 26 421 30 385L40 327Z" fill="#D49B78" stroke="#A96E52" stroke-width="5"/>
+      <path d="M61 327C77 311 91 303 111 303H171C185 303 196 314 196 328C196 342 185 353 171 353H121" stroke="#E8B593" stroke-width="13"/>
+      <path d="M97 289C85 257 96 226 125 214" stroke="#A96E52" stroke-width="5"/>
+      <circle cx="153" cy="76" r="27" fill="#C98762" stroke="#9E654B" stroke-width="5"/>
+      <path d="M125 70C127 38 179 32 184 72C166 59 145 61 125 70Z" fill="#5C5140"/>
+      <path d="M142 105H166L181 185H125L142 105Z" fill="#6D956C" stroke="#4E7452" stroke-width="5"/>
+      <path d="M126 119L99 169" stroke="#C98762" stroke-width="13"/>
+      <path d="M179 121L204 76" stroke="#C98762" stroke-width="13"/>
+      <rect x="197" y="42" width="22" height="43" rx="4" fill="#465B56" stroke="#344944" stroke-width="4" transform="rotate(13 197 42)"/>
+      <path d="M141 184L132 265M167 184L178 265" stroke="#4B5D80" stroke-width="18"/>
+      <path d="M118 267H145M166 267H193" stroke="#51443A" stroke-width="11"/>
+      <path d="M126 191C143 201 163 201 180 190" stroke="#E0B24E" stroke-width="6"/>
+    </g>
+    <g transform="translate(1010 202)">
+      <path d="M31 181C98 140 194 141 297 180" stroke="#98AF7F" stroke-width="8"/>
+      <path d="M14 212C96 173 203 176 321 215" stroke="#BAC9A5" stroke-width="8"/>
+      <path d="M55 243C139 210 241 214 343 246" stroke="#D3D8B6" stroke-width="8"/>
+      <path d="M88 131V75L143 35L198 75V131Z" fill="#D9B47E" stroke="#A9784E" stroke-width="5"/>
+      <path d="M72 77L143 19L214 77" fill="#9B6550" stroke="#7B4D3E" stroke-width="5"/>
+      <path d="M125 131V92H161V131" fill="#FCF6E9" stroke="#A9784E" stroke-width="4"/>
+      <path d="M259 142V69" stroke="#6B815D" stroke-width="10"/>
+      <path d="M259 27C229 27 208 49 208 77C208 92 215 105 227 115C238 124 248 130 259 137C270 130 281 124 292 115C304 105 311 92 311 77C311 49 290 27 259 27Z" fill="#78966D" stroke="#5F7B57" stroke-width="5"/>
+      <path d="M6 161C63 122 92 109 137 110" stroke="#D6C276" stroke-width="6"/>
+    </g>
+  </g>
+</svg>
