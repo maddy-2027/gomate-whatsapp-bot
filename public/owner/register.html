@@ -260,6 +260,7 @@
       .form-row { grid-template-columns: 1fr; }
     }
   </style>
+  <link rel="stylesheet" href="/css/owner-register.css?v=2">
 </head>
 <body>
 
@@ -270,11 +271,11 @@
       <span style="font-weight: 700; font-size: 16px; letter-spacing: 0.5px;">GoMate Partner</span>
     </a>
 
-    <div style="display: flex; align-items: center; gap: 12px;">
+    <div class="reg-nav-actions">
       <button onclick="toggleLanguage()" class="lang-toggle-btn" id="langToggleBtn">
         <span id="langLabel">English</span>
       </button>
-      <a href="/owner/index.html" style="color: #FFFFFF; text-decoration: none; font-size: 13px; font-weight: 600; opacity: 0.9;">
+      <a href="/owner/index.html" class="reg-login-link">
         <span id="txtLoginLink">मालक लॉगिन (Login)</span> &rarr;
       </a>
     </div>
@@ -283,41 +284,40 @@
   <!-- Main Container -->
   <main class="reg-container">
     
-    <!-- Hero Banner with 0% Commission & 7-Day Trial -->
-    <div class="hero-banner">
+    <section class="hero-banner" aria-labelledby="heroTitle">
       <div class="hero-badge" id="heroBadge">
-        जत तालुका पायलट प्रोजेक्ट (PIN: 416404)
+        मशिनरी मालकांसाठी
       </div>
       <h1 style="font-size: 26px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.02em;" id="heroTitle">
-        तुमचे ट्रॅक्टर, जेसीबी किंवा गाडी जोडा आणि रोज भाडे कमवा!
+        तुमची मशिनरी नोंदवा
       </h1>
       <p style="font-size: 15px; opacity: 0.92; line-height: 1.5;" id="heroSub">
-        जत तालुक्यातील १२५ गावांतील शेतकऱ्यांकडून थेट WhatsApp वर बुकिंग मागवा. <strong>शून्य टक्के (०%) कमिशन!</strong>
+        तुमची माहिती, मशिनरी आणि दर भरा. नोंदणीला फक्त काही मिनिटे लागतात.
       </p>
 
       <div class="perks-grid">
         <div class="perk-card">
           <div>
-            <div style="font-weight: 700; font-size: 13px;" id="perk1Title">७ दिवस मोफत ट्रायल</div>
-            <div style="font-size: 11px; opacity: 0.8;" id="perk1Sub">नोंदणी पूर्णपणे मोफत</div>
+            <div style="font-weight: 700; font-size: 13px;" id="perk1Title">१. तुमचे तपशील</div>
+            <div style="font-size: 11px; opacity: 0.8;" id="perk1Sub">नाव, WhatsApp नंबर आणि गाव</div>
           </div>
         </div>
 
         <div class="perk-card">
           <div>
-            <div style="font-weight: 700; font-size: 13px;" id="perk2Title">थेट WhatsApp अलर्ट</div>
-            <div style="font-size: 11px; opacity: 0.8;" id="perk2Sub">स्वीकारा / नकार द्या</div>
+            <div style="font-weight: 700; font-size: 13px;" id="perk2Title">२. मशिनरी निवडा</div>
+            <div style="font-size: 11px; opacity: 0.8;" id="perk2Sub">प्रकार आणि मॉडेल जोडा</div>
           </div>
         </div>
 
         <div class="perk-card">
           <div>
-            <div style="font-weight: 700; font-size: 13px;" id="perk3Title">शून्य कमिशन (0%)</div>
-            <div style="font-size: 11px; opacity: 0.8;" id="perk3Sub">१००% भाडे तुमचेच</div>
+            <div style="font-weight: 700; font-size: 13px;" id="perk3Title">३. तुमचा दर भरा</div>
+            <div style="font-size: 11px; opacity: 0.8;" id="perk3Sub">प्रति तास आणि दिवसाचे दर</div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
     <!-- Registration Form -->
     <div class="form-card">
@@ -365,15 +365,15 @@
         <div class="form-group">
           <label class="form-label" id="lblSector">उपकरणाचे क्षेत्र निवडा (Select Sector) *</label>
           <div class="category-pills">
-            <div class="cat-pill active" onclick="selectCategory('agriculture', this)" id="pillAgri">
+            <button type="button" class="cat-pill active" onclick="selectCategory('agriculture', this)" id="pillAgri" aria-pressed="true">
               <span id="txtAgriLabel">शेती अवजारे (Agriculture)</span>
-            </div>
-            <div class="cat-pill" onclick="selectCategory('transport', this)" id="pillTransport">
+            </button>
+            <button type="button" class="cat-pill" onclick="selectCategory('transport', this)" id="pillTransport" aria-pressed="false">
               <span id="txtTransLabel">मालवाहतूक (Goods Transport)</span>
-            </div>
-            <div class="cat-pill" onclick="selectCategory('infrastructure', this)" id="pillInfra">
+            </button>
+            <button type="button" class="cat-pill" onclick="selectCategory('infrastructure', this)" id="pillInfra" aria-pressed="false">
               <span id="txtInfraLabel">जेसीबी व बांधकाम (Earthmoving)</span>
-            </div>
+            </button>
           </div>
           <input type="hidden" id="selectedCategory" value="agriculture">
         </div>
@@ -392,7 +392,26 @@
           </div>
         </div>
 
-        <div style="display: grid; grid-template-        <!-- Multi-Attachment Service Rate Card (For Tractors & Agri Machinery) -->
+        <div class="rate-grid">
+          <div class="form-group">
+            <label class="form-label" id="lblHourlyRate">प्रति तास दर (Hourly Rate ₹) *</label>
+            <input type="number" id="hourlyRate" class="gm-input" value="600" min="100" step="50" required>
+            <div class="form-hint" id="hintHourlyRate">तुमचा प्रति तास भाडे दर भरा</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" id="lblDailyRate">प्रति दिवस भाडे दर (Daily Hire Rate ₹) *</label>
+            <input type="number" id="dailyRate" class="gm-input" value="1500" min="100" step="50" required>
+            <div class="form-hint" id="hintDailyRate">दर स्वतः ठरवा (उदा. ₹१,५००/दिवस)</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" id="lblServices">उपलब्ध कामे व अवजारे (Capabilities & Services)</label>
+          <textarea id="equipServices" class="gm-input service-notes" rows="3" placeholder="उदा. रोटाव्हेटर, पेरणी, ट्रॉली वाहतूक"></textarea>
+          <div class="form-hint" id="hintServices">तुमची मशिनरी कोणत्या कामांसाठी उपलब्ध आहे ते लिहा.</div>
+        </div>
+
+        <!-- Optional task-specific rates for tractors -->
         <div id="attachmentRatesSection" style="background: #F8FAFC; border: 1px solid var(--gm-gray-200); border-radius: var(--gm-radius-md); padding: 20px; margin-bottom: 20px;">
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
             <div>
@@ -403,14 +422,14 @@
                 तुमच्याकडे उपलब्ध असलेली अवजारे निवडा व स्वतःचा दर (₹/तास) ठरवा
               </p>
             </div>
-            <span class="gm-badge gm-badge-info" style="font-size: 11px;">Different Rates per Task</span>
+            <span class="gm-badge gm-badge-info" style="font-size: 11px;" id="attachmentOptional">ऐच्छिक (Optional)</span>
           </div>
 
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
             <!-- Rotavator -->
             <div style="background: #FFFFFF; border: 1px solid var(--gm-gray-200); border-radius: var(--gm-radius-sm); padding: 12px;">
               <label style="display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 700; cursor: pointer; color: var(--gm-brand-navy);">
-                <input type="checkbox" id="chk_rotavator" checked onchange="toggleAttachmentInput('rotavator')">
+                <input type="checkbox" id="chk_rotavator" onchange="toggleAttachmentInput('rotavator')">
                 <span>रोटाव्हेटर (Rotavator)</span>
               </label>
               <div style="margin-top: 8px; display: flex; align-items: center; gap: 6px;">
@@ -423,7 +442,7 @@
             <!-- Cultivator -->
             <div style="background: #FFFFFF; border: 1px solid var(--gm-gray-200); border-radius: var(--gm-radius-sm); padding: 12px;">
               <label style="display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 700; cursor: pointer; color: var(--gm-brand-navy);">
-                <input type="checkbox" id="chk_cultivation" checked onchange="toggleAttachmentInput('cultivation')">
+                <input type="checkbox" id="chk_cultivation" onchange="toggleAttachmentInput('cultivation')">
                 <span>कल्टीव्हेटर (Cultivator)</span>
               </label>
               <div style="margin-top: 8px; display: flex; align-items: center; gap: 6px;">
@@ -436,7 +455,7 @@
             <!-- Trolley -->
             <div style="background: #FFFFFF; border: 1px solid var(--gm-gray-200); border-radius: var(--gm-radius-sm); padding: 12px;">
               <label style="display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 700; cursor: pointer; color: var(--gm-brand-navy);">
-                <input type="checkbox" id="chk_trolley" checked onchange="toggleAttachmentInput('trolley')">
+                <input type="checkbox" id="chk_trolley" onchange="toggleAttachmentInput('trolley')">
                 <span>हायड्रॉलिक ट्रॉली (Trolley)</span>
               </label>
               <div style="margin-top: 8px; display: flex; align-items: center; gap: 6px;">
@@ -449,7 +468,7 @@
             <!-- Deep Plough -->
             <div style="background: #FFFFFF; border: 1px solid var(--gm-gray-200); border-radius: var(--gm-radius-sm); padding: 12px;">
               <label style="display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 700; cursor: pointer; color: var(--gm-brand-navy);">
-                <input type="checkbox" id="chk_ploughing" checked onchange="toggleAttachmentInput('ploughing')">
+                <input type="checkbox" id="chk_ploughing" onchange="toggleAttachmentInput('ploughing')">
                 <span>नांगरट (Deep Plough)</span>
               </label>
               <div style="margin-top: 8px; display: flex; align-items: center; gap: 6px;">
@@ -490,10 +509,10 @@
         <!-- Submit Button -->
         <div style="margin-top: 24px;">
           <button type="submit" class="submit-btn" id="btnSubmit">
-            <span id="btnSubmitText">मोफत नोंदणी पूर्ण करा (७ दिवस मोफत ट्रायल)</span>
+            <span id="btnSubmitText">नोंदणी पाठवा</span>
           </button>
           <p style="text-align: center; font-size: 12px; color: var(--gm-gray-500); margin-top: 12px;" id="txtTerms">
-            नोंदणी करून आपण GoMate च्या नियम व अटींशी सहमत आहात. शून्य छुपे शुल्क.
+            नोंदणी करून आपण GoMate च्या नियम व अटींशी सहमत आहात.
           </p>
         </div>
 
@@ -509,8 +528,7 @@
         अभिनंदन! नोंदणी यशस्वी झाली.
       </h2>
       <p style="font-size: 14.5px; color: var(--gm-gray-600); line-height: 1.55; margin-bottom: 24px;" id="modalSuccessMsg">
-        तुमचे उपकरण जत तालुक्यातील शेतकऱ्यांसाठी WhatsApp वर लगेच लाईव्ह झाले आहे. 
-        शेतकऱ्यांनी बुकिंग करताच तुमच्या WhatsApp वर थेट नोटिफिकेशन येईल!
+        तुमची मशिनरीची माहिती जतन झाली आहे. खालील तपशील तपासा आणि पुढील कामासाठी डॅशबोर्ड उघडा.
       </p>
 
       <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: var(--gm-radius-md); padding: 16px; margin-bottom: 24px; text-align: left; font-size: 13.5px; line-height: 1.6;">
@@ -527,8 +545,8 @@
           <strong id="modalOwnerEquip" style="color: var(--gm-brand-navy);">-</strong>
         </div>
         <div style="display: flex; justify-content: space-between; color: var(--gm-green-700); padding-top: 6px; border-top: 1px dashed var(--gm-gray-300);">
-          <span style="font-weight: 700;">प्लॅन:</span>
-          <strong>७ दिवस मोफत ट्रायल (०% कमिशन)</strong>
+          <span style="font-weight: 700;">नोंदणी:</span>
+          <strong>पूर्ण झाली</strong>
         </div>
       </div>
 
@@ -569,21 +587,22 @@
         { type: 'Backhoe Loaders', model: 'JCB 4DX Heavy Duty Loader', price: 5200, services: 'अवजड शेततळे व चर खोदकाम' },
         { type: 'Excavators', model: 'Komatsu PC210 Heavy Excavator (पोकलेन)', price: 7500, services: 'मोठे शेततळे, विहीर व खडक फोडणे' },
         { type: 'Bulldozers', model: 'CAT D6 Crawler Dozer (बुलडोझर)', price: 8000, services: 'जमीन सपाटीकरण, बांध व माळरान साफ' }
+      ]
     };
 
     const STRINGS = {
       mr: {
         langBtn: 'English',
         loginLink: 'मालक लॉगिन (Login)',
-        heroBadge: 'जत तालुका पायलट प्रोजेक्ट (PIN: 416404)',
-        heroTitle: 'तुमचे ट्रॅक्टर, जेसीबी किंवा गाडी जोडा आणि रोज भाडे कमवा!',
-        heroSub: 'जत तालुक्यातील १२५ गावांतील शेतकऱ्यांकडून थेट WhatsApp वर बुकिंग मागवा. <strong>शून्य टक्के (०%) कमिशन!</strong>',
-        perk1Title: '७ दिवस मोफत ट्रायल',
-        perk1Sub: 'नोंदणी पूर्णपणे मोफत',
-        perk2Title: 'थेट WhatsApp अलर्ट',
-        perk2Sub: 'स्वीकारा / नकार द्या',
-        perk3Title: 'शून्य कमिशन (0%)',
-        perk3Sub: '१००% भाडे तुमचेच',
+        heroBadge: 'मशिनरी मालकांसाठी',
+        heroTitle: 'तुमची मशिनरी नोंदवा',
+        heroSub: 'तुमची माहिती, मशिनरी आणि दर भरा. नोंदणीला फक्त काही मिनिटे लागतात.',
+        perk1Title: '१. तुमचे तपशील',
+        perk1Sub: 'नाव, WhatsApp नंबर आणि गाव',
+        perk2Title: '२. मशिनरी निवडा',
+        perk2Sub: 'प्रकार आणि मॉडेल जोडा',
+        perk3Title: '३. तुमचा दर भरा',
+        perk3Sub: 'प्रति तास आणि दिवसाचे दर',
         step1Title: 'मालकाची माहिती (Owner Details)',
         step1Sub: 'तुमचे नाव, व्हॉट्सॲप नंबर आणि जत तालुक्यातील गाव निवडा',
         lblFullName: 'पूर्ण नाव (Full Name) *',
@@ -599,24 +618,30 @@
         txtInfra: 'जेसीबी व बांधकाम (Earthmoving)',
         lblEquipType: 'उपकरणाचा प्रकार (Equipment Type) *',
         lblModel: 'ब्रँड व मॉडेल नाव (Brand & Model) *',
+        lblHourlyRate: 'प्रति तास दर (Hourly Rate ₹) *',
+        hintHourlyRate: 'तुमचा प्रति तास भाडे दर भरा',
         lblDailyRate: 'प्रति दिवस भाडे दर (Daily Hire Rate ₹) *',
         hintDailyRate: 'दर स्वतः ठरवा (उदा. ₹१,५००/दिवस)',
         lblServices: 'उपलब्ध कामे व अवजारे (Capabilities & Services)',
-        btnSubmit: 'मोफत नोंदणी पूर्ण करा (७ दिवस मोफत ट्रायल)',
-        txtTerms: 'नोंदणी करून आपण GoMate च्या नियम व अटींशी सहमत आहात. शून्य छुपे शुल्क.'
+        hintServices: 'तुमची मशिनरी कोणत्या कामांसाठी उपलब्ध आहे ते लिहा.',
+        titleAttachments: 'ऐच्छिक कामांचे दर (Task-specific rates)',
+        subAttachments: 'तुम्ही देत असलेली कामे निवडा आणि त्यांचे स्वतंत्र दर भरा.',
+        attachmentOptional: 'ऐच्छिक (Optional)',
+        btnSubmit: 'नोंदणी पाठवा',
+        txtTerms: 'नोंदणी करून आपण GoMate च्या नियम व अटींशी सहमत आहात.'
       },
       en: {
         langBtn: 'मराठी',
         loginLink: 'Owner Login',
-        heroBadge: 'Jath Taluka Pilot Project (PIN: 416404)',
-        heroTitle: 'List Your Tractor, JCB or Truck & Earn Daily Rental Income!',
-        heroSub: 'Receive direct WhatsApp rental bookings from farmers across 125 villages in Jath. <strong>0% Booking Commission!</strong>',
-        perk1Title: '7-Day Free Trial',
-        perk1Sub: '100% Free Onboarding',
-        perk2Title: 'Direct WhatsApp Alerts',
-        perk2Sub: 'Accept or Reject in 1 tap',
-        perk3Title: 'Zero Commission (0%)',
-        perk3Sub: 'Keep 100% of rental fare',
+        heroBadge: 'For machinery owners',
+        heroTitle: 'List your machinery',
+        heroSub: 'Enter your details, machine, and rates. Registration takes only a few minutes.',
+        perk1Title: '1. Your details',
+        perk1Sub: 'Name, WhatsApp number, and village',
+        perk2Title: '2. Your machinery',
+        perk2Sub: 'Choose the type and add the model',
+        perk3Title: '3. Your rates',
+        perk3Sub: 'Set hourly and daily rates',
         step1Title: 'Owner Profile',
         step1Sub: 'Enter your name, WhatsApp phone number, and Jath village',
         lblFullName: 'Full Name *',
@@ -632,17 +657,26 @@
         txtInfra: 'Infrastructure & JCB',
         lblEquipType: 'Equipment Type *',
         lblModel: 'Brand & Model Name *',
+        lblHourlyRate: 'Hourly Rate (₹) *',
+        hintHourlyRate: 'Set your hourly rental rate',
         lblDailyRate: 'Daily Hire Rate (₹ / Day) *',
         hintDailyRate: 'Set your own rate (e.g. ₹1,500/day)',
         lblServices: 'Capabilities & Attachments',
-        btnSubmit: 'Complete Registration (7-Day Free Trial)',
-        txtTerms: 'By signing up, you agree to GoMate Partner terms. Zero hidden charges.'
+        hintServices: 'Describe the work your machinery is available for.',
+        titleAttachments: 'Optional task-specific rates',
+        subAttachments: 'Choose only the tasks you offer and set their separate rates.',
+        attachmentOptional: 'Optional',
+        btnSubmit: 'Submit registration',
+        txtTerms: 'By registering, you agree to GoMate Partner terms.'
       }
     };
 
     window.addEventListener('DOMContentLoaded', async () => {
       await loadJathVillages();
       populateTypePresets('agriculture');
+      document.querySelectorAll('#attachmentRatesSection input[type="checkbox"]').forEach((checkbox) => {
+        toggleAttachmentInput(checkbox.id.replace('chk_', ''));
+      });
     });
 
     async function loadJathVillages() {
@@ -697,9 +731,15 @@
       document.getElementById('txtInfraLabel').textContent = s.txtInfra;
       document.getElementById('lblEquipType').textContent = s.lblEquipType;
       document.getElementById('lblModel').textContent = s.lblModel;
+      document.getElementById('lblHourlyRate').textContent = s.lblHourlyRate;
+      document.getElementById('hintHourlyRate').textContent = s.hintHourlyRate;
       document.getElementById('lblDailyRate').textContent = s.lblDailyRate;
       document.getElementById('hintDailyRate').textContent = s.hintDailyRate;
       document.getElementById('lblServices').textContent = s.lblServices;
+      document.getElementById('hintServices').textContent = s.hintServices;
+      document.getElementById('titleAttachments').textContent = s.titleAttachments;
+      document.getElementById('subAttachments').textContent = s.subAttachments;
+      document.getElementById('attachmentOptional').textContent = s.attachmentOptional;
       document.getElementById('btnSubmitText').textContent = s.btnSubmit;
       document.getElementById('txtTerms').textContent = s.txtTerms;
 
@@ -707,8 +747,12 @@
     }
 
     function selectCategory(cat, el) {
-      document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.cat-pill').forEach(p => {
+        p.classList.remove('active');
+        p.setAttribute('aria-pressed', 'false');
+      });
       el.classList.add('active');
+      el.setAttribute('aria-pressed', 'true');
       document.getElementById('selectedCategory').value = cat;
       populateTypePresets(cat);
     }
@@ -856,3 +900,4 @@
   </script>
 </body>
 </html>
+

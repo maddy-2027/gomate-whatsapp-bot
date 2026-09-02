@@ -1,6 +1,6 @@
 /**
  * GoMate PWA Client Integration
- * Handles Service Worker registration, Install App prompts, and Offline/Online Toasts.
+ * Handles Service Worker registration and Offline/Online Toasts.
  */
 
 (function () {
@@ -40,7 +40,7 @@
       toast.id = 'gomate-net-toast';
       toast.style.cssText = `
         position: fixed;
-        bottom: 24px;
+        bottom: calc(84px + env(safe-area-inset-bottom, 0px));
         left: 50%;
         transform: translateX(-50%) translateY(100px);
         background: #0f172a;
@@ -150,3 +150,4 @@
   });
 
 })();
+

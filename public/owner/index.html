@@ -8,7 +8,7 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="manifest" href="/manifest.json">
   <link rel="stylesheet" href="/css/design-system.css?v=3.0">
-  <link rel="stylesheet" href="/css/owner.css?v=3.0">
+  <link rel="stylesheet" href="/css/owner.css?v=4.0">
   <style>
     /* Modal styles */
     .gm-modal-overlay {
@@ -35,33 +35,28 @@
 </head>
 <body class="owner-layout">
 
-  <!-- Top Navigation Bar -->
+  <!-- Simple owner navigation: the core work is always one tap away. -->
   <header class="owner-navbar">
     <div class="owner-nav-container">
       <div class="owner-brand">
         <a href="/owner" style="display: flex; align-items: center; gap: 8px; text-decoration: none;">
           <span style="font-size: 22px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.5px;">GoMate</span>
         </a>
-        <span class="owner-brand-badge">Owner Pro</span>
+        <span class="owner-brand-badge">मशिनरी मालक</span>
       </div>
 
-      <nav class="owner-nav-tabs">
-        <button class="owner-tab-btn active" data-tab="dashboard" onclick="switchOwnerTab('dashboard')">Dashboard</button>
-        <button class="owner-tab-btn" data-tab="listings" onclick="switchOwnerTab('listings')">My Listings</button>
-        <button class="owner-tab-btn" data-tab="bookings" onclick="switchOwnerTab('bookings')">Bookings</button>
-        <button class="owner-tab-btn" data-tab="calendar" onclick="switchOwnerTab('calendar')">Earnings Calendar</button>
-        <button class="owner-tab-btn" data-tab="expenses" onclick="switchOwnerTab('expenses')">Diesel & Expenses</button>
-        <button class="owner-tab-btn" data-tab="subscription" onclick="switchOwnerTab('subscription')">Subscription</button>
-        <button class="owner-tab-btn" data-tab="profile" onclick="switchOwnerTab('profile')">Profile</button>
+      <nav class="owner-nav-tabs owner-desktop-tabs" aria-label="Owner dashboard navigation">
+        <button class="owner-tab-btn active" data-tab="dashboard" onclick="switchOwnerTab('dashboard')" aria-current="page">मुख्यपृष्ठ</button>
+        <button class="owner-tab-btn" data-tab="listings" onclick="switchOwnerTab('listings')">माझी मशिनरी</button>
+        <button class="owner-tab-btn" data-tab="bookings" onclick="switchOwnerTab('bookings')">बुकिंग</button>
+        <button class="owner-tab-btn" data-tab="calendar" onclick="switchOwnerTab('calendar')">उत्पन्न</button>
+        <button class="owner-tab-btn" data-tab="expenses" onclick="switchOwnerTab('expenses')">खर्च</button>
+        <button class="owner-tab-btn" data-tab="subscription" onclick="switchOwnerTab('subscription')">प्लॅन</button>
+        <button class="owner-tab-btn" data-tab="profile" onclick="switchOwnerTab('profile')">माझी माहिती</button>
       </nav>
 
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <a href="/owner/register.html" class="gm-btn gm-btn-outline" style="padding: 6px 12px; font-size: 12px; color: #FFFFFF; border-color: rgba(255,255,255,0.4); text-decoration: none; font-weight: 600;">
-          नवीन मालक नोंदणी
-        </a>
-
-        <!-- Partner Persona Selector -->
-        <select id="ownerSelectDropdown" class="gm-select" style="background: var(--gm-charcoal-800); color: #FFFFFF; border-color: var(--gm-charcoal-700); font-size: 12px; padding: 4px 8px;" onchange="handleOwnerChange(this.value)">
+      <div class="owner-account-actions">
+        <select id="ownerSelectDropdown" class="owner-select" aria-label="मालक निवडा" onchange="handleOwnerChange(this.value)">
           <option value="+919822012345" selected>Rajesh Patil (जत केंद्र)</option>
           <option value="+919822054321">Sanjay Deshmukh (उमदी)</option>
           <option value="+919890011223">Vitthal Birajdar (संख)</option>
@@ -70,10 +65,23 @@
           <option value="+919822077665">Ananda Sawant (शेगाव)</option>
         </select>
 
-        <button onclick="initiateSubscriptionCheckout()" class="gm-btn gm-btn-primary" style="padding: 6px 14px; font-size: 13px; font-weight: 700;">
-          Renew (₹599/mo)
+        <button onclick="initiateSubscriptionCheckout()" class="owner-plan-btn">
+          प्लॅन · ₹599/महिना
         </button>
       </div>
+
+      <details class="owner-mobile-menu">
+        <summary>मेनू</summary>
+        <div class="owner-mobile-menu__links">
+          <button class="owner-tab-btn active" data-tab="dashboard" onclick="switchOwnerTab('dashboard')" aria-current="page">मुख्यपृष्ठ</button>
+          <button class="owner-tab-btn" data-tab="listings" onclick="switchOwnerTab('listings')">माझी मशिनरी</button>
+          <button class="owner-tab-btn" data-tab="bookings" onclick="switchOwnerTab('bookings')">बुकिंग</button>
+          <button class="owner-tab-btn" data-tab="calendar" onclick="switchOwnerTab('calendar')">उत्पन्न</button>
+          <button class="owner-tab-btn" data-tab="expenses" onclick="switchOwnerTab('expenses')">खर्च</button>
+          <button class="owner-tab-btn" data-tab="subscription" onclick="switchOwnerTab('subscription')">प्लॅन</button>
+          <button class="owner-tab-btn" data-tab="profile" onclick="switchOwnerTab('profile')">माझी माहिती</button>
+        </div>
+      </details>
     </div>
   </header>
 
@@ -82,70 +90,62 @@
     
     <!-- Tab 1: Dashboard -->
     <div id="tab-dashboard" class="owner-panel">
-      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+      <section class="owner-welcome" aria-labelledby="ownerDashboardTitle">
         <div>
-          <h1 style="font-size: 26px; font-weight: 800; color: var(--gm-brand-navy);">Machinery Partner Dashboard</h1>
-          <p style="color: var(--gm-gray-600); font-size: 14px; margin-top: 2px;">
-            Partner Account: <strong id="ownerNameDisplay">Rajesh Patil (Pune)</strong>
-          </p>
+          <p class="owner-eyebrow">तुमच्या मशिनरीचे सोपे नियंत्रण</p>
+          <h1 id="ownerDashboardTitle">नमस्कार, <span id="ownerFirstName">राजेश</span></h1>
+          <p>बुकिंग, मशिनरी आणि उत्पन्नाची माहिती एका ठिकाणी पाहा.</p>
         </div>
-        <div style="display: flex; gap: 10px;">
-          <button class="gm-btn gm-btn-primary" onclick="openAddMachineModal()" style="font-size: 13px; font-weight: 700;">
-            List New Machine
-          </button>
-          <a href="https://wa.me/918605470552" target="_blank" class="gm-btn gm-btn-outline" style="font-size: 13px; font-weight: 600; text-decoration: none;">
-            WhatsApp Sync
-          </a>
+        <div class="owner-welcome__actions">
+          <button class="gm-btn owner-primary-action" onclick="openAddMachineModal()">+ मशिनरी जोडा</button>
+          <a href="https://wa.me/918605470552" target="_blank" rel="noopener" class="gm-btn owner-help-action">WhatsApp मदत</a>
         </div>
-      </div>
+      </section>
+
+      <section class="owner-next-step" aria-live="polite">
+        <div><strong id="ownerNextStepTitle">आजची माहिती</strong><span id="ownerNextStepText">तुमच्या अलीकडील बुकिंग खाली दिसतील.</span></div>
+        <button class="owner-next-step__link" onclick="switchOwnerTab('bookings')">सर्व बुकिंग पहा</button>
+      </section>
 
       <!-- KPI Summary Cards -->
       <div class="owner-kpi-grid">
-        <div class="gm-card">
-          <div style="font-size: 13px; color: var(--gm-gray-600); font-weight: 500; margin-bottom: 6px;">Total Rental Earnings (August)</div>
-          <div style="font-size: 28px; font-weight: 700; color: var(--gm-brand-dark);" id="kpiEarnings">₹28,500</div>
-          <div style="margin-top: 6px; font-size: 12px; color: var(--gm-success); font-weight: 600;">+18% from last month</div>
+        <div class="owner-kpi-card owner-kpi-card--earnings">
+          <div class="owner-kpi-title">या महिन्याचे उत्पन्न</div>
+          <div class="owner-kpi-value" id="kpiEarnings">₹28,500</div>
+          <div class="owner-kpi-sub">भाड्यातून मिळालेले एकूण उत्पन्न</div>
         </div>
 
-        <div class="gm-card">
-          <div style="font-size: 13px; color: var(--gm-gray-600); font-weight: 500; margin-bottom: 6px;">Active Listed Machinery</div>
-          <div style="font-size: 28px; font-weight: 700; color: var(--gm-brand-dark);" id="kpiActiveMachinery">3 Units</div>
-          <div style="margin-top: 6px; font-size: 12px; color: var(--gm-gray-600);">Tractors, Harvesters & Trucks</div>
+        <div class="owner-kpi-card">
+          <div class="owner-kpi-title">चालू मशिनरी</div>
+          <div class="owner-kpi-value" id="kpiActiveMachinery">3 मशिनरी</div>
+          <div class="owner-kpi-sub">ग्राहकांसाठी दिसणारी मशिनरी</div>
         </div>
 
-        <div class="gm-card">
-          <div style="font-size: 13px; color: var(--gm-gray-600); font-weight: 500; margin-bottom: 6px;">Customer Bookings</div>
-          <div style="font-size: 28px; font-weight: 700; color: var(--gm-brand-dark);" id="kpiBookingsCount">8 Bookings</div>
-          <div style="margin-top: 6px; font-size: 12px; color: var(--gm-brand-blue); font-weight: 600;">2 Scheduled this week</div>
-        </div>
-
-        <div class="gm-card" style="border-left: 3px solid var(--gm-amber-500);">
-          <div style="font-size: 13px; color: var(--gm-gray-600); font-weight: 500; margin-bottom: 6px;">Subscription Status</div>
-          <div style="font-size: 18px; font-weight: 700; color: var(--gm-brand-dark); margin-top: 4px;" id="kpiSubStatus">Owner Pro Active</div>
-          <div style="margin-top: 8px; display: flex; align-items: center; justify-content: space-between;">
-            <span class="gm-badge gm-badge-active">₹599/month</span>
-            <span style="font-size: 11px; color: var(--gm-gray-500);">Renews in 22 days</span>
-          </div>
+        <div class="owner-kpi-card owner-kpi-card--bookings">
+          <div class="owner-kpi-title">मिळालेल्या बुकिंग</div>
+          <div class="owner-kpi-value" id="kpiBookingsCount">8 बुकिंग</div>
+          <div class="owner-kpi-sub" id="kpiBookingsHelper">सविस्तर माहिती पाहण्यासाठी खाली पहा</div>
         </div>
       </div>
 
-      <!-- Recent Booking Requests -->
-      <div class="gm-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-          <h2 style="font-size: 18px; font-weight: 700;">Recent Booking Notifications</h2>
-          <button class="gm-btn gm-btn-outline" style="padding: 4px 10px; font-size: 12px;" onclick="switchOwnerTab('bookings')">View All Bookings</button>
+      <!-- Desktop table plus mobile-first cards render from the same live booking data. -->
+      <section class="owner-bookings-card" aria-labelledby="recentBookingsTitle">
+        <div class="owner-section-heading">
+          <div><p class="owner-eyebrow">अलीकडील विनंत्या</p><h2 id="recentBookingsTitle">तुमच्या बुकिंग</h2></div>
+          <button class="owner-text-button" onclick="switchOwnerTab('bookings')">सर्व बुकिंग पहा</button>
         </div>
-        <div class="gm-table-container">
+        <div class="owner-booking-cards" id="ownerRecentBookingCards" aria-live="polite"></div>
+        <div class="gm-table-container owner-booking-table">
           <table class="gm-table">
             <thead>
               <tr>
-                <th>Ref</th>
-                <th>Equipment</th>
-                <th>Customer Details</th>
-                <th>Dates</th>
-                <th>Rental Total</th>
-                <th>Status</th>
-                <th>Direct Connect</th>
+                <th>क्रमांक</th>
+                <th>मशिनरी</th>
+                <th>ग्राहक</th>
+                <th>तारीख</th>
+                <th>भाडे</th>
+                <th>स्थिती</th>
+                <th>संपर्क</th>
               </tr>
             </thead>
             <tbody id="ownerRecentBookingsBody">
@@ -153,18 +153,18 @@
             </tbody>
           </table>
         </div>
-      </div>
+      </section>
     </div>
 
     <!-- Tab 2: My Listings -->
     <div id="tab-listings" class="owner-panel" style="display: none;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
         <div>
-          <h1 style="font-size: 24px; font-weight: 800; color: var(--gm-brand-navy);" id="listingsCountTitle">My Equipment Listings</h1>
-          <p style="color: var(--gm-gray-600); font-size: 14px;">Toggle availability switches or add new machinery to your fleet</p>
+          <h1 style="font-size: 24px; font-weight: 800; color: var(--gm-brand-navy);" id="listingsCountTitle">माझी मशिनरी</h1>
+          <p style="color: var(--gm-gray-600); font-size: 14px;">कोणती मशिनरी ग्राहकांना दिसावी ते निवडा किंवा नवीन मशिनरी जोडा.</p>
         </div>
         <button class="gm-btn gm-btn-primary" onclick="openAddMachineModal()" style="font-weight: 700;">
-          Add Machinery Listing
+          + मशिनरी जोडा
         </button>
       </div>
 
@@ -175,22 +175,23 @@
 
     <!-- Tab 3: Bookings -->
     <div id="tab-bookings" class="owner-panel" style="display: none;">
-      <div class="gm-card">
+      <div class="gm-card owner-bookings-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-          <h2 style="font-size: 20px; font-weight: 700;">All Incoming Booking History</h2>
-          <span class="gm-badge gm-badge-info">WhatsApp Real-Time Sync</span>
+          <div><p class="owner-eyebrow">सर्व विनंत्या</p><h2 style="font-size: 22px; font-weight: 700;">बुकिंगची माहिती</h2></div>
+          <span class="gm-badge gm-badge-info">WhatsApp वर संपर्क करा</span>
         </div>
-        <div class="gm-table-container">
+        <div class="owner-booking-cards" id="ownerAllBookingCards" aria-live="polite"></div>
+        <div class="gm-table-container owner-booking-table">
           <table class="gm-table">
             <thead>
               <tr>
-                <th>Booking Ref</th>
-                <th>Machine</th>
-                <th>Customer</th>
-                <th>Duration</th>
-                <th>Total Earned</th>
-                <th>Status</th>
-                <th>Direct Action</th>
+                <th>क्रमांक</th>
+                <th>मशिनरी</th>
+                <th>ग्राहक</th>
+                <th>कालावधी</th>
+                <th>भाडे</th>
+                <th>स्थिती</th>
+                <th>संपर्क</th>
               </tr>
             </thead>
             <tbody id="ownerAllBookingsBody">
@@ -477,39 +478,39 @@
   <div id="addMachineModal" class="gm-modal-overlay" style="display: none;">
     <div class="gm-modal-card">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-        <h2 style="font-size: 18px; font-weight: 700;">Add Machinery Listing</h2>
+        <h2 style="font-size: 18px; font-weight: 700;">मशिनरी जोडा</h2>
         <button onclick="closeAddMachineModal()" style="background: transparent; border: none; font-size: 16px; font-weight: 700; cursor: pointer; color: var(--gm-gray-500);">X</button>
       </div>
       
       <form onsubmit="handleAddMachineSubmit(event)" style="display: flex; flex-direction: column; gap: 14px;">
         <div>
-          <label style="font-size: 12px; font-weight: 600; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">Category</label>
+          <label style="font-size: 12px; font-weight: 600; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">मशिनरीचे क्षेत्र</label>
           <select id="newMachineCategory" class="gm-select" onchange="updateTypeDropdown()" required>
-            <option value="agriculture">Agricultural Equipment</option>
-            <option value="transport">Transport & Freight Vehicles</option>
-            <option value="infrastructure">Construction & Earthworks</option>
+            <option value="agriculture">शेतीची मशिनरी</option>
+            <option value="transport">मालवाहतूक</option>
+            <option value="infrastructure">जेसीबी व बांधकाम</option>
           </select>
         </div>
 
         <div>
-          <label style="font-size: 12px; font-weight: 600; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">Equipment Type</label>
+          <label style="font-size: 12px; font-weight: 600; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">मशिनरीचा प्रकार</label>
           <select id="newMachineType" class="gm-select" required>
             <!-- Injected dynamically -->
           </select>
         </div>
 
         <div>
-          <label style="font-size: 12px; font-weight: 600; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">Model & Brand Name</label>
-          <input type="text" id="newMachineModel" class="gm-input" placeholder="e.g. Mahindra 575 DI (45 HP) / JCB 3DX" required>
+          <label style="font-size: 12px; font-weight: 600; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">ब्रँड व मॉडेल नाव</label>
+          <input type="text" id="newMachineModel" class="gm-input" placeholder="उदा. Mahindra 575 DI / JCB 3DX" required>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div>
-            <label style="font-size: 12px; font-weight: 600; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">Hourly Hire Rate (₹/तास)</label>
+            <label style="font-size: 12px; font-weight: 600; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">प्रति तास दर (₹)</label>
             <input type="number" id="newMachinePrice" class="gm-input" placeholder="750" required min="50">
           </div>
           <div>
-            <label style="font-size: 12px; font-weight: 600; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">Operating Village (Jath)</label>
+            <label style="font-size: 12px; font-weight: 600; color: var(--gm-gray-700); display: block; margin-bottom: 4px;">कामाचे गाव</label>
             <select id="newMachineVillage" class="gm-select" required>
               <option value="Jat">जत केंद्र (Jat Center)</option>
             </select>
@@ -517,9 +518,9 @@
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
-          <button type="button" onclick="closeAddMachineModal()" class="gm-btn gm-btn-outline">Cancel</button>
+          <button type="button" onclick="closeAddMachineModal()" class="gm-btn gm-btn-outline">मागे</button>
           <button type="submit" class="gm-btn gm-btn-primary" style="font-weight: 700;">
-            Publish Listing
+            मशिनरी जोडा
           </button>
         </div>
       </form>
@@ -604,8 +605,9 @@
     </div>
   </div>
 
-  <script src="/owner/owner.js?v=3.0"></script>
+  <script src="/owner/owner.js?v=4.0"></script>
   <!-- PWA & Offline Support -->
   <script src="/js/pwa.js" defer></script>
 </body>
 </html>
+

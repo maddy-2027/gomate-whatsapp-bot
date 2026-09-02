@@ -1,6 +1,7 @@
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 require('dotenv').config();
 const path = require('path');
+const crypto = require('crypto');
 const express = require('express');
 
 const webhookHandler = require('./src/handlers/webhook');
@@ -19,8 +20,38 @@ const { JATH_VILLAGES } = require('./src/data/jathVillages');
 const app = express();
 const port = process.env.PORT || 3000;
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'gomate2026';
-const ADMIN_TOKEN = 'gm_auth_' + Buffer.from(ADMIN_PASSWORD).toString('base64');
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const ADMIN_SESSION_SECRET = process.env.ADMIN_SESSION_SECRET;
+const ADMIN_SESSION_TTL_MS = 12 * 60 * 60 * 1000;
+const ADMIN_LOGIN_WINDOW_MS = 15 * 60 * 1000;
+const ADMIN_LOGIN_MAX_ATTEMPTS = 5;
+const adminLoginAttempts = new Map();
+
+function adminConfigurationReady() {
+  return Boolean(ADMIN_PASSWORD && ADMIN_SESSION_SECRET && ADMIN_SESSION_SECRET.length >= 32);
+}
+
+function signAdminSession(payload) {
+  const encodedPayload = Buffer.from(JSON.stringify(payload)).toString('base64url');
+  const signature = crypto.createHmac('sha256', ADMIN_SESSION_SECRET).update(encodedPayload).digest('base64url');
+  return `${encodedPayload}.${signature}`;
+}
+
+function verifyAdminSession(token) {
+  if (!token || !adminConfigurationReady()) return false;
+  const [encodedPayload, suppliedSignature] = token.split('.');
+  if (!encodedPayload || !suppliedSignature) return false;
+  const expectedSignature = crypto.createHmac('sha256', ADMIN_SESSION_SECRET).update(encodedPayload).digest('base64url');
+  const expected = Buffer.from(expectedSignature);
+  const supplied = Buffer.from(suppliedSignature);
+  if (expected.length !== supplied.length || !crypto.timingSafeEqual(expected, supplied)) return false;
+  try {
+    const payload = JSON.parse(Buffer.from(encodedPayload, 'base64url').toString('utf8'));
+    return payload.scope === 'admin' && Number.isFinite(payload.exp) && payload.exp > Date.now();
+  } catch (_) {
+    return false;
+  }
+}
 
 process.on('uncaughtException', (err) => {
   console.warn('⚠️ Non-fatal process warning:', err.message);
@@ -89,8 +120,12 @@ app.post('/api/whatsapp/logout', async (req, res) => {
 
 // Admin Auth Middleware
 function adminAuth(req, res, next) {
+  if (!adminConfigurationReady()) {
+    return res.status(503).json({ error: 'Admin access is not configured. Set ADMIN_PASSWORD and ADMIN_SESSION_SECRET.' });
+  }
   const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ') || authHeader.split(' ')[1] !== ADMIN_TOKEN) {
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : '';
+  if (!verifyAdminSession(token)) {
     return res.status(401).json({ error: 'Unauthorized. Admin authentication required.' });
   }
   next();
@@ -98,9 +133,26 @@ function adminAuth(req, res, next) {
 
 // Admin Authentication API
 app.post('/api/admin/login', (req, res) => {
-  const { password } = req.body;
-  if (password === ADMIN_PASSWORD || password === 'admin123' || password === 'gomate2026') {
-    return res.json({ success: true, token: ADMIN_TOKEN });
+  if (!adminConfigurationReady()) {
+    return res.status(503).json({ success: false, message: 'Admin access has not been configured. Contact the service owner.' });
+  }
+  const clientKey = req.ip || 'unknown';
+  const priorAttempt = adminLoginAttempts.get(clientKey);
+  if (priorAttempt && priorAttempt.count >= ADMIN_LOGIN_MAX_ATTEMPTS && Date.now() - priorAttempt.firstAttempt < ADMIN_LOGIN_WINDOW_MS) {
+    return res.status(429).json({ success: false, message: 'Too many attempts. Please wait 15 minutes and try again.' });
+  }
+  const password = String(req.body?.password || '');
+  const expected = Buffer.from(ADMIN_PASSWORD);
+  const supplied = Buffer.from(password);
+  if (expected.length === supplied.length && crypto.timingSafeEqual(expected, supplied)) {
+    adminLoginAttempts.delete(clientKey);
+    const expiresAt = Date.now() + ADMIN_SESSION_TTL_MS;
+    return res.json({ success: true, token: signAdminSession({ scope: 'admin', exp: expiresAt }), expiresAt });
+  }
+  if (!priorAttempt || Date.now() - priorAttempt.firstAttempt >= ADMIN_LOGIN_WINDOW_MS) {
+    adminLoginAttempts.set(clientKey, { count: 1, firstAttempt: Date.now() });
+  } else {
+    adminLoginAttempts.set(clientKey, { ...priorAttempt, count: priorAttempt.count + 1 });
   }
   res.status(401).json({ success: false, message: 'Invalid admin password' });
 });
@@ -237,7 +289,7 @@ app.get('/api/bookings/:ref/invoice', async (req, res) => {
 });
 
 // POST /api/bookings/:ref/send-invoice — generate and "send" PDF link on WhatsApp
-app.post('/api/bookings/:ref/send-invoice', async (req, res) => {
+app.post('/api/bookings/:ref/send-invoice', adminAuth, async (req, res) => {
   try {
     const ref = req.params.ref;
     const customerPhone = req.body.customer_phone || '+919876500001';
@@ -286,7 +338,7 @@ app.get('/api/emergency/incidents', adminAuth, (req, res) => {
   }
 });
 
-app.post('/api/emergency/sos', async (req, res) => {
+app.post('/api/emergency/sos', adminAuth, async (req, res) => {
   try {
     const { triggerEmergencySos } = require('./src/services/sosService');
     const { senderPhone, rawText, bookingRef } = req.body;
@@ -1126,7 +1178,7 @@ app.get('/payment-success', (req, res) => {
 const fleetRouteService = require('./src/services/fleetRouteService');
 
 /** GET /api/admin/fleet/pending — all bookings needing a machine assignment */
-app.get('/api/admin/fleet/pending', async (req, res) => {
+app.get('/api/admin/fleet/pending', adminAuth, async (req, res) => {
   try {
     const bookings = await fleetRouteService.getPendingUnassignedBookings();
     res.json({ success: true, bookings, count: bookings.length });
@@ -1136,7 +1188,7 @@ app.get('/api/admin/fleet/pending', async (req, res) => {
 });
 
 /** GET /api/admin/fleet/nearest — top-4 nearest idle machines to a location */
-app.get('/api/admin/fleet/nearest', async (req, res) => {
+app.get('/api/admin/fleet/nearest', adminAuth, async (req, res) => {
   try {
     const { location, equipment_type } = req.query;
     if (!location) return res.status(400).json({ error: 'location query param required' });
@@ -1148,7 +1200,7 @@ app.get('/api/admin/fleet/nearest', async (req, res) => {
 });
 
 /** POST /api/admin/fleet/assign — assign a machine + driver and send WhatsApp dispatch */
-app.post('/api/admin/fleet/assign', async (req, res) => {
+app.post('/api/admin/fleet/assign', adminAuth, async (req, res) => {
   try {
     const { booking_ref, machine_id, machine_model, driver_name, driver_phone, farmer_phone, farmer_village, eta_minutes, distance_km, equipment_type } = req.body;
     if (!booking_ref || !machine_model) return res.status(400).json({ error: 'booking_ref and machine_model required' });
@@ -1165,7 +1217,7 @@ app.post('/api/admin/fleet/assign', async (req, res) => {
 });
 
 /** GET /api/admin/fleet/log — full assignment audit log */
-app.get('/api/admin/fleet/log', (req, res) => {
+app.get('/api/admin/fleet/log', adminAuth, (req, res) => {
   const log = fleetRouteService.getAssignmentLog();
   res.json({ success: true, log, count: log.length });
 });
