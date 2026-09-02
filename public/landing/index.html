@@ -2,30 +2,30 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GoMate — Book Farm, Transport &amp; Construction Equipment on WhatsApp</title>
-  <meta name="description" content="Rent Tractors, Harvesters, JCBs, Tata Ace, and Trucks directly on WhatsApp across Maharashtra. Zero booking commission, verified equipment owners.">
-  <meta name="keywords" content="tractor rental, JCB rental, equipment booking WhatsApp, farm machinery rental Maharashtra, GoMate, transport trucks">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>GoMate — Rent Farm, Transport &amp; Construction Machinery in Jath Taluka on WhatsApp</title>
+  <meta name="description" content="Rent Tractors, Rotavators, JCBs, and Transport Trucks across 125 villages in Jath Taluka on WhatsApp. Direct local operators, transparent hourly rates, zero renter commission.">
+  <meta name="keywords" content="tractor rental Jath, JCB rental Sangli, farm machinery WhatsApp, GoMate Jath, Tata Ace rental Jath, agricultural equipment Maharashtra">
   <meta name="author" content="GoMate">
   <meta name="theme-color" content="#0A1F44">
 
-  <!-- Favicon &amp; PWA -->
+  <!-- Favicon & Manifest -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="manifest" href="/manifest.json">
 
   <!-- OpenGraph -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://gomate-whatsapp-bot.onrender.com/landing">
-  <meta property="og:title" content="GoMate — Book Equipment on WhatsApp in Minutes">
-  <meta property="og:description" content="Rent Tractors, Harvesters, JCBs, and Trucks directly on WhatsApp across Jath Taluka. Zero booking commission for farmers, flat Rs.599/mo for machinery owners.">
+  <meta property="og:title" content="GoMate — Rent Equipment on WhatsApp in Jath Taluka">
+  <meta property="og:description" content="Directly hire Tractors, Harvesters, JCBs, and Transport Trucks from verified local owners across 125 villages in Jath. Transparent hourly rates.">
   <meta property="og:image" content="/assets/brand/og-banner.jpg">
   <meta property="og:site_name" content="GoMate">
   <meta property="og:locale" content="en_IN">
 
   <!-- Twitter Cards -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="GoMate — Book equipment in minutes">
-  <meta name="twitter:description" content="Trilingual WhatsApp marketplace for farm, transport, and construction machinery in India.">
+  <meta name="twitter:title" content="GoMate — Rent Equipment on WhatsApp in Jath">
+  <meta name="twitter:description" content="Trilingual WhatsApp marketplace for farm, transport, and earthmoving machinery in Jath Taluka, Sangli.">
   <meta name="twitter:image" content="/assets/brand/og-banner.jpg">
 
   <!-- JSON-LD -->
@@ -33,724 +33,655 @@
   {
     "@context": "https://schema.org",
     "@type": "Service",
-    "serviceType": "Equipment Rental Marketplace",
+    "name": "GoMate Equipment Rental Marketplace",
+    "serviceType": "Farm, Transport and Construction Equipment Rental",
     "provider": {
       "@type": "Organization",
       "name": "GoMate",
+      "telephone": "+918605470552",
       "url": "https://gomate-whatsapp-bot.onrender.com"
     },
-    "areaServed": { "@type": "State", "name": "Maharashtra" }
+    "areaServed": {
+      "@type": "AdministrativeArea",
+      "name": "Jath Taluka, Sangli District, Maharashtra",
+      "postalCode": "416404"
+    },
+    "description": "WhatsApp-first marketplace connecting farmers and contractors with verified local machinery owners across 125 villages in Jath Taluka."
   }
   </script>
 
   <link rel="stylesheet" href="/css/design-system.css?v=3.1">
-  <link rel="stylesheet" href="/css/landing.css?v=4.0">
+  <link rel="stylesheet" href="/css/landing.css?v=5.0">
 </head>
-<body>
+<body data-page="landing">
 
-  <!-- Live Status Bar -->
-  <div class="status-bar">
-    <span><span class="status-live-dot"></span><strong>Live Fleet Status:</strong> 105+ verified machines available across Jath Taluka</span>
-    <span class="status-pill">Jath Centre &bull; 14 Tractors</span>
-    <span class="status-pill">Shegaon &bull; 8 Rotavators</span>
-    <span class="status-pill">Sankh &bull; 6 JCBs</span>
-    <span class="status-pill">Umadi &bull; 5 Drones</span>
-  </div>
-
-  <!-- Navigation -->
-  <nav class="landing-nav">
-    <div class="nav-container">
-      <a href="/landing" style="display:flex;align-items:center;text-decoration:none;">
-        <img src="/assets/brand/logo.svg" alt="GoMate" style="height:44px;display:block;">
-      </a>
-      <div class="nav-links">
-        <a href="#how-it-works">How It Works</a>
-        <a href="#crop-calendar">Crop Guide</a>
-        <a href="#machinery">Fleet Catalog</a>
-        <a href="#reviews">Reviews</a>
-        <a href="/owner/register.html" class="nav-cta">List Machinery</a>
-        <a href="https://wa.me/918605470552?text=Hi%20GoMate" target="_blank" class="hero-cta-primary" style="padding:8px 18px;font-size:13.5px;">Book on WhatsApp</a>
-      </div>
+  <!-- Notice & Region Bar -->
+  <aside class="status-bar" aria-label="Service Region Notice">
+    <div class="status-bar-inner">
+      <span class="status-live-dot" aria-hidden="true"></span>
+      <span><strong>Jath Taluka Pilot (PIN 416404):</strong> Serving all 125 villages across Sangli district via WhatsApp</span>
     </div>
-  </nav>
+  </aside>
 
-  <!-- Hero Section -->
-  <header class="hero-section">
-    <div class="hero-container">
-      <div class="hero-eyebrow">Jath Taluka Pilot &bull; PIN 416404 &bull; Trilingual WhatsApp Platform</div>
-      <h1 class="hero-title">
-        Rent Farm, Transport &amp; Construction Equipment <span>in Minutes</span>
-      </h1>
-      <p class="hero-subtitle-en">
-        Connect directly with verified local machinery operators across 125 villages in Jath on WhatsApp. Transparent hourly pricing and zero booking commission for farmers.
-      </p>
-      <p class="hero-subtitle-mr">
-        जत तालुक्यातील १२५ गावांमधील प्रमाणित ट्रॅक्टर, जेसीबी व मालवाहतूक वाहने थेट WhatsApp वर भाड्याने मिळवा.
-      </p>
-
-      <div class="hero-cta-group">
-        <a href="https://wa.me/918605470552?text=Hi%20GoMate" target="_blank" class="hero-cta-primary">
-          Book on WhatsApp
+  <!-- Sticky Navbar -->
+  <header class="landing-nav">
+    <div class="nav-container">
+      <a href="/landing" class="nav-brand" aria-label="GoMate Home">
+        <img src="/assets/brand/logo.svg" alt="GoMate Logo" width="138" height="42" class="brand-logo">
+      </a>
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="#categories">Categories</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#featured-fleet">Featured Fleet</a>
+        <a href="#trust">Why GoMate</a>
+        <a href="#faq">FAQ</a>
+        <a href="/owner/register.html" class="nav-link-secondary">List Machinery</a>
+        <a href="https://wa.me/918605470552?text=Hi%20GoMate%2C%20I%20need%20to%20rent%20equipment%20in%20Jath%20Taluka.%0A%E2%80%A2%20Machine%3A%20%0A%E2%80%A2%20Village%3A%20%0A%E2%80%A2%20Date%3A%20%0A%E2%80%A2%20Duration%20(Hours)%3A%20" target="_blank" rel="noopener noreferrer" class="nav-btn-primary">
+          <svg class="icon-wa" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.075-1.819-.413-1.455-.599-2.39-2.072-2.463-2.17-.07-.098-.592-.789-.592-1.503 0-.715.372-1.066.505-1.21.133-.144.29-.18.387-.18.097 0 .193.001.277.005.088.005.207-.033.323.247.12.289.412 1.006.449 1.079.036.072.06.157.012.253-.048.096-.072.157-.144.24-.073.085-.153.19-.219.255-.073.072-.149.151-.064.297.085.145.377.622.809 1.006.557.494 1.027.648 1.172.72.145.072.23.06.315-.037.085-.097.362-.422.459-.567.097-.144.194-.12.324-.072.13.048.824.388.966.459.141.071.236.107.272.167.036.06.036.348-.108.753zM12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.05 22l4.985-1.307A9.957 9.957 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
+          <span>Book on WhatsApp</span>
         </a>
-        <a href="/hourly-booking.html" class="hero-cta-secondary">
-          View Hourly Rates
-        </a>
-        <a href="/owner/register.html" class="hero-cta-tertiary">
-          List your machine &rarr;
-        </a>
-      </div>
+      </nav>
     </div>
   </header>
 
-  <!-- Traction Strip -->
-  <section class="stats-banner">
-    <div class="stat-item">
-      <h3>105+</h3>
-      <p>Verified Live Machines</p>
-    </div>
-    <div class="stat-item">
-      <h3>Rs. 0</h3>
-      <p>Booking Fee for Farmers</p>
-    </div>
-    <div class="stat-item">
-      <h3>125</h3>
-      <p>Jath Taluka Villages</p>
-    </div>
-    <div class="stat-item">
-      <h3>&lt; 30 sec</h3>
-      <p>Instant WhatsApp Connect</p>
-    </div>
-  </section>
-
-  <!-- APMC Rates Row -->
-  <div class="mandi-row">
-    <div class="mandi-inner">
-      <span class="mandi-label">LIVE APMC</span>
-      <div class="mandi-rates">
-        <span class="mandi-rate-item">
-          Pomegranate: <strong>Rs. 155/kg</strong>
-          <span class="mandi-rate-up">+6.5%</span>
-        </span>
-        <span class="mandi-divider">&bull;</span>
-        <span class="mandi-rate-item">
-          Soybean: <strong>Rs. 4,950/quintal</strong>
-          <span class="mandi-rate-up">+3.2%</span>
-        </span>
-        <span class="mandi-divider">&bull;</span>
-        <span class="mandi-rate-item">
-          Raisins (Bedana): <strong>Rs. 210/kg</strong>
-        </span>
-        <span class="mandi-divider">&bull;</span>
-        <span class="mandi-rate-item">
-          Onion: <strong>Rs. 2,200/quintal</strong>
-          <span class="mandi-rate-up">+8.1%</span>
-        </span>
-      </div>
-      <a href="https://wa.me/918605470552?text=BAZAR" target="_blank" class="mandi-cta">All Market Rates &rarr;</a>
-    </div>
-  </div>
-
-  <!-- How It Works -->
-  <section class="how-section" id="how-it-works">
-    <div class="section-header">
-      <div class="section-eyebrow">Process Flow</div>
-      <h2>How It Works
-        <span class="mr">GoMate कसे काम करते</span>
-      </h2>
-      <p>Three simple steps to hire verified machinery directly from local owners on WhatsApp</p>
-    </div>
-
-    <div class="steps-grid">
-      <div class="step-card">
-        <div class="step-number">Step 01</div>
-        <h3>Message on WhatsApp</h3>
-        <p>Send "Hi" to our trilingual assistant (+91 86054 70552). Select Marathi, Hindi, or English and specify the machine you require.</p>
+  <main id="main-content">
+    <!-- Hero Section -->
+    <section class="hero-section" aria-labelledby="hero-title">
+      <!-- Background Visual Enhancement (Option B Classic Editorial Flow) -->
+      <div class="hero-bg-wrapper" aria-hidden="true">
+        <img src="/assets/brand/hero-flow-bg.jpg" alt="" class="hero-bg-visual" width="1440" height="810" loading="eager">
       </div>
 
-      <div class="step-card">
-        <div class="step-number">Step 02</div>
-        <h3>Share Your Village Location</h3>
-        <p>Send your GPS location pin or choose your village in Jath. The system instantly calculates arrival ETA and distance from nearest idle operators.</p>
-      </div>
+      <div class="hero-container">
+        <div class="hero-badge">
+          <span class="badge-dot" aria-hidden="true"></span>
+          <span>Verified Local Operators &bull; 0% Broker Commission</span>
+        </div>
+        <h1 id="hero-title" class="hero-title">
+          Rent Farm, Transport &amp; Earthmoving Machinery <span class="text-accent">on WhatsApp</span>
+        </h1>
+        <p class="hero-sub-en">
+          Connect directly with verified machine owners across 125 villages in Jath Taluka. Transparent hourly rates, verified operators, and instant booking via WhatsApp.
+        </p>
+        <p class="hero-sub-mr">
+          जत तालुक्यातील १२५ गावांमधील प्रमाणित ट्रॅक्टर, जेसीबी व मालवाहतूक वाहने थेट WhatsApp वर वाजवी तासाच्या दरात भाड्याने मिळवा.
+        </p>
 
-      <div class="step-card">
-        <div class="step-number">Step 03</div>
-        <h3>Instant Match &amp; Dispatch</h3>
-        <p>Confirm booking with clear hourly pricing. The nearest operator receives your booking details and connects directly for on-site dispatch.</p>
-      </div>
-    </div>
-  </section>
+        <!-- Trust Highlights -->
+        <ul class="hero-highlights" aria-label="Key Benefits">
+          <li>
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="#15803D" aria-hidden="true"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <span>Direct local owner dispatch in Jath</span>
+          </li>
+          <li>
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="#15803D" aria-hidden="true"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <span>Clear hourly pricing (₹/hr)</span>
+          </li>
+          <li>
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="#15803D" aria-hidden="true"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <span>₹0 booking commission for renters</span>
+          </li>
+        </ul>
 
-  <!-- Seasonal Crop Operations Guide -->
-  <section class="crop-calendar-section" id="crop-calendar">
-    <div class="calendar-container">
-      <div class="section-header">
-        <div class="section-eyebrow">Seasonal Operations &bull; Jath Taluka</div>
-        <h2>Crop Operations Guide
-          <span class="mr">शेती हंगाम व मशिनरी मार्गदर्शक</span>
-        </h2>
-        <p>Recommended machinery for every stage of your crop cycle — Pomegranate, Grapes, Soybean, Jowar &amp; Bajra</p>
-      </div>
-
-      <!-- Stage Selector -->
-      <div class="stage-tabs">
-        <button class="stage-tab-btn active" onclick="switchCropStage('tillage', this)">1. Land Preparation (मशागत)</button>
-        <button class="stage-tab-btn" onclick="switchCropStage('sowing', this)">2. Sowing &amp; Planting (पेरणी)</button>
-        <button class="stage-tab-btn" onclick="switchCropStage('spraying', this)">3. Spraying &amp; Crop Care (फवारणी)</button>
-        <button class="stage-tab-btn" onclick="switchCropStage('harvesting', this)">4. Harvesting &amp; Transit (काढणी)</button>
-      </div>
-
-      <!-- Stage 1: Tillage -->
-      <div class="stage-cards-grid" id="stage-tillage">
-        <div class="stage-card">
-          <div>
-            <span class="card-badge">Tillage &bull; Heavy Duty</span>
-            <div class="card-model" style="margin:10px 0 6px;">Deep Hydraulic Plough</div>
-            <p style="font-size:13.5px;color:#64748B;margin-bottom:16px;line-height:1.5;">55 HP 4WD tractor with hydraulic reversible plough. Essential for deep black soil tillage before sowing.</p>
-          </div>
-          <div class="card-pricing-row">
-            <div class="card-price">Rs. 900 <span>/ hr</span></div>
-            <a href="https://wa.me/918605470552?text=Book%20Deep%20Plough" target="_blank" class="hero-cta-primary" style="padding:6px 14px;font-size:12px;">Book</a>
-          </div>
+        <!-- Primary Hero Actions -->
+        <div class="hero-actions">
+          <a href="https://wa.me/918605470552?text=Hi%20GoMate%2C%20I%20need%20to%20rent%20equipment%20in%20Jath%20Taluka.%0A%E2%80%A2%20Machine%3A%20%0A%E2%80%A2%20Village%3A%20%0A%E2%80%A2%20Date%3A%20%0A%E2%80%A2%20Duration%20(Hours)%3A%20" target="_blank" rel="noopener noreferrer" class="btn-hero-primary">
+            <svg class="icon-wa-lg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.075-1.819-.413-1.455-.599-2.39-2.072-2.463-2.17-.07-.098-.592-.789-.592-1.503 0-.715.372-1.066.505-1.21.133-.144.29-.18.387-.18.097 0 .193.001.277.005.088.005.207-.033.323.247.12.289.412 1.006.449 1.079.036.072.06.157.012.253-.048.096-.072.157-.144.24-.073.085-.153.19-.219.255-.073.072-.149.151-.064.297.085.145.377.622.809 1.006.557.494 1.027.648 1.172.72.145.072.23.06.315-.037.085-.097.362-.422.459-.567.097-.144.194-.12.324-.072.13.048.824.388.966.459.141.071.236.107.272.167.036.06.036.348-.108.753zM12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.05 22l4.985-1.307A9.957 9.957 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
+            <span>Find Machinery on WhatsApp</span>
+          </a>
+          <a href="/hourly-booking.html" class="btn-hero-secondary">
+            View Hourly Rate Card
+          </a>
         </div>
 
-        <div class="stage-card">
-          <div>
-            <span class="card-badge">Tillage &bull; Fine Tilth</span>
-            <div class="card-model" style="margin:10px 0 6px;">Rotavator (6-ft Shaktiman)</div>
-            <p style="font-size:13.5px;color:#64748B;margin-bottom:16px;line-height:1.5;">Pulverises soil clods and prepares an optimal seedbed in a single pass across diverse field conditions.</p>
-          </div>
-          <div class="card-pricing-row">
-            <div class="card-price">Rs. 800 <span>/ hr</span></div>
-            <a href="https://wa.me/918605470552?text=Book%20Rotavator" target="_blank" class="hero-cta-primary" style="padding:6px 14px;font-size:12px;">Book</a>
-          </div>
-        </div>
-
-        <div class="stage-card">
-          <div>
-            <span class="card-badge">Earthwork &bull; Farm Ponds</span>
-            <div class="card-model" style="margin:10px 0 6px;">JCB 3DX Backhoe Loader</div>
-            <p style="font-size:13.5px;color:#64748B;margin-bottom:16px;line-height:1.5;">Farm pond excavation, pipeline trenching, bund preparation, and land levelling works.</p>
-          </div>
-          <div class="card-pricing-row">
-            <div class="card-price">Rs. 1,100 <span>/ hr</span></div>
-            <a href="https://wa.me/918605470552?text=Book%20JCB" target="_blank" class="hero-cta-primary" style="padding:6px 14px;font-size:12px;">Book</a>
-          </div>
+        <div class="hero-owner-sublink">
+          <span>Are you a machinery owner in Jath?</span>
+          <a href="/owner/register.html">List your equipment with ₹0 trial &rarr;</a>
         </div>
       </div>
+    </section>
 
-      <!-- Stage 2: Sowing -->
-      <div class="stage-cards-grid" id="stage-sowing" style="display:none;">
-        <div class="stage-card">
-          <div>
-            <span class="card-badge">Sowing &bull; Precision Placement</span>
-            <div class="card-model" style="margin:10px 0 6px;">Automatic Seed Drill</div>
-            <p style="font-size:13.5px;color:#64748B;margin-bottom:16px;line-height:1.5;">9-row automatic ferti-seed drill for Soybean, Gram, Jowar &amp; Bajra with precise seed depth control.</p>
-          </div>
-          <div class="card-pricing-row">
-            <div class="card-price">Rs. 750 <span>/ hr</span></div>
-            <a href="https://wa.me/918605470552?text=Book%20Seed%20Drill" target="_blank" class="hero-cta-primary" style="padding:6px 14px;font-size:12px;">Book</a>
-          </div>
+    <!-- 3 Large Category Chooser Cards -->
+    <section class="section-categories" id="categories" aria-labelledby="cat-title">
+      <div class="section-container">
+        <div class="section-header">
+          <div class="section-eyebrow">Direct WhatsApp Booking</div>
+          <h2 id="cat-title" class="section-title">
+            Select Equipment Category
+            <span class="title-mr">कोणत्या उपकरणाची आवश्यकता आहे?</span>
+          </h2>
+          <p class="section-desc">Tap a category to open WhatsApp with prefilled booking details for instant operator availability in your village.</p>
         </div>
 
-        <div class="stage-card">
-          <div>
-            <span class="card-badge">Transport &bull; Farm Logistics</span>
-            <div class="card-model" style="margin:10px 0 6px;">Hydraulic Tractor Trolley</div>
-            <p style="font-size:13.5px;color:#64748B;margin-bottom:16px;line-height:1.5;">5-tonne hydraulic tipping trolley for transporting manure, seeds, fertiliser, and agricultural inputs.</p>
-          </div>
-          <div class="card-pricing-row">
-            <div class="card-price">Rs. 600 <span>/ hr</span></div>
-            <a href="https://wa.me/918605470552?text=Book%20Trolley" target="_blank" class="hero-cta-primary" style="padding:6px 14px;font-size:12px;">Book</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Stage 3: Spraying -->
-      <div class="stage-cards-grid" id="stage-spraying" style="display:none;">
-        <div class="stage-card">
-          <div>
-            <span class="card-badge">Precision Spray &bull; 10 min/acre</span>
-            <div class="card-model" style="margin:10px 0 6px;">Agricultural Spray Drone (10L)</div>
-            <p style="font-size:13.5px;color:#64748B;margin-bottom:16px;line-height:1.5;">90% water saving with uniform canopy penetration for pomegranate orchards, vineyards, and soybean fields.</p>
-          </div>
-          <div class="card-pricing-row">
-            <div class="card-price">Rs. 450 <span>/ acre</span></div>
-            <a href="https://wa.me/918605470552?text=Book%20Drone" target="_blank" class="hero-cta-primary" style="padding:6px 14px;font-size:12px;">Book</a>
-          </div>
-        </div>
-
-        <div class="stage-card">
-          <div>
-            <span class="card-badge">Orchard Care &bull; High Pressure</span>
-            <div class="card-model" style="margin:10px 0 6px;">HTP Sprayer (500L Tractor-Mounted)</div>
-            <p style="font-size:13.5px;color:#64748B;margin-bottom:16px;line-height:1.5;">500-litre tank with 300-ft hose pipe for comprehensive spray coverage across dense horticulture plantations.</p>
-          </div>
-          <div class="card-pricing-row">
-            <div class="card-price">Rs. 500 <span>/ hr</span></div>
-            <a href="https://wa.me/918605470552?text=Book%20Sprayer" target="_blank" class="hero-cta-primary" style="padding:6px 14px;font-size:12px;">Book</a>
-          </div>
-        </div>
-
-        <div class="stage-card" style="background:#F0FDF4;border-color:#BBF7D0;">
-          <div>
-            <span class="card-badge" style="background:#DCFCE7;color:#15803D;">Weather Advisory &bull; Shegaon Hub</span>
-            <div class="card-model" style="margin:10px 0 6px;color:#15803D;">Optimal Spraying Window: 95% Feasible</div>
-            <p style="font-size:13px;color:#334155;margin-bottom:12px;line-height:1.5;">
-              Wind: 9 km/h &bull; Humidity: 62% &bull; Rain Probability: 10%<br>
-              Optimal atmospheric conditions for foliar nutrient and crop protection applications.
-            </p>
-          </div>
-          <div class="card-pricing-row" style="border-color:#DCFCE7;">
-            <span style="font-size:12px;font-weight:700;color:#15803D;">Shegaon &bull; Sankh &bull; Umadi</span>
-            <a href="https://wa.me/918605470552?text=WEATHER" target="_blank" class="hero-cta-primary" style="background:#16A34A;padding:6px 14px;font-size:12px;">Check Advisory</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Stage 4: Harvesting -->
-      <div class="stage-cards-grid" id="stage-harvesting" style="display:none;">
-        <div class="stage-card">
-          <div>
-            <span class="card-badge">Harvesting &bull; Multi-Crop Track</span>
-            <div class="card-model" style="margin:10px 0 6px;">Combine Harvester</div>
-            <p style="font-size:13.5px;color:#64748B;margin-bottom:16px;line-height:1.5;">Track harvester for soybean, wheat, and pulses. High-capacity cutting, threshing, and bagging in one run.</p>
-          </div>
-          <div class="card-pricing-row">
-            <div class="card-price">Rs. 2,200 <span>/ hr</span></div>
-            <a href="https://wa.me/918605470552?text=Book%20Harvester" target="_blank" class="hero-cta-primary" style="padding:6px 14px;font-size:12px;">Book</a>
-          </div>
-        </div>
-
-        <div class="stage-card">
-          <div>
-            <span class="card-badge">Logistics &bull; Mandi Haulage</span>
-            <div class="card-model" style="margin:10px 0 6px;">Tata Ace Gold / Mini Truck</div>
-            <p style="font-size:13.5px;color:#64748B;margin-bottom:16px;line-height:1.5;">Produce and goods haulage to Jath, Sangli, Bijapur, and Kolhapur agricultural market yards.</p>
-          </div>
-          <div class="card-pricing-row">
-            <div class="card-price">Rs. 400 <span>/ hr</span></div>
-            <a href="https://wa.me/918605470552?text=Book%20Transport" target="_blank" class="hero-cta-primary" style="padding:6px 14px;font-size:12px;">Book</a>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- Equipment Catalog -->
-  <section class="catalog-section" id="machinery">
-    <div class="catalog-container">
-      <div class="section-header">
-        <div class="section-eyebrow">Equipment Directory</div>
-        <h2>16 Verified Equipment Types
-          <span class="mr">१६ प्रकारची प्रमाणित यंत्रे &amp; वाहने</span>
-        </h2>
-        <p>Transparent hourly rental rates across Agriculture, Freight Transport, and Infrastructure</p>
-      </div>
-
-      <!-- Category Hero Banners -->
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-bottom:44px;">
-        <div class="gm-card" style="padding:0;overflow:hidden;border-radius:10px;display:flex;flex-direction:column;">
-          <img src="/assets/equipment/agri_tractor_3d.jpg" alt="Agricultural Machinery Fleet" style="width:100%;height:200px;object-fit:cover;display:block;">
-          <div style="padding:20px;flex:1;display:flex;flex-direction:column;justify-content:space-between;">
-            <div>
-              <span class="card-badge" style="background:#F0FDF4;color:#15803D;">Agriculture &bull; 8 Types</span>
-              <div class="card-model" style="margin:8px 0 6px;">Agricultural Machinery Fleet</div>
-              <p style="font-size:13px;color:#64748B;margin-bottom:16px;line-height:1.5;">Mahindra 575 DI, John Deere 4WD, Rotavators, Combine Harvesters, Seed Drills &amp; Spray Drones.</p>
+        <div class="categories-grid">
+          <!-- Category 1: Tractor & Farm -->
+          <article class="category-card">
+            <div class="cat-image-wrapper">
+              <img src="/assets/equipment/agri_tractor_3d.jpg" alt="Tractor and rotary tiller in agricultural field" width="400" height="240" loading="lazy" class="cat-image">
+              <span class="cat-tag tag-agri">Agriculture</span>
             </div>
-            <button class="gm-btn gm-btn-outline" style="width:100%;font-weight:700;" onclick="showCatalog('agri')">View Agriculture Fleet (8)</button>
-          </div>
-        </div>
-
-        <div class="gm-card" style="padding:0;overflow:hidden;border-radius:10px;display:flex;flex-direction:column;">
-          <img src="/assets/equipment/heavy_drone_3d.jpg" alt="Transport Logistics Fleet" style="width:100%;height:200px;object-fit:cover;display:block;">
-          <div style="padding:20px;flex:1;display:flex;flex-direction:column;justify-content:space-between;">
-            <div>
-              <span class="card-badge" style="background:#EFF6FF;color:#1D4ED8;">Transport &bull; 5 Types</span>
-              <div class="card-model" style="margin:8px 0 6px;">Goods Transport &amp; Logistics</div>
-              <p style="font-size:13px;color:#64748B;margin-bottom:16px;line-height:1.5;">Tata Ace Gold, Dost Plus, 4-Tonne Open Trucks, Water Tankers &amp; Heavy Tipper Dumpers.</p>
+            <div class="cat-body">
+              <h3 class="cat-title">Tractor &amp; Farm Machinery</h3>
+              <p class="cat-mr">ट्रॅक्टर, रोटाव्हेटर, नांगरट, पेरणी व फवारणी ड्रोन</p>
+              <ul class="cat-fleet-list">
+                <li>Mahindra 575 DI &amp; John Deere (45–55 HP 4WD)</li>
+                <li>6-ft Shaktiman Rotavators &amp; 9-Tyne Cultivators</li>
+                <li>Automatic Seed Drills &amp; 10L Spray Drones</li>
+                <li>Track Combine Harvesters</li>
+              </ul>
+              <div class="cat-footer">
+                <div class="cat-price-info">
+                  <span class="price-label">Rates from</span>
+                  <span class="price-val">₹600 <small>/ hr</small></span>
+                </div>
+                <a href="https://wa.me/918605470552?text=Hi%20GoMate%2C%20I%20need%20a%20Tractor%20or%20farm%20machinery%20in%20Jath%20Taluka.%0A%E2%80%A2%20Type%3A%20%5BTractor%20%2F%20Rotavator%20%2F%20Harvester%20%2F%20Drone%5D%0A%E2%80%A2%20Village%3A%20%0A%E2%80%A2%20Date%3A%20%0A%E2%80%A2%20Hours%3A%20" target="_blank" rel="noopener noreferrer" class="btn-cat-action">
+                  <span>Book Farm Machine &rarr;</span>
+                </a>
+              </div>
             </div>
-            <button class="gm-btn gm-btn-outline" style="width:100%;font-weight:700;" onclick="showCatalog('transport')">View Freight Fleet (5)</button>
-          </div>
-        </div>
+          </article>
 
-        <div class="gm-card" style="padding:0;overflow:hidden;border-radius:10px;display:flex;flex-direction:column;">
-          <img src="/assets/equipment/infra_jcb_3d.jpg" alt="Infrastructure Earthmoving Fleet" style="width:100%;height:200px;object-fit:cover;display:block;">
-          <div style="padding:20px;flex:1;display:flex;flex-direction:column;justify-content:space-between;">
-            <div>
-              <span class="card-badge" style="background:#FFFBEB;color:#B45309;">Earthmoving &bull; 3 Types</span>
-              <div class="card-model" style="margin:8px 0 6px;">Infrastructure &amp; Earthmoving</div>
-              <p style="font-size:13px;color:#64748B;margin-bottom:16px;line-height:1.5;">JCB 3DX Backhoe Loaders, Heavy Hydraulic Excavators (21-Tonne) &amp; Crawler Bulldozers.</p>
+          <!-- Category 2: Transport Vehicles -->
+          <article class="category-card">
+            <div class="cat-image-wrapper">
+              <img src="/assets/equipment/transport_hero.jpg" alt="Commercial transport pickup truck for goods haulage" width="400" height="240" loading="lazy" class="cat-image">
+              <span class="cat-tag tag-transport">Transport &amp; Freight</span>
             </div>
-            <button class="gm-btn gm-btn-outline" style="width:100%;font-weight:700;" onclick="showCatalog('infra')">View Earthmoving Fleet (3)</button>
+            <div class="cat-body">
+              <h3 class="cat-title">Transport Vehicles &amp; Trucks</h3>
+              <p class="cat-mr">छोटा हत्ती, पिकअप, मालवाहतूक ट्रक व पाणी टँकर</p>
+              <ul class="cat-fleet-list">
+                <li>Tata Ace Gold (छोटा हत्ती) &amp; Dost Plus</li>
+                <li>Eicher Pro 4-Tonne Open Body Trucks</li>
+                <li>12KL Insulated Water &amp; Liquid Tankers</li>
+                <li>Multi-Axle Tippers &amp; Sand Dumpers</li>
+              </ul>
+              <div class="cat-footer">
+                <div class="cat-price-info">
+                  <span class="price-label">Rates from</span>
+                  <span class="price-val">₹350 <small>/ hr</small></span>
+                </div>
+                <a href="https://wa.me/918605470552?text=Hi%20GoMate%2C%20I%20need%20a%20Transport%20Vehicle%20in%20Jath%20Taluka.%0A%E2%80%A2%20Type%3A%20%5BTata%20Ace%20%2F%20Pickup%20%2F%204-Tonne%20Truck%20%2F%20Tanker%5D%0A%E2%80%A2%20Village%3A%20%0A%E2%80%A2%20Date%3A%20%0A%E2%80%A2%20Hours%20%2F%20Trip%3A%20" target="_blank" rel="noopener noreferrer" class="btn-cat-action">
+                  <span>Book Transport &rarr;</span>
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <!-- Category 3: JCB & Earthmoving -->
+          <article class="category-card">
+            <div class="cat-image-wrapper">
+              <img src="/assets/equipment/infra_jcb_3d.jpg" alt="JCB backhoe loader earthmoving machine" width="400" height="240" loading="lazy" class="cat-image">
+              <span class="cat-tag tag-infra">Earthmoving</span>
+            </div>
+            <div class="cat-body">
+              <h3 class="cat-title">JCB &amp; Earthmoving Equipment</h3>
+              <p class="cat-mr">जेसीबी, शेततळे, चर खोदकाम, पोकलेन व बुलडोझर</p>
+              <ul class="cat-fleet-list">
+                <li>JCB 3DX Super Backhoe Loaders (6-in-1 Bucket)</li>
+                <li>Farm Pond, Pipeline &amp; Trenching Excavation</li>
+                <li>Komatsu PC210 Heavy Excavators (पोकलेन)</li>
+                <li>CAT D6 Crawler Bulldozers for Land Levelling</li>
+              </ul>
+              <div class="cat-footer">
+                <div class="cat-price-info">
+                  <span class="price-label">Rates from</span>
+                  <span class="price-val">₹950 <small>/ hr</small></span>
+                </div>
+                <a href="https://wa.me/918605470552?text=Hi%20GoMate%2C%20I%20need%20a%20JCB%20or%20earthmoving%20machine%20in%20Jath%20Taluka.%0A%E2%80%A2%20Work%3A%20%5BFarm%20Pond%20%2F%20Trenching%20%2F%20Levelling%20%2F%20Excavator%5D%0A%E2%80%A2%20Village%3A%20%0A%E2%80%A2%20Date%3A%20%0A%E2%80%A2%20Hours%3A%20" target="_blank" rel="noopener noreferrer" class="btn-cat-action">
+                  <span>Book Earthmoving &rarr;</span>
+                </a>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="section-how" id="how-it-works" aria-labelledby="how-title">
+      <div class="section-container">
+        <div class="section-header">
+          <div class="section-eyebrow">Simple 3-Step Flow</div>
+          <h2 id="how-title" class="section-title">
+            How WhatsApp Booking Works
+            <span class="title-mr">गोमेटवर उपकरण कसे बुक करावे?</span>
+          </h2>
+          <p class="section-desc">No complicated app installation needed. Connect directly with operators in 2 minutes.</p>
+        </div>
+
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-badge">1</div>
+            <h3 class="step-title">Message on WhatsApp</h3>
+            <p class="step-text">Send "Hi" to <strong>+91 86054 70552</strong>. Choose Marathi, Hindi, or English and tell our bot what machine you need.</p>
+          </div>
+
+          <div class="step-card">
+            <div class="step-badge">2</div>
+            <h3 class="step-title">Share Your Village Location</h3>
+            <p class="step-text">Select your village name in Jath Taluka (e.g. Shegaon, Sankh, Umadi, Dafalapur) or send your GPS pin for instant operator matching.</p>
+          </div>
+
+          <div class="step-card">
+            <div class="step-badge">3</div>
+            <h3 class="step-title">Direct On-Site Dispatch</h3>
+            <p class="step-text">Review the clear hourly rate with zero broker fee. The nearest verified operator arrives at your field on the agreed schedule.</p>
           </div>
         </div>
       </div>
+    </section>
 
-      <!-- Filter Tabs -->
-      <div class="category-tabs">
-        <button class="cat-tab-btn active" onclick="showCatalog('all')">All Equipment (16)</button>
-        <button class="cat-tab-btn" onclick="showCatalog('agri')">Agriculture (8)</button>
-        <button class="cat-tab-btn" onclick="showCatalog('transport')">Freight Transport (5)</button>
-        <button class="cat-tab-btn" onclick="showCatalog('infra')">Infrastructure (3)</button>
-      </div>
-
-      <!-- Cards Grid -->
-      <div class="equip-cards-grid" id="catalogGrid">
-
-        <!-- Agriculture (8) -->
-        <div class="landing-equip-card" data-cat="agri">
-          <span class="card-badge">Agriculture &bull; 01</span>
-          <div class="card-model">Tractors (45–55 HP 4WD)</div>
-          <div class="card-desc">Mahindra 575 DI, John Deere 5310, Sonalika Tiger. Suitable for ploughing, haulage, and rotary tilling.</div>
-          <div class="card-pricing-row">
-            <div class="card-price">Rs. 750 <span>/ hr</span></div>
-            <a href="https://wa.me/918605470552?text=Book%20Tractor" class="hero-cta-primary" style="padding:6px 12px;font-size:12px;">Book</a>
-          </div>
+    <!-- Small Featured Fleet Section (6 Cards Max) -->
+    <section class="section-fleet" id="featured-fleet" aria-labelledby="fleet-title">
+      <div class="section-container">
+        <div class="section-header">
+          <div class="section-eyebrow">Popular Machinery in Jath</div>
+          <h2 id="fleet-title" class="section-title">
+            Featured Equipment &amp; Transparent Rates
+            <span class="title-mr">जत तालुक्यात सर्वाधिक मागणी असलेली यंत्रे</span>
+          </h2>
+          <p class="section-desc">Standard benchmark rates across Jath Taluka. Verified machinery operators with no hidden fees.</p>
         </div>
 
-        <div class="landing-equip-card" data-cat="agri">
-          <span class="card-badge">Agriculture &bull; 02</span>
-          <div class="card-model">Cultivators (9-Tyne)</div>
-          <div class="card-desc">Fieldking heavy-duty seedbed preparatory cultivators for efficient field preparation and weed aeration.</div>
-          <div class="card-pricing-row">
-            <div class="card-price">Rs. 800 <span>/ hr</span></div>
-            <a href="https://wa.me/918605470552?text=Book%20Cultivator" class="hero-cta-primary" style="padding:6px 12px;font-size:12px;">Book</a>
-          </div>
+        <!-- Filter Controls -->
+        <div class="fleet-filter-bar" role="tablist" aria-label="Filter equipment by category">
+          <button type="button" class="filter-btn active" role="tab" aria-selected="true" data-filter="all">All Fleet (6)</button>
+          <button type="button" class="filter-btn" role="tab" aria-selected="false" data-filter="agri">Agriculture (3)</button>
+          <button type="button" class="filter-btn" role="tab" aria-selected="false" data-filter="transport">Transport (2)</button>
+          <button type="button" class="filter-btn" role="tab" aria-selected="false" data-filter="infra">Earthmoving (1)</button>
         </div>
 
-        <div class="landing-equip-card" data-cat="agri">
-          <span class="card-badge">Agriculture &bull; 03</span>
-          <div class="card-model">Rotary Tillers (Rotavators)</div>
-          <div class="card-desc">Shaktiman 6-foot heavy rotavators for pulverising soil and incorporating green manure.</div>
-          <div class="card-pricing-row">
-            <div class="card-price">Rs. 800 <span>/ hr</span></div>
-            <a href="https://wa.me/918605470552?text=Book%20Rotavator" class="hero-cta-primary" style="padding:6px 12px;font-size:12px;">Book</a>
-          </div>
+        <!-- 6 Featured Machinery Cards -->
+        <div class="fleet-grid" id="featuredGrid">
+          <!-- Card 1: Mahindra 575 DI -->
+          <article class="fleet-card" data-category="agri">
+            <div class="fleet-card-top">
+              <span class="fleet-pill pill-agri">Agriculture</span>
+              <span class="fleet-rating">⭐ 4.9 <small>(Jath Hub)</small></span>
+            </div>
+            <h3 class="fleet-name">Mahindra 575 DI Tractor (45 HP)</h3>
+            <p class="fleet-desc">Standard farm workhorse with attachments for deep ploughing, rotary tilling, seeding &amp; hydraulic trolley haulage.</p>
+            <div class="fleet-rate-row">
+              <div>
+                <span class="rate-sub">Standard Rate</span>
+                <div class="rate-main">₹600 <span class="rate-unit">/ hour</span></div>
+              </div>
+              <a href="https://wa.me/918605470552?text=Hi%20GoMate%2C%20I%20want%20to%20book%20a%20Mahindra%20575%20DI%20Tractor%20in%20Jath%20Taluka.%20Village%3A%20" target="_blank" rel="noopener noreferrer" class="btn-card-book">
+                Book on WhatsApp
+              </a>
+            </div>
+          </article>
+
+          <!-- Card 2: Rotavator -->
+          <article class="fleet-card" data-category="agri">
+            <div class="fleet-card-top">
+              <span class="fleet-pill pill-agri">Agriculture</span>
+              <span class="fleet-rating">⭐ 4.8 <small>(Shegaon)</small></span>
+            </div>
+            <h3 class="fleet-name">Shaktiman Rotary Tiller (6-ft)</h3>
+            <p class="fleet-desc">Pulverises soil clods and prepares a fine seedbed for soybean, jowar, and pomegranate orchard inter-row cultivation.</p>
+            <div class="fleet-rate-row">
+              <div>
+                <span class="rate-sub">Standard Rate</span>
+                <div class="rate-main">₹450 <span class="rate-unit">/ hour</span></div>
+              </div>
+              <a href="https://wa.me/918605470552?text=Hi%20GoMate%2C%20I%20want%20to%20book%20a%20Shaktiman%20Rotavator%20in%20Jath%20Taluka.%20Village%3A%20" target="_blank" rel="noopener noreferrer" class="btn-card-book">
+                Book on WhatsApp
+              </a>
+            </div>
+          </article>
+
+          <!-- Card 3: Tata Ace Gold -->
+          <article class="fleet-card" data-category="transport">
+            <div class="fleet-card-top">
+              <span class="fleet-pill pill-transport">Transport</span>
+              <span class="fleet-rating">⭐ 4.8 <small>(Sankh)</small></span>
+            </div>
+            <h3 class="fleet-name">Tata Ace Gold (छोटा हत्ती)</h3>
+            <p class="fleet-desc">Reliable 1.5-tonne mini pickup for local village transport, weekly mandi trips, and agricultural produce transit.</p>
+            <div class="fleet-rate-row">
+              <div>
+                <span class="rate-sub">Standard Rate</span>
+                <div class="rate-main">₹350 <span class="rate-unit">/ hour</span></div>
+              </div>
+              <a href="https://wa.me/918605470552?text=Hi%20GoMate%2C%20I%20want%20to%20book%20a%20Tata%20Ace%20Gold%20in%20Jath%20Taluka.%20Village%3A%20" target="_blank" rel="noopener noreferrer" class="btn-card-book">
+                Book on WhatsApp
+              </a>
+            </div>
+          </article>
+
+          <!-- Card 4: JCB 3DX Backhoe -->
+          <article class="fleet-card" data-category="infra">
+            <div class="fleet-card-top">
+              <span class="fleet-pill pill-infra">Earthmoving</span>
+              <span class="fleet-rating">⭐ 4.9 <small>(Dafalapur)</small></span>
+            </div>
+            <h3 class="fleet-name">JCB 3DX Super Backhoe Loader</h3>
+            <p class="fleet-desc">Equipped for farm pond digging, pipeline trenching, field boundary bunding, and site land levelling with verified operators.</p>
+            <div class="fleet-rate-row">
+              <div>
+                <span class="rate-sub">Standard Rate</span>
+                <div class="rate-main">₹950 <span class="rate-unit">/ hour</span></div>
+              </div>
+              <a href="https://wa.me/918605470552?text=Hi%20GoMate%2C%20I%20want%20to%20book%20a%20JCB%203DX%20Backhoe%20Loader%20in%20Jath%20Taluka.%20Village%3A%20" target="_blank" rel="noopener noreferrer" class="btn-card-book">
+                Book on WhatsApp
+              </a>
+            </div>
+          </article>
+
+          <!-- Card 5: Combine Harvester -->
+          <article class="fleet-card" data-category="agri">
+            <div class="fleet-card-top">
+              <span class="fleet-pill pill-agri">Agriculture</span>
+              <span class="fleet-rating">⭐ 4.9 <small>(Umadi)</small></span>
+            </div>
+            <h3 class="fleet-name">Claas Track Combine Harvester</h3>
+            <p class="fleet-desc">High-capacity track harvester for timely soybean, gram, wheat, and pulse harvesting with minimal grain loss.</p>
+            <div class="fleet-rate-row">
+              <div>
+                <span class="rate-sub">Standard Rate</span>
+                <div class="rate-main">₹1,600 <span class="rate-unit">/ hour</span></div>
+              </div>
+              <a href="https://wa.me/918605470552?text=Hi%20GoMate%2C%20I%20want%20to%20book%20a%20Combine%20Harvester%20in%20Jath%20Taluka.%20Village%3A%20" target="_blank" rel="noopener noreferrer" class="btn-card-book">
+                Book on WhatsApp
+              </a>
+            </div>
+          </article>
+
+          <!-- Card 6: 4-Tonne Open Truck -->
+          <article class="fleet-card" data-category="transport">
+            <div class="fleet-card-top">
+              <span class="fleet-pill pill-transport">Transport</span>
+              <span class="fleet-rating">⭐ 4.7 <small>(Jath Centre)</small></span>
+            </div>
+            <h3 class="fleet-name">Eicher Pro 4-Tonne Open Truck</h3>
+            <p class="fleet-desc">Heavy freight vehicle for transporting pomegranate boxes, grape crates, and bulk produce to Sangli &amp; Bijapur mandis.</p>
+            <div class="fleet-rate-row">
+              <div>
+                <span class="rate-sub">Standard Rate</span>
+                <div class="rate-main">₹700 <span class="rate-unit">/ hour</span></div>
+              </div>
+              <a href="https://wa.me/918605470552?text=Hi%20GoMate%2C%20I%20want%20to%20book%20a%204-Tonne%20Truck%20in%20Jath%20Taluka.%20Village%3A%20" target="_blank" rel="noopener noreferrer" class="btn-card-book">
+                Book on WhatsApp
+              </a>
+            </div>
+          </article>
         </div>
 
-        <div class="landing-equip-card" data-cat="agri">
-          <span class="card-badge">Agriculture &bull; 04</span>
-          <div class="card-model">Combine Harvesters</div>
-          <div class="card-desc">Claas Crop Tiger multi-crop track harvesters for soybean, wheat, chickpea, and grain crops.</div>
-          <div class="card-pricing-row">
-            <div class="card-price">Rs. 2,200 <span>/ hr</span></div>
-            <a href="https://wa.me/918605470552?text=Book%20Harvester" class="hero-cta-primary" style="padding:6px 12px;font-size:12px;">Book</a>
-          </div>
-        </div>
-
-        <div class="landing-equip-card" data-cat="agri">
-          <span class="card-badge">Agriculture &bull; 05</span>
-          <div class="card-model">Seed Drills (Automatic)</div>
-          <div class="card-desc">National 9-row automatic ferti-seed drills for calibrated sowing depth and seed-to-fertiliser placement.</div>
-          <div class="card-pricing-row">
-            <div class="card-price">Rs. 750 <span>/ hr</span></div>
-            <a href="https://wa.me/918605470552?text=Book%20Seed%20Drill" class="hero-cta-primary" style="padding:6px 12px;font-size:12px;">Book</a>
-          </div>
-        </div>
-
-        <div class="landing-equip-card" data-cat="agri">
-          <span class="card-badge">Agriculture &bull; 06</span>
-          <div class="card-model">Agricultural Spray Drones (10L)</div>
-          <div class="card-desc">Terrain-following autonomous spray drones with ultra-fine droplet dispersion for orchard protection.</div>
-          <div class="card-pricing-row">
-            <div class="card-price">Rs. 450 <span>/ acre</span></div>
-            <a href="https://wa.me/918605470552?text=Book%20Drone" class="hero-cta-primary" style="padding:6px 12px;font-size:12px;">Book</a>
-          </div>
-        </div>
-
-        <div class="landing-equip-card" data-cat="agri">
-          <span class="card-badge">Agriculture &bull; 07</span>
-          <div class="card-model">Baler Machines</div>
-          <div class="card-desc">New Holland rectangular fodder balers for sugarcane residue, straw, and biomass aggregation.</div>
-          <div class="card-pricing-row">
-            <div class="card-price">Rs. 900 <span>/ hr</span></div>
-            <a href="https://wa.me/918605470552?text=Book%20Baler" class="hero-cta-primary" style="padding:6px 12px;font-size:12px;">Book</a>
-          </div>
-        </div>
-
-        <div class="landing-equip-card" data-cat="agri">
-          <span class="card-badge">Agriculture &bull; 08</span>
-          <div class="card-model">Pesticide Power Sprayers</div>
-          <div class="card-desc">ASPEE HTP 500L tractor-mounted high-pressure diaphragm sprayers for orchards and cash crops.</div>
-          <div class="card-pricing-row">
-            <div class="card-price">Rs. 500 <span>/ hr</span></div>
-            <a href="https://wa.me/918605470552?text=Book%20Sprayer" class="hero-cta-primary" style="padding:6px 12px;font-size:12px;">Book</a>
-          </div>
-        </div>
-
-        <!-- Transport (5) -->
-        <div class="landing-equip-card" data-cat="transport">
-          <span class="card-badge">Transport &bull; 09</span>
-          <div class="card-model">Flatbed Trucks (4-Tonne)</div>
-          <div class="card-desc">Eicher Pro 2049 14-ft open body trucks for farm-to-mandi agricultural produce transit.</div>
-          <div class="card-pricing-row">
-            <div class="card-price">Rs. 750 <span>/ hr</span></div>
-            <a href="https://wa.me/918605470552?text=Book%20Truck" class="hero-cta-primary" style="padding:6px 12px;font-size:12px;">Book</a>
-          </div>
-        </div>
-
-        <div class="landing-equip-card" data-cat="transport">
-          <span class="card-badge">Transport &bull; 10</span>
-          <div class="card-model">Dump Trucks &amp; Tippers</div>
-          <div class="card-desc">Ashok Leyland 2518 multi-axle 16 Cu.M tippers for sand, aggregate, soil, and construction loads.</div>
-          <div class="card-pricing-row">
-            <div class="card-price">Rs. 1,400 <span>/ hr</span></div>
-            <a href="https://wa.me/918605470552?text=Book%20Dump%20Truck" class="hero-cta-primary" style="padding:6px 12px;font-size:12px;">Book</a>
-          </div>
-        </div>
-
-        <div class="landing-equip-card" data-cat="transport">
-          <span class="card-badge">Transport &bull; 11</span>
-          <div class="card-model">Cargo Vans (Eeco)</div>
-          <div class="card-desc">Maruti Suzuki Eeco cargo vans for rapid, protected regional and parcel distribution.</div>
-          <div class="card-pricing-row">
-            <div class="card-price">Rs. 350 <span>/ hr</span></div>
-            <a href="https://wa.me/918605470552?text=Book%20Van" class="hero-cta-primary" style="padding:6px 12px;font-size:12px;">Book</a>
-          </div>
-        </div>
-
-        <div class="landing-equip-card" data-cat="transport">
-          <span class="card-badge">Transport &bull; 12</span>
-          <div class="card-model">Mini Trucks (Tata Ace Gold)</div>
-          <div class="card-desc">Tata Ace Gold and Ashok Leyland Dost Plus for rural transport and daily market haulage.</div>
-          <div class="card-pricing-row">
-            <div class="card-price">Rs. 400 <span>/ hr</span></div>
-            <a href="https://wa.me/918605470552?text=Book%20Delivery%20Truck" class="hero-cta-primary" style="padding:6px 12px;font-size:12px;">Book</a>
-          </div>
-        </div>
-
-        <div class="landing-equip-card" data-cat="transport">
-          <span class="card-badge">Transport &bull; 13</span>
-          <div class="card-model">Tanker Trucks (12KL)</div>
-          <div class="card-desc">BharatBenz 1617 12KL insulated tankers for water distribution, dairy, and liquid logistics.</div>
-          <div class="card-pricing-row">
-            <div class="card-price">Rs. 1,200 <span>/ hr</span></div>
-            <a href="https://wa.me/918605470552?text=Book%20Tanker" class="hero-cta-primary" style="padding:6px 12px;font-size:12px;">Book</a>
-          </div>
-        </div>
-
-        <!-- Infrastructure (3) -->
-        <div class="landing-equip-card" data-cat="infra">
-          <span class="card-badge">Infrastructure &bull; 14</span>
-          <div class="card-model">Heavy Excavators (21-Tonne)</div>
-          <div class="card-desc">Komatsu PC210 and Tata Hitachi EX 200 heavy hydraulic earthmovers for rock cutting and quarrying.</div>
-          <div class="card-pricing-row">
-            <div class="card-price">Rs. 1,800 <span>/ hr</span></div>
-            <a href="https://wa.me/918605470552?text=Book%20Excavator" class="hero-cta-primary" style="padding:6px 12px;font-size:12px;">Book</a>
-          </div>
-        </div>
-
-        <div class="landing-equip-card" data-cat="infra">
-          <span class="card-badge">Infrastructure &bull; 15</span>
-          <div class="card-model">Crawler Bulldozers</div>
-          <div class="card-desc">CAT D6 and BEML BD65 crawler dozers for land levelling, site clearance, and embankment formation.</div>
-          <div class="card-pricing-row">
-            <div class="card-price">Rs. 2,000 <span>/ hr</span></div>
-            <a href="https://wa.me/918605470552?text=Book%20Bulldozer" class="hero-cta-primary" style="padding:6px 12px;font-size:12px;">Book</a>
-          </div>
-        </div>
-
-        <div class="landing-equip-card" data-cat="infra">
-          <span class="card-badge">Infrastructure &bull; 16</span>
-          <div class="card-model">Backhoe Loaders (JCB 3DX)</div>
-          <div class="card-desc">JCB 3DX Super backhoe loader with standard 6-in-1 front loader bucket and high-reach rear arm.</div>
-          <div class="card-pricing-row">
-            <div class="card-price">Rs. 1,100 <span>/ hr</span></div>
-            <a href="https://wa.me/918605470552?text=Book%20JCB" class="hero-cta-primary" style="padding:6px 12px;font-size:12px;">Book</a>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- Verified Farmer Reviews -->
-  <section class="reviews-section" id="reviews">
-    <div class="calendar-container">
-      <div class="section-header">
-        <div class="section-eyebrow">Customer Experiences</div>
-        <h2>Verified Farmer Reviews
-          <span class="mr">शेतकऱ्यांचे प्रत्यक्ष अनुभव</span>
-        </h2>
-        <p>Feedback from agricultural producers and contractors who booked equipment via GoMate</p>
-      </div>
-
-      <div class="reviews-grid">
-        <div class="review-card">
+        <!-- Full Rates Banner Link -->
+        <div class="fleet-banner-link">
           <div>
-            <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-            <p class="review-quote">
-              "Urgently needed a rotavator ahead of rainfall. Sent a single WhatsApp message and connected with a tractor owner in Shegaon within 20 minutes. Tillage was completed by 9 AM the next day."
-            </p>
+            <strong>Looking for other equipment?</strong>
+            <span>Check out our full interactive calculator with operator rates and service details.</span>
           </div>
-          <div class="review-author">
-            <div class="author-avatar">RP</div>
-            <div>
-              <div style="font-weight:700;font-size:14px;color:#0A1F44;">Ramesh Patil</div>
-              <div style="font-size:12px;color:#64748B;">Grape &amp; Pomegranate Grower &bull; Shegaon, Jath</div>
+          <a href="/hourly-booking.html" class="btn-banner-link">Explore Full Rate Card &rarr;</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Why Farmers Trust GoMate (Proof & Truth Section) -->
+    <section class="section-trust" id="trust" aria-labelledby="trust-title">
+      <div class="section-container">
+        <div class="section-header">
+          <div class="section-eyebrow">Trust &amp; Reliability</div>
+          <h2 id="trust-title" class="section-title">
+            Why Farmers in Jath Trust GoMate
+            <span class="title-mr">शेतकरी गोमेटवर विश्वास का ठेवतात?</span>
+          </h2>
+          <p class="section-desc">Grounded in local community relationships, verified machinery profiles, and honest pricing.</p>
+        </div>
+
+        <div class="trust-grid">
+          <div class="trust-card">
+            <div class="trust-icon-box" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            </div>
+            <h3 class="trust-card-title">Direct Local Operators</h3>
+            <p class="trust-card-text">You connect directly with machine owners and drivers residing in Jath Taluka. No middleman broker inflating rates.</p>
+          </div>
+
+          <div class="trust-card">
+            <div class="trust-icon-box" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            </div>
+            <h3 class="trust-card-title">Clear Hourly Billing</h3>
+            <p class="trust-card-text">Pay only for actual hours needed (2, 3, or 4 hours) instead of being forced into expensive full-day commitments.</p>
+          </div>
+
+          <div class="trust-card">
+            <div class="trust-icon-box" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            </div>
+            <h3 class="trust-card-title">0% Renter Commission</h3>
+            <p class="trust-card-text">Farmers pay exact owner rental rates plus a flat ₹49 platform protection fee. No hidden percentage commissions.</p>
+          </div>
+
+          <div class="trust-card">
+            <div class="trust-icon-box" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            </div>
+            <h3 class="trust-card-title">125 Jath Villages Covered</h3>
+            <p class="trust-card-text">Machinery clusters organized around Jath Centre, Shegaon, Sankh, Umadi, and Dafalapur for faster field arrival times.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Verified Farmer Reviews -->
+    <section class="section-reviews" id="reviews" aria-labelledby="reviews-title">
+      <div class="section-container">
+        <div class="section-header">
+          <div class="section-eyebrow">Local Feedback</div>
+          <h2 id="reviews-title" class="section-title">
+            What Farmers in Jath Say
+            <span class="title-mr">शेतकऱ्यांचे प्रत्यक्ष अनुभव</span>
+          </h2>
+          <p class="section-desc">Recent feedback from agricultural producers who hired machinery via GoMate WhatsApp assistant.</p>
+        </div>
+
+        <div class="reviews-grid">
+          <article class="review-card">
+            <div class="review-stars" aria-label="5 out of 5 stars">★★★★★</div>
+            <blockquote class="review-text">
+              "Needed a rotavator urgently ahead of sowing. Sent one message on WhatsApp and connected with a tractor owner in Shegaon within 20 minutes. Machine arrived on time at ₹450/hr."
+            </blockquote>
+            <div class="review-author">
+              <div class="avatar" aria-hidden="true">RP</div>
+              <div>
+                <strong class="author-name">Ramesh Patil</strong>
+                <span class="author-location">Grape &amp; Pomegranate Grower &bull; Shegaon, Jath</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars" aria-label="5 out of 5 stars">★★★★★</div>
+            <blockquote class="review-text">
+              "Booked 3 hours of deep ploughing for soybean sowing. Hourly rate was clear up front without any broker margin. The driver knew our soil conditions well."
+            </blockquote>
+            <div class="review-author">
+              <div class="avatar" aria-hidden="true">SS</div>
+              <div>
+                <strong class="author-name">Suresh Shinde</strong>
+                <span class="author-location">Soybean &amp; Bajra Farmer &bull; Sankh, Jath</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="review-card">
+            <div class="review-stars" aria-label="5 out of 5 stars">★★★★★</div>
+            <blockquote class="review-text">
+              "Secured a JCB 3DX promptly for farm pond excavation. Shared village location on WhatsApp and the booking was verified immediately. Straightforward and reliable."
+            </blockquote>
+            <div class="review-author">
+              <div class="avatar" aria-hidden="true">TM</div>
+              <div>
+                <strong class="author-name">Tukaram Mali</strong>
+                <span class="author-location">Horticulture Producer &bull; Umadi, Jath</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Secondary Owner Registration Section -->
+    <section class="section-owner-cta" id="owners" aria-labelledby="owner-title">
+      <div class="section-container">
+        <div class="owner-box">
+          <div class="owner-badge">For Machinery Owners in Jath</div>
+          <h2 id="owner-title" class="owner-title">Own a Tractor, JCB or Commercial Truck?</h2>
+          <p class="owner-mr">जत तालुक्यातील ट्रॅक्टर, जेसीबी व वाहन मालकांसाठी नोंदणी</p>
+          <p class="owner-desc">
+            List your machinery on GoMate and receive verified rental inquiries directly on WhatsApp from 125 villages. 7-day free trial, flat ₹599/month subscription, and 0% commission on your earnings.
+          </p>
+          <div class="owner-actions">
+            <a href="/owner/register.html" class="btn-owner-primary">Register Your Machinery &rarr;</a>
+            <a href="/owner/index.html" class="btn-owner-secondary">Owner Pro Dashboard</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Accessible FAQ Accordion -->
+    <section class="section-faq" id="faq" aria-labelledby="faq-title">
+      <div class="section-container faq-wrapper">
+        <div class="section-header">
+          <div class="section-eyebrow">Answers to Common Questions</div>
+          <h2 id="faq-title" class="section-title">
+            Frequently Asked Questions
+            <span class="title-mr">नेहमी विचारले जाणारे प्रश्न</span>
+          </h2>
+          <p class="section-desc">Learn more about renting machinery or listing your fleet on GoMate.</p>
+        </div>
+
+        <div class="faq-list">
+          <div class="faq-item">
+            <h3>
+              <button type="button" class="faq-trigger" aria-expanded="false" aria-controls="faq-ans-1" id="faq-btn-1">
+                <span>How do I book equipment on WhatsApp?</span>
+                <span class="faq-icon" aria-hidden="true">+</span>
+              </button>
+            </h3>
+            <div id="faq-ans-1" class="faq-answer" role="region" aria-labelledby="faq-btn-1" hidden>
+              <p>Send "Hi" to our WhatsApp number (+91 86054 70552). Select your preferred language (Marathi, English, or Hindi), choose your machine category, and share your village name. The bot displays nearby verified units and guides you through booking in under 2 minutes.</p>
             </div>
           </div>
-        </div>
 
-        <div class="review-card">
-          <div>
-            <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-            <p class="review-quote">
-              "Booked 5 acres of deep ploughing for soybean sowing. Hourly rate was clear up front with no hidden broker margin. The tractor operator was punctual and completed the field accurately."
-            </p>
-          </div>
-          <div class="review-author">
-            <div class="author-avatar">SS</div>
-            <div>
-              <div style="font-weight:700;font-size:14px;color:#0A1F44;">Suresh Shinde</div>
-              <div style="font-size:12px;color:#64748B;">Soybean &amp; Bajra Farmer &bull; Sankh, Jath</div>
+          <div class="faq-item">
+            <h3>
+              <button type="button" class="faq-trigger" aria-expanded="false" aria-controls="faq-ans-2" id="faq-btn-2">
+                <span>Is there any commission charged to farmers or renters?</span>
+                <span class="faq-icon" aria-hidden="true">+</span>
+              </button>
+            </h3>
+            <div id="faq-ans-2" class="faq-answer" role="region" aria-labelledby="faq-btn-2" hidden>
+              <p>No. Customer bookings carry 0% brokerage commission. You pay the transparent hourly hire rate directly to the operator upon delivery. A nominal ₹49 platform convenience and protection fee applies per confirmed booking.</p>
             </div>
           </div>
-        </div>
 
-        <div class="review-card">
-          <div>
-            <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-            <p class="review-quote">
-              "Secured a JCB 3DX promptly for farm pond excavation. Shared my GPS coordinates on WhatsApp and the booking was verified immediately. Straightforward and reliable service."
-            </p>
+          <div class="faq-item">
+            <h3>
+              <button type="button" class="faq-trigger" aria-expanded="false" aria-controls="faq-ans-3" id="faq-btn-3">
+                <span>How does owner subscription work?</span>
+                <span class="faq-icon" aria-hidden="true">+</span>
+              </button>
+            </h3>
+            <div id="faq-ans-3" class="faq-answer" role="region" aria-labelledby="faq-btn-3" hidden>
+              <p>Machinery owners pay a flat ₹599/month subscription to list their fleet and receive instant booking notifications directly on WhatsApp. The first 7 days are completely free. Zero commission is deducted from your rental revenue.</p>
+            </div>
           </div>
-          <div class="review-author">
-            <div class="author-avatar">TM</div>
-            <div>
-              <div style="font-weight:700;font-size:14px;color:#0A1F44;">Tukaram Mali</div>
-              <div style="font-size:12px;color:#64748B;">Agricultural Producer &bull; Umadi, Jath</div>
+
+          <div class="faq-item">
+            <h3>
+              <button type="button" class="faq-trigger" aria-expanded="false" aria-controls="faq-ans-4" id="faq-btn-4">
+                <span>Which villages in Jath Taluka are serviced?</span>
+                <span class="faq-icon" aria-hidden="true">+</span>
+              </button>
+            </h3>
+            <div id="faq-ans-4" class="faq-answer" role="region" aria-labelledby="faq-btn-4" hidden>
+              <p>GoMate services all 125 villages across Jath Taluka including Jath Centre, Shegaon, Sankh, Umadi, Dafalapur, Bilur, Baj, Madgyal, Walekhindi, and surrounding clusters in Sangli district (PIN 416404).</p>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- Equipment Owner CTA Section -->
-  <section class="owner-cta-section" id="owners">
-    <div class="owner-cta-box">
-      <div class="eyebrow">7-Day Free Trial &bull; 0% Booking Commission</div>
-      <h2>List Your Machinery on GoMate</h2>
-      <span class="mr-sub">जत तालुक्यातील ट्रॅक्टर, जेसीबी व वाहन मालकांसाठी</span>
-      <p>Register your machinery and receive verified booking inquiries from 125 villages across Jath Taluka directly on WhatsApp. Flat Rs. 599/month subscription. Zero commission on all rental revenue.</p>
-      <div class="owner-cta-btns">
-        <a href="/owner/register.html" class="owner-btn-primary">Join Free &mdash; Register Machinery</a>
-        <a href="/owner/index.html" class="owner-btn-outline">Owner Pro Dashboard</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- FAQ Accordion -->
-  <section class="faq-section" id="faq">
-    <div class="faq-container">
-      <div class="section-header">
-        <div class="section-eyebrow">Frequently Asked Questions</div>
-        <h2>Common Questions</h2>
-        <p>Everything you need to know about GoMate's WhatsApp equipment marketplace</p>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-question" onclick="toggleFaq(this)">
-          <span>How do I book equipment on WhatsApp?</span>
-          <span style="font-weight:bold;font-size:18px;">+</span>
-        </div>
-        <div class="faq-answer" style="display:none;">
-          Send "Hi" to our WhatsApp number (+91 86054 70552). Select your preferred language (Marathi, English, or Hindi), choose your machine category, and share your village location pin. The bot displays nearby verified units and guides you through booking in under 2 minutes.
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-question" onclick="toggleFaq(this)">
-          <span>Is there any commission charged to farmers or customers?</span>
-          <span style="font-weight:bold;font-size:18px;">+</span>
-        </div>
-        <div class="faq-answer" style="display:none;">
-          No. Customer bookings carry 0% brokerage commission. You pay the transparent hourly hire rate directly to the machinery operator upon delivery. A nominal Rs. 49 platform convenience fee applies per confirmed booking.
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-question" onclick="toggleFaq(this)">
-          <span>How does the Owner Subscription plan operate?</span>
-          <span style="font-weight:bold;font-size:18px;">+</span>
-        </div>
-        <div class="faq-answer" style="display:none;">
-          Machinery owners pay a flat Rs. 599/month subscription to list their fleet and receive instant booking notifications directly on WhatsApp. The first 7 days are completely free. No commission is deducted from your rental earnings.
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-question" onclick="toggleFaq(this)">
-          <span>Which villages in Jath Taluka are currently serviced?</span>
-          <span style="font-weight:bold;font-size:18px;">+</span>
-        </div>
-        <div class="faq-answer" style="display:none;">
-          GoMate services 125 villages across Jath Taluka including Jath Centre, Shegaon, Sankh, Umadi, Dafalapur, Narayanpur, Yelur, Kharsundi, Anjani, and surrounding rural clusters in Sangli district (PIN 416404).
-        </div>
-      </div>
-    </div>
-  </section>
+    </section>
+  </main>
 
   <!-- Footer -->
   <footer class="landing-footer">
-    <div class="footer-inner">
-      <div class="footer-left">
-        <img src="/assets/brand/logo-white.svg" alt="GoMate" style="height:36px;display:block;">
-        <span style="font-size:12px;color:#64748B;">&copy; 2026 GoMate Marketplace &bull; Sangli PIN 416404</span>
+    <div class="section-container footer-inner">
+      <div class="footer-brand-col">
+        <img src="/assets/brand/logo-white.svg" alt="GoMate Logo" width="124" height="38" class="footer-logo">
+        <p class="footer-tagline">WhatsApp machinery marketplace for Jath Taluka, Sangli (PIN 416404).</p>
+        <span class="footer-copy">&copy; 2026 GoMate Marketplace. All rights reserved.</span>
       </div>
-      <div class="footer-links">
-        <a href="/hourly-booking.html">Hourly Rates</a>
-        <a href="/marketing">QR Posters</a>
+      <nav class="footer-links-col" aria-label="Footer Links">
+        <span class="footer-heading">Services &amp; Portals</span>
+        <a href="/hourly-booking.html">Hourly Rate Card</a>
         <a href="/owner/register.html">Owner Registration</a>
-        <a href="/owner/index.html">Owner Pro</a>
-        <a href="/">Simulator</a>
-      </div>
+        <a href="/owner/index.html">Owner Pro Dashboard</a>
+        <a href="/marketing">Marketing Posters</a>
+        <a href="/">WhatsApp Simulator</a>
+      </nav>
     </div>
   </footer>
 
-  <!-- Floating 1-Tap WhatsApp Button -->
-  <a href="https://wa.me/918605470552?text=Hi%20GoMate" target="_blank" class="floating-wa-launcher" title="Book on WhatsApp">
-    <span>Book on WhatsApp</span>
-    <span style="background:rgba(255,255,255,0.25);padding:2px 8px;border-radius:10px;font-size:11px;">1-Tap</span>
-  </a>
+  <!-- Persistent Mobile Bottom CTA Bar -->
+  <div class="mobile-sticky-cta" aria-label="Quick Booking Bar">
+    <a href="https://wa.me/918605470552?text=Hi%20GoMate%2C%20I%20need%20to%20rent%20equipment%20in%20Jath%20Taluka.%0A%E2%80%A2%20Machine%3A%20%0A%E2%80%A2%20Village%3A%20%0A%E2%80%A2%20Date%3A%20%0A%E2%80%A2%20Duration%20(Hours)%3A%20" target="_blank" rel="noopener noreferrer" class="btn-sticky-wa">
+      <svg class="icon-wa" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.075-1.819-.413-1.455-.599-2.39-2.072-2.463-2.17-.07-.098-.592-.789-.592-1.503 0-.715.372-1.066.505-1.21.133-.144.29-.18.387-.18.097 0 .193.001.277.005.088.005.207-.033.323.247.12.289.412 1.006.449 1.079.036.072.06.157.012.253-.048.096-.072.157-.144.24-.073.085-.153.19-.219.255-.073.072-.149.151-.064.297.085.145.377.622.809 1.006.557.494 1.027.648 1.172.72.145.072.23.06.315-.037.085-.097.362-.422.459-.567.097-.144.194-.12.324-.072.13.048.824.388.966.459.141.071.236.107.272.167.036.06.036.348-.108.753zM12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.05 22l4.985-1.307A9.957 9.957 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
+      <span>Find Available Equipment on WhatsApp</span>
+    </a>
+  </div>
 
   <script>
-    function showCatalog(category) {
-      document.querySelectorAll('.cat-tab-btn').forEach(btn => btn.classList.remove('active'));
-      const activeBtn = Array.from(document.querySelectorAll('.cat-tab-btn')).find(b => {
-        const txt = b.textContent.toLowerCase();
-        if (category === 'all') return txt.includes('all');
-        if (category === 'agri') return txt.includes('agri');
-        if (category === 'transport') return txt.includes('transport') || txt.includes('freight');
-        if (category === 'infra') return txt.includes('infra');
-        return false;
-      });
-      if (activeBtn) activeBtn.classList.add('active');
-      document.querySelectorAll('.landing-equip-card').forEach(c => {
-        c.style.display = (category === 'all' || c.getAttribute('data-cat') === category) ? 'flex' : 'none';
-      });
-    }
+    // Accessible Category Filtering
+    document.addEventListener('DOMContentLoaded', () => {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const cards = document.querySelectorAll('.fleet-card');
 
-    function switchCropStage(stageId, btn) {
-      document.querySelectorAll('.stage-tab-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      ['tillage','sowing','spraying','harvesting'].forEach(s => {
-        const el = document.getElementById('stage-' + s);
-        if (el) el.style.display = (s === stageId) ? 'grid' : 'none';
-      });
-    }
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          filterBtns.forEach(b => {
+            b.classList.remove('active');
+            b.setAttribute('aria-selected', 'false');
+          });
+          btn.classList.add('active');
+          btn.setAttribute('aria-selected', 'true');
 
-    function toggleFaq(el) {
-      const ans = el.nextElementSibling;
-      const isOpen = ans.style.display === 'block';
-      ans.style.display = isOpen ? 'none' : 'block';
-      const icon = el.querySelector('span:last-child');
-      if (icon) icon.textContent = isOpen ? '+' : '\u2212';
-      el.parentElement.classList.toggle('open', !isOpen);
-    }
+          const filter = btn.getAttribute('data-filter');
+          cards.forEach(card => {
+            const cat = card.getAttribute('data-category');
+            if (filter === 'all' || cat === filter) {
+              card.style.display = 'flex';
+            } else {
+              card.style.display = 'none';
+            }
+          });
+        });
+      });
+
+      // Accessible FAQ Accordions
+      const faqTriggers = document.querySelectorAll('.faq-trigger');
+      faqTriggers.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const expanded = btn.getAttribute('aria-expanded') === 'true';
+          const targetId = btn.getAttribute('aria-controls');
+          const panel = document.getElementById(targetId);
+          const icon = btn.querySelector('.faq-icon');
+
+          btn.setAttribute('aria-expanded', !expanded);
+          if (panel) {
+            panel.hidden = expanded;
+          }
+          if (icon) {
+            icon.textContent = expanded ? '+' : '−';
+          }
+        });
+      });
+    });
   </script>
   <script src="/js/pwa.js" defer></script>
 </body>

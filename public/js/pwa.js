@@ -96,7 +96,12 @@
     e.preventDefault();
     deferredPrompt = e;
 
-    // Show custom floating install badge if on mobile
+    // Suppress floating install button on landing page to avoid CTA conflict
+    if (document.body.getAttribute('data-page') === 'landing' || window.location.pathname.includes('/landing')) {
+      return;
+    }
+
+    // Show custom floating install badge if on other pages
     if (!document.getElementById('gomate-install-btn')) {
       const installBtn = document.createElement('button');
       installBtn.id = 'gomate-install-btn';
