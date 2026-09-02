@@ -353,6 +353,7 @@ async function runE2ETests() {
 
   const sendInvoiceRes = await request('/api/bookings/GM-TEST/send-invoice', {
     method: 'POST',
+    headers: { Authorization: `Bearer ${adminToken}` },
     body: JSON.stringify({ customer_phone: '+919876500001' })
   });
   assert(sendInvoiceRes.ok && sendInvoiceRes.data.invoice_url.includes('GM-TEST'), `Invoice WhatsApp message dispatched — PDF URL: ${sendInvoiceRes.data.invoice_url}`);
@@ -417,15 +418,20 @@ async function runE2ETests() {
   // -------------------------------------------------------------
   console.log('\n--- Phase 17: Admin Fleet Route Optimizer & Dispatch Engine ---');
 
-  const fleetPendingRes = await request('/api/admin/fleet/pending');
+  const fleetPendingRes = await request('/api/admin/fleet/pending', {
+    headers: { Authorization: `Bearer ${adminToken}` }
+  });
   assert(fleetPendingRes.ok && fleetPendingRes.data.bookings.length >= 2, `Fleet dispatch queue loaded: ${fleetPendingRes.data.count} pending bookings`);
 
-  const nearestRes = await request('/api/admin/fleet/nearest?location=शेगाव&equipment_type=Rotavator+Tractor');
+  const nearestRes = await request('/api/admin/fleet/nearest?location=शेगाव&equipment_type=Rotavator+Tractor', {
+    headers: { Authorization: `Bearer ${adminToken}` }
+  });
   assert(nearestRes.ok && nearestRes.data.machines.length >= 2, `Route optimizer ranked ${nearestRes.data.machines.length} nearest idle machines by ETA`);
   assert(nearestRes.data.nearest_machine && nearestRes.data.nearest_machine.distance_km > 0, `Nearest machine ETA computed: ${nearestRes.data.nearest_machine?.eta_minutes} min from hub: ${nearestRes.data.nearest_machine?.hub}`);
 
   const assignRes = await request('/api/admin/fleet/assign', {
     method: 'POST',
+    headers: { Authorization: `Bearer ${adminToken}` },
     body: JSON.stringify({
       booking_ref: 'GM-A1B2',
       machine_id: nearestRes.data.nearest_machine.id,
@@ -443,7 +449,9 @@ async function runE2ETests() {
   assert(assignRes.data.farmer_message.includes('GM-A1B2'), 'Farmer WhatsApp dispatch message generated with booking ref');
   assert(assignRes.data.owner_message.includes('डिस्पॅच'), 'Owner WhatsApp dispatch order generated in Marathi');
 
-  const fleetLogRes = await request('/api/admin/fleet/log');
+  const fleetLogRes = await request('/api/admin/fleet/log', {
+    headers: { Authorization: `Bearer ${adminToken}` }
+  });
   assert(fleetLogRes.ok && fleetLogRes.data.log.length >= 1, `Fleet assignment audit log contains ${fleetLogRes.data.count} records`);
 
   // -------------------------------------------------------------
