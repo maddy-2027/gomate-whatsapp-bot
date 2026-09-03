@@ -1,3 +1,4 @@
+const { isOwnerCommand, handleOwnerCommand } = require('../services/ownerWhatsAppService');
 const { handleBookingQueryFromMessage } = require('../services/paymentWatcherService');
 const { getText, detectLanguage } = require('../services/language');
 const { getUser, upsertUser } = require('../db/users.repo');
@@ -68,6 +69,11 @@ async function routeMessage(phone, text, session) {
     const farmerVillage = session.data && session.data.location ? session.data.location : (session.village || '');
     const mandiData = getJathMandiPrices(rawText, farmerVillage);
     return formatMandiWhatsAppMessage(mandiData);
+  }
+
+  // 0.7 Check if this is an Owner Pro Quick Command (FLEET, PAUSE, RESUME, EARNINGS, ORDERS)
+  if (isOwnerCommand(rawText)) {
+    return await handleOwnerCommand(phone, rawText, session);
   }
 
   // 0.6 Auto-detect Booking Reference (GM-XXXX) & verify payment immediately

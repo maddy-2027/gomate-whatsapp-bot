@@ -1,13 +1,9 @@
-const { getText } = require('../../services/language');
+const { handleOwnerCommand } = require('../../services/ownerWhatsAppService');
 
 async function showDashboard(phone, session) {
   session.state = 'OWNER_MENU';
-  return getText(session.language, 'dashboard_header', {
-    listings: 2,
-    pending: 1,
-    earnings: 3000,
-    bookingsList: "GM-ABCD: pending"
-  });
+  // Return real live fleet & earnings overview
+  return await handleOwnerCommand(phone, 'FLEET', session);
 }
 
 module.exports = { showDashboard };
