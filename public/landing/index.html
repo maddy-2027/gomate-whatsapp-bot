@@ -57,7 +57,7 @@
   <aside class="status-bar" aria-label="Service Region Notice">
     <div class="status-bar-inner">
       <span class="status-live-dot" aria-hidden="true"></span>
-      <span><strong>Jath Taluka Pilot (PIN 416404):</strong> Serving all 125 villages across Sangli district via WhatsApp</span>
+      <span data-i18n="serviceBar"><strong>Jath Taluka Pilot (PIN 416404):</strong> Serving all 125 villages across Sangli district via WhatsApp</span>
     </div>
   </aside>
 
@@ -67,15 +67,24 @@
       <a href="/landing" class="nav-brand" aria-label="GoMate Home">
         <img src="/assets/brand/logo.svg" alt="GoMate Logo" width="138" height="42" class="brand-logo">
       </a>
+
+      <!-- 4-Language Tab Switcher (Hindi, Marathi, English, Kannada) -->
+      <div class="lang-tabs" role="tablist" aria-label="Select Language">
+        <button type="button" class="lang-tab-btn" data-lang="hi" role="tab" aria-pressed="false">हिंदी</button>
+        <button type="button" class="lang-tab-btn active" data-lang="mr" role="tab" aria-pressed="true">मराठी</button>
+        <button type="button" class="lang-tab-btn" data-lang="en" role="tab" aria-pressed="false">English</button>
+        <button type="button" class="lang-tab-btn" data-lang="kn" role="tab" aria-pressed="false">ಕನ್ನಡ</button>
+      </div>
+
       <nav class="nav-links" aria-label="Main Navigation">
-        <a href="#equipment">Equipment</a>
-        <a href="#trust">Why GoMate</a>
-        <a href="#faq">FAQ</a>
-        <a href="/hourly-booking.html">Rate Card</a>
-        <a href="/owner/register.html" class="nav-link-secondary">List Machinery</a>
+        <a href="#equipment" data-i18n="navEquipment">Equipment</a>
+        <a href="#trust" data-i18n="navTrust">Why GoMate</a>
+        <a href="#faq" data-i18n="navFaq">FAQ</a>
+        <a href="/hourly-booking.html" data-i18n="navRateCard">Rate Card</a>
+        <a href="/owner/register.html" class="nav-link-secondary" data-i18n="navOwner">List Machinery</a>
         <a href="https://wa.me/918605470552?text=Hi%20GoMate%2C%20I%20need%20to%20rent%20equipment%20in%20Jath%20Taluka.%0A%E2%80%A2%20Machine%3A%20%0A%E2%80%A2%20Village%3A%20%0A%E2%80%A2%20Date%3A%20%0A%E2%80%A2%20Duration%20(Hours)%3A%20" target="_blank" rel="noopener noreferrer" class="nav-btn-primary">
           <svg class="icon-wa" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.075-1.819-.413-1.455-.599-2.39-2.072-2.463-2.17-.07-.098-.592-.789-.592-1.503 0-.715.372-1.066.505-1.21.133-.144.29-.18.387-.18.097 0 .193.001.277.005.088.005.207-.033.323.247.12.289.412 1.006.449 1.079.036.072.06.157.012.253-.048.096-.072.157-.144.24-.073.085-.153.19-.219.255-.073.072-.149.151-.064.297.085.145.377.622.809 1.006.557.494 1.027.648 1.172.72.145.072.23.06.315-.037.085-.097.362-.422.459-.567.097-.144.194-.12.324-.072.13.048.824.388.966.459.141.071.236.107.272.167.036.06.036.348-.108.753zM12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.05 22l4.985-1.307A9.957 9.957 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
-          <span>Book on WhatsApp</span>
+          <span data-i18n="navWaBtn">Book on WhatsApp</span>
         </a>
       </nav>
     </div>
@@ -109,48 +118,48 @@
         <div class="hero-content-left">
           <div class="hero-badge">
             <span class="badge-dot" aria-hidden="true"></span>
-            <span>📍 Jath Taluka Pilot &bull; 125 Villages &bull; 0% Broker Commission</span>
+            <span data-i18n="heroBadge">📍 Jath Taluka Pilot • 125 Villages • 0% Broker Commission</span>
           </div>
 
-          <h1 id="hero-title" class="hero-title">
+          <h1 id="hero-title" class="hero-title" data-i18n-html="heroTitle">
             Rent Tractors, JCBs &amp; Transport <span class="text-accent">on WhatsApp</span>
           </h1>
 
-          <p class="hero-sub-en">
+          <p class="hero-sub-en" data-i18n="heroSubEn">
             Direct machinery rental for rural India. Select machine, pick your village, and connect with verified local operators at flat hourly rates.
           </p>
 
-          <p class="hero-sub-mr">
+          <p class="hero-sub-mr" data-i18n="heroSubMr">
             कोणताही दलाल किंवा कमिशन नाही. जत तालुक्यातील प्रमाणित ट्रॅक्टर, जेसीबी व मालवाहतूक वाहने थेट WhatsApp वर मिळवा.
           </p>
 
           <!-- Minimal Equipment Quick-Selection Strip (Left Side) -->
           <div class="hero-equip-strip" aria-label="Available Equipment Categories">
-            <a href="https://wa.me/918605470552?text=Hi%20GoMate%2C%20I%20need%20a%20Tractor%20or%20farm%20machine%20in%20Jath%20Taluka." target="_blank" rel="noopener noreferrer" class="equip-mini-card">
+            <a href="https://wa.me/918605470552?text=Hi%20GoMate%2C%20I%20need%20a%20Tractor%20or%20farm%20machine%20in%20Jath%20Taluka." target="_blank" rel="noopener noreferrer" class="equip-mini-card" data-whatsapp="tractor">
               <span class="equip-mini-icon" aria-hidden="true">🚜</span>
               <div class="equip-mini-info">
-                <span class="equip-mini-title">Tractor &amp; Farm Machinery</span>
-                <span class="equip-mini-sub">Rotavator, Cultivator, Harvester, Drones</span>
+                <span class="equip-mini-title" data-i18n="tractorTitle">Tractor &amp; Farm Machinery</span>
+                <span class="equip-mini-sub" data-i18n="tractorSub">Rotavator, Cultivator, Harvester, Drones</span>
               </div>
-              <span class="equip-mini-rate">₹450–₹600<small>/hr</small></span>
+              <span class="equip-mini-rate" data-i18n-html="tractorRate">₹450–₹600<small>/hr</small></span>
             </a>
 
-            <a href="https://wa.me/918605470552?text=Hi%20GoMate%2C%20I%20need%20a%20JCB%20or%20earthmoving%20machine%20in%20Jath%20Taluka." target="_blank" rel="noopener noreferrer" class="equip-mini-card">
+            <a href="https://wa.me/918605470552?text=Hi%20GoMate%2C%20I%20need%20a%20JCB%20or%20earthmoving%20machine%20in%20Jath%20Taluka." target="_blank" rel="noopener noreferrer" class="equip-mini-card" data-whatsapp="jcb">
               <span class="equip-mini-icon" aria-hidden="true">🏗️</span>
               <div class="equip-mini-info">
-                <span class="equip-mini-title">JCB &amp; Earthmoving</span>
-                <span class="equip-mini-sub">3DX Backhoe, Farm Pond, Levelling, Excavator</span>
+                <span class="equip-mini-title" data-i18n="jcbTitle">JCB &amp; Earthmoving</span>
+                <span class="equip-mini-sub" data-i18n="jcbSub">3DX Backhoe, Farm Pond, Levelling, Excavator</span>
               </div>
-              <span class="equip-mini-rate">₹950<small>/hr</small></span>
+              <span class="equip-mini-rate" data-i18n-html="jcbRate">₹950<small>/hr</small></span>
             </a>
 
-            <a href="https://wa.me/918605470552?text=Hi%20GoMate%2C%20I%20need%20a%20Transport%20vehicle%20in%20Jath%20Taluka." target="_blank" rel="noopener noreferrer" class="equip-mini-card">
+            <a href="https://wa.me/918605470552?text=Hi%20GoMate%2C%20I%20need%20a%20Transport%20vehicle%20in%20Jath%20Taluka." target="_blank" rel="noopener noreferrer" class="equip-mini-card" data-whatsapp="transport">
               <span class="equip-mini-icon" aria-hidden="true">🚚</span>
               <div class="equip-mini-info">
-                <span class="equip-mini-title">Transport Vehicles</span>
-                <span class="equip-mini-sub">Tata Ace (छोटा हत्ती), Pickup, 4-Ton Truck</span>
+                <span class="equip-mini-title" data-i18n="transportTitle">Transport Vehicles</span>
+                <span class="equip-mini-sub" data-i18n="transportSub">Tata Ace (छोटा हत्ती), Pickup, 4-Ton Truck</span>
               </div>
-              <span class="equip-mini-rate">₹350–₹700<small>/hr</small></span>
+              <span class="equip-mini-rate" data-i18n-html="transportRate">₹350–₹700<small>/hr</small></span>
             </a>
           </div>
 
@@ -158,16 +167,16 @@
           <div class="hero-actions">
             <a href="https://wa.me/918605470552?text=Hi%20GoMate%2C%20I%20need%20to%20rent%20equipment%20in%20Jath%20Taluka.%0A%E2%80%A2%20Machine%3A%20%0A%E2%80%A2%20Village%3A%20%0A%E2%80%A2%20Date%3A%20%0A%E2%80%A2%20Duration%20(Hours)%3A%20" target="_blank" rel="noopener noreferrer" class="btn-hero-primary">
               <svg class="icon-wa-lg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.075-1.819-.413-1.455-.599-2.39-2.072-2.463-2.17-.07-.098-.592-.789-.592-1.503 0-.715.372-1.066.505-1.21.133-.144.29-.18.387-.18.097 0 .193.001.277.005.088.005.207-.033.323.247.12.289.412 1.006.449 1.079.036.072.06.157.012.253-.048.096-.072.157-.144.24-.073.085-.153.19-.219.255-.073.072-.149.151-.064.297.085.145.377.622.809 1.006.557.494 1.027.648 1.172.72.145.072.23.06.315-.037.085-.097.362-.422.459-.567.097-.144.194-.12.324-.072.13.048.824.388.966.459.141.071.236.107.272.167.036.06.036.348-.108.753zM12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.05 22l4.985-1.307A9.957 9.957 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
-              <span>Book on WhatsApp &rarr;</span>
+              <span data-i18n="heroCtaPrimary">Book on WhatsApp &rarr;</span>
             </a>
-            <a href="/hourly-booking.html" class="btn-hero-secondary">
+            <a href="/hourly-booking.html" class="btn-hero-secondary" data-i18n="heroCtaSecondary">
               View Full Rate Card
             </a>
           </div>
 
           <div class="hero-owner-sublink">
-            <span>Own a Tractor, JCB, or Mini-Truck?</span>
-            <a href="/owner/register.html">List your fleet &amp; earn ₹25,000+/mo &rarr;</a>
+            <span data-i18n="heroOwnerSublinkText">Own a Tractor, JCB, or Mini-Truck?</span>
+            <a href="/owner/register.html" data-i18n="heroOwnerSublinkCta">List your fleet &amp; earn ₹25,000+/mo &rarr;</a>
           </div>
         </div>
       </div>
@@ -177,12 +186,12 @@
     <section class="section-trust" id="trust" aria-labelledby="trust-title">
       <div class="section-container">
         <div class="section-header">
-          <div class="section-eyebrow">Trust &amp; Reliability</div>
+          <div class="section-eyebrow" data-i18n="trustEyebrow">Trust &amp; Reliability</div>
           <h2 id="trust-title" class="section-title">
             Why Farmers in Jath Trust GoMate
             <span class="title-mr">शेतकरी गोमेटवर विश्वास का ठेवतात?</span>
           </h2>
-          <p class="section-desc">Grounded in local community relationships, verified machinery profiles, and honest pricing.</p>
+          <p class="section-desc" data-i18n="trustDesc">Grounded in local community relationships, verified machinery profiles, and honest pricing.</p>
         </div>
 
         <div class="trust-grid">
@@ -190,32 +199,32 @@
             <div class="trust-icon-box" aria-hidden="true">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
             </div>
-            <h3 class="trust-card-title">Direct Local Operators</h3>
-            <p class="trust-card-text">You connect directly with machine owners and drivers residing in Jath Taluka. No middleman broker inflating rates.</p>
+            <h3 class="trust-card-title" data-i18n="trust1Title">Direct Local Operators</h3>
+            <p class="trust-card-text" data-i18n="trust1Text">You connect directly with machine owners and drivers residing in Jath Taluka. No middleman broker inflating rates.</p>
           </div>
 
           <div class="trust-card">
             <div class="trust-icon-box" aria-hidden="true">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
             </div>
-            <h3 class="trust-card-title">Clear Hourly Billing</h3>
-            <p class="trust-card-text">Pay only for actual hours needed (2, 3, or 4 hours) instead of being forced into expensive full-day commitments.</p>
+            <h3 class="trust-card-title" data-i18n="trust2Title">Clear Hourly Billing</h3>
+            <p class="trust-card-text" data-i18n="trust2Text">Pay only for actual hours needed (2, 3, or 4 hours) instead of being forced into expensive full-day commitments.</p>
           </div>
 
           <div class="trust-card">
             <div class="trust-icon-box" aria-hidden="true">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
             </div>
-            <h3 class="trust-card-title">0% Renter Commission</h3>
-            <p class="trust-card-text">Farmers pay exact owner rental rates plus a flat ₹49 platform protection fee. No hidden percentage commissions.</p>
+            <h3 class="trust-card-title" data-i18n="trust3Title">0% Renter Commission</h3>
+            <p class="trust-card-text" data-i18n="trust3Text">Farmers pay exact owner rental rates plus a flat ₹49 platform protection fee. No hidden percentage commissions.</p>
           </div>
 
           <div class="trust-card">
             <div class="trust-icon-box" aria-hidden="true">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
             </div>
-            <h3 class="trust-card-title">125 Jath Villages Covered</h3>
-            <p class="trust-card-text">Machinery clusters organized around Jath Centre, Shegaon, Sankh, Umadi, and Dafalapur for faster field arrival times.</p>
+            <h3 class="trust-card-title" data-i18n="trust4Title">125 Jath Villages Covered</h3>
+            <p class="trust-card-text" data-i18n="trust4Text">Machinery clusters organized around Jath Centre, Shegaon, Sankh, Umadi, and Dafalapur for faster field arrival times.</p>
           </div>
         </div>
       </div>
@@ -225,53 +234,53 @@
     <section class="section-reviews" id="reviews" aria-labelledby="reviews-title">
       <div class="section-container">
         <div class="section-header">
-          <div class="section-eyebrow">Local Feedback</div>
+          <div class="section-eyebrow" data-i18n="reviewsEyebrow">Local Feedback</div>
           <h2 id="reviews-title" class="section-title">
             What Farmers in Jath Say
             <span class="title-mr">शेतकऱ्यांचे प्रत्यक्ष अनुभव</span>
           </h2>
-          <p class="section-desc">Recent feedback from agricultural producers who hired machinery via GoMate WhatsApp assistant.</p>
+          <p class="section-desc" data-i18n="reviewsDesc">Recent feedback from agricultural producers who hired machinery via GoMate WhatsApp assistant.</p>
         </div>
 
         <div class="reviews-grid">
           <article class="review-card">
             <div class="review-stars" aria-label="5 out of 5 stars">★★★★★</div>
-            <blockquote class="review-text">
+            <blockquote class="review-text" data-i18n="review1Text">
               "Needed a rotavator urgently ahead of sowing. Sent one message on WhatsApp and connected with a tractor owner in Shegaon within 20 minutes. Machine arrived on time at ₹450/hr."
             </blockquote>
             <div class="review-author">
               <div class="avatar" aria-hidden="true">RP</div>
               <div>
                 <strong class="author-name">Ramesh Patil</strong>
-                <span class="author-location">Grape &amp; Pomegranate Grower &bull; Shegaon, Jath</span>
+                <span class="author-location" data-i18n="review1Loc">Grape &amp; Pomegranate Grower &bull; Shegaon, Jath</span>
               </div>
             </div>
           </article>
 
           <article class="review-card">
             <div class="review-stars" aria-label="5 out of 5 stars">★★★★★</div>
-            <blockquote class="review-text">
+            <blockquote class="review-text" data-i18n="review2Text">
               "Booked 3 hours of deep ploughing for soybean sowing. Hourly rate was clear up front without any broker margin. The driver knew our soil conditions well."
             </blockquote>
             <div class="review-author">
               <div class="avatar" aria-hidden="true">SS</div>
               <div>
                 <strong class="author-name">Suresh Shinde</strong>
-                <span class="author-location">Soybean &amp; Bajra Farmer &bull; Sankh, Jath</span>
+                <span class="author-location" data-i18n="review2Loc">Soybean &amp; Bajra Farmer &bull; Sankh, Jath</span>
               </div>
             </div>
           </article>
 
           <article class="review-card">
             <div class="review-stars" aria-label="5 out of 5 stars">★★★★★</div>
-            <blockquote class="review-text">
+            <blockquote class="review-text" data-i18n="review3Text">
               "Secured a JCB 3DX promptly for farm pond excavation. Shared village location on WhatsApp and the booking was verified immediately. Straightforward and reliable."
             </blockquote>
             <div class="review-author">
               <div class="avatar" aria-hidden="true">TM</div>
               <div>
                 <strong class="author-name">Tukaram Mali</strong>
-                <span class="author-location">Horticulture Producer &bull; Umadi, Jath</span>
+                <span class="author-location" data-i18n="review3Loc">Horticulture Producer &bull; Umadi, Jath</span>
               </div>
             </div>
           </article>
@@ -283,15 +292,15 @@
     <section class="section-owner-cta" id="owners" aria-labelledby="owner-title">
       <div class="section-container">
         <div class="owner-box">
-          <div class="owner-badge">For Machinery Owners in Jath</div>
-          <h2 id="owner-title" class="owner-title">Own a Tractor, JCB or Commercial Truck?</h2>
-          <p class="owner-mr">जत तालुक्यातील ट्रॅक्टर, जेसीबी व वाहन मालकांसाठी नोंदणी</p>
+          <div class="owner-badge" data-i18n="ownerBadge">For Machinery Owners in Jath</div>
+          <h2 id="owner-title" class="owner-title" data-i18n="ownerTitle">Own a Tractor, JCB or Commercial Truck?</h2>
+          <p class="owner-mr" data-i18n="ownerMr">जत तालुक्यातील ट्रॅक्टर, जेसीबी व वाहन मालकांसाठी नोंदणी</p>
           <p class="owner-desc">
             List your machinery on GoMate and receive verified rental inquiries directly on WhatsApp from 125 villages. 7-day free trial, flat ₹599/month subscription, and 0% commission on your earnings.
           </p>
           <div class="owner-actions">
-            <a href="/owner/register.html" class="btn-owner-primary">Register Your Machinery &rarr;</a>
-            <a href="/owner/index.html" class="btn-owner-secondary">Owner Pro Dashboard</a>
+            <a href="/owner/register.html" class="btn-owner-primary" data-i18n="ownerCta">Register Your Machinery &rarr;</a>
+            <a href="/owner/index.html" class="btn-owner-secondary" data-i18n="ownerDash">Owner Pro Dashboard</a>
           </div>
         </div>
       </div>
@@ -301,60 +310,60 @@
     <section class="section-faq" id="faq" aria-labelledby="faq-title">
       <div class="section-container faq-wrapper">
         <div class="section-header">
-          <div class="section-eyebrow">Answers to Common Questions</div>
+          <div class="section-eyebrow" data-i18n="faqEyebrow">Answers to Common Questions</div>
           <h2 id="faq-title" class="section-title">
             Frequently Asked Questions
             <span class="title-mr">नेहमी विचारले जाणारे प्रश्न</span>
           </h2>
-          <p class="section-desc">Learn more about renting machinery or listing your fleet on GoMate.</p>
+          <p class="section-desc" data-i18n="faqDesc">Learn more about renting machinery or listing your fleet on GoMate.</p>
         </div>
 
         <div class="faq-list">
           <div class="faq-item">
             <h3>
               <button type="button" class="faq-trigger" aria-expanded="false" aria-controls="faq-ans-1" id="faq-btn-1">
-                <span>How do I book equipment on WhatsApp?</span>
+                <span data-i18n="faq1q">How do I book equipment on WhatsApp?</span>
                 <span class="faq-icon" aria-hidden="true">+</span>
               </button>
             </h3>
             <div id="faq-ans-1" class="faq-answer" role="region" aria-labelledby="faq-btn-1" hidden>
-              <p>Send "Hi" to our WhatsApp number (+91 86054 70552). Select your preferred language (Marathi, English, or Hindi), choose your machine category, and share your village name. The bot displays nearby verified units and guides you through booking in under 2 minutes.</p>
+              <p data-i18n="faq1a">Send "Hi" to our WhatsApp number (+91 86054 70552). Select your preferred language (Marathi, Hindi, English, or Kannada), choose your machine category, and share your village name. The bot displays nearby verified units and guides you through booking in under 2 minutes.</p>
             </div>
           </div>
 
           <div class="faq-item">
             <h3>
               <button type="button" class="faq-trigger" aria-expanded="false" aria-controls="faq-ans-2" id="faq-btn-2">
-                <span>Is there any commission charged to farmers or renters?</span>
+                <span data-i18n="faq2q">Is there any commission charged to farmers or renters?</span>
                 <span class="faq-icon" aria-hidden="true">+</span>
               </button>
             </h3>
             <div id="faq-ans-2" class="faq-answer" role="region" aria-labelledby="faq-btn-2" hidden>
-              <p>No. Customer bookings carry 0% brokerage commission. You pay the transparent hourly hire rate directly to the operator upon delivery. A nominal ₹49 platform convenience and protection fee applies per confirmed booking.</p>
+              <p data-i18n="faq2a">No. Customer bookings carry 0% brokerage commission. You pay the transparent hourly hire rate directly to the operator upon delivery. A nominal ₹49 platform convenience and protection fee applies per confirmed booking.</p>
             </div>
           </div>
 
           <div class="faq-item">
             <h3>
               <button type="button" class="faq-trigger" aria-expanded="false" aria-controls="faq-ans-3" id="faq-btn-3">
-                <span>How does owner subscription work?</span>
+                <span data-i18n="faq3q">How does owner subscription work?</span>
                 <span class="faq-icon" aria-hidden="true">+</span>
               </button>
             </h3>
             <div id="faq-ans-3" class="faq-answer" role="region" aria-labelledby="faq-btn-3" hidden>
-              <p>Machinery owners pay a flat ₹599/month subscription to list their fleet and receive instant booking notifications directly on WhatsApp. The first 7 days are completely free. Zero commission is deducted from your rental revenue.</p>
+              <p data-i18n="faq3a">Machinery owners pay a flat ₹599/month subscription to list their fleet and receive instant booking notifications directly on WhatsApp. The first 7 days are completely free. Zero commission is deducted from your rental revenue.</p>
             </div>
           </div>
 
           <div class="faq-item">
             <h3>
               <button type="button" class="faq-trigger" aria-expanded="false" aria-controls="faq-ans-4" id="faq-btn-4">
-                <span>Which villages in Jath Taluka are serviced?</span>
+                <span data-i18n="faq4q">Which villages in Jath Taluka are serviced?</span>
                 <span class="faq-icon" aria-hidden="true">+</span>
               </button>
             </h3>
             <div id="faq-ans-4" class="faq-answer" role="region" aria-labelledby="faq-btn-4" hidden>
-              <p>GoMate services all 125 villages across Jath Taluka including Jath Centre, Shegaon, Sankh, Umadi, Dafalapur, Bilur, Baj, Madgyal, Walekhindi, and surrounding clusters in Sangli district (PIN 416404).</p>
+              <p data-i18n="faq4a">GoMate services all 125 villages across Jath Taluka including Jath Centre, Shegaon, Sankh, Umadi, Dafalapur, Bilur, Baj, Madgyal, Walekhindi, and surrounding clusters in Sangli district (PIN 416404).</p>
             </div>
           </div>
         </div>
@@ -367,8 +376,8 @@
     <div class="section-container footer-inner">
       <div class="footer-brand-col">
         <img src="/assets/brand/logo-white.svg" alt="GoMate Logo" width="124" height="38" class="footer-logo">
-        <p class="footer-tagline">WhatsApp machinery marketplace for Jath Taluka, Sangli (PIN 416404).</p>
-        <span class="footer-copy">&copy; 2026 GoMate Marketplace. All rights reserved.</span>
+        <p class="footer-tagline" data-i18n="footerTagline">WhatsApp machinery marketplace for Jath Taluka, Sangli (PIN 416404).</p>
+        <span class="footer-copy" data-i18n="footerCopy">&copy; 2026 GoMate Marketplace. All rights reserved.</span>
       </div>
       <nav class="footer-links-col" aria-label="Footer Links">
         <span class="footer-heading">Services &amp; Portals</span>
@@ -385,7 +394,7 @@
   <div class="mobile-sticky-cta" aria-label="Quick Booking Bar">
     <a href="https://wa.me/918605470552?text=Hi%20GoMate%2C%20I%20need%20to%20rent%20equipment%20in%20Jath%20Taluka.%0A%E2%80%A2%20Machine%3A%20%0A%E2%80%A2%20Village%3A%20%0A%E2%80%A2%20Date%3A%20%0A%E2%80%A2%20Duration%20(Hours)%3A%20" target="_blank" rel="noopener noreferrer" class="btn-sticky-wa">
       <svg class="icon-wa" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.075-1.819-.413-1.455-.599-2.39-2.072-2.463-2.17-.07-.098-.592-.789-.592-1.503 0-.715.372-1.066.505-1.21.133-.144.29-.18.387-.18.097 0 .193.001.277.005.088.005.207-.033.323.247.12.289.412 1.006.449 1.079.036.072.06.157.012.253-.048.096-.072.157-.144.24-.073.085-.153.19-.219.255-.073.072-.149.151-.064.297.085.145.377.622.809 1.006.557.494 1.027.648 1.172.72.145.072.23.06.315-.037.085-.097.362-.422.459-.567.097-.144.194-.12.324-.072.13.048.824.388.966.459.141.071.236.107.272.167.036.06.036.348-.108.753zM12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.05 22l4.985-1.307A9.957 9.957 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
-      <span>Find Available Equipment on WhatsApp</span>
+      <span data-i18n="mobileStickyWa">Find Available Equipment on WhatsApp</span>
     </a>
   </div>
 

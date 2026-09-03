@@ -1496,3 +1496,80 @@ img {
     width: 100%;
   }
 }
+
+/* ── Language Switcher Tabs ──────────────────────────────────────────── */
+.lang-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 3px;
+  flex-shrink: 0;
+}
+
+.lang-tab-btn {
+  background: transparent;
+  border: none;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748B;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  white-space: nowrap;
+  min-height: 32px;
+  font-family: inherit;
+  line-height: 1;
+}
+
+.lang-tab-btn:hover {
+  background: #FFFFFF;
+  color: #0A1F44;
+}
+
+.lang-tab-btn.active {
+  background: #0A1F44;
+  color: #FFFFFF;
+  box-shadow: 0 1px 4px rgba(10, 31, 68, 0.22);
+}
+
+@media (max-width: 768px) {
+  .landing-nav {
+    padding: 0 12px;
+  }
+  .nav-container {
+    gap: 10px;
+  }
+  .lang-tabs {
+    gap: 1px;
+    padding: 2px;
+  }
+  .lang-tab-btn {
+    padding: 4px 8px;
+    font-size: 11px;
+    min-height: 28px;
+  }
+}
+
+@media (max-width: 580px) {
+  .brand-logo {
+    height: 32px;
+  }
+  .nav-btn-primary {
+    padding: 8px 10px;
+    min-height: 36px;
+  }
+  .nav-btn-primary span {
+    display: none;
+  }
+}
+
+@media (max-width: 380px) {
+  .lang-tab-btn {
+    padding: 3px 6px;
+    font-size: 10px;
+  }
+}

@@ -1,68 +1,339 @@
 (() => {
-  const selector = document.getElementById('landingLanguage');
-  if (!selector) return;
+  /* ==========================================================================
+     GoMate Landing Page – 4-Language Switcher
+     Supported:
+       1. hi (Hindi / हिंदी)
+       2. mr (Marathi / मराठी - Default/Primary)
+       3. en (English)
+       4. kn (Kannada / ಕನ್ನಡ)
+     ========================================================================== */
+
+  const VALID_LANGS = ['hi', 'mr', 'en', 'kn'];
 
   const copy = {
     en: {
-      serviceBar:'Serving Jath Taluka, Maharashtra • Book through WhatsApp', navHow:'How it works', navEquipment:'Equipment', navReviews:'Reviews', languageLabel:'Choose language', navOwner:'List machinery', navBooking:'Start booking',
-      heroEyebrow:'Jath Taluka equipment rental', heroTitle:'Find the right machine. <span>Book on WhatsApp.</span>', heroCopy:'Tell GoMate what you need, your village, and when you need it. We help connect you with local farm, transport, and earthmoving equipment.', heroCta:'Find available equipment', heroSecondaryCta:'See equipment and starting rates', heroHelper:'No long form. Start with a simple WhatsApp message.',
-      needEyebrow:'Start here', needTitle:'What do you need today?', needCopy:'Choose a category and we will prepare your WhatsApp request.',
-      farmTitle:'Tractor and farm machinery', farmCopy:'Tractors, rotavators, harvesters, seed drills, sprayers, and more.', farmCta:'Request farm equipment →', transportTitle:'Transport vehicle', transportCopy:'Mini trucks, goods vehicles, tankers, and local transport.', transportCta:'Request transport →', earthmovingTitle:'JCB and earthmoving', earthmovingCopy:'Backhoes, excavators, dozers, and farm-pond earthwork equipment.', earthmovingCta:'Request JCB →',
-      proofOneTitle:'Local service', proofOneCopy:'Designed for Jath Taluka', proofTwoTitle:'Clear starting rates', proofTwoCopy:'Confirm the final rate before booking', proofThreeTitle:'Direct conversation', proofThreeCopy:'Continue through WhatsApp',
-      howEyebrow:'Simple by design', howTitle:'From request to booking in three clear steps', howCopy:'No searching through listings or calling multiple owners yourself.', stepOneTitle:'Tell us what you need', stepOneCopy:'Send the machine type, village, required date, and expected duration on WhatsApp.', stepTwoTitle:'Review availability and rate', stepTwoCopy:'Check the equipment option, expected arrival, and rental rate in the conversation.', stepThreeTitle:'Confirm directly', stepThreeCopy:'Confirm only when the equipment and terms work for you. Then coordinate the job on WhatsApp.',
-      equipmentEyebrow:'Popular equipment', equipmentTitle:'Equipment with clear starting rates', equipmentCopy:'Rates can vary by village, duration, and job. Confirm the final price before you book.', rateCalculator:'View hourly-rate calculator →', tractorCategory:'Farm machinery', tractorTitle:'Tractors (45–55 HP)', tractorCopy:'For ploughing, haulage, and rotary tilling.', droneCategory:'Crop care', droneTitle:'Agricultural spray drone', droneCopy:'For targeted crop and orchard spraying.', truckCategory:'Transport', truckTitle:'Mini truck / goods vehicle', truckCopy:'For farm produce, supplies, and local transport.', jcbCategory:'Earthmoving', jcbTitle:'JCB 3DX backhoe loader', jcbCopy:'For farm ponds, trenches, bunds, and land levelling.', from:'From', perHour:'/ hr', perAcre:'/ acre', request:'Request →', allEquipmentCta:'See all equipment types and rates on WhatsApp',
-      trustEyebrow:'Why use GoMate', trustTitle:'A simpler way to arrange local equipment', trustCopy:'GoMate keeps the important booking details in one conversation, so you can ask about the machine, location, timing, and rate easily.', trustOneTitle:'Start with your actual need', trustOneCopy:'Share a machine type, village, date, and job details.', trustTwoTitle:'Check before confirming', trustTwoCopy:'Ask about availability, arrival, and the final rental rate first.', trustThreeTitle:'Keep the conversation handy', trustThreeCopy:'Booking details stay in WhatsApp for easy follow-up.',
-      reviewsEyebrow:'Customer experiences', reviewsTitle:'What local customers say', reviewsCopy:'Experiences shared by farmers and contractors using GoMate.', reviewOneQuote:'“I urgently needed a rotavator before rain. One WhatsApp message connected me with a tractor owner in Shegaon, and the work was done the next morning.”', reviewOneName:'Ramesh Patil', reviewOneInfo:'Grape and pomegranate grower · Shegaon, Jath', reviewTwoQuote:'“The hourly rate was clear up front for soybean ploughing. The operator arrived on time and the work was completed properly.”', reviewTwoName:'Suresh Shinde', reviewTwoInfo:'Soybean and bajra farmer · Sankh, Jath', reviewThreeQuote:'“I needed a JCB for farm-pond excavation. Sharing the location on WhatsApp made the work easy to explain.”', reviewThreeName:'Tukaram Mali', reviewThreeInfo:'Farmer · Umadi, Jath',
-      ownerEyebrow:'For equipment owners', ownerTitle:'Want to list your machinery?', ownerCopy:'Register your machine to receive booking enquiries through GoMate.', ownerCta:'Register machinery', ownerDashboard:'Owner dashboard →', faqEyebrow:'Frequently asked questions', faqTitle:'Before you start', faqOneQuestion:'How do I book equipment on WhatsApp?', faqOneAnswer:'Send the machine you need, village, required date, and expected duration. Discuss the available option and rate before confirming.', faqTwoQuestion:'What details should I send first?', faqTwoAnswer:'Please include equipment type, village, required date, and an estimate of the work or rental duration.', faqThreeQuestion:'How do I confirm the final price?', faqThreeAnswer:'Starting rates are for guidance. Confirm the final price, availability, arrival time, and job details in WhatsApp before booking.', faqFourQuestion:'Can I list my own machine?', faqFourAnswer:'Yes. Use the machinery-registration page to add your equipment and owner details.', footerCopyright:'© 2026 GoMate Marketplace · Sangli, Maharashtra', footerRates:'Hourly rates', footerRegistration:'Owner registration', footerDashboard:'Owner dashboard', mobileBooking:'Find available equipment on WhatsApp',
-      tractorAlt:'Tractor working in a field', droneAlt:'Agricultural spray drone above crops', truckAlt:'Goods transport vehicle', jcbAlt:'JCB backhoe loader on a work site'
+      serviceBar: 'Jath Taluka Pilot (PIN 416404): Serving all 125 villages across Sangli district via WhatsApp',
+      navEquipment: 'Equipment',
+      navTrust: 'Why GoMate',
+      navFaq: 'FAQ',
+      navRateCard: 'Rate Card',
+      navOwner: 'List Machinery',
+      navWaBtn: 'Book on WhatsApp',
+      heroBadge: '📍 Jath Taluka Pilot • 125 Villages • 0% Broker Commission',
+      heroTitle: 'Rent Tractors, JCBs &amp; Transport <span class="text-accent">on WhatsApp</span>',
+      heroSubEn: 'Direct machinery rental for rural India. Select machine, pick your village, and connect with verified local operators at flat hourly rates.',
+      heroSubMr: 'No brokers, no hidden commission. Verified tractors, JCBs and goods transport in Jath Taluka directly on WhatsApp.',
+      tractorTitle: 'Tractor &amp; Farm Machinery',
+      tractorSub: 'Rotavator, Cultivator, Harvester, Drones',
+      tractorRate: '₹450–₹600<small>/hr</small>',
+      jcbTitle: 'JCB &amp; Earthmoving',
+      jcbSub: '3DX Backhoe, Farm Pond, Levelling, Excavator',
+      jcbRate: '₹950<small>/hr</small>',
+      transportTitle: 'Transport Vehicles',
+      transportSub: 'Tata Ace (Chhota Hathi), Pickup, 4-Ton Truck',
+      transportRate: '₹350–₹700<small>/hr</small>',
+      heroCtaPrimary: 'Book on WhatsApp →',
+      heroCtaSecondary: 'View Full Rate Card',
+      heroOwnerSublinkText: 'Own a Tractor, JCB, or Mini-Truck?',
+      heroOwnerSublinkCta: 'List your fleet & earn ₹25,000+/mo →',
+      trustEyebrow: 'Trust &amp; Reliability',
+      trustDesc: 'Grounded in local community relationships, verified machinery profiles, and honest pricing.',
+      trust1Title: 'Direct Local Operators',
+      trust1Text: 'You connect directly with machine owners and drivers residing in Jath Taluka. No middleman broker inflating rates.',
+      trust2Title: 'Clear Hourly Billing',
+      trust2Text: 'Pay only for actual hours needed (2, 3, or 4 hours) instead of being forced into expensive full-day commitments.',
+      trust3Title: '0% Renter Commission',
+      trust3Text: 'Farmers pay exact owner rental rates plus a flat ₹49 platform protection fee. No hidden percentage commissions.',
+      trust4Title: '125 Jath Villages Covered',
+      trust4Text: 'Machinery clusters organized around Jath Centre, Shegaon, Sankh, Umadi, and Dafalapur for faster field arrival times.',
+      reviewsEyebrow: 'Local Feedback',
+      reviewsDesc: 'Recent feedback from agricultural producers who hired machinery via GoMate WhatsApp assistant.',
+      review1Text: '“Needed a rotavator urgently ahead of sowing. Sent one message on WhatsApp and connected with a tractor owner in Shegaon within 20 minutes. Machine arrived on time at ₹450/hr.”',
+      review1Loc: 'Grape &amp; Pomegranate Grower • Shegaon, Jath',
+      review2Text: '“Booked 3 hours of deep ploughing for soybean sowing. Hourly rate was clear up front without any broker margin. The driver knew our soil conditions well.”',
+      review2Loc: 'Soybean &amp; Bajra Farmer • Sankh, Jath',
+      review3Text: '“Secured a JCB 3DX promptly for farm pond excavation. Shared village location on WhatsApp and the booking was verified immediately. Straightforward and reliable.”',
+      review3Loc: 'Horticulture Producer • Umadi, Jath',
+      ownerBadge: 'For Machinery Owners in Jath',
+      ownerTitle: 'Own a Tractor, JCB or Commercial Truck?',
+      ownerMr: 'Registration for Tractor, JCB and Vehicle Owners in Jath Taluka',
+      ownerDesc: 'List your machinery on GoMate and receive verified rental inquiries directly on WhatsApp from 125 villages. 7-day free trial, flat ₹599/month subscription, and 0% commission on your earnings.',
+      ownerCta: 'Register Your Machinery →',
+      ownerDash: 'Owner Pro Dashboard',
+      faqEyebrow: 'Answers to Common Questions',
+      faqDesc: 'Learn more about renting machinery or listing your fleet on GoMate.',
+      faq1q: 'How do I book equipment on WhatsApp?',
+      faq1a: 'Send “Hi” to our WhatsApp number (+91 86054 70552). Select your preferred language (Marathi, Hindi, English, or Kannada), choose your machine category, and share your village name. The bot displays nearby verified units and guides you through booking in under 2 minutes.',
+      faq2q: 'Is there any commission charged to farmers or renters?',
+      faq2a: 'No. Customer bookings carry 0% brokerage commission. You pay the transparent hourly hire rate directly to the operator upon delivery. A nominal ₹49 platform convenience and protection fee applies per confirmed booking.',
+      faq3q: 'How does owner subscription work?',
+      faq3a: 'Machinery owners pay a flat ₹599/month subscription to list their fleet and receive instant booking notifications directly on WhatsApp. The first 7 days are completely free. Zero commission is deducted from your rental revenue.',
+      faq4q: 'Which villages in Jath Taluka are serviced?',
+      faq4a: 'GoMate services all 125 villages across Jath Taluka including Jath Centre, Shegaon, Sankh, Umadi, Dafalapur, Bilur, Baj, Madgyal, Walekhindi, and surrounding clusters in Sangli district (PIN 416404).',
+      footerTagline: 'WhatsApp machinery marketplace for Jath Taluka, Sangli (PIN 416404).',
+      footerCopy: '© 2026 GoMate Marketplace. All rights reserved.',
+      mobileStickyWa: 'Find Available Equipment on WhatsApp'
     },
     hi: {
-      serviceBar:'जत तालुका, महाराष्ट्र के लिए सेवा • WhatsApp पर बुकिंग', navHow:'कैसे काम करता है', navEquipment:'मशीनरी', navReviews:'अनुभव', languageLabel:'भाषा चुनें', navOwner:'मशीनरी जोड़ें', navBooking:'बुकिंग शुरू करें',
-      heroEyebrow:'जत तालुका में मशीनरी किराए पर', heroTitle:'सही मशीन ढूँढें। <span>WhatsApp पर बुक करें।</span>', heroCopy:'GoMate को बताइए कि आपको कौन-सी मशीन चाहिए, आपका गाँव कौन-सा है और कब चाहिए। हम आपको आसपास की खेती, परिवहन और JCB मशीनरी से जोड़ने में मदद करते हैं।', heroCta:'उपलब्ध मशीनरी ढूँढें', heroSecondaryCta:'मशीनरी और शुरुआती दरें देखें', heroHelper:'लंबा फॉर्म नहीं। आसान WhatsApp संदेश से शुरू करें।',
-      needEyebrow:'यहाँ से शुरू करें', needTitle:'आज आपको क्या चाहिए?', needCopy:'एक श्रेणी चुनें। हम आपका WhatsApp अनुरोध तैयार कर देंगे।', farmTitle:'ट्रैक्टर और खेती की मशीनरी', farmCopy:'ट्रैक्टर, रोटावेटर, हार्वेस्टर, सीड ड्रिल, स्प्रेयर और बहुत कुछ।', farmCta:'खेती की मशीनरी पूछें →', transportTitle:'परिवहन वाहन', transportCopy:'मिनी ट्रक, मालवाहक गाड़ी, टैंकर और स्थानीय परिवहन।', transportCta:'परिवहन के लिए पूछें →', earthmovingTitle:'JCB और मिट्टी का काम', earthmovingCopy:'बैकहो, एक्स्कैवेटर, डोजर और खेत-तालाब खुदाई की मशीनरी।', earthmovingCta:'JCB के लिए पूछें →',
-      proofOneTitle:'पास की सेवा', proofOneCopy:'जत तालुका के लिए बनाई गई', proofTwoTitle:'स्पष्ट शुरुआती दरें', proofTwoCopy:'बुकिंग से पहले अंतिम दर तय करें', proofThreeTitle:'सीधी बातचीत', proofThreeCopy:'WhatsApp पर बात जारी रखें',
-      howEyebrow:'सरल और सीधा', howTitle:'अनुरोध से बुकिंग तक तीन आसान चरण', howCopy:'लिस्टिंग खोजने या कई मालिकों को फोन करने की जरूरत नहीं।', stepOneTitle:'बताइए कि क्या चाहिए', stepOneCopy:'WhatsApp पर मशीन का प्रकार, गाँव, जरूरी तारीख और समय भेजें।', stepTwoTitle:'उपलब्धता और दर देखें', stepTwoCopy:'बातचीत में मशीन, आने का समय और किराए की दर जाँचें।', stepThreeTitle:'सीधे बुकिंग पक्की करें', stepThreeCopy:'मशीन और शर्तें सही हों तभी बुकिंग करें। आगे का काम WhatsApp पर तय करें।',
-      equipmentEyebrow:'लोकप्रिय मशीनरी', equipmentTitle:'स्पष्ट शुरुआती दरों के साथ मशीनरी', equipmentCopy:'गाँव, समय और काम के अनुसार दर बदल सकती है। बुकिंग से पहले अंतिम कीमत तय करें।', rateCalculator:'घंटे के हिसाब से दर कैलकुलेटर देखें →', tractorCategory:'खेती की मशीनरी', tractorTitle:'ट्रैक्टर (45–55 HP)', tractorCopy:'जुताई, माल ढुलाई और रोटरी के लिए।', droneCategory:'फसल देखभाल', droneTitle:'खेती के लिए स्प्रे ड्रोन', droneCopy:'फसल और बाग के लिए सटीक छिड़काव।', truckCategory:'परिवहन', truckTitle:'मिनी ट्रक / मालवाहक गाड़ी', truckCopy:'फसल, सामान और स्थानीय परिवहन के लिए।', jcbCategory:'मिट्टी का काम', jcbTitle:'JCB 3DX बैकहो लोडर', jcbCopy:'खेत-तालाब, खाई, मेड़ और जमीन समतल करने के लिए।', from:'से', perHour:'/ घंटा', perAcre:'/ एकड़', request:'पूछें →', allEquipmentCta:'WhatsApp पर सभी मशीनरी और दरें देखें',
-      trustEyebrow:'GoMate क्यों चुनें', trustTitle:'पास की मशीनरी पाने का आसान तरीका', trustCopy:'GoMate बुकिंग की जरूरी जानकारी एक बातचीत में रखता है, इसलिए मशीन, जगह, समय और दर के बारे में आसानी से पूछ सकते हैं।', trustOneTitle:'पहले अपनी जरूरत बताइए', trustOneCopy:'मशीन का प्रकार, गाँव, तारीख और काम की जानकारी भेजें।', trustTwoTitle:'पक्का करने से पहले जाँचें', trustTwoCopy:'पहले उपलब्धता, आने का समय और अंतिम किराया पूछें।', trustThreeTitle:'बातचीत सुरक्षित रहती है', trustThreeCopy:'आसानी से दोबारा बात करने के लिए बुकिंग की जानकारी WhatsApp में रहती है।',
-      reviewsEyebrow:'ग्राहकों के अनुभव', reviewsTitle:'स्थानीय ग्राहक क्या कहते हैं', reviewsCopy:'GoMate इस्तेमाल करने वाले किसानों और ठेकेदारों के अनुभव।', reviewOneQuote:'“बारिश से पहले तुरंत रोटावेटर चाहिए था। एक WhatsApp संदेश से शेगांव के ट्रैक्टर मालिक से संपर्क हुआ और अगले दिन सुबह काम पूरा हो गया।”', reviewOneName:'रमेश पाटील', reviewOneInfo:'अंगूर और अनार उत्पादक · शेगांव, जत', reviewTwoQuote:'“सोयाबीन की जुताई के लिए घंटे की दर पहले से साफ थी। चालक समय पर आया और काम अच्छे से पूरा हुआ।”', reviewTwoName:'सुरेश शिंदे', reviewTwoInfo:'सोयाबीन और बाजरा किसान · संख, जत', reviewThreeQuote:'“खेत-तालाब खुदाई के लिए JCB चाहिए थी। WhatsApp पर जगह भेजने से काम समझाना आसान हो गया।”', reviewThreeName:'तुकाराम माळी', reviewThreeInfo:'किसान · उमदी, जत',
-      ownerEyebrow:'मशीनरी मालिकों के लिए', ownerTitle:'अपनी मशीनरी जोड़नी है?', ownerCopy:'GoMate से बुकिंग की पूछताछ पाने के लिए अपनी मशीन दर्ज करें।', ownerCta:'मशीनरी दर्ज करें', ownerDashboard:'मालिक डैशबोर्ड →', faqEyebrow:'अक्सर पूछे जाने वाले सवाल', faqTitle:'शुरू करने से पहले', faqOneQuestion:'WhatsApp पर मशीनरी कैसे बुक करें?', faqOneAnswer:'मशीन, गाँव, जरूरी तारीख और अनुमानित समय भेजें। बुकिंग पक्की करने से पहले उपलब्ध मशीन और दर पर बात करें।', faqTwoQuestion:'शुरू में कौन-सी जानकारी भेजें?', faqTwoAnswer:'मशीन का प्रकार, गाँव, जरूरी तारीख और काम या किराए के समय का अनुमान जरूर भेजें।', faqThreeQuestion:'अंतिम कीमत कैसे तय करें?', faqThreeAnswer:'शुरुआती दरें केवल मार्गदर्शन के लिए हैं। बुकिंग से पहले WhatsApp पर अंतिम कीमत, उपलब्धता, आने का समय और काम की जानकारी तय करें।', faqFourQuestion:'क्या मैं अपनी मशीन दर्ज कर सकता हूँ?', faqFourAnswer:'हाँ। अपनी मशीन और मालिक की जानकारी जोड़ने के लिए मशीनरी-पंजीकरण पेज का उपयोग करें।', footerCopyright:'© 2026 GoMate Marketplace · सांगली, महाराष्ट्र', footerRates:'घंटे की दरें', footerRegistration:'मालिक पंजीकरण', footerDashboard:'मालिक डैशबोर्ड', mobileBooking:'WhatsApp पर उपलब्ध मशीनरी ढूँढें',
-      tractorAlt:'खेत में काम करता ट्रैक्टर', droneAlt:'फसल के ऊपर कृषि स्प्रे ड्रोन', truckAlt:'माल परिवहन वाहन', jcbAlt:'काम की जगह पर JCB बैकहो लोडर'
+      serviceBar: 'जत तालुका पायलट (PIN 416404): WhatsApp द्वारा सांगली जिले के सभी 125 गाँवों में सेवा उपलब्ध',
+      navEquipment: 'मशीनरी',
+      navTrust: 'GoMate क्यों',
+      navFaq: 'प्रश्न-उत्तर',
+      navRateCard: 'दर सूची',
+      navOwner: 'मशीन दर्ज करें',
+      navWaBtn: 'WhatsApp पर बुक करें',
+      heroBadge: '📍 जत तालुका पायलट • 125 गाँव • 0% दलाल शुल्क',
+      heroTitle: 'ट्रैक्टर, JCB और वाहन किराए पर लें <span class="text-accent">WhatsApp पर</span>',
+      heroSubEn: 'ग्रामीण भारत के लिए सीधा मशीनरी किराया। मशीन चुनें, अपना गाँव बताएं, और तय प्रति घंटे की दर पर स्थानीय संचालकों से जुड़ें।',
+      heroSubMr: 'कोई दलाल या कमीशन नहीं। जत तालुका के प्रमाणित ट्रैक्टर, जेसीबी और वाहन सीधे WhatsApp पर उपलब्ध।',
+      tractorTitle: 'ट्रैक्टर और कृषि उपकरण',
+      tractorSub: 'रोटावेटर, कल्टीवेटर, हार्वेस्टर, कृषि ड्रोन',
+      tractorRate: '₹450–₹600<small>/घंटा</small>',
+      jcbTitle: 'JCB और मिट्टी खुदाई',
+      jcbSub: '3DX बैकहो, खेत तालाब, समतलीकरण, एक्सकेवेटर',
+      jcbRate: '₹950<small>/घंटा</small>',
+      transportTitle: 'माल परिवहन वाहन',
+      transportSub: 'टाटा एस (छोटा हाथी), पिकअप, 4-टन ट्रक',
+      transportRate: '₹350–₹700<small>/घंटा</small>',
+      heroCtaPrimary: 'WhatsApp पर बुक करें →',
+      heroCtaSecondary: 'पूरी दर सूची देखें',
+      heroOwnerSublinkText: 'क्या आपके पास ट्रैक्टर, JCB या मिनी-ट्रक है?',
+      heroOwnerSublinkCta: 'अपनी मशीनरी जोड़ें और ₹25,000+/माह कमाएं →',
+      trustEyebrow: 'विश्वास और निर्भरता',
+      trustDesc: 'स्थानीय संबंधों, सत्यापित मशीनरी और पारदर्शी प्रति घंटे दरों पर आधारित।',
+      trust1Title: 'सीधे स्थानीय संचालक',
+      trust1Text: 'आप सीधे जत तालुका के मशीन मालिकों से जुड़ते हैं। दर बढ़ाने वाला कोई बिचौलिया दलाल नहीं।',
+      trust2Title: 'स्पष्ट प्रति घंटा बिलिंग',
+      trust2Text: 'जितने घंटे काम (2, 3 या 4 घंटे) केवल उतना ही भुगतान करें, पूरे दिन का अनावश्यक खर्च नहीं।',
+      trust3Title: '0% किरायेदार कमीशन',
+      trust3Text: 'किसान केवल मालिक की तय दर और ₹49 सुरक्षा शुल्क देते हैं। कोई छिपा कमीशन नहीं।',
+      trust4Title: '125 जत गाँव सेवा क्षेत्र',
+      trust4Text: 'जत सेंटर, शेगांव, संख, उमदी और डफळापुर के आसपास मशीनरी क्लस्टर ताकि मशीन जल्दी पहुंचे।',
+      reviewsEyebrow: 'स्थानीय अनुभव',
+      reviewsDesc: 'GoMate WhatsApp सहायक द्वारा मशीनरी किराए पर लेने वाले किसानों के अनुभव।',
+      review1Text: '“बुवाई से पहले रोटावेटर तुरंत चाहिए था। WhatsApp पर एक संदेश भेजा और 20 मिनट में शेगांव के ट्रैक्टर मालिक से संपर्क हो गया। मशीन समय पर ₹450/घंटा में आ गई।”',
+      review1Loc: 'अंगूर व अनार उत्पादक • शेगांव, जत',
+      review2Text: '“सोयाबीन जुताई के लिए 3 घंटे बुक किए। प्रति घंटा दर पहले से तय थी, कोई बिचौलिया नहीं। चालक को हमारी जमीन की अच्छी समझ थी।”',
+      review2Loc: 'सोयाबीन व बाजरा किसान • संख, जत',
+      review3Text: '“खेत-तालाब खुदाई के लिए JCB 3DX तुरंत मिली। WhatsApp पर लोकेशन भेजी और बुकिंग तुरंत पक्की हो गई। भरोसेमंद सेवा।”',
+      review3Loc: 'बागवानी किसान • उमदी, जत',
+      ownerBadge: 'जत तालुका के मशीन मालिकों के लिए',
+      ownerTitle: 'क्या आपके पास ट्रैक्टर, JCB या कमर्शियल ट्रक है?',
+      ownerMr: 'जत तालुक्यातील ट्रॅक्टर, जेसीबी व वाहन मालकांसाठी नोंदणी',
+      ownerDesc: 'GoMate पर अपनी मशीनरी दर्ज करें और 125 गाँवों से WhatsApp पर सीधे बुकिंग पाएं। 7 दिन का मुफ्त ट्रायल, केवल ₹599/माह सदस्यता, कमाई पर 0% कमीशन।',
+      ownerCta: 'अपनी मशीनरी दर्ज करें →',
+      ownerDash: 'मालिक प्रो डैशबोर्ड',
+      faqEyebrow: 'सामान्य प्रश्नों के उत्तर',
+      faqDesc: 'मशीनरी किराए पर लेने या अपने वाहन को GoMate पर जोड़ने के बारे में जानें।',
+      faq1q: 'WhatsApp पर मशीनरी कैसे बुक करें?',
+      faq1a: 'हमारे WhatsApp नंबर (+91 86054 70552) पर “Hi” भेजें। अपनी भाषा (मराठी, हिंदी, English, या ಕನ್ನಡ) चुनें, मशीन श्रेणी चुनें और अपने गाँव का नाम बताएं। 2 मिनट में बुकिंग हो जाएगी।',
+      faq2q: 'क्या किसानों या किराएदारों पर कोई कमीशन है?',
+      faq2a: 'नहीं। किसानों से 0% दलाली ली जाती है। आप काम के बाद सीधे ऑपरेटर को भुगतान करते हैं। केवल ₹49 का सुविधा व सुरक्षा शुल्क लागू होता है।',
+      faq3q: 'मालिक सदस्यता कैसे काम करती है?',
+      faq3a: 'मशीनरी मालिक 125 गाँवों से बुकिंग पाने के लिए ₹599/माह की फ्लैट सदस्यता लेते हैं। पहले 7 दिन पूरी तरह निःशुल्क हैं। कमाई से कोई कमीशन नहीं कटता।',
+      faq4q: 'जत तालुका के कौन से गाँव सेवा में शामिल हैं?',
+      faq4a: 'GoMate जत तालुका के सभी 125 गाँवों में सेवा देता है, जिसमें जत सेंटर, शेगांव, संख, उमदी, डफळापुर, बिलूर, बाज, मडग्याळ आदि शामिल हैं।',
+      footerTagline: 'WhatsApp मशीनरी बाजार — जत तालुका, सांगली (PIN 416404)।',
+      footerCopy: '© 2026 GoMate Marketplace. सर्वाधिकार सुरक्षित।',
+      mobileStickyWa: 'WhatsApp पर उपलब्ध मशीनरी खोजें'
+    },
+    kn: {
+      serviceBar: 'ಜತ್ ತಾಲ್ಲೂಕು ಪೈಲಟ್ (PIN 416404): WhatsApp ಮೂಲಕ ಸಾಂಗ್ಲಿ ಜಿಲ್ಲೆಯ ಎಲ್ಲಾ 125 ಹಳ್ಳಿಗಳಲ್ಲಿ ಸೇವೆ ಲಭ್ಯ',
+      navEquipment: 'ಯಂತ್ರೋಪಕರಣ',
+      navTrust: 'GoMate ಏಕೆ',
+      navFaq: 'ಪ್ರಶ್ನೋತ್ತರ',
+      navRateCard: 'ದರ ಪಟ್ಟಿ',
+      navOwner: 'ಯಂತ್ರ ದಾಖಲಿಸಿ',
+      navWaBtn: 'WhatsApp ನಲ್ಲಿ ಬುಕ್ ಮಾಡಿ',
+      heroBadge: '📍 ಜತ್ ತಾಲ್ಲೂಕು ಪೈಲಟ್ • 125 ಹಳ್ಳಿಗಳು • 0% ದಳ್ಳಾಳಿ ಕಮಿಷನ್',
+      heroTitle: 'ಟ್ರ್ಯಾಕ್ಟರ್, JCB ಮತ್ತು ವಾಹನಗಳನ್ನು ಬಾಡಿಗೆಗೆ ಪಡೆಯಿರಿ <span class="text-accent">WhatsApp ನಲ್ಲಿ</span>',
+      heroSubEn: 'ಗ್ರಾಮೀಣ ರೈತರಿಗಾಗಿ ನೇರ ಯಂತ್ರ ಬಾಡಿಗೆ ಸೇವೆ. ಯಂತ್ರ ಆಯ್ಕೆಮಾಡಿ, ನಿಮ್ಮ ಹಳ್ಳಿ ತಿಳಿಸಿ, ನಿಗದಿತ ಗಂಟೆಯ ದರದಲ್ಲಿ ಸ್ಥಳೀಯ ಮಾಲೀಕರೊಂದಿಗೆ ಸಂಪರ್ಕ ಸಾಧಿಸಿ.',
+      heroSubMr: 'ಯಾವುದೇ ದಲ್ಲಾಳಿ ಅಥವಾ ಕಮಿಷನ್ ಇಲ್ಲ. ಜತ್ ತಾಲ್ಲೂಕಿನ ಪರಿಶೀಲಿತ ಟ್ರ್ಯಾಕ್ಟರ್, ಜೆಸಿಬಿ ಮತ್ತು ಸರಕು ವಾಹನಗಳು ನೇರವಾಗಿ WhatsApp ನಲ್ಲಿ.',
+      tractorTitle: 'ಟ್ರ್ಯಾಕ್ಟರ್ ಮತ್ತು ಕೃಷಿ ಯಂತ್ರಗಳು',
+      tractorSub: 'ರೋಟಾವೇಟರ್, ಕಲ್ಟಿವೇಟರ್, ಹಾರ್ವೆಸ್ಟರ್, ಕೃಷಿ ಡ್ರೋನ್',
+      tractorRate: '₹450–₹600<small>/ಗಂಟೆ</small>',
+      jcbTitle: 'ಜೆಸಿಬಿ ಮತ್ತು ಮಣ್ಣು ಅಗೆಯುವ ಕೆಲಸ',
+      jcbSub: '3DX ಬ್ಯಾಕ್‌ಹೋ, ಕೃಷಿ ಕೊಳ, ಭೂಮಿ ಸಮತಟ್ಟು, ಎಕ್ಸ್ಕವೇಟರ್',
+      jcbRate: '₹950<small>/ಗಂಟೆ</small>',
+      transportTitle: 'ಸಾರಿಗೆ ವಾಹನಗಳು',
+      transportSub: 'ಟಾಟಾ ಏಸ್ (ಚೋಟಾ ಹಾತಿ), ಪಿಕಪ್, 4-ಟನ್ ಟ್ರಕ್',
+      transportRate: '₹350–₹700<small>/ಗಂಟೆ</small>',
+      heroCtaPrimary: 'WhatsApp ನಲ್ಲಿ ಬುಕ್ ಮಾಡಿ →',
+      heroCtaSecondary: 'ಸಂಪೂರ್ಣ ದರ ಪಟ್ಟಿ ನೋಡಿ',
+      heroOwnerSublinkText: 'ನಿಮ್ಮ ಬಳಿ ಟ್ರ್ಯಾಕ್ಟರ್, JCB ಅಥವಾ ಮಿನಿ-ಟ್ರಕ್ ಇದೆಯೇ?',
+      heroOwnerSublinkCta: 'ನಿಮ್ಮ ವಾಹನ ನೋಂದಾಯಿಸಿ ₹25,000+/ತಿಂಗಳು ಗಳಿಸಿ →',
+      trustEyebrow: 'ನಂಬಿಕೆ ಮತ್ತು ವಿಶ್ವಾಸಾರ್ಹತೆ',
+      trustDesc: 'ಸ್ಥಳೀಯ ರೈತರ ಬಾಂಧವ್ಯ, ಪರಿಶೀಲಿಸಿದ ಯಂತ್ರಗಳು ಮತ್ತು ಪಾರದರ್ಶಕ ಗಂಟೆಯ ದರದ ತಳಹದಿ.',
+      trust1Title: 'ನೇರ ಸ್ಥಳೀಯ ನಿರ್ವಾಹಕರು',
+      trust1Text: 'ನೀವು ನೇರವಾಗಿ ಜತ್ ತಾಲ್ಲೂಕಿನ ಯಂತ್ರ ಮಾಲೀಕರೊಂದಿಗೆ ಸಂಪರ್ಕ ಸಾಧಿಸುತ್ತೀರಿ. ದರ ಹೆಚ್ಚಿಸುವ ಮಧ್ಯವರ್ತಿಗಳಿಲ್ಲ.',
+      trust2Title: 'ನಿಖರ ಗಂಟೆಯ ಬಿಲ್ಲಿಂಗ್',
+      trust2Text: 'ನಿಮಗೆ ಬೇಕಾದ ಗಂಟೆಗಳಿಗೆ ಮಾತ್ರ (2, 3 ಅಥವಾ 4 ಗಂಟೆ) ಹಣ ಪಾವತಿಸಿ, ಪೂರ್ಣ ದಿನದ ಅನಗತ್ಯ ವೆಚ್ಚವಿಲ್ಲ.',
+      trust3Title: '0% ರೈತರ ಕಮಿಷನ್',
+      trust3Text: 'ರೈತರು ಕೇವಲ ಮಾಲೀಕರ ದರ ಮತ್ತು ₹49 ರಕ್ಷಣೆ ಶುಲ್ಕ ಪಾವತಿಸುತ್ತಾರೆ. ಯಾವುದೇ ಗುಪ್ತ ಕಮಿಷನ್ ಇಲ್ಲ.',
+      trust4Title: '125 ಜತ್ ಹಳ್ಳಿಗಳ ವ್ಯಾಪ್ತಿ',
+      trust4Text: 'ಜತ್, ಶೆಗಾಂವ್, ಸಂಖ್, ಉಮದಿ ಮತ್ತು ಡಫಳಾಪುರ ಸುತ್ತಲೂ ಯಂತ್ರಗಳ ಕ್ಲಸ್ಟರ್ ಇರುವುದರಿಂದ ಶೀಘ್ರ ಆಗಮನ.',
+      reviewsEyebrow: 'ಸ್ಥಳೀಯ ಅನುಭವಗಳು',
+      reviewsDesc: 'GoMate WhatsApp ಸಹಾಯಕದ ಮೂಲಕ ಯಂತ್ರ ಬಾಡಿಗೆ ಪಡೆದ ರೈತರ ನೈಜ ಅಭಿಪ್ರಾಯಗಳು.',
+      review1Text: '“ಬಿತ್ತನೆಗೆ ಮುಂಚೆ ರೋಟಾವೇಟರ್ ತುರ್ತಾಗಿ ಬೇಕಿತ್ತು. WhatsApp ನಲ್ಲಿ ಒಂದು ಸಂದೇಶ ಕಳುಹಿಸಿದ 20 ನಿಮಿಷದಲ್ಲಿ ಶೆಗಾಂವ್ ಟ್ರ್ಯಾಕ್ಟರ್ ಮಾಲೀಕರ ಸಂಪರ್ಕವಾಯಿತು. ಯಂತ್ರ ಸಮಯಕ್ಕೆ ₹450/ಗಂಟೆಗೆ ಬಂದಿತು.”',
+      review1Loc: 'ದ್ರಾಕ್ಷಿ ಮತ್ತು ದಾಳಿಂಬೆ ಬೆಳೆಗಾರ • ಶೆಗಾಂವ್, ಜತ್',
+      review2Text: '“ಸೋಯಾಬೀನ್ ಉಳುಮೆಗೆ 3 ಗಂಟೆ ಬುಕ್ ಮಾಡಿದ್ದೆ. ಮುಂಚಿತವಾಗಿಯೇ ಗಂಟೆಯ ದರ ಸ್ಪಷ್ಟವಾಗಿತ್ತು. ಚಾಲಕನಿಗೆ ನಮ್ಮ ಮಣ್ಣಿನ ಬಗ್ಗೆ ಚೆನ್ನಾಗಿ ತಿಳಿದಿತ್ತು.”',
+      review2Loc: 'ಸೋಯಾಬೀನ್ ಮತ್ತು ಸಜ್ಜೆ ರೈತ • ಸಂಖ್, ಜತ್',
+      review3Text: '“ಕೃಷಿ ಹೊಂಡ ಅಗೆಯಲು JCB 3DX ತಕ್ಷಣವೇ ಸಿಕ್ಕಿತು. WhatsApp ನಲ್ಲಿ ಸ್ಥಳ ಹಂಚಿಕೊಂಡೆ ಮತ್ತು ಬುಕಿಂಗ್ ತಕ್ಷಣ ಖಚಿತವಾಯಿತು. ವಿಶ್ವಾಸಾರ್ಹ ಸೇವೆ.”',
+      review3Loc: 'ತೋಟಗಾರಿಕೆ ಬೆಳೆಗಾರ • ಉಮದಿ, ಜತ್',
+      ownerBadge: 'ಜತ್ ತಾಲ್ಲೂಕಿನ ಯಂತ್ರ ಮಾಲೀಕರಿಗಾಗಿ',
+      ownerTitle: 'ನಿಮ್ಮ ಬಳಿ ಟ್ರ್ಯಾಕ್ಟರ್, JCB ಅಥವಾ ಸರಕು ವಾಹನ ಇದೆಯೇ?',
+      ownerMr: 'जत तालुक्यातील ट्रॅक्टर, जेसीबी व वाहन मालकांसाठी नोंदणी',
+      ownerDesc: 'GoMate ನಲ್ಲಿ ನಿಮ್ಮ ಯಂತ್ರ ದಾಖಲಿಸಿ ಮತ್ತು 125 ಹಳ್ಳಿಗಳಿಂದ WhatsApp ನಲ್ಲಿ ನೇರ ಬುಕಿಂಗ್ ಪಡೆಯಿರಿ. 7 ದಿನಗಳ ಉಚಿತ ಟ್ರಯಲ್, ಕೇವಲ ₹599/ತಿಂಗಳ ಚಂದಾದಾರಿಕೆ, ಗಳಿಕೆಯ ಮೇಲೆ 0% ಕಮಿಷನ್.',
+      ownerCta: 'ನಿಮ್ಮ ಯಂತ್ರ ದಾಖಲಿಸಿ →',
+      ownerDash: 'ಮಾಲೀಕರ ಪ್ರೋ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
+      faqEyebrow: 'ಸಾಮಾನ್ಯ ಪ್ರಶ್ನೆಗಳಿಗೆ ಉತ್ತರಗಳು',
+      faqDesc: 'ಯಂತ್ರ ಬಾಡಿಗೆ ಪಡೆಯುವುದು ಅಥವಾ ನಿಮ್ಮ ವಾಹನ ದಾಖಲಿಸುವ ಬಗ್ಗೆ ವಿವರ ತಿಳಿಯಿರಿ.',
+      faq1q: 'WhatsApp ನಲ್ಲಿ ಯಂತ್ರವನ್ನು ಹೇಗೆ ಬುಕ್ ಮಾಡುವುದು?',
+      faq1a: 'ನಮ್ಮ WhatsApp ಸಂಖ್ಯೆಗೆ (+91 86054 70552) “Hi” ಕಳುಹಿಸಿ. ನಿಮ್ಮ ಭಾಷೆ (ಮರಾಠಿ, ಹಿಂದಿ, English, ಅಥವಾ ಕನ್ನಡ) ಆಯ್ಕೆಮಾಡಿ, ಯಂತ್ರದ ವರ್ಗ ಮತ್ತು ನಿಮ್ಮ ಹಳ್ಳಿಯ ಹೆಸರು ತಿಳಿಸಿ. 2 ನಿಮಿಷದಲ್ಲಿ ಬುಕಿಂಗ್ ಆಗುತ್ತದೆ.',
+      faq2q: 'ರೈತರು ಅಥವಾ ಬಾಡಿಗೆದಾರರಿಗೆ ಯಾವುದೇ ಕಮಿಷನ್ ಇದೆಯೇ?',
+      faq2a: 'ಇಲ್ಲ. ರೈತರಿಗೆ 0% ದಲ್ಲಾಳಿ ಕಮಿಷನ್. ಕೆಲಸ ಮುಗಿದ ನಂತರ ನೇರವಾಗಿ ನಿರ್ವಾಹಕರಿಗೆ ಪಾವತಿಸಿ. ಕೇವಲ ₹49 ಫ್ಲಾಟ್‌ಫಾರ್ಮ್ ಶುಲ್ಕ ಅನ್ವಯಿಸುತ್ತದೆ.',
+      faq3q: 'ಮಾಲೀಕರ ಚಂದಾದಾರಿಕೆ ಹೇಗೆ ಕಾರ್ಯನಿರ್ವಹಿಸುತ್ತದೆ?',
+      faq3a: 'ಯಂತ್ರ ಮಾಲೀಕರು 125 ಹಳ್ಳಿಗಳಿಂದ ನೇರ ಬುಕಿಂಗ್ ಪಡೆಯಲು ₹599/ತಿಂಗಳು ಪಾವತಿಸುತ್ತಾರೆ. ಮೊದಲ 7 ದಿನಗಳು ಉಚಿತ. ನಿಮ್ಮ ಗಳಿಕೆಯಲ್ಲಿ ಯಾವುದೇ ಕಮಿಷನ್ ಕಡಿತವಿಲ್ಲ.',
+      faq4q: 'ಜತ್ ತಾಲ್ಲೂಕಿನ ಯಾವ ಹಳ್ಳಿಗಳು ಸೇವೆಯಲ್ಲಿವೆ?',
+      faq4a: 'GoMate ಜತ್ ತಾಲ್ಲೂಕಿನ ಎಲ್ಲಾ 125 ಹಳ್ಳಿಗಳಿಗೂ ಸೇವೆ ನೀಡುತ್ತದೆ, ಇದರಲ್ಲಿ ಜತ್ ಪಟ್ಟಣ, ಶೆಗಾಂವ್, ಸಂಖ್, ಉಮದಿ, ಡಫಳಾಪುರ, ಬಿಳೂರು ಮುಂತಾದವು ಸೇರಿವೆ.',
+      footerTagline: 'WhatsApp ಯಂತ್ರೋಪಕರಣ ಮಾರುಕಟ್ಟೆ — ಜತ್ ತಾಲ್ಲೂಕು, ಸಾಂಗ್ಲಿ (PIN 416404).',
+      footerCopy: '© 2026 GoMate Marketplace. ಎಲ್ಲ ಹಕ್ಕುಗಳನ್ನು ಕಾಯ್ದಿರಿಸಲಾಗಿದೆ.',
+      mobileStickyWa: 'WhatsApp ನಲ್ಲಿ ಲಭ್ಯವಿರುವ ಯಂತ್ರಗಳನ್ನು ಹುಡುಕಿ'
     }
   };
 
-  const marathi = {};
-  document.querySelectorAll('[data-i18n]').forEach((element) => { marathi[element.dataset.i18n] = element.textContent; });
-  document.querySelectorAll('[data-i18n-html]').forEach((element) => { marathi[element.dataset.i18nHtml] = element.innerHTML; });
-  document.querySelectorAll('[data-i18n-alt]').forEach((element) => { marathi[element.dataset.i18nAlt] = element.alt; });
-  copy.mr = marathi;
+  /* Extract Marathi from DOM as default truth */
+  const mr = {};
+  document.querySelectorAll('[data-i18n]').forEach((el) => {
+    mr[el.dataset.i18n] = el.textContent.trim();
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach((el) => {
+    mr[el.dataset.i18nHtml] = el.innerHTML.trim();
+  });
+  copy.mr = mr;
 
+  /* WhatsApp prefill message template per language */
   const whatsAppMessages = {
-    mr: { general:'नमस्कार GoMate! मला मशिनरी हवी आहे.\n\nमशिन: \nगाव: \nहवी असलेली तारीख: \nवेळ: ', farm:'नमस्कार GoMate! मला ट्रॅक्टर किंवा शेतीची मशिनरी हवी आहे.\n\nगाव: \nहवी असलेली तारीख: \nवेळ: ', transport:'नमस्कार GoMate! मला वाहतुकीसाठी वाहन हवे आहे.\n\nगाव: \nहवी असलेली तारीख: \nकाय वाहून न्यायचे आहे: ', earthmoving:'नमस्कार GoMate! मला JCB किंवा मातीच्या कामाची मशिनरी हवी आहे.\n\nगाव: \nहवी असलेली तारीख: \nकाम: ', tractor:'नमस्कार GoMate! मला 45–55 HP ट्रॅक्टर हवा आहे.\n\nगाव: \nहवी असलेली तारीख: \nवेळ: ', drone:'नमस्कार GoMate! मला शेतीसाठी फवारणी ड्रोन हवा आहे.\n\nगाव: \nहवी असलेली तारीख: \nएकर: ', truck:'नमस्कार GoMate! मला मिनी ट्रक किंवा मालवाहू गाडी हवी आहे.\n\nगाव: \nहवी असलेली तारीख: \nकाय वाहून न्यायचे आहे: ', jcb:'नमस्कार GoMate! मला JCB 3DX बॅकहो लोडर हवा आहे.\n\nगाव: \nहवी असलेली तारीख: \nकाम: ', all:'नमस्कार GoMate! उपलब्ध मशिनरीचे प्रकार आणि दर दाखवा.\n\nगाव: ' },
-    en: { general:'Hi GoMate! I need equipment.\n\nMachine: \nVillage: \nRequired date: \nDuration: ', farm:'Hi GoMate! I need a tractor or farm machine.\n\nVillage: \nRequired date: \nDuration: ', transport:'Hi GoMate! I need a transport vehicle.\n\nVillage: \nRequired date: \nWhat needs moving: ', earthmoving:'Hi GoMate! I need JCB or earthmoving equipment.\n\nVillage: \nRequired date: \nWork required: ', tractor:'Hi GoMate! I need a 45–55 HP tractor.\n\nVillage: \nRequired date: \nDuration: ', drone:'Hi GoMate! I need an agricultural spray drone.\n\nVillage: \nRequired date: \nAcres: ', truck:'Hi GoMate! I need a mini truck or goods vehicle.\n\nVillage: \nRequired date: \nWhat needs moving: ', jcb:'Hi GoMate! I need a JCB 3DX backhoe loader.\n\nVillage: \nRequired date: \nWork required: ', all:'Hi GoMate! Please show me available equipment types and rates.\n\nVillage: ' },
-    hi: { general:'नमस्ते GoMate! मुझे मशीनरी चाहिए।\n\nमशीन: \nगाँव: \nचाहिए तारीख: \nसमय: ', farm:'नमस्ते GoMate! मुझे ट्रैक्टर या खेती की मशीनरी चाहिए।\n\nगाँव: \nचाहिए तारीख: \nसमय: ', transport:'नमस्ते GoMate! मुझे परिवहन के लिए वाहन चाहिए।\n\nगाँव: \nचाहिए तारीख: \nक्या ले जाना है: ', earthmoving:'नमस्ते GoMate! मुझे JCB या मिट्टी के काम की मशीनरी चाहिए।\n\nगाँव: \nचाहिए तारीख: \nकाम: ', tractor:'नमस्ते GoMate! मुझे 45–55 HP ट्रैक्टर चाहिए।\n\nगाँव: \nचाहिए तारीख: \nसमय: ', drone:'नमस्ते GoMate! मुझे खेती के लिए स्प्रे ड्रोन चाहिए।\n\nगाँव: \nचाहिए तारीख: \nएकड़: ', truck:'नमस्ते GoMate! मुझे मिनी ट्रक या मालवाहक गाड़ी चाहिए।\n\nगाँव: \nचाहिए तारीख: \nक्या ले जाना है: ', jcb:'नमस्ते GoMate! मुझे JCB 3DX बैकहो लोडर चाहिए।\n\nगाँव: \nचाहिए तारीख: \nकाम: ', all:'नमस्ते GoMate! उपलब्ध मशीनरी के प्रकार और दरें दिखाएँ।\n\nगाँव: ' }
+    hi: {
+      general: 'नमस्ते GoMate! मुझे जत तालुका में मशीनरी चाहिए।\n\n• मशीन: \n• गाँव: \n• तारीख: \n• समय (घंटे): ',
+      tractor: 'नमस्ते GoMate! मुझे जत तालुका में ट्रैक्टर या कृषि उपकरण चाहिए।\n\n• मशीन: ट्रैक्टर\n• गाँव: \n• तारीख: \n• समय: ',
+      jcb: 'नमस्ते GoMate! मुझे जत तालुका में JCB या मिट्टी खुदाई मशीन चाहिए।\n\n• मशीन: JCB 3DX\n• गाँव: \n• काम: \n• तारीख: ',
+      transport: 'नमस्ते GoMate! मुझे जत तालुका में माल परिवहन वाहन चाहिए।\n\n• वाहन: टाटा एस / पिकअप\n• गाँव: \n• तारीख: \n• सामान: '
+    },
+    mr: {
+      general: 'नमस्कार GoMate! मला जत तालुक्यात मशिनरी भाड्याने हवी आहे.\n\n• मशिन: \n• गाव: \n• तारीख: \n• वेळ (तास): ',
+      tractor: 'नमस्कार GoMate! मला जत तालुक्यात ट्रॅक्टर किंवा शेती औजार हवे आहे.\n\n• मशिन: ट्रॅक्टर\n• गाव: \n• तारीख: \n• वेळ: ',
+      jcb: 'नमस्कार GoMate! मला जत तालुक्यात JCB किंवा माती कामाचे मशिन हवे आहे.\n\n• मशिन: JCB 3DX\n• गाव: \n• काम: \n• तारीख: ',
+      transport: 'नमस्कार GoMate! मला जत तालुक्यात मालवाहतूक वाहन हवे आहे.\n\n• वाहन: छोटा हत्ती / पिकअप\n• गाव: \n• तारीख: \n• सामान: '
+    },
+    en: {
+      general: 'Hi GoMate! I need to rent equipment in Jath Taluka.\n\n• Machine: \n• Village: \n• Date: \n• Duration (Hours): ',
+      tractor: 'Hi GoMate! I need a Tractor or farm machine in Jath Taluka.\n\n• Machine: Tractor\n• Village: \n• Date: \n• Duration: ',
+      jcb: 'Hi GoMate! I need a JCB or earthmoving machine in Jath Taluka.\n\n• Machine: JCB 3DX\n• Village: \n• Work: \n• Date: ',
+      transport: 'Hi GoMate! I need a Transport vehicle in Jath Taluka.\n\n• Vehicle: Mini Truck / Pickup\n• Village: \n• Date: \n• Goods: '
+    },
+    kn: {
+      general: 'ನಮಸ್ಕಾರ GoMate! ನನಗೆ ಜತ್ ತಾಲ್ಲೂಕಿನಲ್ಲಿ ಯಂತ್ರ ಬಾಡಿಗೆಗೆ ಬೇಕು.\n\n• ಯಂತ್ರ: \n• ಹಳ್ಳಿ: \n• ದಿನಾಂಕ: \n• ಅವಧಿ (ಗಂಟೆ): ',
+      tractor: 'ನಮಸ್ಕಾರ GoMate! ನನಗೆ ಜತ್ ತಾಲ್ಲೂಕಿನಲ್ಲಿ ಟ್ರ್ಯಾಕ್ಟರ್ ಅಥವಾ ಕೃಷಿ ಯಂತ್ರ ಬೇಕು.\n\n• ಯಂತ್ರ: ಟ್ರ್ಯಾಕ್ಟರ್\n• ಹಳ್ಳಿ: \n• ದಿನಾಂಕ: \n• ಅವಧಿ: ',
+      jcb: 'ನಮಸ್ಕಾರ GoMate! ನನಗೆ ಜತ್ ತಾಲ್ಲೂಕಿನಲ್ಲಿ JCB ಅಥವಾ ಮಣ್ಣು ಅಗೆಯುವ ಯಂತ್ರ ಬೇಕು.\n\n• ಯಂತ್ರ: JCB 3DX\n• ಹಳ್ಳಿ: \n• ಕೆಲಸ: \n• ದಿನಾಂಕ: ',
+      transport: 'ನಮಸ್ಕಾರ GoMate! ನನಗೆ ಜತ್ ತಾಲ್ಲೂಕಿನಲ್ಲಿ ಸಾರಿಗೆ ವಾಹನ ಬೇಕು.\n\n• ವಾಹನ: ಮಿನಿ ಟ್ರಕ್ / ಪಿಕಪ್\n• ಹಳ್ಳಿ: \n• ದಿನಾಂಕ: \n• ಸರಕು: '
+    }
   };
 
   const pageMeta = {
-    mr:{title:'GoMate — WhatsApp वर जवळची मशिनरी शोधा', description:'GoMate च्या माध्यमातून जत तालुक्यातील शेतकी, वाहतूक आणि मातीच्या कामाची मशिनरी WhatsApp वर शोधा.'},
-    en:{title:'GoMate — Find Local Equipment on WhatsApp', description:'Find farm, transport, and earthmoving equipment in Jath Taluka through GoMate on WhatsApp.'},
-    hi:{title:'GoMate — WhatsApp पर पास की मशीनरी खोजें', description:'GoMate के माध्यम से जत तालुका में खेती, परिवहन और मिट्टी के काम की मशीनरी WhatsApp पर खोजें.'}
+    hi: {
+      title: 'GoMate — WhatsApp पर ट्रैक्टर, JCB और वाहन किराए पर लें | जत तालुका',
+      desc: 'जत तालुका (सांगली) के 125 गाँवों के लिए WhatsApp पर सीधा मशीनरी किराया। 0% दलाली, तय प्रति घंटा दर।'
+    },
+    mr: {
+      title: 'GoMate — जत तालुक्यात WhatsApp वर ट्रॅक्टर, जेसीबी व वाहतूक भाड्याने मिळवा',
+      desc: 'जत तालुक्यातील 125 गावांसाठी WhatsApp वर थेट मशिनरी भाडेतत्वावर. 0% कमिशन, पारदर्शक तासांचे दर.'
+    },
+    en: {
+      title: 'GoMate — Rent Tractors, JCBs & Transport on WhatsApp | Jath Taluka',
+      desc: 'Direct machinery rental marketplace for Jath Taluka (Sangli). Book verified tractors, JCBs, and trucks at hourly rates on WhatsApp.'
+    },
+    kn: {
+      title: 'GoMate — WhatsApp ನಲ್ಲಿ ಟ್ರ್ಯಾಕ್ಟರ್, JCB ಮತ್ತು ವಾಹನ ಬಾಡಿಗೆ | ಜತ್ ತಾಲ್ಲೂಕು',
+      desc: 'ಜತ್ ತಾಲ್ಲೂಕಿನ (ಸಾಂಗ್ಲಿ) 125 ಹಳ್ಳಿಗಳಿಗಾಗಿ WhatsApp ನಲ್ಲಿ ನೇರ ಯಂತ್ರ ಬಾಡಿಗೆ ಸೇವೆ. 0% ಕಮಿಷನ್, ನಿಗದಿತ ಗಂಟೆಯ ದರಗಳು.'
+    }
   };
 
-  function applyLanguage(language) {
-    const text = copy[language] || copy.mr;
-    document.documentElement.lang = language;
-    document.querySelectorAll('[data-i18n]').forEach((element) => { const value = text[element.dataset.i18n]; if (value) element.textContent = value; });
-    document.querySelectorAll('[data-i18n-html]').forEach((element) => { const value = text[element.dataset.i18nHtml]; if (value) element.innerHTML = value; });
-    document.querySelectorAll('[data-i18n-alt]').forEach((element) => { const value = text[element.dataset.i18nAlt]; if (value) element.alt = value; });
-    document.querySelectorAll('[data-whatsapp]').forEach((link) => { link.href = `https://wa.me/918605470552?text=${encodeURIComponent(whatsAppMessages[language][link.dataset.whatsapp])}`; });
-    document.title = pageMeta[language].title;
-    document.querySelector('meta[name="description"]')?.setAttribute('content', pageMeta[language].description);
-    selector.setAttribute('aria-label', text.languageLabel);
-    selector.value = language;
-    localStorage.setItem('gomate-landing-language', language);
+  function applyLanguage(lang) {
+    if (!VALID_LANGS.includes(lang)) lang = 'mr';
+    const dict = copy[lang] || copy.mr;
+    const waTemplates = whatsAppMessages[lang] || whatsAppMessages.mr;
+
+    document.documentElement.lang = lang;
+
+    // 1. Text elements
+    document.querySelectorAll('[data-i18n]').forEach((el) => {
+      const key = el.dataset.i18n;
+      if (dict[key] !== undefined && dict[key] !== '') {
+        el.textContent = dict[key];
+      }
+    });
+
+    // 2. HTML elements
+    document.querySelectorAll('[data-i18n-html]').forEach((el) => {
+      const key = el.dataset.i18nHtml;
+      if (dict[key] !== undefined && dict[key] !== '') {
+        el.innerHTML = dict[key];
+      }
+    });
+
+    // 3. Update WhatsApp links
+    document.querySelectorAll('[data-whatsapp]').forEach((link) => {
+      const category = link.dataset.whatsapp;
+      const msg = waTemplates[category] || waTemplates.general;
+      link.href = 'https://wa.me/918605470552?text=' + encodeURIComponent(msg);
+    });
+
+    // Also update main hero and nav WhatsApp buttons if present
+    document.querySelectorAll('.btn-hero-primary, .nav-btn-primary, .btn-sticky-wa').forEach((link) => {
+      if (!link.hasAttribute('data-whatsapp')) {
+        link.href = 'https://wa.me/918605470552?text=' + encodeURIComponent(waTemplates.general);
+      }
+    });
+
+    // 4. Update Tab Switcher UI state
+    document.querySelectorAll('.lang-tab-btn').forEach((btn) => {
+      const isSelected = btn.dataset.lang === lang;
+      btn.classList.toggle('active', isSelected);
+      btn.setAttribute('aria-pressed', String(isSelected));
+    });
+
+    // 5. Update SEO Title & Meta
+    if (pageMeta[lang]) {
+      document.title = pageMeta[lang].title;
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) metaDesc.setAttribute('content', pageMeta[lang].desc);
+    }
+
+    // 6. Persist to localStorage
+    try {
+      localStorage.setItem('gomate-landing-language', lang);
+    } catch (e) {
+      /* ignore quota errors */
+    }
   }
 
-  const saved = localStorage.getItem('gomate-landing-language');
-  applyLanguage(['mr','hi','en'].includes(saved) ? saved : 'mr');
-  selector.addEventListener('change', () => applyLanguage(selector.value));
+  // Wire up tab button clicks
+  document.querySelectorAll('.lang-tab-btn').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      applyLanguage(btn.dataset.lang);
+    });
+  });
+
+  // Initialize from localStorage or default to Marathi
+  let initial = 'mr';
+  try {
+    const saved = localStorage.getItem('gomate-landing-language');
+    if (saved && VALID_LANGS.includes(saved)) {
+      initial = saved;
+    }
+  } catch (e) {}
+
+  applyLanguage(initial);
 })();
