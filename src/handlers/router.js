@@ -1,3 +1,4 @@
+const { handleBookingQueryFromMessage } = require('../services/paymentWatcherService');
 const { getText, detectLanguage } = require('../services/language');
 const { getUser, upsertUser } = require('../db/users.repo');
 const searchHandler = require('./customer/searchHandler');
@@ -68,6 +69,10 @@ async function routeMessage(phone, text, session) {
     const mandiData = getJathMandiPrices(rawText, farmerVillage);
     return formatMandiWhatsAppMessage(mandiData);
   }
+
+  // 0.6 Auto-detect Booking Reference (GM-XXXX) & verify payment immediately
+  const bookingRefReply = await handleBookingQueryFromMessage(phone, rawText, session);
+  if (bookingRefReply) return bookingRefReply;
 
   // 0.5 Check if this is a Hyperlocal Weather & Full Agri Advisory query
   if (isWeatherKeyword(rawText)) {

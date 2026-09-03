@@ -1334,6 +1334,25 @@ app.post('/api/weather/send-whatsapp', async (req, res) => {
 
 app.use((err, req, res, next) => { console.error(err.stack); res.status(500).send('Something broke!'); });
 
+
+// =============================================================
+// Automated Payment Confirmation & Verification Endpoint
+// =============================================================
+const paymentWatcherService = require('./src/services/paymentWatcherService');
+
+/** POST /api/booking/verify-payment — automatically verify payment and send confirmation WhatsApp */
+app.post('/api/booking/verify-payment', async (req, res) => {
+  try {
+    const { booking_ref } = req.body;
+    if (!booking_ref) return res.status(400).json({ error: 'booking_ref is required' });
+    const result = await paymentWatcherService.confirmAndSendNotification(booking_ref);
+    if (!result) return res.status(404).json({ error: 'Booking not found' });
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.listen(port, '0.0.0.0', () => {
   console.log(`\n=================================================`);
   console.log(`🚜 GoMate WhatsApp Bot & Operations HQ Ready!`);

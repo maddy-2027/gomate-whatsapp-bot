@@ -1,3 +1,4 @@
+const { schedulePaymentVerification } = require('../../services/paymentWatcherService');
 const { getText } = require('../../services/language');
 const { createBooking } = require('../../db/bookings.repo');
 const { createBookingPaymentLink } = require('../../services/razorpay');
@@ -438,6 +439,17 @@ async function createFinalBookingAndPayment(phone, session) {
     booking = { booking_ref: 'GM-' + Math.random().toString(36).substring(2, 6).toUpperCase() };
   }
   session.data.bookingRef = booking.booking_ref;
+
+  // Schedule automated payment verification in 1-3 minutes
+  schedulePaymentVerification({
+    booking_ref: booking.booking_ref,
+    customer_phone: phone,
+    customer_name: customerName,
+    equipment_name: modelText,
+    village: session.data.location,
+    duration,
+    total_amount: totalAmount
+  }, 90000);
 
   // 2. Generate Real / Demo UPI Payment Link
   const payObj = await createBookingPaymentLink(
