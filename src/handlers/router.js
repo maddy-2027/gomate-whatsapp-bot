@@ -64,13 +64,18 @@ async function routeMessage(phone, text, session) {
 
   // 0.4 Check if this is a Jath APMC Mandi / Live Market Rate query
   if (isMandiKeyword(rawText)) {
-    const mandiData = getJathMandiPrices(rawText);
+    const farmerVillage = session.data && session.data.location ? session.data.location : (session.village || '');
+    const mandiData = getJathMandiPrices(rawText, farmerVillage);
     return formatMandiWhatsAppMessage(mandiData);
   }
 
-  // 0.5 Check if this is a Hyperlocal Weather & Spraying Forecast query
+  // 0.5 Check if this is a Hyperlocal Weather & Full Agri Advisory query
   if (isWeatherKeyword(rawText)) {
-    const weatherData = getVillageWeatherForecast(rawText);
+    // Use farmer's registered village if known, otherwise try to parse from message
+    const farmerVillage = session.data && session.data.location
+      ? session.data.location
+      : (session.village || rawText);
+    const weatherData = getVillageWeatherForecast(farmerVillage);
     return formatWeatherWhatsAppMessage(weatherData);
   }
 

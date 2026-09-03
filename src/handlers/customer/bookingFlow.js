@@ -555,16 +555,53 @@ _Reply *CANCEL* to cancel or *0* for Menu._`;
 
 /**
  * Handle confirmation or cancellation in BOOKING_CONFIRM
+ * Also auto-dispatches invoice PDF link on payment success keywords
  */
 async function handleConfirmation(phone, text, session) {
   const t = (text || '').trim().toLowerCase();
   const isCancel = ['cancel', '0', 'no', 'नाही', 'रद्द', 'रद्द करा', 'nahi', 'reject'].includes(t);
+  const isPaidKeyword = [
+    'paid', 'done', 'pay', 'payment done', 'payment completed', 'completed',
+    'पेमेंट झाले', 'पैसे दिले', 'भरले', 'झाले', 'पेड', 'success', 'ok', 'okay',
+    'हो', 'हां', 'yes', 'confirm', 'confirmed'
+  ].includes(t) || t.includes('paid') || t.includes('payment') || t.includes('पेमेंट');
+
   if (session.data) {
     delete session.data.lastQuote;
   }
   if (isCancel) {
     session.state = 'CUSTOMER_MENU';
     return getText(session.language || 'mr', 'booking_cancelled');
+  }
+
+  // If farmer confirms payment, auto-send invoice PDF link
+  if (isPaidKeyword && session.data && session.data.bookingRef) {
+    const bookingRef = session.data.bookingRef;
+    const lang = session.language || 'mr';
+    const invoiceUrl = `https://gomate-whatsapp-bot.onrender.com/api/bookings/${bookingRef}/invoice`;
+
+    // Try to send invoice via WhatsApp
+    try {
+      const { sendWhatsAppDirect } = require('../../services/whatsappWeb');
+      const invoiceMsg = lang === 'mr'
+        ? `✅ *पेमेंट यशस्वी! तुमची अधिकृत GoMate पावती तयार आहे.* 🧾\n\n🔖 बुकिंग संदर्भ: *${bookingRef}*\n📋 *PDF पावती डाउनलोड करा:*\n🔗 ${invoiceUrl}\n\n_ही पावती WhatsApp वर सेव्ह करा किंवा शेअर करा. मशिनरी मालकाशी संपर्क लवकरच होईल._\n\n🚜 *GoMate सेवेसाठी धन्यवाद!*`
+        : lang === 'hi'
+          ? `✅ *भुगतान सफल! आपकी GoMate रसीद तैयार है।* 🧾\n\n🔖 बुकिंग संदर्भ: *${bookingRef}*\n📋 *PDF रसीद डाउनलोड करें:*\n🔗 ${invoiceUrl}\n\n_यह रसीद WhatsApp पर सेव करें। मशीनरी मालिक से जल्द संपर्क होगा।_\n\n🚜 *GoMate सेवा के लिए धन्यवाद!*`
+          : `✅ *Payment Received! Your official GoMate Invoice is ready.* 🧾\n\n🔖 Booking Reference: *${bookingRef}*\n📋 *Download Your PDF Invoice:*\n🔗 ${invoiceUrl}\n\n_Save this invoice on WhatsApp. The machinery owner will contact you shortly._\n\n🚜 *Thank you for choosing GoMate!*`;
+      await sendWhatsAppDirect(phone, invoiceMsg);
+    } catch (e) {
+      console.warn('[BookingFlow] Invoice dispatch warning:', e.message);
+    }
+
+    session.state = 'CUSTOMER_MENU';
+    const lang2 = session.language || 'mr';
+    if (lang2 === 'mr') {
+      return `🎉 *बुकिंग निश्चित झाली!* \n📋 तुमची पावती (Ref: ${bookingRef}) वर WhatsApp वर पाठवली आहे.\n_मेनूसाठी *0* पाठवा._`;
+    } else if (lang2 === 'hi') {
+      return `🎉 *बुकिंग पक्की हो गई!*\n📋 आपकी रसीद (Ref: ${bookingRef}) WhatsApp पर भेज दी गई है।\n_मेनू के लिए *0* भेजें।_`;
+    } else {
+      return `🎉 *Booking Confirmed!*\n📋 Your invoice (Ref: ${bookingRef}) has been sent on WhatsApp.\n_Reply *0* for Menu._`;
+    }
   }
 }
 
