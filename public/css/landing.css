@@ -1313,64 +1313,127 @@ img {
   border-bottom: 1px solid #E2E8F0;
 }
 
-.hero-container {
+.hero-split-container {
   position: relative;
   z-index: 10;
-  max-width: 760px;
+  max-width: 1200px;
   margin: 0 auto;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.hero-content-left {
+  max-width: 640px;
+  width: 100%;
   text-align: left;
 }
 
 .hero-title {
-  font-size: clamp(28px, 3.8vw, 46px);
+  font-size: clamp(28px, 3.8vw, 44px);
   font-weight: 800;
   line-height: 1.15;
   color: #0A1F44;
   letter-spacing: -0.025em;
-  margin: 0 0 16px;
+  margin: 0 0 14px;
   text-shadow: 0 2px 20px rgba(255, 255, 255, 0.95);
 }
 
 .hero-sub-en {
-  font-size: clamp(15px, 1.6vw, 17px);
+  font-size: clamp(14.5px, 1.5vw, 16.5px);
   color: #1E293B;
-  line-height: 1.6;
-  margin: 0 0 10px;
+  line-height: 1.55;
+  margin: 0 0 8px;
   font-weight: 500;
-  max-width: 580px;
+  max-width: 600px;
 }
 
 .hero-sub-mr {
-  font-size: clamp(13.5px, 1.4vw, 15px);
+  font-size: clamp(13px, 1.3vw, 14.5px);
   color: #475569;
-  line-height: 1.55;
-  margin: 0 0 22px;
+  line-height: 1.5;
+  margin: 0 0 18px;
   font-weight: 500;
+  max-width: 600px;
+}
+
+/* ── Minimal Equipment Strip (Left-Aligned) ─────────────────────────── */
+.hero-equip-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 22px;
   max-width: 580px;
 }
 
-.hero-highlights {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 26px;
+.equip-mini-card {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(10px);
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 1px 4px rgba(10, 31, 68, 0.04);
 }
 
-.hero-highlights li {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+.equip-mini-card:hover {
+  transform: translateX(4px);
+  border-color: #15803D;
+  box-shadow: 0 4px 12px rgba(21, 128, 61, 0.12);
+  background: #FFFFFF;
+}
+
+.equip-mini-icon {
+  font-size: 22px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.equip-mini-info {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.equip-mini-title {
   font-size: 13.5px;
-  color: #1E293B;
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(8px);
-  border: 1px solid #E2E8F0;
-  padding: 6px 12px;
-  border-radius: 6px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
-  width: fit-content;
+  font-weight: 700;
+  color: #0A1F44;
+  line-height: 1.2;
+}
+
+.equip-mini-sub {
+  font-size: 11.5px;
+  color: #64748B;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.equip-mini-rate {
+  font-size: 13px;
+  font-weight: 800;
+  color: #15803D;
+  white-space: nowrap;
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  padding: 4px 8px;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+
+.equip-mini-rate small {
+  font-size: 10px;
+  color: #166534;
+  font-weight: 600;
 }
 
 .hero-actions {
@@ -1378,7 +1441,7 @@ img {
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .hero-owner-sublink {
@@ -1398,27 +1461,38 @@ img {
   text-decoration: underline;
 }
 
-/* ── Responsive Hero (single column, mobile-first) ─────────────────────── */
+/* ── Responsive Hero (Mobile-first) ─────────────────────────────────── */
 @media (max-width: 768px) {
   .hero-section {
-    padding: 36px 16px 48px;
-    text-align: center;
+    padding: 28px 14px 40px;
   }
 
-  .hero-container {
-    text-align: center;
+  .hero-split-container {
+    justify-content: center;
   }
 
-  .hero-sub-en, .hero-sub-mr {
-    margin-left: auto;
-    margin-right: auto;
+  .hero-content-left {
+    max-width: 100%;
+    text-align: left;
   }
 
-  .hero-highlights {
-    align-items: center;
+  .equip-mini-card {
+    padding: 8px 12px;
+    gap: 10px;
+  }
+
+  .equip-mini-sub {
+    white-space: normal;
   }
 
   .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-actions .btn-hero-primary,
+  .hero-actions .btn-hero-secondary {
     justify-content: center;
+    width: 100%;
   }
 }
