@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GoMate — शेतकरी व मालक मार्केटिंग पोस्टर्स व QR स्टिकर्स</title>
+  <title>GoMate — जत तालुका प्रिंट-रेडी व्हॉट्सअ‍ॅप पोस्टर्स व स्टॅन्डी</title>
   <meta name="theme-color" content="#15803d">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Noto+Sans+Devanagari:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Noto+Sans+Devanagari:wght@500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script>
@@ -42,8 +42,18 @@
     @media print {
       body { background: #ffffff !important; padding: 0 !important; color: #000000 !important; }
       .no-print { display: none !important; }
-      .print-area { box-shadow: none !important; margin: 0 auto !important; max-width: 100% !important; border: none !important; page-break-after: always; }
-      @page { margin: 10mm; size: auto; }
+      .print-area { 
+        box-shadow: none !important; 
+        margin: 0 auto !important; 
+        max-width: 100% !important; 
+        border-width: 2px !important;
+        page-break-after: always;
+        break-inside: avoid;
+      }
+      @page { 
+        margin: 8mm; 
+        size: A4 portrait; 
+      }
     }
     .text-stroke {
       -webkit-text-stroke: 1px rgba(0,0,0,0.1);
@@ -52,21 +62,23 @@
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col antialiased">
 
-  <!-- Control Header (Hidden in Print) -->
-  <header class="no-print border-b border-slate-800 bg-slate-900/90 sticky top-0 z-50 backdrop-blur-md">
+  <!-- Control Header (Hidden during Print) -->
+  <header class="no-print border-b border-slate-800 bg-slate-900/95 sticky top-0 z-50 backdrop-blur-md">
     <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center space-x-3">
-        <div class="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center text-lg">🚜</div>
+        <div class="w-10 h-10 rounded-xl bg-brand-700 text-white flex items-center justify-center text-xl font-bold shadow-md shadow-brand-700/30">
+          🚜
+        </div>
         <div>
-          <h1 class="text-base font-bold text-white leading-tight">GoMate Marketing Hub</h1>
-          <p class="text-[11px] text-slate-400">प्रिंट-रेडी व्हॉट्सअ‍ॅप पोस्टर्स, स्टॅन्डी व QR स्टिकर्स</p>
+          <h1 class="text-base font-extrabold text-white leading-tight">GoMate Marketing & Village Print Hub</h1>
+          <p class="text-[11px] text-slate-400">जत तालुक्यातील १२५ गावांसाठी प्रिंट-रेडी पोस्टर्स, काउंटर स्टॅन्डी व QR स्टिकर्स</p>
         </div>
       </div>
 
       <!-- Quick Customizer Controls -->
       <div class="flex items-center flex-wrap gap-2 text-xs">
         <div class="flex items-center bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5">
-          <span class="text-slate-400 mr-1.5">📱 नंबर:</span>
+          <span class="text-slate-400 mr-1.5">📱 व्हॉट्सअ‍ॅप:</span>
           <input type="text" id="phoneInput" value="+91 86054 70552" oninput="updateMarketingAssets()" class="bg-transparent text-white font-mono font-bold focus:outline-none w-32" />
         </div>
 
@@ -76,8 +88,8 @@
         </div>
 
         <!-- Print Action -->
-        <button onclick="window.print()" class="px-4 py-1.5 rounded-lg bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white font-bold text-xs shadow-lg shadow-brand-600/30 flex items-center gap-1.5 transition">
-          <span>🖨️ प्रिंट करा / Download PDF</span>
+        <button onclick="window.print()" class="px-4 py-1.5 rounded-lg bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-500 hover:to-brand-600 text-white font-bold text-xs shadow-lg shadow-brand-600/30 flex items-center gap-1.5 transition transform active:scale-95">
+          <span>🖨️ A4/A3 प्रिंट करा / PDF डाउनलोड</span>
         </button>
       </div>
     </div>
@@ -85,16 +97,16 @@
     <!-- Template Selector Tabs -->
     <div class="max-w-6xl mx-auto px-4 py-2 flex items-center gap-2 overflow-x-auto text-xs border-t border-slate-800/80">
       <button onclick="switchTemplate('poster')" id="tab-poster" class="tab-btn px-3 py-1.5 rounded-lg bg-brand-600 text-white font-bold transition">
-        📄 A4/A3 ग्रामपंचायत व कृषी केंद्र वॉल पोस्टर
+        📄 १. ग्रामपंचायत व चावडी जाहीर सूचना पोस्टर
       </button>
       <button onclick="switchTemplate('standee')" id="tab-standee" class="tab-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold transition">
-        🏷️ कृषी केंद्र काउंटर स्टॅन्डी (A5 Tabletop)
+        🏷️ २. कृषी केंद्र व खत दुकान काउंटर स्टॅन्डी
       </button>
       <button onclick="switchTemplate('sticker')" id="tab-sticker" class="tab-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold transition">
-        🚜 ट्रॅक्टर व ट्रॉली बंपर स्टिकर (Sticker)
+        🚜 ३. ट्रॅक्टर व ट्रॉली बंपर स्टिकर
       </button>
       <button onclick="switchTemplate('owner')" id="tab-owner" class="tab-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold transition">
-        💼 मशिनरी मालक जोडा पोस्टर (₹25,000+ कमाई)
+        📋 ४. ट्रॅक्टर व मशिनरी मालक नोंदणी (Owner Pro)
       </button>
     </div>
   </header>
@@ -103,22 +115,28 @@
   <main class="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 flex flex-col items-center justify-center">
 
     <!-- ========================================================================= -->
-    <!-- TEMPLATE 1: A4/A3 Full Wall Poster (ग्रामपंचायत व कृषी केंद्र भिंती पोस्टर) -->
+    <!-- TEMPLATE 1: A4/A3 Gram Panchayat & Village Chawdi Wall Poster             -->
     <!-- ========================================================================= -->
-    <div id="template-poster" class="print-area w-full max-w-[650px] bg-white text-slate-900 rounded-2xl shadow-2xl p-6 sm:p-8 border-4 border-brand-600 relative overflow-hidden">
+    <div id="template-poster" class="print-area w-full max-w-[680px] bg-white text-slate-900 rounded-2xl shadow-2xl p-6 sm:p-8 border-4 border-brand-700 relative overflow-hidden">
       
-      <!-- Top Banner -->
-      <div class="flex items-center justify-between border-b-2 border-slate-200 pb-4 mb-5">
+      <!-- Top Notice Strip -->
+      <div class="bg-navy-900 text-white px-4 py-2 rounded-xl mb-4 flex items-center justify-between text-xs font-black">
+        <span>📍 जत तालुका पायलट — सर्व १२५ गावांसाठी जाहीर सूचना</span>
+        <span class="bg-brand-600 text-white px-2 py-0.5 rounded text-[10px] uppercase">पिन: ४१६४०४</span>
+      </div>
+
+      <!-- Top Header -->
+      <div class="flex items-center justify-between border-b-2 border-slate-200 pb-4 mb-4">
         <div class="flex items-center space-x-3">
           <div class="w-14 h-14 rounded-2xl bg-brand-700 text-white flex items-center justify-center text-3xl font-black shadow-md">
             🚜
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <span class="text-2xl sm:text-3xl font-black tracking-tight text-navy-900">GoMate</span>
-              <span class="text-xs font-extrabold px-2 py-0.5 rounded bg-emerald-100 text-brand-800 border border-brand-300">महाराष्ट्र शेतकरी सेवा</span>
+              <span class="text-3xl font-black tracking-tight text-navy-900">GoMate</span>
+              <span class="text-xs font-black px-2 py-0.5 rounded bg-emerald-100 text-brand-800 border border-brand-300">शेतकरी सेवा</span>
             </div>
-            <p class="text-xs font-bold text-slate-600">शेती अवजारे व वाहतूक वाहने भाडे मार्केटप्लेस</p>
+            <p class="text-xs font-bold text-slate-600">शेती अवजारे, वाहतूक व जेसीबी भाडे मार्केटप्लेस</p>
           </div>
         </div>
 
@@ -131,12 +149,12 @@
       </div>
 
       <!-- Hero Punchline -->
-      <div class="text-center bg-gradient-to-r from-emerald-50 via-green-100 to-emerald-50 border-2 border-brand-300 rounded-2xl p-4 mb-5 shadow-sm">
+      <div class="text-center bg-gradient-to-r from-emerald-50 via-green-100 to-emerald-50 border-2 border-brand-400 rounded-2xl p-4 mb-5 shadow-sm">
         <h2 class="text-xl sm:text-2xl font-black text-brand-900 leading-snug">
-          आता गावातच ट्रॅक्टर, JCB व अवजारे भाड्याने मिळवा!
+          आता आपल्या शेतातच ट्रॅक्टर, रोटाव्हेटर व जेसीबी हजर!
         </h2>
-        <p class="text-sm font-bold text-slate-700 mt-1">
-          फक्त एका <strong class="text-brand-700 font-extrabold">व्हॉट्सअ‍ॅप मेसेजवर</strong> अवजारे थेट तुमच्या शेतात हजर! 🌾
+        <p class="text-sm font-bold text-slate-800 mt-1">
+          फक्त एका <strong class="text-brand-800 font-extrabold">व्हॉट्सअ‍ॅप मेसेजवर</strong> थेट स्थानिक ड्रायव्हरसह वाजवी तासाच्या दरात मिळवा!
         </p>
       </div>
 
@@ -144,37 +162,38 @@
       <div class="grid grid-cols-1 sm:grid-cols-12 gap-5 items-center bg-slate-50 border-2 border-slate-200 rounded-2xl p-5 mb-5">
         
         <!-- Left: Big Crisp QR Code -->
-        <div class="sm:col-span-5 flex flex-col items-center text-center bg-white p-3.5 rounded-xl border-2 border-brand-500 shadow-md">
+        <div class="sm:col-span-5 flex flex-col items-center text-center bg-white p-4 rounded-xl border-2 border-brand-600 shadow-md">
           <div id="posterQrCanvas" class="w-40 h-40 flex items-center justify-center mb-2"></div>
-          <div class="text-xs font-black text-slate-900">📲 कॅमेऱ्याने QR स्कॅन करा</div>
-          <div class="text-[10px] font-bold text-brand-700">किंवा 'Hi' पाठवा: <span class="target-phone font-mono font-black">+91 86054 70552</span></div>
+          <div class="text-xs font-black text-slate-900">📲 मोबाईल कॅमेऱ्याने QR स्कॅन करा</div>
+          <div class="text-[11px] font-bold text-brand-800 mt-0.5">किंवा मेसेज पाठवा:</div>
+          <div class="text-xs font-mono font-black text-navy-900 target-phone">+91 86054 70552</div>
         </div>
 
         <!-- Right: 3 Steps -->
         <div class="sm:col-span-7 space-y-2.5">
-          <h3 class="text-xs font-black uppercase tracking-wider text-slate-600 mb-2">📋 ३ सोप्या पायऱ्यांत बुकिंग करा:</h3>
+          <h3 class="text-xs font-black uppercase tracking-wider text-slate-700 mb-2">📋 ३ सोप्या पायऱ्यांत बुकिंग करा:</h3>
           
           <div class="flex items-start space-x-2.5 bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm">
-            <span class="w-6 h-6 rounded-full bg-brand-600 text-white font-black text-xs flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
+            <span class="w-6 h-6 rounded-full bg-brand-700 text-white font-black text-xs flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
             <div>
               <div class="text-xs font-bold text-slate-900">QR स्कॅन करा किंवा मेसेज पाठवा</div>
-              <div class="text-[11px] text-slate-500">व्हॉट्सअ‍ॅपवर 'नमस्कार' किंवा 'Hi' पाठवा</div>
+              <div class="text-[11px] text-slate-600">व्हॉट्सअ‍ॅपवर 'नमस्कार' किंवा 'Hi' पाठवा</div>
             </div>
           </div>
 
           <div class="flex items-start space-x-2.5 bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm">
-            <span class="w-6 h-6 rounded-full bg-brand-600 text-white font-black text-xs flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
+            <span class="w-6 h-6 rounded-full bg-brand-700 text-white font-black text-xs flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
             <div>
-              <div class="text-xs font-bold text-slate-900">अवजार, तारीख व तास निवडा</div>
-              <div class="text-[11px] text-slate-500">रोटाव्हेटर, नांगरट किंवा संपूर्ण ट्रॅक्टर निवडा</div>
+              <div class="text-xs font-bold text-slate-900">गाव, अवजार व कामाचे तास निवडा</div>
+              <div class="text-[11px] text-slate-600">रोटाव्हेटर, नांगरट किंवा संपूर्ण ट्रॅक्टर निवडा</div>
             </div>
           </div>
 
           <div class="flex items-start space-x-2.5 bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm">
-            <span class="w-6 h-6 rounded-full bg-brand-600 text-white font-black text-xs flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
+            <span class="w-6 h-6 rounded-full bg-brand-700 text-white font-black text-xs flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
             <div>
               <div class="text-xs font-bold text-slate-900">पावती मिळवा व काम सुरू करा</div>
-              <div class="text-[11px] text-slate-500">मालक स्वतः ठरलेल्या वेळेत शेतावर पोहोचतील!</div>
+              <div class="text-[11px] text-slate-600">मालक ठरलेल्या वेळेत थेट शेतावर पोहोचतील!</div>
             </div>
           </div>
         </div>
@@ -183,33 +202,33 @@
       <!-- Machinery Catalog Grid -->
       <div class="mb-5">
         <h3 class="text-xs font-black uppercase tracking-wider text-slate-700 mb-2.5 flex items-center justify-between">
-          <span>🚜 उपलब्ध अवजारे व अंदाजे चालू दर:</span>
-          <span class="text-[10px] text-brand-700 font-bold">✓ ड्रायव्हरसह उपलब्ध</span>
+          <span>🚜 उपलब्ध अवजारे व चालू तासाचे दर:</span>
+          <span class="text-[10px] text-brand-700 font-extrabold">✓ व्हेरिफाइड स्थानिक ड्रायव्हरसह</span>
         </h3>
         
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
           <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-center">
             <div class="text-base mb-0.5">🚜</div>
             <div class="font-bold text-slate-900">ट्रॅक्टर नांगरट</div>
-            <div class="text-[11px] font-extrabold text-brand-700">₹850/तास</div>
+            <div class="text-[11px] font-black text-brand-700">₹८५०/तास</div>
           </div>
 
           <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-center">
             <div class="text-base mb-0.5">🌾</div>
             <div class="font-bold text-slate-900">रोटाव्हेटर मशागत</div>
-            <div class="text-[11px] font-extrabold text-brand-700">₹800/तास</div>
+            <div class="text-[11px] font-black text-brand-700">₹८००/तास</div>
           </div>
 
           <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-center">
             <div class="text-base mb-0.5">🏗️</div>
-            <div class="font-bold text-slate-900">JCB एक्सकॅव्हेटर</div>
-            <div class="text-[11px] font-extrabold text-brand-700">₹1,200/तास</div>
+            <div class="font-bold text-slate-900">JCB खोदकाम</div>
+            <div class="text-[11px] font-black text-brand-700">₹९५०/तास</div>
           </div>
 
           <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-center">
             <div class="text-base mb-0.5">🚁</div>
-            <div class="font-bold text-slate-900">कृषी ड्रोन फवारणी</div>
-            <div class="text-[11px] font-extrabold text-brand-700">₹450/एकर</div>
+            <div class="font-bold text-slate-900">ड्रोन फवारणी</div>
+            <div class="text-[11px] font-black text-brand-700">₹४५०/एकर</div>
           </div>
         </div>
       </div>
@@ -217,11 +236,12 @@
       <!-- Footer Call to Action -->
       <div class="bg-navy-900 text-white rounded-2xl p-4 flex items-center justify-between">
         <div>
-          <div class="text-xs font-extrabold text-amber-400">📞 GoMate शेतकरी हेल्पलाइन:</div>
-          <div class="text-sm font-black tracking-wide">टोल-फ्री: १८००-१२३-४५६७ / <span class="target-phone font-mono">+91 86054 70552</span></div>
+          <div class="text-xs font-extrabold text-amber-400">📱 GoMate शेतकरी हेल्पलाइन WhatsApp:</div>
+          <div class="text-base font-black tracking-wide font-mono target-phone">+91 86054 70552</div>
+          <div class="text-[10px] text-slate-400">जत, शेगाव, वळसंग, उमदी, संख, डफळापूर व सर्व १२५ गावे</div>
         </div>
         <div class="text-right">
-          <div class="text-[11px] font-bold text-slate-300">ऑनलाइन पोर्टल:</div>
+          <div class="text-[10px] font-bold text-slate-400">ऑनलाइन अधिकृत पोर्टल:</div>
           <div class="text-xs font-extrabold text-emerald-400">gomate-whatsapp-bot.onrender.com</div>
         </div>
       </div>
@@ -229,37 +249,37 @@
 
 
     <!-- ========================================================================= -->
-    <!-- TEMPLATE 2: Shop Counter Standee (कृषी केंद्र काउंटर स्टॅन्डी - A5)       -->
+    <!-- TEMPLATE 2: Shop Counter Standee (कृषी केंद्र व खत दुकान काउंटर स्टॅन्डी) -->
     <!-- ========================================================================= -->
-    <div id="template-standee" class="print-area hidden w-full max-w-[480px] bg-white text-slate-900 rounded-3xl shadow-2xl p-6 sm:p-7 border-4 border-amber-500 text-center relative overflow-hidden">
+    <div id="template-standee" class="print-area hidden w-full max-w-[500px] bg-white text-slate-900 rounded-3xl shadow-2xl p-6 sm:p-7 border-4 border-amber-500 text-center relative overflow-hidden">
       
       <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-100 text-brand-800 text-xs font-black mb-3">
-        <span>🚜</span> <span>GoMate कृषी केंद्र काउंटर सेवा</span>
+        <span>🚜</span> <span>GoMate कृषी केंद्र काउंटर सेवा — जत तालुका</span>
       </div>
 
       <h2 class="text-2xl font-black text-navy-900 leading-tight mb-1">
-        ट्रॅक्टर किंवा अवजार हवे आहे का?
+        खते-बियाणे खरेदी झाली?<br><span class="text-brand-700">नांगरट किंवा फवारणीसाठी ट्रॅक्टर हवाय?</span>
       </h2>
       <p class="text-xs font-bold text-slate-600 mb-5">
-        आत्ताच कॅमेऱ्याने हा QR कोड स्कॅन करा आणि व्हॉट्सअ‍ॅपवर ५ मिनिटांत बुक करा!
+        आत्ताच मोबाईलने हा QR कोड स्कॅन करा आणि व्हॉट्सअ‍ॅपवर २ मिनिटांत ट्रॅक्टर शेतावर बोलवा!
       </p>
 
       <!-- Center Standee QR -->
       <div class="bg-gradient-to-b from-emerald-50 to-green-100 border-2 border-brand-500 rounded-2xl p-5 mb-5 inline-block shadow-inner">
         <div id="standeeQrCanvas" class="w-48 h-48 mx-auto flex items-center justify-center mb-2"></div>
         <div class="text-xs font-black text-brand-900">📲 व्हॉट्सअ‍ॅप सुरू करण्यासाठी स्कॅन करा</div>
-        <div class="text-xs font-mono font-black text-slate-800 target-phone">+91 86054 70552</div>
+        <div class="text-xs font-mono font-black text-slate-900 target-phone">+91 86054 70552</div>
       </div>
 
       <!-- Trust Badges -->
       <div class="grid grid-cols-3 gap-2 text-xs font-bold text-slate-800 mb-5">
-        <div class="bg-slate-100 p-2 rounded-xl">✓ ०% कमिशन</div>
-        <div class="bg-slate-100 p-2 rounded-xl">✓ थेट शेतात डिलिव्हरी</div>
-        <div class="bg-slate-100 p-2 rounded-xl">✓ प्रति तास भाडे</div>
+        <div class="bg-slate-100 p-2.5 rounded-xl">✓ ०% कमिशन</div>
+        <div class="bg-slate-100 p-2.5 rounded-xl">✓ थेट शेतात हजर</div>
+        <div class="bg-slate-100 p-2.5 rounded-xl">✓ प्रति तास दर</div>
       </div>
 
-      <div class="border-t border-slate-200 pt-3 text-[11px] font-bold text-slate-500">
-        स्थानिक मदत: <span class="target-area font-extrabold text-slate-800">जत तालुका</span> • टोल-फ्री: 1800-123-4567
+      <div class="border-t border-slate-200 pt-3 text-[11px] font-bold text-slate-600">
+        स्थानिक मदत व थेट बुकिंग: <span class="target-phone font-mono font-black text-slate-900">+91 86054 70552</span>
       </div>
     </div>
 
@@ -267,7 +287,7 @@
     <!-- ========================================================================= -->
     <!-- TEMPLATE 3: Vehicle / Bumper Sticker (ट्रॅक्टर व वाहनांसाठी स्टिकर)       -->
     <!-- ========================================================================= -->
-    <div id="template-sticker" class="print-area hidden w-full max-w-[650px] bg-navy-900 text-white rounded-2xl shadow-2xl p-5 border-4 border-brand-500 flex items-center justify-between gap-4">
+    <div id="template-sticker" class="print-area hidden w-full max-w-[680px] bg-navy-900 text-white rounded-2xl shadow-2xl p-5 border-4 border-brand-500 flex items-center justify-between gap-4">
       
       <div class="flex items-center space-x-3.5">
         <div class="w-16 h-16 rounded-2xl bg-brand-600 flex items-center justify-center text-3xl shadow-lg shadow-brand-500/30">
@@ -278,67 +298,64 @@
             <span class="text-2xl font-black tracking-tight text-white">GoMate</span>
             <span class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">व्हेरिफाइड अवजार</span>
           </div>
-          <h3 class="text-base font-black text-amber-400">हे ट्रॅक्टर भाड्याने बुक करण्यासाठी स्कॅन करा!</h3>
-          <p class="text-xs text-slate-300 font-bold">नांगरट • रोटाव्हेटर • मशागत • वाहतूक</p>
+          <h3 class="text-base font-black text-amber-400 mt-0.5">हे उपकरण भाड्याने बुक करण्यासाठी स्कॅन करा!</h3>
+          <p class="text-xs text-slate-300 font-bold">नांगरट • रोटाव्हेटर • मशागत • मालवाहतूक • जेसीबी</p>
         </div>
       </div>
 
       <!-- Sticker QR Code -->
-      <div class="bg-white p-2 rounded-xl border-2 border-white shadow-md text-center flex-shrink-0">
+      <div class="bg-white p-2.5 rounded-xl border-2 border-white shadow-md text-center flex-shrink-0">
         <div id="stickerQrCanvas" class="w-24 h-24 flex items-center justify-center"></div>
-        <div class="text-[9px] font-black text-slate-900 mt-1 target-phone">+91 86054...</div>
+        <div class="text-[10px] font-mono font-black text-slate-900 mt-1 target-phone">+91 86054 70552</div>
       </div>
     </div>
 
 
     <!-- ========================================================================= -->
-    <!-- TEMPLATE 4: Owner Recruitment Poster (मशिनरी मालक जोडा - ₹25k/महिना)    -->
+    <!-- TEMPLATE 4: Owner Recruitment Poster (Strict Zero-Emoji Compliance)       -->
     <!-- ========================================================================= -->
-    <div id="template-owner" class="print-area hidden w-full max-w-[650px] bg-white text-slate-900 rounded-2xl shadow-2xl p-6 sm:p-8 border-4 border-navy-900 relative overflow-hidden">
+    <div id="template-owner" class="print-area hidden w-full max-w-[680px] bg-white text-slate-900 rounded-2xl shadow-2xl p-6 sm:p-8 border-4 border-navy-900 relative overflow-hidden">
       
       <div class="flex items-center justify-between border-b-2 border-slate-200 pb-4 mb-4">
-        <div class="flex items-center space-x-3">
-          <div class="w-12 h-12 rounded-xl bg-navy-900 text-white flex items-center justify-center text-2xl font-black">
-            🚜
-          </div>
-          <div>
-            <div class="text-2xl font-black text-navy-900">GoMate Owner Pro</div>
-            <p class="text-xs font-bold text-slate-600">ट्रॅक्टर व मशिनरी मालकांसाठी सुवर्णसंधी</p>
-          </div>
+        <div>
+          <div class="text-2xl font-black text-navy-900 tracking-tight">GoMate Owner Pro</div>
+          <p class="text-xs font-bold text-slate-600">ट्रॅक्टर, जेसीबी व वाहतूक वाहन मालकांसाठी नोंदणी</p>
         </div>
-        <span class="px-3 py-1 bg-brand-600 text-white font-black text-xs rounded-full">
-          ७ दिवस मोफत ट्रायल!
+        <span class="px-3 py-1 bg-brand-700 text-white font-black text-xs rounded-full">
+          ७ दिवस मोफत नोंदणी ट्रायल
         </span>
       </div>
 
-      <div class="bg-gradient-to-r from-amber-50 to-orange-100 border-2 border-amber-400 rounded-2xl p-4 mb-5 text-center">
-        <h2 class="text-xl sm:text-2xl font-black text-amber-950">
-          आपला ट्रॅक्टर रिकामा बसवून ठेवू नका!
+      <div class="bg-slate-100 border-2 border-slate-300 rounded-2xl p-4 mb-5 text-center">
+        <h2 class="text-xl sm:text-2xl font-black text-navy-900">
+          आपले ट्रॅक्टर किंवा जेसीबी रिकामे ठेवू नका
         </h2>
-        <p class="text-sm font-bold text-slate-800 mt-1">
-          GoMate वर अवजारे जोडा आणि महिन्याला <strong class="text-brand-700 font-extrabold">₹२५,०००+ अतिरिक्त कमाई</strong> करा!
+        <p class="text-sm font-bold text-slate-700 mt-1">
+          GoMate शी जोडा आणि दरमहा <strong class="text-brand-800 font-black">₹२५,०००+ अतिरिक्त भाडे उत्पन्न</strong> मिळवा
         </p>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2 text-xs">
-          <div class="font-black text-navy-900 uppercase">🎁 मालकांना मिळणारे फायदे:</div>
-          <div class="text-slate-700 font-bold">✅ परिसरातील शेतकऱ्यांकडून थेट ऑर्डर्स</div>
-          <div class="text-slate-700 font-bold">✅ व्हॉट्सअ‍ॅपवर त्वरित बुकिंग अलर्ट्स</div>
-          <div class="text-slate-700 font-bold">✅ संपूर्ण भाडे थेट तुमच्या हातात (UPI/रोख)</div>
-          <div class="text-slate-700 font-bold">✅ १५ मिनिटांत काम स्वीकारण्याची मुभा</div>
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2 text-xs">
+          <div class="font-black text-navy-900 uppercase tracking-wider">मालकांना मिळणारे थेट फायदे:</div>
+          <div class="text-slate-800 font-bold">• परिसरातील शेतकऱ्यांकडून थेट कामे</div>
+          <div class="text-slate-800 font-bold">• व्हॉट्सअ‍ॅपवर थेट बुकिंग अलर्ट व ऑर्डर</div>
+          <div class="text-slate-800 font-bold">• संपूर्ण भाडे थेट मालकाच्या हातात (UPI / रोख)</div>
+          <div class="text-slate-800 font-bold">• १५ मिनिटांत काम स्वीकारण्याची किंवा नाकारण्याची मुभा</div>
+          <div class="text-slate-800 font-bold">• शून्य मध्यस्थ — थेट शेतकरी व्यवहार</div>
         </div>
 
-        <div class="bg-white border-2 border-brand-500 rounded-xl p-3 flex flex-col items-center text-center shadow-sm">
+        <div class="bg-white border-2 border-slate-900 rounded-xl p-3.5 flex flex-col items-center text-center shadow-sm">
           <div id="ownerQrCanvas" class="w-32 h-32 flex items-center justify-center mb-1"></div>
-          <div class="text-xs font-black text-slate-900">📲 मालक नोंदणीसाठी QR स्कॅन करा</div>
-          <div class="text-[11px] font-bold text-brand-700">किंवा 'Register' पाठवा: <span class="target-phone font-mono">+91 86054 70552</span></div>
+          <div class="text-xs font-black text-slate-900">मालक नोंदणीसाठी QR स्कॅन करा</div>
+          <div class="text-[11px] font-bold text-slate-600">किंवा व्हॉट्सअ‍ॅपवर 'Register' पाठवा:</div>
+          <div class="text-xs font-mono font-black text-navy-900 target-phone">+91 86054 70552</div>
         </div>
       </div>
 
       <div class="border-t border-slate-200 pt-3 flex items-center justify-between text-xs font-bold text-slate-600">
-        <div>📍 कार्यक्षेत्र: <span class="target-area font-black text-slate-900">जत तालुका व सांगली जिल्हा</span></div>
-        <div>पोर्टल: <span class="text-brand-700">gomate-whatsapp-bot.onrender.com/owner</span></div>
+        <div>कार्यक्षेत्र: <span class="target-area font-black text-slate-900">जत तालुका (सर्व १२५ गावे) व सांगली</span></div>
+        <div>अधिकृत पोर्टल: <span class="text-brand-700 font-bold">gomate-whatsapp-bot.onrender.com/owner</span></div>
       </div>
     </div>
 
@@ -354,27 +371,28 @@
 
     function renderQrCodes() {
       const cleanDigits = getCleanDigits(activePhone);
-      const waUrl = `https://wa.me/${cleanDigits}?text=%E0%A4%A8%E0%A4%AE%E0%A4%B8%E0%A5%8D%E0%A4%95%E0%A4%BE%E0%A4%B0`;
+      const waCustomerUrl = 'https://wa.me/' + cleanDigits + '?text=' + encodeURIComponent('नमस्कार, मला जत तालुक्यात शेती अवजार भाड्याने हवे आहे.');
+      const waOwnerUrl = 'https://wa.me/' + cleanDigits + '?text=' + encodeURIComponent('नमस्कार, मला GoMate वर ट्रॅक्टर/जेसीबी मालक नोंदणी करायची आहे.');
 
-      // 1. Poster QR
+      // 1. Poster QR (Customer)
       const posterEl = document.getElementById('posterQrCanvas');
       posterEl.innerHTML = '';
-      new QRCode(posterEl, { text: waUrl, width: 160, height: 160, colorDark: '#0A1F44', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
+      new QRCode(posterEl, { text: waCustomerUrl, width: 160, height: 160, colorDark: '#0A1F44', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
 
-      // 2. Standee QR
+      // 2. Standee QR (Customer)
       const standeeEl = document.getElementById('standeeQrCanvas');
       standeeEl.innerHTML = '';
-      new QRCode(standeeEl, { text: waUrl, width: 190, height: 190, colorDark: '#15803d', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
+      new QRCode(standeeEl, { text: waCustomerUrl, width: 190, height: 190, colorDark: '#15803d', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
 
-      // 3. Sticker QR
+      // 3. Sticker QR (Customer)
       const stickerEl = document.getElementById('stickerQrCanvas');
       stickerEl.innerHTML = '';
-      new QRCode(stickerEl, { text: waUrl, width: 96, height: 96, colorDark: '#0A1F44', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+      new QRCode(stickerEl, { text: waCustomerUrl, width: 96, height: 96, colorDark: '#0A1F44', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
 
-      // 4. Owner QR
+      // 4. Owner QR (Owner Registration)
       const ownerEl = document.getElementById('ownerQrCanvas');
       ownerEl.innerHTML = '';
-      new QRCode(ownerEl, { text: waUrl, width: 128, height: 128, colorDark: '#0A1F44', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
+      new QRCode(ownerEl, { text: waOwnerUrl, width: 128, height: 128, colorDark: '#0A1F44', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
     }
 
     function updateMarketingAssets() {
