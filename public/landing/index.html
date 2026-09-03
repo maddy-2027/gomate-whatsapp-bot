@@ -85,9 +85,24 @@
   <main id="main-content">
     <!-- Hero Section -->
     <section class="hero-section" aria-labelledby="hero-title">
-      <!-- Background Visual Enhancement (Option B Classic Editorial Flow) -->
+      <!-- Responsive Background Layering with Right-Biased Composition -->
       <div class="hero-bg-wrapper" aria-hidden="true">
-        <img src="/assets/brand/hero-flow-bg.jpg" alt="" class="hero-bg-visual" width="1440" height="810" loading="eager">
+        <picture class="hero-bg-picture">
+          <source media="(min-width: 1025px)" srcset="/assets/brand/hero/hero-bg-desktop.jpg">
+          <source media="(min-width: 641px)" srcset="/assets/brand/hero/hero-bg-tablet.jpg">
+          <source srcset="/assets/brand/hero/hero-bg-mobile.jpg">
+          <img 
+            src="/assets/brand/hero/hero-bg-desktop.jpg" 
+            alt="" 
+            class="hero-bg-visual" 
+            width="1920" 
+            height="1080" 
+            loading="eager" 
+            fetchpriority="high"
+            decoding="async"
+          >
+        </picture>
+        <div class="hero-contrast-scrim" aria-hidden="true"></div>
       </div>
 
       <div class="hero-container">
