@@ -1,6 +1,0 @@
-{
-  "name": "GoMate - Rural Machinery Rental",
-  "description": "Direct agricultural and earthmoving machinery rental platform for rural India with instant WhatsApp booking, live dispatch tracking, transparent rate estimator, and owner fleet management.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
