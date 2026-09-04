@@ -1623,3 +1623,38 @@ img {
   22%  { left: 140%; }
   100% { left: 140%; }
 }
+
+/* ── Haikei SVG Wave Section Dividers ────────────────────────────────────── */
+.haikei-wave-divider {
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+  display: block;
+  pointer-events: none;
+  position: relative;
+  z-index: 2;
+}
+
+.haikei-wave-divider svg {
+  display: block;
+  width: 100%;
+  height: clamp(32px, 4.2vw, 64px);
+}
+
+.haikei-wave-hero-trust {
+  background: #FFFFFF;
+  margin-top: -1px;
+  margin-bottom: -1px;
+}
+
+.haikei-wave-to-dark {
+  background: #F8FAFC;
+  margin-top: -1px;
+  margin-bottom: -1px;
+}
+
+.haikei-wave-from-dark {
+  background: #FFFFFF;
+  margin-top: -1px;
+  margin-bottom: -1px;
+}
