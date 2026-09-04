@@ -1,0 +1,159 @@
+@import "tailwindcss";
+
+@theme {
+  --color-artistic-orange: #ff4e00;
+  --color-artistic-black: #0a0a0a;
+  --color-artistic-card: #141414;
+  --color-artistic-surface: #1a1a1a;
+  --color-artistic-elevated: #222222;
+  --color-artistic-border: rgba(255, 255, 255, 0.1);
+
+  --color-agri-green: #10b981;
+  --color-deep-navy: #f5f5f5;
+  --color-amber-gold: #ff4e00;
+  --color-pure-white: #ffffff;
+  --color-surface-light: #1a1a1a;
+  --color-text-dark: #f5f5f5;
+  
+  --color-surface: #0a0a0a;
+  --color-surface-dim: #111111;
+  --color-surface-bright: #1a1a1a;
+  --color-surface-container-lowest: #0a0a0a;
+  --color-surface-container-low: #141414;
+  --color-surface-container: #1a1a1a;
+  --color-surface-container-high: #222222;
+  --color-surface-container-highest: #2a2a2a;
+
+  --color-on-surface: #f5f5f5;
+  --color-on-surface-variant: #a3a3a3;
+  --color-primary: #ff4e00;
+  --color-on-primary: #000000;
+  --color-primary-container: #ff4e00;
+  --color-on-primary-container: #000000;
+  --color-primary-fixed: #ff4e00;
+  --color-primary-fixed-dim: #e04500;
+  --color-on-primary-fixed: #000000;
+  --color-on-primary-fixed-variant: #1a1a1a;
+
+  --color-secondary: #a3a3a3;
+  --color-secondary-container: #222222;
+  --color-on-secondary-container: #f5f5f5;
+  --color-tertiary: #ff4e00;
+  --color-tertiary-container: #2a1700;
+  --color-tertiary-fixed: #ffddb8;
+  --color-on-tertiary-fixed: #000000;
+
+  --font-display: 'Anton', sans-serif;
+  --font-headline: 'Anton', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #0a0a0a;
+  color: #f5f5f5;
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2, h3, h4, .font-display, .font-headline-lg, .font-headline-md, .font-headline-sm {
+  font-family: 'Anton', sans-serif;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.font-headline-lg {
+  font-family: 'Anton', sans-serif;
+  font-size: 32px;
+  line-height: 38px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.font-headline-md {
+  font-family: 'Anton', sans-serif;
+  font-size: 24px;
+  line-height: 30px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.font-headline-sm {
+  font-family: 'Anton', sans-serif;
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+}
+
+.text-label-lg {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.text-label-md {
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.text-label-sm {
+  font-size: 10px;
+  line-height: 14px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.text-body-lg {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 300;
+}
+
+.text-body-md {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 300;
+}
+
+.text-body-sm {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 300;
+}
+
+/* Material Symbols optical alignment */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+.material-symbols-outlined.fill-current {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Custom scrollbar hiding */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Artistic flair skew & geometric accents */
+.skew-box {
+  transform: skewX(-8deg);
+}
+
+.unskew-box {
+  transform: skewX(8deg);
+}
+

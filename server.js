@@ -93,6 +93,13 @@ app.get('/style-guide', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'style-guide', 'index.html'));
 });
 
+// Stitch React Interactive Web App
+const stitchDistPath = path.join(__dirname, 'stitch-app', 'dist');
+app.use('/app', express.static(stitchDistPath));
+app.get(['/app', '/app/*'], (req, res) => {
+  res.sendFile(path.join(stitchDistPath, 'index.html'));
+});
+
 // Printable Marketing Posters & QR Stickers Suite
 app.get(['/marketing', '/flyers', '/posters'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'marketing', 'index.html'));
