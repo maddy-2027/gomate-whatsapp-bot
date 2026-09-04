@@ -397,28 +397,8 @@
       <span data-i18n="mobileStickyWa">Find Available Equipment on WhatsApp</span>
     </a>
   </div>
-
-  <script>
-    // Accessible FAQ Accordions
-      const faqTriggers = document.querySelectorAll('.faq-trigger');
-      faqTriggers.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const expanded = btn.getAttribute('aria-expanded') === 'true';
-          const targetId = btn.getAttribute('aria-controls');
-          const panel = document.getElementById(targetId);
-          const icon = btn.querySelector('.faq-icon');
-
-          btn.setAttribute('aria-expanded', !expanded);
-          if (panel) {
-            panel.hidden = expanded;
-          }
-          if (icon) {
-            icon.textContent = expanded ? '+' : '−';
-          }
-        });
-      });
-    });
-  </script>
+  <script src="/js/vendor/motion.js" defer></script>
+  <script src="/js/landing-motion.js?v=1.0" defer></script>
   <script src="/js/landing-language.js?v=1.0" defer></script>
   <script src="/js/pwa.js?v=2" defer></script>
 </body>
