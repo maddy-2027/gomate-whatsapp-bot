@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  const { animate, inView, stagger, spring } = window.Motion;
+  const { animate, inView, stagger, scroll } = window.Motion;
 
   // Respect user preference for reduced motion
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -18,7 +18,13 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  /* ── 1. Hero Entrance Animation ────────────────────────────────────────── */
+  /* ── 1. Top Scroll Progress Indicator ─────────────────────────────────── */
+  const progressBar = document.querySelector('.scroll-progress-bar');
+  if (progressBar && typeof scroll === 'function') {
+    scroll(animate(progressBar, { scaleX: [0, 1] }, { ease: 'linear' }));
+  }
+
+  /* ── 2. Hero Entrance Animation ────────────────────────────────────────── */
   const heroBadge = document.querySelector('.hero-badge');
   const heroTitle = document.querySelector('.hero-title');
   const heroSubEn = document.querySelector('.hero-sub-en');
@@ -27,43 +33,40 @@ document.addEventListener('DOMContentLoaded', () => {
   const heroActions = document.querySelector('.hero-actions');
   const heroOwnerSublink = document.querySelector('.hero-owner-sublink');
 
-  // Stagger in the hero content smoothly on initial load
-  const heroTimeline = [];
-
   if (heroBadge) {
-    animate(heroBadge, { opacity: [0, 1], y: [16, 0] }, { duration: 0.45, ease: [0.16, 1, 0.3, 1] });
+    animate(heroBadge, { opacity: [0, 1], y: [14, 0] }, { duration: 0.45, ease: [0.16, 1, 0.3, 1] });
   }
 
   if (heroTitle) {
-    animate(heroTitle, { opacity: [0, 1], y: [20, 0] }, { duration: 0.55, delay: 0.08, ease: [0.16, 1, 0.3, 1] });
+    animate(heroTitle, { opacity: [0, 1], y: [18, 0] }, { duration: 0.52, delay: 0.08, ease: [0.16, 1, 0.3, 1] });
   }
 
   if (heroSubEn) {
-    animate(heroSubEn, { opacity: [0, 1], y: [16, 0] }, { duration: 0.5, delay: 0.16, ease: [0.16, 1, 0.3, 1] });
+    animate(heroSubEn, { opacity: [0, 1], y: [14, 0] }, { duration: 0.48, delay: 0.16, ease: [0.16, 1, 0.3, 1] });
   }
 
   if (heroSubMr) {
-    animate(heroSubMr, { opacity: [0, 1], y: [14, 0] }, { duration: 0.5, delay: 0.22, ease: [0.16, 1, 0.3, 1] });
+    animate(heroSubMr, { opacity: [0, 1], y: [12, 0] }, { duration: 0.48, delay: 0.22, ease: [0.16, 1, 0.3, 1] });
   }
 
   // Stagger equipment mini cards with subtle spring
   if (equipCards.length > 0) {
     animate(
       equipCards,
-      { opacity: [0, 1], x: [-18, 0] },
+      { opacity: [0, 1], x: [-16, 0] },
       { delay: stagger(0.08, { startDelay: 0.28 }), duration: 0.45, ease: [0.25, 1, 0.5, 1] }
     );
   }
 
   if (heroActions) {
-    animate(heroActions, { opacity: [0, 1], y: [16, 0] }, { duration: 0.45, delay: 0.52, ease: [0.16, 1, 0.3, 1] });
+    animate(heroActions, { opacity: [0, 1], y: [14, 0] }, { duration: 0.45, delay: 0.52, ease: [0.16, 1, 0.3, 1] });
   }
 
   if (heroOwnerSublink) {
     animate(heroOwnerSublink, { opacity: [0, 1] }, { duration: 0.4, delay: 0.62 });
   }
 
-  /* ── 2. Scroll-Triggered Reveals (inView) ──────────────────────────────── */
+  /* ── 3. Scroll-Triggered Reveals (inView) ──────────────────────────────── */
   // Trust Proof Cards
   const trustSection = document.querySelector('.section-trust');
   const trustCards = document.querySelectorAll('.trust-card');
@@ -71,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
     inView(trustSection, () => {
       animate(
         trustCards,
-        { opacity: [0, 1], y: [28, 0] },
+        { opacity: [0, 1], y: [26, 0] },
         { delay: stagger(0.09), duration: 0.5, ease: [0.16, 1, 0.3, 1] }
       );
     }, { amount: 0.15 });
@@ -84,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
     inView(reviewsSection, () => {
       animate(
         reviewCards,
-        { opacity: [0, 1], y: [24, 0], scale: [0.98, 1] },
+        { opacity: [0, 1], y: [22, 0], scale: [0.98, 1] },
         { delay: stagger(0.1), duration: 0.52, ease: [0.16, 1, 0.3, 1] }
       );
     }, { amount: 0.15 });
@@ -109,13 +112,13 @@ document.addEventListener('DOMContentLoaded', () => {
     inView(faqList, () => {
       animate(
         faqItems,
-        { opacity: [0, 1], y: [18, 0] },
+        { opacity: [0, 1], y: [16, 0] },
         { delay: stagger(0.08), duration: 0.45, ease: [0.16, 1, 0.3, 1] }
       );
     }, { amount: 0.1 });
   }
 
-  /* ── 3. Tactile Button Micro-Interactions ──────────────────────────────── */
+  /* ── 4. Tactile Button Micro-Interactions ──────────────────────────────── */
   const interactiveButtons = document.querySelectorAll(
     '.btn-hero-primary, .btn-hero-secondary, .nav-btn-primary, .btn-sticky-wa, .btn-owner-primary, .btn-owner-secondary'
   );
@@ -144,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  /* ── 4. Spring Feedback on Language Tabs ────────────────────────────────── */
+  /* ── 5. Spring Feedback on Language Tabs ────────────────────────────────── */
   const langTabs = document.querySelectorAll('.lang-tab-btn');
   langTabs.forEach((tab) => {
     tab.addEventListener('click', () => {
@@ -156,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  /* ── 5. Fluid Spring Physics for FAQ Accordions ───────────────────────── */
+  /* ── 6. Fluid Spring Physics for FAQ Accordions ───────────────────────── */
   const faqTriggers = document.querySelectorAll('.faq-trigger');
   faqTriggers.forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -169,7 +172,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (panel) {
         if (!expanded) {
-          // Open accordion with fluid height & opacity spring
           panel.hidden = false;
           panel.style.overflow = 'hidden';
           panel.style.height = '0px';
@@ -183,7 +185,6 @@ document.addEventListener('DOMContentLoaded', () => {
             panel.style.height = 'auto';
           });
         } else {
-          // Close accordion smoothly
           const currentHeight = panel.scrollHeight + 'px';
           panel.style.overflow = 'hidden';
           animate(panel, { height: [currentHeight, '0px'], opacity: [1, 0] }, {

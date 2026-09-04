@@ -1576,3 +1576,50 @@ img {
     font-size: 10px;
   }
 }
+
+
+/* ── Top Scroll Progress Bar (Motion Driven) ────────────────────────────── */
+.scroll-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #15803D 0%, #22C55E 100%);
+  transform-origin: 0% 50%;
+  transform: scaleX(0);
+  z-index: 1001;
+  pointer-events: none;
+}
+
+/* ── Primary Action Shimmer Accent ───────────────────────────────────────── */
+.btn-hero-primary,
+.nav-btn-primary {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-hero-primary::after,
+.nav-btn-primary::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 40%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.24) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(25deg);
+  animation: button-shimmer 4.5s infinite ease-in-out;
+  pointer-events: none;
+}
+
+@keyframes button-shimmer {
+  0%   { left: -60%; }
+  22%  { left: 140%; }
+  100% { left: 140%; }
+}
