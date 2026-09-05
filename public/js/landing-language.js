@@ -20,7 +20,7 @@
       navOwner: 'List Machinery',
       navWaBtn: 'Book on WhatsApp',
       heroBadge: '📍 Jath Taluka Pilot • 125 Villages • 0% Broker Commission',
-      heroTitle: 'Rent Tractors, JCBs &amp; Transport <span class="text-accent">on WhatsApp</span>',
+      heroTitle: 'Hire tractors, JCBs, and transport <span class="text-accent">on WhatsApp.</span>',
       heroSubEn: 'Direct machinery rental for rural India. Select machine, pick your village, and connect with verified local operators at flat hourly rates.',
       heroSubMr: 'No brokers, no hidden commission. Verified tractors, JCBs and goods transport in Jath Taluka directly on WhatsApp.',
       tractorTitle: 'Tractor &amp; Farm Machinery',
