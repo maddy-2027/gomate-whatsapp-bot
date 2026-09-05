@@ -185,7 +185,7 @@ async function runE2ETests() {
     method: 'POST',
     body: JSON.stringify({ phone: ownerPhone })
   });
-  assert(subRes.ok && subRes.data.amount === 599, 'Owner Pro ₹599/month subscription checkout generated');
+  assert(subRes.ok && subRes.data.amount === 149, 'Owner Pro ₹149/month subscription checkout generated');
 
   // -------------------------------------------------------------
   // Phase 4: Razorpay Webhook Simulation
@@ -197,7 +197,7 @@ async function runE2ETests() {
       subscription: {
         entity: {
           id: 'sub_test_123',
-          plan_id: 'plan_owner_pro_599',
+          plan_id: 'plan_owner_pro_149',
           status: 'active',
           current_end: Math.floor(Date.now() / 1000) + 30 * 24 * 3600
         }

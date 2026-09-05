@@ -23,7 +23,7 @@ async function createPaymentLink(phone, ownerName = 'Equipment Owner') {
 
   try {
     const paymentLink = await razorpay.paymentLink.create({
-      amount: 59900, // ₹599 in paise
+      amount: 14900, // ₹149 in paise
       currency: 'INR',
       accept_partial: false,
       description: 'GoMate Owner Pro Subscription (1 Month)',
@@ -106,7 +106,7 @@ async function handleWebhookEvent(event) {
   if (event.event === 'payment_link.paid' || event.event === 'payment.captured') {
     const payment = event.payload.payment.entity;
     const phone = payment.contact;
-    console.log(`✅ ₹599 Subscription Payment verified for owner: ${phone}`);
+    console.log(`✅ ₹149 Subscription Payment verified for owner: ${phone}`);
   }
 }
 

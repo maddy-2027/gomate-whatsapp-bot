@@ -277,7 +277,7 @@ function renderOwners() {
       <td><strong>${o.name}</strong></td>
       <td>${o.phone}</td>
       <td>${o.district || 'Maharashtra'}</td>
-      <td><span style="font-weight: 600; color: var(--gm-slate-800);">Owner Pro (₹599/mo)</span></td>
+      <td><span style="font-weight: 600; color: var(--gm-slate-800);">Owner Pro (₹149/mo)</span></td>
       <td><span class="badge badge-${(o.subscription_status || 'active').toLowerCase()}">${o.subscription_status || 'active'}</span></td>
       <td>${o.subscription_expires_at ? new Date(o.subscription_expires_at).toLocaleDateString() : '30 Days'}</td>
       <td>
@@ -307,7 +307,7 @@ function switchTab(tabId) {
     overview: ['Marketplace Overview', 'Real-time demand, fleet availability, and owner subscription metrics'],
     bookings: ['Bookings Operations', 'Inspect and manage customer machinery rental requests'],
     equipment: ['Equipment Fleet Directory', '16 canonical machinery types listed across Maharashtra'],
-    owners: ['Machinery Owners & Subscriptions', '₹599/month subscription status and listings health'],
+    owners: ['Machinery Owners & Subscriptions', '₹149/month subscription status and listings health'],
     revenue: ['Revenue & Platform Financials', 'Subscription MRR and equipment rental volume'],
     broadcast: ['WhatsApp Seasonal Broadcast Center', 'Targeted agricultural announcements and seasonal demand alerts'],
     heatmap: ['Taluka Demand Heatmap & Fleet Deficit', 'Live demand density and machinery shortage alerts across Jath Taluka'],

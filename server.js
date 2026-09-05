@@ -709,7 +709,7 @@ app.get('/api/owner/data', async (req, res) => {
         totalEarnings: monthlyEarnings || 28500,
         activeListings: ownerEquip.filter(e => e.available !== false).length,
         totalBookings: ownerBookings.length,
-        subscriptionPlan: 'Owner Pro (₹599/mo)',
+        subscriptionPlan: 'Owner Pro (₹149/mo)',
         subscriptionStatus: owner.subscription_status || 'active'
       }
     });
@@ -760,10 +760,10 @@ app.post('/api/owner/subscription/create', async (req, res) => {
     const { phone } = req.body;
     const ownerPhone = phone || '+919822012345';
     // Integrate with Razorpay or return checkout link
-    const paymentUrl = `/demo-payment?phone=${encodeURIComponent(ownerPhone)}&amount=599&plan=OwnerPro`;
+    const paymentUrl = `/demo-payment?phone=${encodeURIComponent(ownerPhone)}&amount=149&plan=OwnerPro`;
     res.json({
       success: true,
-      amount: 599,
+      amount: 149,
       currency: 'INR',
       plan: 'Owner Pro Monthly',
       checkoutUrl: paymentUrl

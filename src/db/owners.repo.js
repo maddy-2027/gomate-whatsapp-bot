@@ -91,7 +91,7 @@ async function getOwnerStats() {
   const activeSubs = all.filter(o => o.subscription_status === 'active').length;
   const trialSubs = all.filter(o => o.subscription_status === 'trial').length;
   const expiredSubs = all.filter(o => o.subscription_status === 'expired').length;
-  const monthlyRevenue = activeSubs * 599; // ₹599/mo per active owner
+  const monthlyRevenue = activeSubs * 149; // ₹149/mo per active owner
 
   return {
     totalOwners: all.length,
