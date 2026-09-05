@@ -153,6 +153,19 @@
       color: var(--gm-gray-700);
       transition: var(--gm-transition);
     }
+    .chip-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .chip-icon-img {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
     .chip-btn:hover {
       background: #FFFFFF;
       border-color: var(--gm-gray-300);
@@ -358,9 +371,18 @@
 
           <label class="form-label" style="font-size: 13px; font-weight: 700;">क्षेत्र (Category)</label>
           <div class="chips-grid">
-            <div class="chip-btn active" onclick="switchCategory('agriculture', this)">शेती (Agriculture)</div>
-            <div class="chip-btn" onclick="switchCategory('transport', this)">मालवाहतूक (Goods Transport)</div>
-            <div class="chip-btn" onclick="switchCategory('infrastructure', this)">जेसीबी व बांधकाम (Earthmoving)</div>
+            <div class="chip-btn active" onclick="switchCategory('agriculture', this)">
+              <img src="/assets/icons/tractor.png" alt="Tractor" width="22" height="22" class="chip-icon-img">
+              <span>शेती (Agriculture)</span>
+            </div>
+            <div class="chip-btn" onclick="switchCategory('transport', this)">
+              <img src="/assets/icons/transport.png" alt="Transport" width="22" height="22" class="chip-icon-img">
+              <span>मालवाहतूक (Goods Transport)</span>
+            </div>
+            <div class="chip-btn" onclick="switchCategory('infrastructure', this)">
+              <img src="/assets/icons/earthmoving.png" alt="Earthmoving" width="22" height="22" class="chip-icon-img">
+              <span>जेसीबी व बांधकाम (Earthmoving)</span>
+            </div>
           </div>
 
           <div style="margin-bottom: 16px;">
