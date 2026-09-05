@@ -16,6 +16,7 @@ const bookingsRepo = require('./src/db/bookings.repo');
 const equipmentRepo = require('./src/db/equipment.repo');
 const ownersRepo = require('./src/db/owners.repo');
 const { JATH_VILLAGES } = require('./src/data/jathVillages');
+const { resolveCoordinates } = require('./src/services/distanceService');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -423,12 +424,20 @@ app.post('/api/owner/pnl/send-whatsapp', async (req, res) => {
 // Jath Villages & Owner Self-Registration API
 // ==========================================
 app.get('/api/jath/villages', (req, res) => {
+  const villagesWithCoords = JATH_VILLAGES.map(v => {
+    const coords = resolveCoordinates(v.name);
+    return {
+      ...v,
+      lat: coords.lat,
+      lng: coords.lng
+    };
+  });
   res.json({
     taluka: 'Jath (जत)',
     district: 'Sangli (सांगली)',
     pin: '416404',
-    total: JATH_VILLAGES.length,
-    villages: JATH_VILLAGES
+    total: villagesWithCoords.length,
+    villages: villagesWithCoords
   });
 });
 
@@ -583,6 +592,10 @@ app.post('/api/booking/create-hourly', async (req, res) => {
       hours = 1, 
       acres = 1,
       distance_km = 5,
+      latitude,
+      longitude,
+      landmark,
+      maps_url,
       start_date, 
       start_time, 
       village,
@@ -595,6 +608,17 @@ app.post('/api/booking/create-hourly', async (req, res) => {
 
     const allEquip = await equipmentRepo.getAllEquipment();
     const equip = allEquip.find(e => String(e.id) === String(equipment_id)) || allEquip[0];
+
+    // Resolve Geocoordinates & Google Maps Navigation Link
+    let farmLat = parseFloat(latitude);
+    let farmLng = parseFloat(longitude);
+    if (isNaN(farmLat) || isNaN(farmLng)) {
+      const resolved = resolveCoordinates(village || 'जत');
+      farmLat = resolved.lat;
+      farmLng = resolved.lng;
+    }
+    const farmMapsUrl = maps_url || `https://www.google.com/maps/dir/?api=1&destination=${farmLat},${farmLng}`;
+    const farmLandmark = landmark ? String(landmark).trim() : '';
 
     let unitRate = Number(equip.hourly_rate || 600);
     let serviceName = 'Base Machine Hire';
@@ -648,12 +672,17 @@ app.post('/api/booking/create-hourly', async (req, res) => {
       cleanPhone = cleanPhone.length === 10 ? `+91${cleanPhone}` : `+${cleanPhone}`;
     }
 
-    // Create Booking
+    // Create Booking with Farm Geolocation & Navigation Link
     const booking = await bookingsRepo.createBooking({
       customer_name: customer_name.trim(),
       customer_phone: cleanPhone,
       equipment_id: equip.id,
       equipment_name: `${equip.model} [${serviceName}]`,
+      village: village || 'Jath',
+      landmark: farmLandmark,
+      latitude: farmLat,
+      longitude: farmLng,
+      google_maps_url: farmMapsUrl,
       start_date: `${start_date || 'Tomorrow'} at ${start_time || '08:00 AM'} (${unitsDescription})`,
       duration_days: Math.max(0.125, (Number(hours) || 1) / 8),
       total_amount: totalAmount,
@@ -687,6 +716,10 @@ app.post('/api/booking/create-hourly', async (req, res) => {
         start_date,
         start_time,
         village: village || 'Jath',
+        landmark: farmLandmark,
+        latitude: farmLat,
+        longitude: farmLng,
+        google_maps_url: farmMapsUrl,
         pay_url: payObj.short_url || 'https://rzp.io/l/gomate-booking'
       }
     });

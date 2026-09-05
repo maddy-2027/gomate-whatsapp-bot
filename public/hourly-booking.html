@@ -7,6 +7,8 @@
   <meta name="theme-color" content="#16a34a">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <link rel="stylesheet" href="/css/design-system.css">
   <style>
     body {
@@ -236,6 +238,70 @@
     }
 
     /* Hourly Blocks */
+    
+    .farm-map-card {
+      margin-top: 14px;
+      background: #FFFFFF;
+      border: 1px solid var(--gm-gray-300);
+      border-radius: var(--gm-radius-md);
+      padding: 12px;
+    }
+    .farm-map-toolbar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .farm-map-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 6px;
+      border: 1px solid var(--gm-gray-300);
+      background: #FFFFFF;
+      color: var(--gm-brand-navy);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .farm-map-btn:hover {
+      background: var(--gm-gray-100);
+      border-color: var(--gm-gray-400);
+    }
+    .farm-map-btn.primary {
+      background: var(--gm-green-600);
+      color: #FFFFFF;
+      border-color: var(--gm-green-600);
+    }
+    .farm-map-btn.primary:hover {
+      background: var(--gm-green-700);
+    }
+    #farmMap {
+      height: 250px;
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid var(--gm-gray-300);
+      z-index: 1;
+    }
+    .farm-coord-badge {
+      margin-top: 10px;
+      padding: 8px 12px;
+      background: #F0FDF4;
+      border: 1px solid #BBF7D0;
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--gm-green-800);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
     .hours-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
@@ -550,9 +616,50 @@
 
           <div>
             <label class="form-label" style="font-size: 13px; font-weight: 700;">जत तालुक्यातील गाव निवडा (Jath Village) *</label>
-            <select id="custVillage" class="gm-select" onchange="recalculatePrice()">
+            <select id="custVillage" class="gm-select" onchange="onVillageChange()">
               <!-- Populated with 125 villages -->
             </select>
+          </div>
+
+          <div style="margin-top: 12px;">
+            <label class="form-label" style="font-size: 13px; font-weight: 700;">शेताची खूण / गट क्रमांक (Farm Landmark / Gut No.)</label>
+            <input type="text" id="custLandmark" class="gm-input" placeholder="उदा. गट नं. २४, विहिरीशेजारी, मारुती मंदिरामागे" oninput="updateGpsReview()">
+          </div>
+
+          <!-- Interactive Area Map & Farm Geolocation Picker -->
+          <div class="farm-map-card">
+            <div class="farm-map-toolbar">
+              <span style="font-size: 13px; font-weight: 700; color: var(--gm-brand-navy); display: flex; align-items: center; gap: 6px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+                नकाशावर शेताचे अचूक स्थान (Pin Farm on Map)
+              </span>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <button type="button" class="farm-map-btn primary" onclick="locateMyFarmGPS()">
+                  🎯 थेट शेत शोधा (GPS)
+                </button>
+                <button type="button" class="farm-map-btn" id="btnToggleSatellite" onclick="toggleSatelliteLayer()">
+                  🛰️ सॅटेलाइट व्ह्यू
+                </button>
+                <button type="button" class="farm-map-btn" onclick="resetMapToVillage()">
+                  📍 गाव केंद्र
+                </button>
+              </div>
+            </div>
+
+            <div id="farmMap"></div>
+
+            <div class="farm-coord-badge">
+              <div>
+                <strong>📍 शेताचे GPS स्थान:</strong> <span id="lblFarmCoords">जत केंद्र (17.0450, 75.2250)</span>
+              </div>
+              <a id="lnkPreviewMaps" href="https://www.google.com/maps/dir/?api=1&destination=17.0450,75.2250" target="_blank" rel="noopener" style="color: var(--gm-green-700); font-weight: 700; text-decoration: underline; font-size: 11.5px;">
+                Google Maps वर उघडा ↗
+              </a>
+            </div>
+
+            <input type="hidden" id="farmLat" value="17.0450">
+            <input type="hidden" id="farmLng" value="75.2250">
+            <input type="hidden" id="farmMapsUrl" value="https://www.google.com/maps/dir/?api=1&destination=17.0450,75.2250">
           </div>
         </div>
 
@@ -577,6 +684,7 @@
               <div>&bull; <strong>काम / अवजार:</strong> <span id="chkService">Rotavator (रोटाव्हेटर)</span></div>
               <div>&bull; <strong>वेळ:</strong> <span id="chkTimeSlot">उद्या सकाळी 08:00 AM (2 तास)</span></div>
               <div>&bull; <strong>गाव / पत्ता:</strong> <span id="chkVillage">जत तालुका (४१६४०४)</span></div>
+              <div>&bull; <strong>शेताचे GPS:</strong> <span id="chkGps" style="font-family: var(--gm-font-mono); font-size: 11.5px; color: var(--gm-green-700);">17.0450, 75.2250 (Google Maps)</span></div>
               <div>&bull; <strong>ऑपरेटर:</strong> <span style="color: var(--gm-green-700); font-weight: 700;">व्हेरिफाइड ड्रायव्हरसह समाविष्ट</span></div>
             </div>
           </div>
@@ -644,6 +752,10 @@
       </div>
 
       <div style="display: flex; flex-direction: column; gap: 10px;">
+        <a id="succMapsBtn" href="#" target="_blank" rel="noopener" class="gm-btn gm-btn-outline" style="padding: 12px; font-size: 14px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; border-color: var(--gm-brand-navy); color: var(--gm-brand-navy);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+          Google Maps वर शेताचे लोकेशन पहा (Farm Location)
+        </a>
         <a id="succPayBtn" href="#" class="gm-btn gm-btn-primary" style="padding: 14px; font-size: 15px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
           UPI द्वारे ₹४९ पेमेंट करा (Pay via UPI)
@@ -819,6 +931,7 @@
       document.getElementById('bookingDate').value = tomorrow.toISOString().split('T')[0];
 
       await loadVillages();
+      initFarmMap();
       loadEquipmentByCategory('agriculture');
     });
 
@@ -957,6 +1070,165 @@
       recalculatePrice();
     }
 
+
+    // Leaflet Farm Map State
+    let farmMap = null;
+    let farmMarker = null;
+    let isSatellite = false;
+    let osmLayer = null;
+    let satLayer = null;
+
+    function initFarmMap() {
+      const defaultLat = 17.0450;
+      const defaultLng = 75.2250;
+
+      // Initialize Leaflet Map
+      farmMap = L.map('farmMap', {
+        center: [defaultLat, defaultLng],
+        zoom: 13,
+        zoomControl: true
+      });
+
+      // Standard OSM Streets Layer
+      osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19
+      });
+
+      // Esri Satellite Imagery Layer
+      satLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri',
+        maxZoom: 18
+      });
+
+      osmLayer.addTo(farmMap);
+
+      // Custom green marker icon
+      const farmIcon = L.divIcon({
+        className: 'custom-farm-marker',
+        html: `<div style="background: #16A34A; color: white; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 3px 8px rgba(0,0,0,0.3); border: 2.5px solid white;">🚜</div>`,
+        iconSize: [34, 34],
+        iconAnchor: [17, 17]
+      });
+
+      // Place draggable marker
+      farmMarker = L.marker([defaultLat, defaultLng], {
+        draggable: true,
+        icon: farmIcon
+      }).addTo(farmMap);
+
+      farmMarker.bindTooltip('तुमचे शेत (ड्रॅग करा)', { permanent: true, direction: 'top', offset: [0, -14] }).openTooltip();
+
+      // Listen for marker drag
+      farmMarker.on('dragend', function(e) {
+        const pos = farmMarker.getLatLng();
+        setFarmCoordinates(pos.lat, pos.lng);
+      });
+
+      // Listen for click on map
+      farmMap.on('click', function(e) {
+        farmMarker.setLatLng(e.latlng);
+        setFarmCoordinates(e.latlng.lat, e.latlng.lng);
+      });
+    }
+
+    function setFarmCoordinates(lat, lng) {
+      const formattedLat = parseFloat(lat.toFixed(5));
+      const formattedLng = parseFloat(lng.toFixed(5));
+      const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${formattedLat},${formattedLng}`;
+
+      document.getElementById('farmLat').value = formattedLat;
+      document.getElementById('farmLng').value = formattedLng;
+      document.getElementById('farmMapsUrl').value = mapsUrl;
+
+      const villageSelect = document.getElementById('custVillage');
+      const villageName = villageSelect.options[villageSelect.selectedIndex]?.text.split('(')[0].trim() || 'जत';
+      const landmark = document.getElementById('custLandmark')?.value.trim();
+      const locationText = landmark ? `${villageName} (${landmark})` : villageName;
+
+      document.getElementById('lblFarmCoords').textContent = `${locationText} (${formattedLat}, ${formattedLng})`;
+      document.getElementById('lnkPreviewMaps').href = mapsUrl;
+
+      updateGpsReview();
+    }
+
+    function updateGpsReview() {
+      const lat = document.getElementById('farmLat').value;
+      const lng = document.getElementById('farmLng').value;
+      const landmark = document.getElementById('custLandmark')?.value.trim();
+      const villageSelect = document.getElementById('custVillage');
+      const villageName = villageSelect.options[villageSelect.selectedIndex]?.text || 'जत तालुका';
+
+      document.getElementById('chkVillage').textContent = landmark ? `${villageName} [${landmark}]` : villageName;
+      document.getElementById('chkGps').textContent = `${lat}, ${lng} (Google Maps तयार)`;
+    }
+
+    function onVillageChange() {
+      const villageSelect = document.getElementById('custVillage');
+      const selectedName = villageSelect.value;
+      const villageObj = jathVillages.find(v => v.name === selectedName);
+
+      if (villageObj && villageObj.lat && villageObj.lng && farmMap && farmMarker) {
+        farmMap.flyTo([villageObj.lat, villageObj.lng], 14, { duration: 1 });
+        farmMarker.setLatLng([villageObj.lat, villageObj.lng]);
+        setFarmCoordinates(villageObj.lat, villageObj.lng);
+      } else {
+        recalculatePrice();
+      }
+    }
+
+    function locateMyFarmGPS() {
+      if (!navigator.geolocation) {
+        alert('तुमच्या ब्राउझरमध्ये GPS सुविधा उपलब्ध नाही.');
+        return;
+      }
+
+      const btn = event.currentTarget;
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '⏳ स्थान शोधत आहे...';
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          if (farmMap && farmMarker) {
+            farmMap.flyTo([lat, lng], 16, { duration: 1.2 });
+            farmMarker.setLatLng([lat, lng]);
+            setFarmCoordinates(lat, lng);
+          }
+          btn.innerHTML = originalText;
+        },
+        (err) => {
+          console.warn('GPS Error:', err);
+          alert('GPS स्थान शोधता आले नाही: कृपया Location Permission सुरू करा किंवा नकाशावर थेट शेत निवडा.');
+          btn.innerHTML = originalText;
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    }
+
+    function toggleSatelliteLayer() {
+      if (!farmMap) return;
+      const btn = document.getElementById('btnToggleSatellite');
+      if (isSatellite) {
+        farmMap.removeLayer(satLayer);
+        farmMap.addLayer(osmLayer);
+        isSatellite = false;
+        btn.textContent = '🛰️ सॅटेलाइट व्ह्यू';
+        btn.classList.remove('primary');
+      } else {
+        farmMap.removeLayer(osmLayer);
+        farmMap.addLayer(satLayer);
+        isSatellite = true;
+        btn.textContent = '🗺️ नकाशा व्ह्यू';
+        btn.classList.add('primary');
+      }
+    }
+
+    function resetMapToVillage() {
+      onVillageChange();
+    }
+
     function recalculatePrice() {
       if (!currentSelectedEquip) return;
 
@@ -1036,7 +1308,11 @@
         distance_km: selectedDistance,
         start_date: document.getElementById('bookingDate').value,
         start_time: document.getElementById('bookingStartTime').value,
-        village: document.getElementById('custVillage').value
+        village: document.getElementById('custVillage').value,
+        landmark: document.getElementById('custLandmark')?.value.trim() || '',
+        latitude: parseFloat(document.getElementById('farmLat').value) || 17.0450,
+        longitude: parseFloat(document.getElementById('farmLng').value) || 75.2250,
+        maps_url: document.getElementById('farmMapsUrl').value
       };
 
       try {
@@ -1056,6 +1332,9 @@
         document.getElementById('succHours').textContent = `${unitText} (${rec.start_date} @ ${rec.start_time})`;
         document.getElementById('succAmount').textContent = `₹${rec.total_amount.toLocaleString('en-IN')}`;
         document.getElementById('succPayBtn').href = rec.pay_url;
+        if (document.getElementById('succMapsBtn')) {
+          document.getElementById('succMapsBtn').href = rec.google_maps_url || `https://www.google.com/maps/dir/?api=1&destination=${rec.latitude},${rec.longitude}`;
+        }
 
         document.getElementById('bookingSuccessModal').style.display = 'flex';
       } catch (err) {

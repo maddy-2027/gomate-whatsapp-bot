@@ -266,10 +266,17 @@ function renderBookings(bookingsList) {
     if (b.status === 'completed') badgeClass = 'gm-badge-active';
     if (b.status === 'cancelled') badgeClass = 'gm-badge-cancelled';
 
+    const locText = b.village || b.district || 'जत';
+    const landText = b.landmark ? ` (${b.landmark})` : '';
+    const mapsUrl = b.google_maps_url || (b.latitude && b.longitude ? `https://www.google.com/maps/dir/?api=1&destination=${b.latitude},${b.longitude}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locText + ' जत सांगली')}`);
+
     return `
       <tr>
         <td><strong style="font-family: var(--gm-font-mono);">${b.booking_ref || 'GM-XXXX'}</strong></td>
-        <td>${b.equipment_name || 'Machinery Unit'}</td>
+        <td>
+          <div style="font-weight: 600;">${b.equipment_name || 'Machinery Unit'}</div>
+          <div style="font-size: 11px; color: var(--gm-gray-600); margin-top: 2px;">📍 ${locText}${landText}</div>
+        </td>
         <td>
           <div style="font-weight: 600;">${b.customer_name || 'Farmer Customer'}</div>
           <div style="font-size: 11px; color: var(--gm-gray-500);">${b.customer_phone || '+91 98765 43210'}</div>
@@ -278,9 +285,14 @@ function renderBookings(bookingsList) {
         <td><strong style="font-family: var(--gm-font-mono);">₹${(b.total_amount || 0).toLocaleString('en-IN')}</strong></td>
         <td><span class="gm-badge ${badgeClass}">${b.status || 'Pending'}</span></td>
         <td>
-          <a href="https://wa.me/${(b.customer_phone || '').replace(/\D/g, '')}" target="_blank" class="gm-btn gm-btn-primary" style="padding: 4px 10px; font-size: 11px; font-weight: 700; text-decoration: none;">
-            WhatsApp
-          </a>
+          <div style="display: flex; gap: 6px; align-items: center;">
+            <a href="${mapsUrl}" target="_blank" rel="noopener" class="gm-btn gm-btn-outline" style="padding: 4px 8px; font-size: 11px; font-weight: 700; text-decoration: none; border-color: var(--gm-brand-navy); color: var(--gm-brand-navy); white-space: nowrap;">
+              🗺️ थेट शेतात जा
+            </a>
+            <a href="https://wa.me/${(b.customer_phone || '').replace(/\D/g, '')}" target="_blank" rel="noopener" class="gm-btn gm-btn-primary" style="padding: 4px 8px; font-size: 11px; font-weight: 700; text-decoration: none;">
+              WhatsApp
+            </a>
+          </div>
         </td>
       </tr>
     `;
@@ -304,6 +316,9 @@ function createBookingCard(booking) {
   const date = booking.start_date || 'तारीख ठरवायची आहे';
   const duration = booking.duration_days ? `${booking.duration_days} दिवस` : '';
   const amount = Number(booking.total_amount || 0).toLocaleString('en-IN');
+  const locText = booking.village || booking.district || 'जत';
+  const landText = booking.landmark ? ` (${booking.landmark})` : '';
+  const mapsUrl = booking.google_maps_url || (booking.latitude && booking.longitude ? `https://www.google.com/maps/dir/?api=1&destination=${booking.latitude},${booking.longitude}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locText + ' जत सांगली')}`);
 
   return `
     <article class="owner-booking-mini-card">
@@ -313,10 +328,16 @@ function createBookingCard(booking) {
       </div>
       <div class="owner-booking-mini-card__machine">${equipment}</div>
       <div class="owner-booking-mini-card__customer">${customer}${phone ? ` · ${booking.customer_phone}` : ''}</div>
+      <div style="font-size: 12.5px; color: var(--gm-gray-700); margin: 3px 0;">📍 <strong>स्थान:</strong> ${locText}${landText}</div>
       <div class="owner-booking-mini-card__date">${date}${duration ? ` · ${duration}` : ''}</div>
-      <div class="owner-booking-mini-card__bottom">
+      <div class="owner-booking-mini-card__bottom" style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
         <strong class="owner-booking-mini-card__amount">₹${amount}</strong>
-        ${phone ? `<a href="https://wa.me/${phone}" target="_blank" rel="noopener" class="gm-btn gm-btn-primary">WhatsApp वर बोला</a>` : ''}
+        <div style="display: flex; gap: 6px;">
+          <a href="${mapsUrl}" target="_blank" rel="noopener" class="gm-btn gm-btn-outline" style="padding: 5px 8px; font-size: 11.5px; font-weight: 700; text-decoration: none; border-color: var(--gm-brand-navy); color: var(--gm-brand-navy); white-space: nowrap;">
+            🗺️ शेतात जा
+          </a>
+          ${phone ? `<a href="https://wa.me/${phone}" target="_blank" rel="noopener" class="gm-btn gm-btn-primary" style="padding: 5px 10px; font-size: 11.5px;">WhatsApp</a>` : ''}
+        </div>
       </div>
     </article>
   `;
