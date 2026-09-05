@@ -570,15 +570,19 @@ app.post('/api/booking/calculate-hourly', async (req, res) => {
   }
 });
 
-// Hourly Rental Booking Confirmation & Payment API
+// Multi-Dimension Machinery & Logistics Booking API (Hourly, Acre, Kilometer)
 app.post('/api/booking/create-hourly', async (req, res) => {
   try {
     const { 
       customer_name, 
       customer_phone, 
+      category = 'agriculture',
       equipment_id, 
       service_id, 
+      billing_mode = 'hourly', // 'hourly', 'acre', or 'km'
       hours = 1, 
+      acres = 1,
+      distance_km = 5,
       start_date, 
       start_time, 
       village,
@@ -594,6 +598,18 @@ app.post('/api/booking/create-hourly', async (req, res) => {
 
     let unitRate = Number(equip.hourly_rate || 600);
     let serviceName = 'Base Machine Hire';
+    let machineSubtotal = 0;
+    let unitsDescription = '';
+
+    const acreRates = {
+      rotavator: 950,
+      cultivation: 850,
+      trolley: 600,
+      ploughing: 1200,
+      seeding: 700,
+      harvester: 1800,
+      drone_spray: 450
+    };
 
     if (equip.service_rates && service_id && equip.service_rates[service_id]) {
       unitRate = Number(equip.service_rates[service_id].rate || equip.service_rates[service_id].rate_per_hour || unitRate);
@@ -603,9 +619,27 @@ app.post('/api/booking/create-hourly', async (req, res) => {
     else if (service_id === 'trolley') { unitRate = 600; serviceName = 'Hydraulic Trolley (ट्रॉली)'; }
     else if (service_id === 'ploughing') { unitRate = 850; serviceName = 'Deep Plough (नांगरट)'; }
     else if (service_id === 'seeding') { unitRate = 750; serviceName = 'Seed Drill (पेरणी)'; }
+    else if (service_id === 'harvester') { unitRate = 1600; serviceName = 'Harvester (काढणी काम)'; }
+    else if (service_id === 'drone_spray') { unitRate = 900; serviceName = 'Drone Spraying (औषध फवारणी)'; }
 
-    const durationHours = Math.max(1, Number(hours) || 1);
-    const machineSubtotal = unitRate * durationHours;
+    if (category === 'agriculture' && billing_mode === 'acre') {
+      const perAcreRate = acreRates[service_id] || Math.round(unitRate * 1.15);
+      const totalAcres = Math.max(1, Number(acres) || 1);
+      machineSubtotal = perAcreRate * totalAcres;
+      unitsDescription = `${totalAcres} Acres (₹${perAcreRate}/acre)`;
+    } else if (category === 'transport' || billing_mode === 'km') {
+      const baseFare = Number(equip.hourly_rate || 350);
+      const perKm = service_id === 'market_haul' ? 24 : (service_id === 'intercity' ? 28 : 22);
+      const dist = Math.max(1, Number(distance_km) || 5);
+      const extraKm = Math.max(0, dist - 5);
+      machineSubtotal = baseFare + (extraKm * perKm);
+      unitsDescription = `${dist} km (₹${baseFare} base + ${extraKm} km × ₹${perKm}/km)`;
+    } else { // default hourly
+      const durationHours = Math.max(1, Number(hours) || 1);
+      machineSubtotal = unitRate * durationHours;
+      unitsDescription = `${durationHours} Hours (₹${unitRate}/hr)`;
+    }
+
     const PLATFORM_FEE = 49;
     const totalAmount = machineSubtotal + PLATFORM_FEE;
 
@@ -620,8 +654,8 @@ app.post('/api/booking/create-hourly', async (req, res) => {
       customer_phone: cleanPhone,
       equipment_id: equip.id,
       equipment_name: `${equip.model} [${serviceName}]`,
-      start_date: `${start_date || 'Tomorrow'} at ${start_time || '08:00 AM'} (${durationHours} Hours)`,
-      duration_days: durationHours / 8, // fractional days
+      start_date: `${start_date || 'Tomorrow'} at ${start_time || '08:00 AM'} (${unitsDescription})`,
+      duration_days: Math.max(0.125, (Number(hours) || 1) / 8),
       total_amount: totalAmount,
       status: 'pending',
       owner_phone: equip.owner_phone || '+919822012345'
@@ -632,7 +666,7 @@ app.post('/api/booking/create-hourly', async (req, res) => {
       cleanPhone,
       totalAmount,
       booking.booking_ref,
-      `${equip.model} (${serviceName} - ${durationHours} hrs)`
+      `${equip.model} (${serviceName} - ${unitsDescription})`
     );
 
     res.json({
@@ -645,8 +679,8 @@ app.post('/api/booking/create-hourly', async (req, res) => {
         customer_phone: cleanPhone,
         equipment_model: equip.model,
         service_name: serviceName,
-        unit_hourly_rate: unitRate,
-        duration_hours: durationHours,
+        billing_mode,
+        units_description: unitsDescription,
         machine_subtotal: machineSubtotal,
         platform_fee: PLATFORM_FEE,
         total_amount: totalAmount,
@@ -657,7 +691,7 @@ app.post('/api/booking/create-hourly', async (req, res) => {
       }
     });
   } catch (err) {
-    console.error('Hourly booking error:', err);
+    console.error('Multi-dimension booking error:', err);
     res.status(500).json({ error: err.message });
   }
 });

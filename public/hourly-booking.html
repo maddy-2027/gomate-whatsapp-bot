@@ -134,6 +134,41 @@
     }
 
     /* Category & Attachment Chips */
+    
+    .mode-pill-btn {
+      flex: 1;
+      padding: 10px 14px;
+      border-radius: var(--gm-radius-md);
+      border: 2px solid var(--gm-gray-200);
+      background: var(--gm-gray-50);
+      color: var(--gm-gray-700);
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .mode-pill-btn:hover {
+      border-color: var(--gm-brand-blue);
+      background: #FFFFFF;
+      color: var(--gm-brand-navy);
+    }
+    .mode-pill-btn.active {
+      border-color: var(--gm-brand-navy);
+      background: var(--gm-brand-navy);
+      color: #FFFFFF;
+      box-shadow: var(--gm-shadow-sm);
+    }
+    .gm-range {
+      accent-color: var(--gm-green-600);
+      height: 8px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
     .chips-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -403,11 +438,11 @@
           </div>
         </div>
 
-        <!-- STEP 2: Hourly Calendar & Time Slot Picker -->
-        <div class="step-card">
+        <!-- STEP 2: Dynamic Billing Mode & Duration/Distance Picker -->
+        <div class="step-card" id="step2Card">
           <div class="step-title">
             <span class="step-badge">2</span>
-            <span>तारीख व तासांची निवड (Select Hours &amp; Slot)</span>
+            <span id="step2Title">तारीख व बुकिंग प्रमाण (Select Booking Mode &amp; Quantity)</span>
           </div>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
@@ -429,18 +464,70 @@
             </div>
           </div>
 
-          <label class="form-label" style="font-size: 13px; font-weight: 700;">
-            कामाचा कालावधी (Exact Hours Required) *
-          </label>
-          <div class="hours-grid">
-            <div class="hour-block" onclick="selectHours(1, this)">1 तास</div>
-            <div class="hour-block active" onclick="selectHours(2, this)">2 तास (शिफारस)</div>
-            <div class="hour-block" onclick="selectHours(3, this)">3 तास</div>
-            <div class="hour-block" onclick="selectHours(4, this)">4 तास (अर्धा दिवस)</div>
-            <div class="hour-block" onclick="selectHours(6, this)">6 तास</div>
-            <div class="hour-block" onclick="selectHours(8, this)">8 तास (पूर्ण दिवस)</div>
+          <!-- Agriculture Dual Mode Switcher: Hourly vs Acre -->
+          <div id="agriModeSwitcherWrap" style="margin-bottom: 14px;">
+            <label class="form-label" style="font-size: 13px; font-weight: 700; color: var(--gm-brand-navy);">
+              दर आकारणी पद्धत (Pricing Model) *
+            </label>
+            <div style="display: flex; gap: 10px;">
+              <button type="button" id="btnModeHourly" class="mode-pill-btn active" onclick="setBillingMode('hourly')">
+                ⏱️ प्रति तास (Hourly)
+              </button>
+              <button type="button" id="btnModeAcre" class="mode-pill-btn" onclick="setBillingMode('acre')">
+                🌾 प्रति एकर (Per Acre)
+              </button>
+            </div>
           </div>
+
+          <!-- Sub-block: Hours Selector (for Agriculture Hourly or Earthmoving) -->
+          <div id="blockHoursWrapper">
+            <label class="form-label" style="font-size: 13px; font-weight: 700;">
+              कामाचा कालावधी (Exact Hours Required) *
+            </label>
+            <div class="hours-grid">
+              <div class="hour-block" onclick="selectHours(1, this)">1 तास</div>
+              <div class="hour-block active" onclick="selectHours(2, this)">2 तास (शिफारस)</div>
+              <div class="hour-block" onclick="selectHours(3, this)">3 तास</div>
+              <div class="hour-block" onclick="selectHours(4, this)">4 तास (अर्धा दिवस)</div>
+              <div class="hour-block" onclick="selectHours(6, this)">6 तास</div>
+              <div class="hour-block" onclick="selectHours(8, this)">8 तास (पूर्ण दिवस)</div>
+            </div>
+          </div>
+
+          <!-- Sub-block: Acre Selector (for Agriculture Acre Mode) -->
+          <div id="blockAcreWrapper" style="display: none;">
+            <label class="form-label" style="font-size: 13px; font-weight: 700;">
+              शेतजमीन क्षेत्र (Area in Acres) *
+            </label>
+            <div class="hours-grid">
+              <div class="hour-block active" onclick="selectAcres(1, this)">1 एकर</div>
+              <div class="hour-block" onclick="selectAcres(2, this)">2 एकर</div>
+              <div class="hour-block" onclick="selectAcres(3, this)">3 एकर</div>
+              <div class="hour-block" onclick="selectAcres(5, this)">5 एकर</div>
+              <div class="hour-block" onclick="selectAcres(8, this)">8 एकर</div>
+              <div class="hour-block" onclick="selectAcres(10, this)">10 एकर</div>
+            </div>
+          </div>
+
+          <!-- Sub-block: Transport Distance (Km) Input -->
+          <div id="blockDistanceWrapper" style="display: none;">
+            <label class="form-label" style="font-size: 13px; font-weight: 700; color: var(--gm-brand-navy);">
+              मालवाहतूक अंतर (Transport Distance in Kilometers) *
+            </label>
+            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 12px;">
+              <input type="range" id="distRange" min="1" max="100" value="12" class="gm-range" oninput="handleDistanceChange(this.value)" style="flex: 1;">
+              <div style="background: #EFF6FF; border: 2px solid var(--gm-brand-blue); border-radius: 8px; padding: 6px 14px; font-size: 16px; font-weight: 800; color: var(--gm-brand-navy); min-width: 90px; text-align: center;">
+                <span id="distValBadge">12</span> <small style="font-size: 12px; font-weight: 600;">कि.मी.</small>
+              </div>
+            </div>
+            <div style="font-size: 12.5px; color: var(--gm-gray-600); background: var(--gm-gray-100); padding: 8px 12px; border-radius: 6px;">
+              📍 <strong>दर नियम:</strong> पहिले ५ कि.मी. फ्लॅट बेस रेट, त्यानंतर प्रति कि.मी. दर लागू.
+            </div>
+          </div>
+
           <input type="hidden" id="selectedHoursVal" value="2">
+          <input type="hidden" id="selectedAcresVal" value="1">
+          <input type="hidden" id="selectedDistanceVal" value="12">
         </div>
 
         <!-- STEP 3: Farmer / Customer Details & Jath Village -->
@@ -574,7 +661,35 @@
     let currentSelectedEquip = null;
     let currentSelectedService = 'rotavator';
     let selectedHours = 2;
+    let selectedAcres = 1;
+    let selectedDistance = 12;
+    let currentBillingMode = 'hourly'; // 'hourly' or 'acre' (for agriculture), 'km' (for transport)
     let jathVillages = [];
+
+    function setBillingMode(mode) {
+      currentBillingMode = mode;
+      document.getElementById('btnModeHourly').classList.toggle('active', mode === 'hourly');
+      document.getElementById('btnModeAcre').classList.toggle('active', mode === 'acre');
+      document.getElementById('blockHoursWrapper').style.display = mode === 'hourly' ? 'block' : 'none';
+      document.getElementById('blockAcreWrapper').style.display = mode === 'acre' ? 'block' : 'none';
+      renderAttachmentOptions();
+      recalculatePrice();
+    }
+
+    function selectAcres(acres, el) {
+      document.querySelectorAll('#blockAcreWrapper .hour-block').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      selectedAcres = acres;
+      document.getElementById('selectedAcresVal').value = acres;
+      recalculatePrice();
+    }
+
+    function handleDistanceChange(val) {
+      selectedDistance = parseInt(val, 10) || 5;
+      document.getElementById('distValBadge').textContent = selectedDistance;
+      document.getElementById('selectedDistanceVal').value = selectedDistance;
+      recalculatePrice();
+    }
 
     // Canonical equipment catalog with different hourly service rates
     const LOCAL_CATALOG = {
@@ -584,11 +699,11 @@
           model: 'Mahindra 575 DI (45 HP Tractor)',
           hourly_rate: 600,
           service_rates: {
-            rotavator: { name: 'Rotavator (रोटाव्हेटर)', rate: 800 },
-            cultivation: { name: 'Cultivator (कल्टीव्हेटर / मशागत)', rate: 900 },
-            trolley: { name: 'Hydraulic Trolley (ट्रॉली वाहतूक)', rate: 600 },
-            ploughing: { name: 'Deep Plough (नांगरट)', rate: 850 },
-            seeding: { name: 'Seed Drill (पेरणी यंत्र)', rate: 750 }
+            rotavator: { name: 'Rotavator (रोटाव्हेटर)', rate: 800, acre_rate: 950 },
+            cultivation: { name: 'Cultivator (कल्टीव्हेटर / मशागत)', rate: 900, acre_rate: 850 },
+            trolley: { name: 'Hydraulic Trolley (ट्रॉली वाहतूक)', rate: 600, acre_rate: 600 },
+            ploughing: { name: 'Deep Plough (नांगरट)', rate: 850, acre_rate: 1200 },
+            seeding: { name: 'Seed Drill (पेरणी यंत्र)', rate: 750, acre_rate: 700 }
           }
         },
         {
@@ -596,10 +711,10 @@
           model: 'John Deere 5310 (55 HP 4WD Tractor)',
           hourly_rate: 700,
           service_rates: {
-            rotavator: { name: 'Heavy Rotavator (रोटाव्हेटर)', rate: 850 },
-            cultivation: { name: 'Heavy Cultivator (कल्टीव्हेटर)', rate: 950 },
-            trolley: { name: 'Dual Axle Trolley (मोठी ट्रॉली)', rate: 650 },
-            ploughing: { name: 'Reversible MB Plough (नांगरट)', rate: 900 }
+            rotavator: { name: 'Heavy Rotavator (रोटाव्हेटर)', rate: 850, acre_rate: 1000 },
+            cultivation: { name: 'Heavy Cultivator (कल्टीव्हेटर)', rate: 950, acre_rate: 900 },
+            trolley: { name: 'Dual Axle Trolley (मोठी ट्रॉली)', rate: 650, acre_rate: 650 },
+            ploughing: { name: 'Reversible MB Plough (नांगरट)', rate: 900, acre_rate: 1250 }
           }
         },
         {
@@ -607,7 +722,7 @@
           model: 'Claas Crop Tiger Combine Harvester',
           hourly_rate: 1600,
           service_rates: {
-            harvester: { name: 'Harvester (काढणी काम)', rate: 1600 }
+            harvester: { name: 'Harvester (काढणी काम)', rate: 1600, acre_rate: 1800 }
           }
         },
         {
@@ -615,7 +730,7 @@
           model: 'GoMate Agri Spray Drone (10L)',
           hourly_rate: 900,
           service_rates: {
-            drone_spray: { name: 'Drone Spraying (औषध फवारणी)', rate: 900 }
+            drone_spray: { name: 'Drone Spraying (औषध फवारणी)', rate: 900, acre_rate: 450 }
           }
         }
       ],
@@ -624,34 +739,46 @@
           id: 201,
           model: 'Tata Ace Gold (छोटा हत्ती)',
           hourly_rate: 350,
+          km_base_fare: 350,
+          km_base_dist: 5,
+          per_km_rate: 22,
           service_rates: {
-            local_haul: { name: 'स्थानिक गाव मालवाहतूक (Local Village Haulage)', rate: 350 },
-            market_haul: { name: 'सांगली/सांगोला मार्केट ट्रिप (Market Trip)', rate: 450 }
+            local_haul: { name: 'स्थानिक गाव मालवाहतूक (0-5 km बेस)', rate: 350, per_km: 22 },
+            market_haul: { name: 'मार्केट लांब पल्ला ट्रिप (कि.मी. प्रमाणे)', rate: 450, per_km: 24 }
           }
         },
         {
           id: 202,
           model: 'Ashok Leyland Dost Plus (1.5 Tonne)',
           hourly_rate: 450,
+          km_base_fare: 450,
+          km_base_dist: 5,
+          per_km_rate: 26,
           service_rates: {
-            market_haul: { name: '1.5 टन कृषी उत्पन्न वाहतूक (Market Transport)', rate: 450 },
-            intercity: { name: 'लांब पल्ला मालवाहतूक (Long Haul)', rate: 550 }
+            market_haul: { name: '1.5 टन कृषी उत्पन्न वाहतूक (कि.मी.)', rate: 450, per_km: 26 },
+            intercity: { name: 'लांब पल्ला अंतर वाहतूक (Long Haul)', rate: 550, per_km: 28 }
           }
         },
         {
           id: 204,
           model: 'BharatBenz 12KL Water Tanker',
           hourly_rate: 850,
+          km_base_fare: 850,
+          km_base_dist: 5,
+          per_km_rate: 38,
           service_rates: {
-            water_supply: { name: '12,000L शेती पाणी टँकर पुरवठा (Water Tanker)', rate: 850 }
+            water_supply: { name: '12,000L शेती पाणी टँकर पुरवठा (कि.मी.)', rate: 850, per_km: 38 }
           }
         },
         {
           id: 205,
           model: 'Ashok Leyland Tipper (डंपर)',
           hourly_rate: 900,
+          km_base_fare: 900,
+          km_base_dist: 5,
+          per_km_rate: 45,
           service_rates: {
-            dumping: { name: 'मुरूम, माती व खडी वाहतूक (Tipper Dumper)', rate: 900 }
+            dumping: { name: 'मुरूम, माती व खडी वाहतूक (कि.मी.)', rate: 900, per_km: 45 }
           }
         }
       ],
@@ -713,6 +840,32 @@
       document.querySelectorAll('.chip-btn').forEach(b => b.classList.remove('active'));
       el.classList.add('active');
       currentCategory = cat;
+
+      const agriSwitcher = document.getElementById('agriModeSwitcherWrap');
+      const blockHours = document.getElementById('blockHoursWrapper');
+      const blockAcre = document.getElementById('blockAcreWrapper');
+      const blockDist = document.getElementById('blockDistanceWrapper');
+
+      if (cat === 'agriculture') {
+        agriSwitcher.style.display = 'block';
+        currentBillingMode = document.getElementById('btnModeAcre').classList.contains('active') ? 'acre' : 'hourly';
+        blockHours.style.display = currentBillingMode === 'hourly' ? 'block' : 'none';
+        blockAcre.style.display = currentBillingMode === 'acre' ? 'block' : 'none';
+        blockDist.style.display = 'none';
+      } else if (cat === 'transport') {
+        agriSwitcher.style.display = 'none';
+        blockHours.style.display = 'none';
+        blockAcre.style.display = 'none';
+        blockDist.style.display = 'block';
+        currentBillingMode = 'km';
+      } else { // infrastructure / earthmoving
+        agriSwitcher.style.display = 'none';
+        blockHours.style.display = 'block';
+        blockAcre.style.display = 'none';
+        blockDist.style.display = 'none';
+        currentBillingMode = 'hourly';
+      }
+
       loadEquipmentByCategory(cat);
     }
 
@@ -766,14 +919,27 @@
 
       currentSelectedService = entries[0][0];
 
-      grid.innerHTML = entries.map(([key, s], idx) => `
-        <div class="attachment-chip ${idx === 0 ? 'active' : ''}" onclick="selectAttachmentService('${key}', this)">
-          <div style="font-weight: 700; color: var(--gm-brand-navy); font-size: 13.5px;">${s.name}</div>
-          <div style="color: var(--gm-green-700); font-weight: 800; font-size: 15px; margin-top: 6px; font-family: var(--gm-font-mono);">
-            ₹${s.rate} <span style="font-size: 11px; font-weight: 500; color: var(--gm-gray-500); font-family: var(--gm-font-body);">/ तास</span>
+      grid.innerHTML = entries.map(([key, s], idx) => {
+        let priceTag = '';
+        if (currentCategory === 'agriculture' && currentBillingMode === 'acre') {
+          const acreRate = s.acre_rate || Math.round(s.rate * 1.15);
+          priceTag = `₹${acreRate} <span style="font-size: 11px; font-weight: 500; color: var(--gm-gray-500); font-family: var(--gm-font-body);">/ एकर</span>`;
+        } else if (currentCategory === 'transport') {
+          const perKm = s.per_km || currentSelectedEquip.per_km_rate || 22;
+          priceTag = `₹${s.rate} बेस <span style="font-size: 11px; font-weight: 500; color: var(--gm-gray-500); font-family: var(--gm-font-body);">(+₹${perKm}/कि.मी.)</span>`;
+        } else {
+          priceTag = `₹${s.rate} <span style="font-size: 11px; font-weight: 500; color: var(--gm-gray-500); font-family: var(--gm-font-body);">/ तास</span>`;
+        }
+
+        return `
+          <div class="attachment-chip ${idx === 0 ? 'active' : ''}" onclick="selectAttachmentService('${key}', this)">
+            <div style="font-weight: 700; color: var(--gm-brand-navy); font-size: 13.5px;">${s.name}</div>
+            <div style="color: var(--gm-green-700); font-weight: 800; font-size: 15px; margin-top: 6px; font-family: var(--gm-font-mono);">
+              ${priceTag}
+            </div>
           </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     function selectAttachmentService(serviceKey, el) {
@@ -794,31 +960,52 @@
     function recalculatePrice() {
       if (!currentSelectedEquip) return;
 
-      let unitRate = currentSelectedEquip.hourly_rate;
+      let subtotal = 0;
+      let breakdownLabel = '';
       let serviceTitle = 'Base Hire';
+      let serviceObj = currentSelectedEquip.service_rates ? currentSelectedEquip.service_rates[currentSelectedService] : null;
 
-      if (currentSelectedEquip.service_rates && currentSelectedEquip.service_rates[currentSelectedService]) {
-        unitRate = currentSelectedEquip.service_rates[currentSelectedService].rate;
-        serviceTitle = currentSelectedEquip.service_rates[currentSelectedService].name;
+      if (serviceObj) {
+        serviceTitle = serviceObj.name;
       }
 
-      const hours = selectedHours;
-      const subtotal = unitRate * hours;
+      if (currentCategory === 'agriculture' && currentBillingMode === 'acre') {
+        const acreRate = serviceObj && serviceObj.acre_rate ? serviceObj.acre_rate : Math.round((currentSelectedEquip.hourly_rate || 800) * 1.15);
+        const acres = selectedAcres;
+        subtotal = acreRate * acres;
+        breakdownLabel = `${serviceTitle} (₹${acreRate} × ${acres} एकर)`;
+        document.getElementById('chkService').textContent = `${serviceTitle} (₹${acreRate}/एकर)`;
+        document.getElementById('chkTimeSlot').textContent = `${document.getElementById('bookingDate').value || 'उद्या'} (${acres} एकर काम)`;
+      } else if (currentCategory === 'transport') {
+        const baseFare = currentSelectedEquip.km_base_fare || 350;
+        const baseDist = currentSelectedEquip.km_base_dist || 5;
+        const perKm = (serviceObj && serviceObj.per_km) || currentSelectedEquip.per_km_rate || 22;
+        const dist = selectedDistance;
+        const extraKm = Math.max(0, dist - baseDist);
+        subtotal = baseFare + (extraKm * perKm);
+        breakdownLabel = `${serviceTitle} (बेस ₹${baseFare} + ${extraKm} km × ₹${perKm})`;
+        document.getElementById('chkService').textContent = `${serviceTitle} (₹${baseFare} बेस + ₹${perKm}/कि.मी.)`;
+        document.getElementById('chkTimeSlot').textContent = `${document.getElementById('bookingDate').value || 'उद्या'} (${dist} कि.मी. अंतर)`;
+      } else { // hourly (agri or infra)
+        const unitRate = serviceObj ? serviceObj.rate : (currentSelectedEquip.hourly_rate || 600);
+        const hours = selectedHours;
+        subtotal = unitRate * hours;
+        breakdownLabel = `${serviceTitle} (₹${unitRate} × ${hours} तास)`;
+        document.getElementById('chkService').textContent = `${serviceTitle} (₹${unitRate}/तास)`;
+        document.getElementById('chkTimeSlot').textContent = `${document.getElementById('bookingDate').value || 'उद्या'} @ ${document.getElementById('bookingStartTime').value || '08:00 AM'} (${hours} तास)`;
+      }
+
       const platformFee = 49;
       const total = subtotal + platformFee;
 
       // Update Data-Check Box
       document.getElementById('chkModel').textContent = currentSelectedEquip.model;
-      document.getElementById('chkService').textContent = `${serviceTitle} (₹${unitRate}/तास)`;
-      const dateVal = document.getElementById('bookingDate').value || 'उद्या';
-      const timeVal = document.getElementById('bookingStartTime').value || '08:00 AM';
-      document.getElementById('chkTimeSlot').textContent = `${dateVal} @ ${timeVal} (${hours} तास)`;
       const villageSelect = document.getElementById('custVillage');
       const villageVal = villageSelect.options[villageSelect.selectedIndex]?.text || 'जत तालुका';
       document.getElementById('chkVillage').textContent = villageVal;
 
       // Update Receipt
-      document.getElementById('lblRateBreakdown').textContent = `${serviceTitle} (₹${unitRate} × ${hours} तास)`;
+      document.getElementById('lblRateBreakdown').textContent = breakdownLabel;
       document.getElementById('valSubtotal').textContent = `₹${subtotal.toLocaleString('en-IN')}`;
       document.getElementById('valTotal').textContent = `₹${total.toLocaleString('en-IN')}`;
     }
@@ -840,9 +1027,13 @@
       const payload = {
         customer_name: name,
         customer_phone: phone,
+        category: currentCategory,
         equipment_id: currentSelectedEquip.id,
         service_id: currentSelectedService,
+        billing_mode: currentBillingMode,
         hours: selectedHours,
+        acres: selectedAcres,
+        distance_km: selectedDistance,
         start_date: document.getElementById('bookingDate').value,
         start_time: document.getElementById('bookingStartTime').value,
         village: document.getElementById('custVillage').value
@@ -861,7 +1052,8 @@
         const rec = data.receipt;
         document.getElementById('succRef').textContent = rec.booking_ref;
         document.getElementById('succTask').textContent = `${rec.equipment_model} — ${rec.service_name}`;
-        document.getElementById('succHours').textContent = `${rec.duration_hours} तास (${rec.start_date} @ ${rec.start_time})`;
+        const unitText = rec.units_description || `${rec.duration_hours} तास`;
+        document.getElementById('succHours').textContent = `${unitText} (${rec.start_date} @ ${rec.start_time})`;
         document.getElementById('succAmount').textContent = `₹${rec.total_amount.toLocaleString('en-IN')}`;
         document.getElementById('succPayBtn').href = rec.pay_url;
 
