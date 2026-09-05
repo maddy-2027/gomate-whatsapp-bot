@@ -1658,3 +1658,34 @@ img {
   margin-top: -1px;
   margin-bottom: -1px;
 }
+
+/* ── Custom Equipment Visual Icons (Tractor, JCB, Transport) ───────────── */
+.equip-mini-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  display: block;
+  border-radius: 6px;
+  transition: transform 0.2s ease;
+}
+
+.equip-mini-card:hover .equip-mini-img {
+  transform: scale(1.08);
+}
+
+.equip-mini-jcb-box {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  border-radius: 7px;
+  background: #FEF3C7;
+  border: 1.5px solid #FCD34D;
+  transition: transform 0.2s ease;
+}
+
+.equip-mini-card:hover .equip-mini-jcb-box {
+  transform: scale(1.08);
+}
