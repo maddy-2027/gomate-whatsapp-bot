@@ -15,11 +15,11 @@ const CATALOG = {
       services: 'नांगरणी, रोटाव्हेटर, कल्टीव्हेटर, पेरणी व ट्रॉली',
       image_url: '/assets/equipment/agri_tractor_3d.jpg',
       service_rates: {
-        rotavator: { id: 'rotavator', name: 'Rotavator (रोटाव्हेटर)', rate: 800, unit: 'hr' },
-        cultivation: { id: 'cultivation', name: 'Cultivator (कल्टीव्हेटर / मशागत)', rate: 900, unit: 'hr' },
-        trolley: { id: 'trolley', name: 'Hydraulic Trolley (ट्रॉली वाहतूक)', rate: 600, unit: 'hr' },
-        ploughing: { id: 'ploughing', name: 'Deep Plough (नांगरट)', rate: 850, unit: 'hr' },
-        seeding: { id: 'seeding', name: 'Seed Drill (पेरणी यंत्र)', rate: 750, unit: 'hr' }
+        rotavator: { id: 'rotavator', name: 'Rotavator (रोटाव्हेटर)', rate: 800, acre_rate: 950, unit: 'hr' },
+        cultivation: { id: 'cultivation', name: 'Cultivator (कल्टीव्हेटर / मशागत)', rate: 900, acre_rate: 850, unit: 'hr' },
+        trolley: { id: 'trolley', name: 'Hydraulic Trolley (ट्रॉली वाहतूक)', rate: 600, acre_rate: 600, unit: 'hr' },
+        ploughing: { id: 'ploughing', name: 'Deep Plough (नांगरट)', rate: 850, acre_rate: 1200, unit: 'hr' },
+        seeding: { id: 'seeding', name: 'Seed Drill (पेरणी यंत्र)', rate: 750, acre_rate: 700, unit: 'hr' }
       }
     },
     {
@@ -33,24 +33,24 @@ const CATALOG = {
       services: '4WD अवजड कामे, रोटाव्हेटर, कल्टीव्हेटर व ऊस वाहतूक',
       image_url: '/assets/equipment/agri_tractor_3d.jpg',
       service_rates: {
-        rotavator: { id: 'rotavator', name: 'Heavy Rotavator (रोटाव्हेटर)', rate: 850, unit: 'hr' },
-        cultivation: { id: 'cultivation', name: 'Heavy Cultivator (कल्टीव्हेटर)', rate: 950, unit: 'hr' },
-        trolley: { id: 'trolley', name: 'Dual Axle Trolley (मोठी ट्रॉली)', rate: 650, unit: 'hr' },
-        ploughing: { id: 'ploughing', name: 'Reversible MB Plough (नांगरट)', rate: 900, unit: 'hr' }
+        rotavator: { id: 'rotavator', name: 'Heavy Rotavator (रोटाव्हेटर)', rate: 850, acre_rate: 1000, unit: 'hr' },
+        cultivation: { id: 'cultivation', name: 'Heavy Cultivator (कल्टीव्हेटर)', rate: 950, acre_rate: 900, unit: 'hr' },
+        trolley: { id: 'trolley', name: 'Dual Axle Trolley (मोठी ट्रॉली)', rate: 650, acre_rate: 650, unit: 'hr' },
+        ploughing: { id: 'ploughing', name: 'Reversible MB Plough (नांगरट)', rate: 900, acre_rate: 1300, unit: 'hr' }
       }
     },
-    { id: 103, category: 'agriculture', type: 'Rotavator', model: 'Shaktiman Semi Champion Rotavator', price_per_day: 850, hourly_rate: 450, rating: 4.8, services: 'जमीन भुसभुशीत करणे', image_url: '/assets/equipment/agri_hero.jpg' },
-    { id: 104, category: 'agriculture', type: 'Harvester', model: 'Claas Crop Tiger 30 Harvester', price_per_day: 4200, hourly_rate: 1600, rating: 4.9, services: 'गहू, हरभरा, बाजरी व मका काढणी', image_url: '/assets/equipment/agri_hero.jpg' },
-    { id: 105, category: 'agriculture', type: 'Sprayer', model: 'ASPEE HTP 500L Tractor Sprayer', price_per_day: 700, hourly_rate: 350, rating: 4.7, services: 'डाळिंब व द्राक्ष बागायत फवारणी', image_url: '/assets/equipment/agri_hero.jpg' },
-    { id: 106, category: 'agriculture', type: 'Drone (spraying)', model: 'GoMate Agri Spray Drone 10L', price_per_day: 2500, hourly_rate: 900, rating: 4.9, services: 'अचूक व जलद औषध फवारणी', image_url: '/assets/equipment/heavy_drone_3d.jpg' },
-    { id: 107, category: 'agriculture', type: 'Trailer', model: 'GoMate 4-Tonne Tipping Trailer', price_per_day: 800, hourly_rate: 400, rating: 4.6, services: 'धान्य, ऊस व शेतमाल वाहतूक', image_url: '/assets/equipment/agri_hero.jpg' }
+    { id: 103, category: 'agriculture', type: 'Rotavator', model: 'Shaktiman Semi Champion Rotavator', price_per_day: 850, hourly_rate: 450, acre_rate: 950, rating: 4.8, services: 'जमीन भुसभुशीत करणे', image_url: '/assets/equipment/agri_hero.jpg' },
+    { id: 104, category: 'agriculture', type: 'Harvester', model: 'Claas Crop Tiger 30 Harvester', price_per_day: 4200, hourly_rate: 1600, acre_rate: 1800, rating: 4.9, services: 'गहू, हरभरा, बाजरी व मका काढणी', image_url: '/assets/equipment/agri_hero.jpg' },
+    { id: 105, category: 'agriculture', type: 'Sprayer', model: 'ASPEE HTP 500L Tractor Sprayer', price_per_day: 700, hourly_rate: 350, acre_rate: 400, rating: 4.7, services: 'डाळिंब व द्राक्ष बागायत फवारणी', image_url: '/assets/equipment/agri_hero.jpg' },
+    { id: 106, category: 'agriculture', type: 'Drone (spraying)', model: 'GoMate Agri Spray Drone 10L', price_per_day: 2500, hourly_rate: 900, acre_rate: 450, rating: 4.9, services: 'अचूक व जलद औषध फवारणी', image_url: '/assets/equipment/heavy_drone_3d.jpg' },
+    { id: 107, category: 'agriculture', type: 'Trailer', model: 'GoMate 4-Tonne Tipping Trailer', price_per_day: 800, hourly_rate: 400, acre_rate: 600, rating: 4.6, services: 'धान्य, ऊस व शेतमाल वाहतूक', image_url: '/assets/equipment/agri_hero.jpg' }
   ],
   transport: [
-    { id: 201, category: 'transport', type: 'Delivery Trucks', model: 'Tata Ace Gold (छोटा हत्ती)', price_per_day: 1300, hourly_rate: 350, rating: 4.8, services: 'जत तालुका अंतर्गत स्थानिक वाहतूक', image_url: '/assets/equipment/transport_hero.jpg' },
-    { id: 202, category: 'transport', type: 'Delivery Trucks', model: 'Ashok Leyland Dost Plus Pickup', price_per_day: 1600, hourly_rate: 450, rating: 4.8, services: '1.5 टन शेतमाल व भाजीपाला मार्केट', image_url: '/assets/equipment/transport_hero.jpg' },
-    { id: 203, category: 'transport', type: 'Trucks', model: 'Tata 407 LPT Medium Truck (4 Tonne)', price_per_day: 2600, hourly_rate: 700, rating: 4.7, services: 'सांगली/सांगोला/विजापूर मार्केट वाहतूक', image_url: '/assets/equipment/heavy_drone_3d.jpg' },
-    { id: 204, category: 'transport', type: 'Tanker Trucks', model: 'BharatBenz 12KL Water Tanker', price_per_day: 3800, hourly_rate: 850, rating: 4.8, services: 'शेती व पिण्यासाठी पाणी टँकर', image_url: '/assets/equipment/heavy_drone_3d.jpg' },
-    { id: 205, category: 'transport', type: 'Dump Trucks', model: 'Ashok Leyland Tipper (डंपर)', price_per_day: 4000, hourly_rate: 900, rating: 4.7, services: 'मुरूम, माती व खडी वाहतूक', image_url: '/assets/equipment/heavy_drone_3d.jpg' }
+    { id: 201, category: 'transport', type: 'Delivery Trucks', model: 'Tata Ace Gold (छोटा हत्ती)', price_per_day: 1300, hourly_rate: 350, km_base_fare: 350, per_km_rate: 22, rating: 4.8, services: 'जत तालुका अंतर्गत स्थानिक वाहतूक (₹२२/कि.मी.)', image_url: '/assets/equipment/transport_hero.jpg' },
+    { id: 202, category: 'transport', type: 'Delivery Trucks', model: 'Ashok Leyland Dost Plus Pickup', price_per_day: 1600, hourly_rate: 450, km_base_fare: 400, per_km_rate: 24, rating: 4.8, services: '1.5 टन शेतमाल व भाजीपाला मार्केट (₹२४/कि.मी.)', image_url: '/assets/equipment/transport_hero.jpg' },
+    { id: 203, category: 'transport', type: 'Trucks', model: 'Tata 407 LPT Medium Truck (4 Tonne)', price_per_day: 2600, hourly_rate: 700, km_base_fare: 600, per_km_rate: 32, rating: 4.7, services: 'सांगली/सांगोला/विजापूर मार्केट वाहतूक (₹३२/कि.मी.)', image_url: '/assets/equipment/heavy_drone_3d.jpg' },
+    { id: 204, category: 'transport', type: 'Tanker Trucks', model: 'BharatBenz 12KL Water Tanker', price_per_day: 3800, hourly_rate: 850, km_base_fare: 700, per_km_rate: 35, rating: 4.8, services: 'शेती व पिण्यासाठी पाणी टँकर (₹३५/कि.मी.)', image_url: '/assets/equipment/heavy_drone_3d.jpg' },
+    { id: 205, category: 'transport', type: 'Dump Trucks', model: 'Ashok Leyland Tipper (डंपर)', price_per_day: 4000, hourly_rate: 900, km_base_fare: 800, per_km_rate: 40, rating: 4.7, services: 'मुरूम, माती व खडी वाहतूक (₹४०/कि.मी.)', image_url: '/assets/equipment/heavy_drone_3d.jpg' }
   ],
   infrastructure: [
     { id: 301, category: 'infrastructure', type: 'Backhoe Loaders', model: 'JCB 3DX Super EcoXcellence', price_per_day: 4500, hourly_rate: 950, rating: 4.9, services: 'शेततळे, चर, सपाटीकरण व बांधकाम', image_url: '/assets/equipment/infra_jcb_3d.jpg' },
