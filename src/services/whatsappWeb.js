@@ -77,11 +77,11 @@ async function loadSessionFromSupabase() {
 
     const creds = typeof data.creds === 'string'
       ? JSON.parse(data.creds, BufferJSON.reviver)
-      : data.creds;
+      : JSON.parse(JSON.stringify(data.creds), BufferJSON.reviver);
 
     const keys = typeof data.keys === 'string'
       ? JSON.parse(data.keys, BufferJSON.reviver)
-      : (data.keys || {});
+      : (data.keys ? JSON.parse(JSON.stringify(data.keys), BufferJSON.reviver) : {});
 
     return { creds, keys };
   } catch (err) {
@@ -107,12 +107,14 @@ async function saveSessionToSupabase(creds, keys) {
       );
 
     // 2. Redundant backup save to sessions table
-    await supabase
-      .from('sessions')
-      .upsert(
-        { phone: 'whatsapp_auth_main', flow_state: { creds: credsJson, keys: keysJson }, last_message_at: new Date().toISOString() },
-        { onConflict: 'phone' }
-      ).catch(() => {});
+    try {
+      await supabase
+        .from('sessions')
+        .upsert(
+          { phone: 'whatsapp_auth_main', flow_state: { creds: credsJson, keys: keysJson }, last_message_at: new Date().toISOString() },
+          { onConflict: 'phone' }
+        );
+    } catch (_) {}
 
     if (!error) {
       // Also backup to local disk cache if writable
@@ -132,7 +134,9 @@ async function saveSessionToSupabase(creds, keys) {
 async function deleteSessionFromSupabase() {
   try {
     await supabase.from('whatsapp_session').delete().eq('id', 'main');
-    await supabase.from('sessions').delete().eq('phone', 'whatsapp_auth_main');
+    try {
+      await supabase.from('sessions').delete().eq('phone', 'whatsapp_auth_main');
+    } catch (_) {}
     try { fs.rmSync(AUTH_DIR, { recursive: true, force: true }); } catch (e) {}
     console.log('🗑️ [Session] Cleared WhatsApp session from database.');
   } catch (err) {
@@ -309,8 +313,8 @@ async function initWhatsAppWeb(onQrCallback, onReadyCallback) {
         isReady = false;
         isInitializing = false;
         currentQrDataUrl = null;
-        const statusCode = lastDisconnect?.error?.output?.statusCode;
-        const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
+        const statusCode = lastDisconnect?.error?.output?.statusCode || lastDisconnect?.error?.status;
+        const shouldReconnect = statusCode !== DisconnectReason.loggedOut && statusCode !== 401;
 
         console.log(`⚠️ WhatsApp connection closed (Reason: ${statusCode || 'Unknown'}). Reconnecting: ${shouldReconnect}`);
 
