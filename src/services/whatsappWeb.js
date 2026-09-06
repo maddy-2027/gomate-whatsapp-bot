@@ -53,22 +53,39 @@ function isSupabaseReal() {
  * Load full auth state (creds + keys) from Supabase
  */
 async function loadSessionFromSupabase() {
-  try {
-    // 1. Primary check in whatsapp_session table
-    let { data, error } = await supabase
-      .from('whatsapp_session')
-      .select('creds, keys')
-      .eq('id', 'main')
-      .single();
+  // 1. Fast local disk cache check (instant load without network roundtrip)
+  const localBackup = path.join(AUTH_DIR, 'session_backup.json');
+  if (fs.existsSync(localBackup)) {
+    try {
+      const parsed = JSON.parse(fs.readFileSync(localBackup, 'utf8'));
+      if (parsed && parsed.creds) {
+        const creds = JSON.parse(JSON.stringify(parsed.creds), BufferJSON.reviver);
+        const keys = parsed.keys ? JSON.parse(JSON.stringify(parsed.keys), BufferJSON.reviver) : {};
+        console.log('⚡ [Session] Instantly restored active WhatsApp session from local cache.');
+        return { creds, keys };
+      }
+    } catch (e) {
+      console.warn('⚠️ [Session] Failed to read local backup:', e.message);
+    }
+  }
 
-    // 2. Backup check in sessions table if whatsapp_session returned nothing
+  // 2. Network check in Supabase with a 5-second safety timeout
+  try {
+    const fetchWithTimeout = Promise.race([
+      supabase.from('whatsapp_session').select('creds, keys').eq('id', 'main').single(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Supabase request timed out after 5000ms')), 5000))
+    ]);
+
+    let { data, error } = await fetchWithTimeout;
+
+    // Backup check in sessions table if whatsapp_session returned nothing
     if (error || !data || !data.creds) {
-      const fallback = await supabase
-        .from('sessions')
-        .select('flow_state')
-        .eq('phone', 'whatsapp_auth_main')
-        .single();
-      if (fallback.data && fallback.data.flow_state && fallback.data.flow_state.creds) {
+      const fallback = await Promise.race([
+        supabase.from('sessions').select('flow_state').eq('phone', 'whatsapp_auth_main').single(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Supabase fallback request timed out')), 3000))
+      ]).catch(() => ({ data: null }));
+
+      if (fallback && fallback.data && fallback.data.flow_state && fallback.data.flow_state.creds) {
         data = fallback.data.flow_state;
       }
     }
