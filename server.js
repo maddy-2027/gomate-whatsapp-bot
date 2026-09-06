@@ -1041,12 +1041,31 @@ app.get('/api/whatsapp/status', (req, res) => {
 app.post('/webhook', webhookHandler);
 app.post('/webhook/whatsapp', webhookHandler);
 
-// Razorpay Webhook
-app.post('/webhook/razorpay', async (req, res) => {
+// Razorpay Webhook (with HMAC-SHA256 signature verification)
+app.post('/webhook/razorpay', express.raw({ type: 'application/json' }), async (req, res) => {
   try {
-    await razorpayService.handleWebhookEvent(req.body);
+    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
+    const signature = req.headers['x-razorpay-signature'];
+
+    // Verify signature if webhook secret is configured
+    if (webhookSecret && signature) {
+      const expectedSignature = crypto
+        .createHmac('sha256', webhookSecret)
+        .update(req.body)
+        .digest('hex');
+      if (signature !== expectedSignature) {
+        console.warn('⚠️ [Razorpay Webhook] Invalid signature — request rejected.');
+        return res.status(400).send('Invalid signature');
+      }
+    }
+
+    const event = typeof req.body === 'string' ? JSON.parse(req.body) : JSON.parse(req.body.toString());
+    await razorpayService.handleWebhookEvent(event);
     res.status(200).send('OK');
-  } catch (e) { res.status(500).send('Error'); }
+  } catch (e) {
+    console.error('[Razorpay Webhook] Error:', e.message);
+    res.status(500).send('Error');
+  }
 });
 
 // Demo Payment Page

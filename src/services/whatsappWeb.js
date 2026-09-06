@@ -291,7 +291,6 @@ async function initWhatsAppWeb(onQrCallback, onReadyCallback) {
       waSocket = null;
     }
 
-    console.log('▶️ [Baileys] Creating socket with makeWASocket...');
     waSocket = makeWASocket({
       version,
       auth: state,
@@ -305,19 +304,12 @@ async function initWhatsAppWeb(onQrCallback, onReadyCallback) {
       defaultQueryTimeoutMs: 60000,
       keepAliveIntervalMs: 25000,
     });
-    console.log('✅ [Baileys] Socket created successfully!');
 
     // Save creds to Supabase on every update
     waSocket.ev.on('creds.update', saveCreds);
 
     waSocket.ev.on('connection.update', async (update) => {
       const { connection, lastDisconnect, qr } = update;
-      console.log('📡 [WhatsApp Web Connection Update]:', {
-        connection,
-        hasQr: !!qr,
-        statusCode: lastDisconnect?.error?.output?.statusCode || lastDisconnect?.error?.status,
-        error: lastDisconnect?.error?.message
-      });
 
       if (qr) {
         rawQrCode = qr;
