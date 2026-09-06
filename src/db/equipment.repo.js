@@ -73,7 +73,11 @@ async function addEquipment(equipmentData) {
   };
 
   try {
-    const { data, error } = await supabase.from('equipment').insert([dbRecord]).select().single();
+    const insertPromise = Promise.race([
+      supabase.from('equipment').insert([dbRecord]).select().single(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1500))
+    ]);
+    const { data, error } = await insertPromise;
     if (!error && data) {
       const formatted = { ...itemToStore, ...data, services: data.description || itemToStore.services };
       memoryEquipment.unshift(formatted);
@@ -91,7 +95,7 @@ async function addEquipment(equipmentData) {
 async function getAllEquipment() {
   try {
     const fetchPromise = supabase.from('equipment').select('*').order('created_at', { ascending: false });
-    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 500));
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1500));
     const { data, error } = await Promise.race([fetchPromise, timeoutPromise]);
     if (!error && data && data.length > 0) {
       return data.map(d => ({
@@ -107,11 +111,11 @@ async function getAllEquipment() {
 
 async function getEquipmentByOwner(ownerIdOrPhone) {
   try {
-    const { data, error } = await supabase
-      .from('equipment')
-      .select('*')
-      .or(`owner_id.eq.${ownerIdOrPhone},district.ilike.%${ownerIdOrPhone}%`)
-      .order('created_at', { ascending: false });
+    const fetchPromise = Promise.race([
+      supabase.from('equipment').select('*').or(`owner_id.eq.${ownerIdOrPhone},district.ilike.%${ownerIdOrPhone}%`).order('created_at', { ascending: false }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1500))
+    ]);
+    const { data, error } = await fetchPromise;
     if (!error && data && data.length > 0) return data;
   } catch (err) {
     // fallback
@@ -126,10 +130,11 @@ async function toggleEquipmentAvailability(id, isAvailable) {
   }
 
   try {
-    const { error } = await supabase
-      .from('equipment')
-      .update({ available: isAvailable })
-      .eq('id', id);
+    const updatePromise = Promise.race([
+      supabase.from('equipment').update({ available: isAvailable }).eq('id', id),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1500))
+    ]);
+    const { error } = await updatePromise;
     return !error;
   } catch (err) {
     return true;

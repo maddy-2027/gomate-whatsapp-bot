@@ -31,6 +31,8 @@ const AUTH_DIR = path.join(process.cwd(), '.baileys_auth');
 
 // In-memory debounce set to prevent loop replies
 const recentReplies = new Set();
+const recentRepliesByPhone = new Map();
+const phoneMessageQueues = new Map();
 
 // ──────────────────────────────────────────────────────────────────────────
 // Supabase-backed Persistent Signal Auth State Engine
@@ -271,12 +273,25 @@ async function initWhatsAppWeb(onQrCallback, onReadyCallback) {
 
     let version = undefined;
     try {
-      const v = await fetchLatestBaileysVersion();
+      const v = await Promise.race([
+        fetchLatestBaileysVersion(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('version fetch timeout')), 1500))
+      ]);
       if (v && v.version) version = v.version;
     } catch (e) {
       // Fallback to Baileys default built-in version
     }
 
+    // Clean up old socket if this is a reconnect
+    if (waSocket) {
+      try {
+        waSocket.ev.removeAllListeners();
+        waSocket.end();
+      } catch (_) {}
+      waSocket = null;
+    }
+
+    console.log('▶️ [Baileys] Creating socket with makeWASocket...');
     waSocket = makeWASocket({
       version,
       auth: state,
@@ -290,12 +305,19 @@ async function initWhatsAppWeb(onQrCallback, onReadyCallback) {
       defaultQueryTimeoutMs: 60000,
       keepAliveIntervalMs: 25000,
     });
+    console.log('✅ [Baileys] Socket created successfully!');
 
     // Save creds to Supabase on every update
     waSocket.ev.on('creds.update', saveCreds);
 
     waSocket.ev.on('connection.update', async (update) => {
       const { connection, lastDisconnect, qr } = update;
+      console.log('📡 [WhatsApp Web Connection Update]:', {
+        connection,
+        hasQr: !!qr,
+        statusCode: lastDisconnect?.error?.output?.statusCode || lastDisconnect?.error?.status,
+        error: lastDisconnect?.error?.message
+      });
 
       if (qr) {
         rawQrCode = qr;
@@ -350,7 +372,7 @@ async function initWhatsAppWeb(onQrCallback, onReadyCallback) {
       }
     });
 
-    // Handle Incoming Messages
+    // Handle Incoming Messages with Sequential Per-Phone Queue & Anti-Duplication
     waSocket.ev.on('messages.upsert', async (m) => {
       if (m.type !== 'notify') return;
 
@@ -361,13 +383,22 @@ async function initWhatsAppWeb(onQrCallback, onReadyCallback) {
         const senderJid = msg.key.remoteJid;
         if (!senderJid || senderJid.endsWith('@g.us') || senderJid.includes('status@broadcast')) continue;
 
-        const cleanPhone = '+' + senderJid.replace('@s.whatsapp.net', '');
+        // Canonical phone number: strip device index (:0, :45) and normalize to +[digits]
+        const rawDigits = senderJid.split('@')[0].split(':')[0].replace(/[^0-9]/g, '');
+        if (!rawDigits || rawDigits.length < 10) continue;
+        const cleanPhone = '+' + rawDigits;
         const messageId = msg.key.id;
 
-        // Debounce recent message IDs to prevent duplicate processing
+        // 1. Ignore stale catch-up / offline replay messages older than 60 seconds
+        const msgTimeMs = Number(msg.messageTimestamp) * 1000;
+        if (msgTimeMs && Date.now() - msgTimeMs > 60000) {
+          continue;
+        }
+
+        // 2. Debounce exact message IDs to prevent duplicate Baileys events
         if (recentReplies.has(messageId)) continue;
         recentReplies.add(messageId);
-        setTimeout(() => recentReplies.delete(messageId), 30000);
+        setTimeout(() => recentReplies.delete(messageId), 60000);
 
         let incomingText = '';
         let isAudioMessage = false;
@@ -386,20 +417,35 @@ async function initWhatsAppWeb(onQrCallback, onReadyCallback) {
 
         if (!incomingText && !isAudioMessage) continue;
 
+        // 3. Debounce rapid identical message bursts from same phone within 1500ms
+        const now = Date.now();
+        const lastMsg = recentRepliesByPhone.get(cleanPhone);
+        if (lastMsg && lastMsg.text.toLowerCase().trim() === incomingText.toLowerCase().trim() && (now - lastMsg.time < 1500)) {
+          console.log(`⏩ [WhatsApp Web] Debounced rapid duplicate message from ${cleanPhone}: "${incomingText}"`);
+          continue;
+        }
+        recentRepliesByPhone.set(cleanPhone, { text: incomingText, time: now });
+
         console.log(`📩 [WhatsApp Web] From ${cleanPhone}: ${incomingText}`);
 
-        try {
-          const session = getSession(cleanPhone);
-          const { routeMessage } = require('../handlers/router');
-          const replyText = await routeMessage(cleanPhone, incomingText, session);
+        // 4. Sequential Per-Phone Queue: ensures messages for the same user execute in strict serial order
+        const prevQueue = phoneMessageQueues.get(cleanPhone) || Promise.resolve();
+        const currentTask = prevQueue.then(async () => {
+          try {
+            const session = getSession(cleanPhone);
+            const { routeMessage } = require('../handlers/router');
+            const replyText = await routeMessage(cleanPhone, incomingText, session);
 
-          if (replyText) {
-            await waSocket.sendMessage(senderJid, { text: replyText });
-            console.log(`📤 [WhatsApp Web] Replied to ${cleanPhone}`);
+            if (replyText && waSocket) {
+              await waSocket.sendMessage(senderJid, { text: replyText });
+              console.log(`📤 [WhatsApp Web] Replied to ${cleanPhone}`);
+            }
+          } catch (err) {
+            console.error(`❌ [WhatsApp Web] Error handling message from ${cleanPhone}:`, err);
           }
-        } catch (err) {
-          console.error(`❌ [WhatsApp Web] Error handling message from ${cleanPhone}:`, err);
-        }
+        }).catch(() => {});
+
+        phoneMessageQueues.set(cleanPhone, currentTask);
       }
     });
 

@@ -190,17 +190,25 @@ async function routeMessage(phone, text, session) {
   }
 
   if (session.state === 'LANG_SELECT') {
+    if (isShortGreeting) {
+      return getText('mr', 'welcome');
+    }
     if (t === '1' || t.includes('मराठी') || t.includes('marathi')) session.language = 'mr';
     else if (t === '2' || t.includes('english')) session.language = 'en';
     else if (t === '3' || t.includes('हिंदी') || t.includes('hindi')) session.language = 'hi';
-    else if (isSingleDigit) session.language = 'en';
-    else if (isNaturalQuery(rawText)) {
+    else if (isSingleDigit) {
+      if (t === '1') session.language = 'mr';
+      else if (t === '2') session.language = 'en';
+      else if (t === '3') session.language = 'hi';
+      else session.language = 'mr';
+    } else if (isNaturalQuery(rawText)) {
       const detected = detectLanguage(rawText);
       const effectiveLang = detected || session.language || 'en';
       const ans = await generateChatResponse(rawText, effectiveLang, 'Inquiry before language selection', session);
       return ans;
     } else {
-      session.language = 'en';
+      // Invalid input: repeat language selection cleanly instead of defaulting to English
+      return getText('mr', 'welcome');
     }
     session.languageChosen = true;  // Lock language
     session.state = 'ROLE_SELECT';
@@ -208,6 +216,9 @@ async function routeMessage(phone, text, session) {
   }
 
   if (session.state === 'ROLE_SELECT') {
+    if (isShortGreeting) {
+      return getText(session.language, 'role_select');
+    }
     if (t === '1' || t.includes('customer') || t.includes('find') || t.includes('ग्राहक')) {
       session.role = 'customer';
       if (session.customerName) {

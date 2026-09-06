@@ -39,12 +39,15 @@ async function upsertUser(data) {
 async function getUser(phone) {
   if (!phone) return null;
   
+  const cached = memoryUsers.get(phone);
+  if (cached) return cached;
+
   try {
-    const { data: user, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('phone', phone)
-      .single();
+    const fetchPromise = Promise.race([
+      supabase.from('users').select('*').eq('phone', phone).single(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Supabase getUser timeout')), 2000))
+    ]);
+    const { data: user, error } = await fetchPromise;
     if (!error && user) {
       memoryUsers.set(phone, user);
       return user;

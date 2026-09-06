@@ -109,11 +109,11 @@ async function createBooking(data) {
   }
 
   try {
-    const { data: booking, error } = await supabase
-      .from('bookings')
-      .insert([dbBooking])
-      .select()
-      .single();
+    const insertPromise = Promise.race([
+      supabase.from('bookings').insert([dbBooking]).select().single(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Supabase insert timeout after 2500ms')), 2500))
+    ]);
+    const { data: booking, error } = await insertPromise;
     if (!error && booking && booking.booking_ref) {
       const fullBooking = { ...booking, ...data, booking_ref: booking.booking_ref };
       memoryBookings.unshift(fullBooking);
