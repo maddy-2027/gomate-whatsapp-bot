@@ -104,9 +104,34 @@ async function createSubscription(phone, planId) {
 async function handleWebhookEvent(event) {
   console.log('Razorpay Webhook Event:', event.event);
   if (event.event === 'payment_link.paid' || event.event === 'payment.captured') {
-    const payment = event.payload.payment.entity;
-    const phone = payment.contact;
-    console.log(`✅ ₹149 Subscription Payment verified for owner: ${phone}`);
+    const payment = event.payload?.payment?.entity;
+    const paymentLink = event.payload?.payment_link?.entity;
+    const phone = payment?.contact || paymentLink?.customer?.contact;
+    console.log(`✅ [Razorpay Webhook] Payment verified (${event.event}) for: ${phone}`);
+
+    // 1. Customer Booking Payment
+    const bookingRef = payment?.notes?.bookingRef || paymentLink?.notes?.bookingRef;
+    if (bookingRef) {
+      console.log(`🎯 [Razorpay Webhook] Detected bookingRef: ${bookingRef}. Confirming booking and dispatching WhatsApp invoice...`);
+      try {
+        const { confirmAndSendNotification } = require('./paymentWatcherService');
+        await confirmAndSendNotification(bookingRef);
+      } catch (err) {
+        console.error('❌ [Razorpay Webhook] Error dispatching booking confirmation:', err);
+      }
+    }
+
+    // 2. Owner Pro Subscription Payment
+    const plan = payment?.notes?.plan || paymentLink?.notes?.plan;
+    if (plan || (!bookingRef && phone)) {
+      console.log(`👑 [Razorpay Webhook] Owner Pro subscription payment recorded for ${phone}`);
+      try {
+        const { updateOwnerSubscription } = require('../db/owners.repo');
+        if (typeof updateOwnerSubscription === 'function') {
+          await updateOwnerSubscription(phone, 'active');
+        }
+      } catch (_) {}
+    }
   }
 }
 

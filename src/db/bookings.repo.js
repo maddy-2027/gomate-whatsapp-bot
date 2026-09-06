@@ -168,12 +168,23 @@ async function getBookingsByEquipment(equipmentId) {
   return memoryBookings.filter(b => b.equipment_id == equipmentId);
 }
 
-async function updateBookingStatus(id, status) {
-  const item = memoryBookings.find(b => b.id == id || b.booking_ref == id);
+async function updateBookingStatus(idOrRef, status) {
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrRef);
+  const item = memoryBookings.find(b => b.id == idOrRef || b.booking_ref == idOrRef);
   if (item) item.status = status;
 
   try {
-    const { error } = await supabase.from('bookings').update({ status }).or(`id.eq.${id},booking_ref.eq.${id}`);
+    let query = supabase.from('bookings').update({ status });
+    if (isUuid) {
+      query = query.eq('id', idOrRef);
+    } else {
+      query = query.eq('booking_ref', idOrRef);
+    }
+    const updatePromise = Promise.race([
+      query,
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1500))
+    ]);
+    const { error } = await updatePromise;
     return !error;
   } catch (err) {
     return true;
