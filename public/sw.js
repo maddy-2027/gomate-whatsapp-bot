@@ -1,10 +1,10 @@
 /**
  * GoMate Progressive Web App (PWA) Service Worker
- * Version: gomate-pwa-v1.0.5
+ * Version: gomate-pwa-v1.0.6
  * Provides 24/7 offline caching, instant app loading, and offline fallbacks.
  */
 
-const CACHE_NAME = 'gomate-pwa-v1.0.5';
+const CACHE_NAME = 'gomate-pwa-v1.0.6';
 
 // Critical static assets pre-cached on install
 const PRECACHE_ASSETS = [
