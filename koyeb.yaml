@@ -1,0 +1,39 @@
+# =================================================================
+# Koyeb Deployment Configuration — GoMate WhatsApp Bot
+# Free Eco Tier | Singapore Region (Lowest Latency for India) | Docker
+# =================================================================
+
+name: gomate-whatsapp-bot
+services:
+  - name: web
+    type: web
+    regions:
+      - sin # Singapore (Closest to Maharashtra / India)
+    instance_type: eco-nano # Koyeb Free Eco Tier
+    scaling:
+      min: 1
+      max: 1
+    ports:
+      - port: 3000
+        path: /
+    health_checks:
+      - http:
+          port: 3000
+          path: /api/health
+        interval: 30
+        timeout: 5
+    docker:
+      dockerfile: Dockerfile
+    env:
+      - key: PORT
+        value: "3000"
+      - key: NODE_ENV
+        value: production
+      - key: NODE_TLS_REJECT_UNAUTHORIZED
+        value: "0"
+      - key: ADMIN_PASSWORD
+        value: gomate2026
+      - key: ADMIN_SESSION_SECRET
+        value: gomate_secure_admin_session_secret_2026_jath_sangli_secret_key
+      - key: OWNER_SESSION_SECRET
+        value: gomate_owner_portal_jwt_secret_2026_jath_auth_token_key

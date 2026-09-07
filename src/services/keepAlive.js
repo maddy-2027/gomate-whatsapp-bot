@@ -12,7 +12,10 @@ let lastPingStatus = null;
 function initKeepAlive(appUrl, intervalMinutes = 8) {
   if (keepAliveInterval) clearInterval(keepAliveInterval);
 
-  const targetUrl = appUrl || process.env.RENDER_EXTERNAL_URL || process.env.APP_URL;
+  let targetUrl = appUrl || process.env.APP_URL || process.env.BASE_URL || process.env.RENDER_EXTERNAL_URL;
+  if (!targetUrl && process.env.KOYEB_PUBLIC_DOMAIN) {
+    targetUrl = `https://${process.env.KOYEB_PUBLIC_DOMAIN}`;
+  }
 
   if (!targetUrl) {
     console.log('ℹ️ [KeepAlive] No external URL configured. Skipping self-ping.');
