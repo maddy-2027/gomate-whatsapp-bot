@@ -4,7 +4,7 @@
  * Provides 24/7 offline caching, instant app loading, and offline fallbacks.
  */
 
-const CACHE_NAME = 'gomate-pwa-v1.0.2';
+const CACHE_NAME = 'gomate-pwa-v1.0.3';
 
 // Critical static assets pre-cached on install
 const PRECACHE_ASSETS = [
@@ -16,6 +16,11 @@ const PRECACHE_ASSETS = [
   '/offline.html',
   '/manifest.json',
   '/favicon.svg',
+  '/favicon.ico',
+  '/icons/icon-192x192.png',
+  '/icons/icon-512x512.png',
+  '/icons/apple-touch-icon.png',
+  '/icons/favicon-32x32.png',
   '/js/pwa.js',
   '/assets/brand/logo.svg',
   '/assets/brand/logo-white.svg',
