@@ -39,34 +39,53 @@ const CANONICAL_EQUIPMENT = {
   ]
 };
 
+// Check Owner Authentication
+async function checkOwnerAuth() {
+  try {
+    const res = await fetch('/api/owner/auth/me');
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (data.success && data.owner) {
+      return data.owner;
+    }
+    return null;
+  } catch (e) {
+    return null;
+  }
+}
+
+// Log out owner session
+async function logoutOwner() {
+  if (!confirm('तुम्हाला खरोखर लॉगआउट करायचे आहे का?')) return;
+  try {
+    await fetch('/api/owner/auth/logout', { method: 'POST' });
+  } catch (_) {}
+  localStorage.removeItem('gm_owner_token');
+  localStorage.removeItem('gm_owner_phone');
+  localStorage.removeItem('gm_owner_name');
+  window.location.replace('/owner/login');
+}
+
 // Initial Load
 window.addEventListener('DOMContentLoaded', async () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('phone')) {
-    currentOwnerPhone = urlParams.get('phone');
+  // Guard: Must be authenticated
+  const authOwner = await checkOwnerAuth();
+  if (!authOwner) {
+    window.location.replace('/owner/login');
+    return;
   }
-  await loadRegisteredOwnersList();
+
+  currentOwnerPhone = authOwner.phone;
+
+  // Update header badge
+  const headerName = document.getElementById('headerOwnerName');
+  if (headerName) {
+    headerName.textContent = `${authOwner.name} (${authOwner.village || authOwner.district || 'जत'})`;
+  }
+
   await loadJathVillages();
   fetchOwnerPortalData();
 });
-
-async function loadRegisteredOwnersList() {
-  try {
-    const res = await fetch('/api/admin/owners');
-    if (!res.ok) return;
-    const owners = await res.json();
-    const select = document.getElementById('ownerSelectDropdown');
-    if (select && owners && owners.length > 0) {
-      select.innerHTML = owners.map(o => `
-        <option value="${o.phone}" ${o.phone === currentOwnerPhone ? 'selected' : ''}>
-          ${o.name} (${o.village || o.district || 'Jath'})
-        </option>
-      `).join('');
-    }
-  } catch (err) {
-    console.warn('Could not load owner list:', err);
-  }
-}
 
 async function loadJathVillages() {
   try {
@@ -107,17 +126,13 @@ function switchOwnerTab(tabId) {
   }
 }
 
-function handleOwnerChange(phone) {
-  currentOwnerPhone = phone;
-  const url = new URL(window.location);
-  url.searchParams.set('phone', phone);
-  window.history.replaceState({}, '', url);
-  fetchOwnerPortalData();
-}
-
 async function fetchOwnerPortalData() {
   try {
     const res = await fetch(`/api/owner/data?phone=${encodeURIComponent(currentOwnerPhone)}`);
+    if (res.status === 401) {
+      window.location.replace('/owner/login');
+      return;
+    }
     if (!res.ok) throw new Error('Failed to load owner data');
     const data = await res.json();
     ownerState = data;

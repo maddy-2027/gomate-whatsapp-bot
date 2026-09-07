@@ -10,6 +10,12 @@ const { getSession, resetSession } = require('./src/services/session');
 const { routeMessage } = require('./src/handlers/router');
 const { initWhatsAppWeb, getWhatsAppStatus, logoutWhatsApp } = require('./src/services/whatsappWeb');
 const { initKeepAlive, getKeepAliveStatus } = require('./src/services/keepAlive');
+const {
+  requestOtp,
+  verifyOtp,
+  ownerAuthMiddleware,
+  verifyOwnerSession
+} = require('./src/services/ownerAuth');
 
 // Database repositories for admin metrics
 const bookingsRepo = require('./src/db/bookings.repo');
@@ -87,6 +93,11 @@ app.get('/landing', (req, res) => {
 // Owner Pro Portal
 app.get('/owner', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'owner', 'index.html'));
+});
+
+// Owner Login Portal (OTP Auth)
+app.get('/owner/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'owner', 'login.html'));
 });
 
 // Design System Style Guide
@@ -749,11 +760,104 @@ app.get('/api/owner/lookup', async (req, res) => {
 });
 
 // ==========================================
+// Owner Authentication & WhatsApp OTP API
+// ==========================================
+app.post('/api/owner/auth/request-otp', async (req, res) => {
+  try {
+    const { phone } = req.body;
+    if (!phone) {
+      return res.status(400).json({ success: false, error: 'मोबाईल क्रमांक आवश्यक आहे.' });
+    }
+    const result = await requestOtp(phone);
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+    res.json(result);
+  } catch (err) {
+    console.error('Owner request-otp error:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/owner/auth/verify-otp', async (req, res) => {
+  try {
+    const { phone, otp } = req.body;
+    if (!phone || !otp) {
+      return res.status(400).json({ success: false, error: 'मोबाईल क्रमांक आणि OTP दोन्ही आवश्यक आहेत.' });
+    }
+    const result = await verifyOtp(phone, otp);
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+
+    // Set HTTP-only session cookie valid for 7 days
+    res.cookie('gm_owner_token', result.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: 'lax',
+      path: '/'
+    });
+
+    res.json(result);
+  } catch (err) {
+    console.error('Owner verify-otp error:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.get('/api/owner/auth/me', ownerAuthMiddleware, async (req, res) => {
+  try {
+    const owner = await ownersRepo.getOwnerByPhone(req.owner.phone);
+    if (!owner) {
+      return res.status(404).json({ success: false, error: 'मालक सापडला नाही.' });
+    }
+    res.json({
+      success: true,
+      owner: {
+        phone: owner.phone,
+        name: owner.name,
+        district: owner.district,
+        taluka: owner.taluka,
+        village: owner.village,
+        subscription_status: owner.subscription_status,
+        subscription_expires_at: owner.subscription_expires_at
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/owner/auth/logout', (req, res) => {
+  res.clearCookie('gm_owner_token', { path: '/' });
+  res.json({ success: true, message: 'यशस्वीरित्या लॉगआउट झाले.' });
+});
+
+// Helper to resolve authenticated owner phone from token/cookie or query
+function resolveRequestOwnerPhone(req) {
+  if (req.owner && req.owner.phone) return req.owner.phone;
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+    const p = verifyOwnerSession(req.headers.authorization.substring(7));
+    if (p && p.phone) return p.phone;
+  }
+  if (req.headers.cookie) {
+    const cookies = req.headers.cookie.split(';').map(c => c.trim());
+    const cookieToken = cookies.find(c => c.startsWith('gm_owner_token='));
+    if (cookieToken) {
+      const p = verifyOwnerSession(decodeURIComponent(cookieToken.split('=')[1]));
+      if (p && p.phone) return p.phone;
+    }
+  }
+  return req.query.phone || (req.body && req.body.owner_phone) || null;
+}
+
+// ==========================================
 // Owner Pro Portal API Endpoints
 // ==========================================
 app.get('/api/owner/data', async (req, res) => {
   try {
-    const phone = req.query.phone || '+919822012345';
+    const phone = resolveRequestOwnerPhone(req) || '+919822012345';
     let owner = await ownersRepo.getOwnerByPhone(phone);
     if (!owner) {
       const all = await ownersRepo.getAllOwners();
@@ -843,7 +947,7 @@ app.post('/api/owner/subscription/create', async (req, res) => {
 // Owner Diesel & Expense Logbook Endpoints
 app.get('/api/owner/expenses', async (req, res) => {
   try {
-    const phone = req.query.phone || '+919822012345';
+    const phone = resolveRequestOwnerPhone(req) || '+919822012345';
     const expensesRepo = require('./src/db/expenses.repo');
     const result = await expensesRepo.getOwnerExpenses(phone);
     res.json({ success: true, ...result });
@@ -855,7 +959,12 @@ app.get('/api/owner/expenses', async (req, res) => {
 app.post('/api/owner/expenses', async (req, res) => {
   try {
     const expensesRepo = require('./src/db/expenses.repo');
-    const record = await expensesRepo.addExpenseRecord(req.body);
+    const authPhone = resolveRequestOwnerPhone(req);
+    const payload = { ...req.body };
+    if (authPhone && !payload.owner_phone) {
+      payload.owner_phone = authPhone;
+    }
+    const record = await expensesRepo.addExpenseRecord(payload);
     res.json({ success: true, record });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -875,7 +984,7 @@ app.delete('/api/owner/expenses/:id', async (req, res) => {
 // Owner Machinery Preventive Maintenance Endpoints
 app.get('/api/owner/maintenance', async (req, res) => {
   try {
-    const phone = req.query.phone || '+919822012345';
+    const phone = resolveRequestOwnerPhone(req) || '+919822012345';
     const { getOwnerMaintenanceSchedule } = require('./src/services/maintenanceService');
     const schedule = await getOwnerMaintenanceSchedule(phone);
     res.json({ success: true, schedule });
@@ -886,9 +995,9 @@ app.get('/api/owner/maintenance', async (req, res) => {
 
 app.post('/api/owner/maintenance/send-alert', async (req, res) => {
   try {
-    const { phone } = req.body;
+    const phone = req.body.phone || resolveRequestOwnerPhone(req) || '+919822012345';
     const { sendMaintenanceWhatsAppAlert } = require('./src/services/maintenanceService');
-    const result = await sendMaintenanceWhatsAppAlert(phone || '+919822012345');
+    const result = await sendMaintenanceWhatsAppAlert(phone);
     res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -897,9 +1006,10 @@ app.post('/api/owner/maintenance/send-alert', async (req, res) => {
 
 app.post('/api/owner/maintenance/log-service', async (req, res) => {
   try {
-    const { phone, service_id } = req.body;
+    const phone = req.body.phone || resolveRequestOwnerPhone(req) || '+919822012345';
+    const { service_id } = req.body;
     const { markServiceCompleted } = require('./src/services/maintenanceService');
-    const result = markServiceCompleted(phone || '+919822012345', service_id || 'engine_oil');
+    const result = markServiceCompleted(phone, service_id || 'engine_oil');
     res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -939,7 +1049,7 @@ app.post('/api/bookings/:id/complete-and-trigger-feedback', async (req, res) => 
 
 app.get('/api/owner/reviews', async (req, res) => {
   try {
-    const phone = req.query.phone || '+919822012345';
+    const phone = resolveRequestOwnerPhone(req) || '+919822012345';
     const reviewsRepo = require('./src/db/reviews.repo');
     const result = await reviewsRepo.getOwnerReviews(phone);
     res.json({ success: true, ...result });
@@ -1318,8 +1428,9 @@ const calendarService = require('./src/services/calendarService');
 /** GET /api/owner/calendar — owner monthly schedule, booked days, and net profits */
 app.get('/api/owner/calendar', async (req, res) => {
   try {
-    const { phone, month } = req.query;
-    const calendar = await calendarService.getOwnerMonthlyCalendar(phone || '+919822012345', month || '2026-08');
+    const { month } = req.query;
+    const phone = resolveRequestOwnerPhone(req) || req.query.phone || '+919822012345';
+    const calendar = await calendarService.getOwnerMonthlyCalendar(phone, month || '2026-08');
     res.json({ success: true, calendar });
   } catch (e) {
     res.status(500).json({ error: e.message });

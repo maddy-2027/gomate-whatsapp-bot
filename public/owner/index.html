@@ -56,17 +56,17 @@
       </nav>
 
       <div class="owner-account-actions">
-        <select id="ownerSelectDropdown" class="owner-select" aria-label="मालक निवडा" onchange="handleOwnerChange(this.value)">
-          <option value="+919822012345" selected>Rajesh Patil (जत केंद्र)</option>
-          <option value="+919822054321">Sanjay Deshmukh (उमदी)</option>
-          <option value="+919890011223">Vitthal Birajdar (संख)</option>
-          <option value="+919822099887">Tanaji Pawar (डफळापूर)</option>
-          <option value="+919822033445">Prakash Kolekar (बिळूर)</option>
-          <option value="+919822077665">Ananda Sawant (शेगाव)</option>
-        </select>
+        <div class="owner-auth-badge" id="ownerAuthBadge" style="display: flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; padding: 5px 12px; color: #FFFFFF; font-size: 13px;">
+          <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #4ADE80;"></span>
+          <span id="headerOwnerName" style="font-weight: 700; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">लोड होत आहे...</span>
+        </div>
 
         <button onclick="initiateSubscriptionCheckout()" class="owner-plan-btn">
           प्लॅन · ₹149/महिना
+        </button>
+
+        <button onclick="logoutOwner()" title="लॉगआउट करा" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #FCA5A5; font-size: 12px; font-weight: 700; padding: 7px 12px; border-radius: 6px; cursor: pointer; transition: all 0.15s;">
+          लॉगआउट
         </button>
       </div>
 
@@ -80,6 +80,7 @@
           <button class="owner-tab-btn" data-tab="expenses" onclick="switchOwnerTab('expenses')">खर्च</button>
           <button class="owner-tab-btn" data-tab="subscription" onclick="switchOwnerTab('subscription')">प्लॅन</button>
           <button class="owner-tab-btn" data-tab="profile" onclick="switchOwnerTab('profile')">माझी माहिती</button>
+          <button class="owner-tab-btn" onclick="logoutOwner()" style="color: #EF4444; font-weight: 700;">लॉगआउट (Logout)</button>
         </div>
       </details>
     </div>

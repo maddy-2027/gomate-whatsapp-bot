@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GoMate Owner Pro — मालक लॉगिन (Machinery Partner Login)</title>
+  <meta name="theme-color" content="#0A1F44">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/css/design-system.css?v=3.0">
+  <link rel="stylesheet" href="/css/owner.css?v=4.0">
+  <style>
+    body {
+      background-color: #F8FAFC;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-family: var(--gm-font-body, system-ui, sans-serif);
+      margin: 0;
+      padding: 0;
+    }
+    .login-header {
+      background: #0A1F44;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #1E293B;
+    }
+    .login-header-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .login-header-brand span.logo {
+      font-size: 22px;
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: -0.5px;
+    }
+    .login-header-brand span.badge {
+      background: rgba(22, 163, 74, 0.2);
+      border: 1px solid #16A34A;
+      color: #4ADE80;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+    .login-main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+    .login-card {
+      background: #FFFFFF;
+      width: 100%;
+      max-width: 440px;
+      border-radius: 12px;
+      border: 1px solid #E2E8F0;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+      padding: 36px 28px;
+    }
+    .login-title-box {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .login-icon {
+      font-size: 42px;
+      margin-bottom: 8px;
+      display: inline-block;
+    }
+    .login-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #0A1F44;
+      margin: 0 0 6px 0;
+    }
+    .login-sub {
+      font-size: 13.5px;
+      color: #64748B;
+      line-height: 1.5;
+      margin: 0;
+    }
+    .input-group {
+      margin-bottom: 20px;
+    }
+    .input-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 8px;
+    }
+    .phone-input-wrapper {
+      display: flex;
+      align-items: center;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #FFFFFF;
+      transition: border-color 0.15s;
+    }
+    .phone-input-wrapper:focus-within {
+      border-color: #16A34A;
+      box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
+    }
+    .phone-prefix {
+      background: #F1F5F9;
+      color: #475569;
+      padding: 12px 14px;
+      font-weight: 700;
+      font-size: 15px;
+      border-right: 1px solid #CBD5E1;
+      user-select: none;
+    }
+    .phone-input {
+      flex: 1;
+      border: none;
+      padding: 12px 14px;
+      font-size: 17px;
+      font-weight: 600;
+      color: #0A1F44;
+      outline: none;
+      letter-spacing: 1px;
+    }
+    .phone-input::placeholder {
+      color: #94A3B8;
+      font-weight: 400;
+      letter-spacing: 0;
+    }
+    .otp-input {
+      width: 100%;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 24px;
+      font-weight: 800;
+      color: #0A1F44;
+      letter-spacing: 8px;
+      text-align: center;
+      outline: none;
+      box-sizing: border-box;
+      transition: border-color 0.15s;
+    }
+    .otp-input:focus {
+      border-color: #16A34A;
+      box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
+    }
+    .btn-submit {
+      width: 100%;
+      background: #16A34A;
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 13px 20px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s;
+      box-shadow: 0 2px 8px rgba(22, 163, 74, 0.25);
+    }
+    .btn-submit:hover:not(:disabled) {
+      background: #15803D;
+    }
+    .btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .btn-secondary {
+      background: transparent;
+      border: none;
+      color: #16A34A;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 8px 0;
+      text-decoration: underline;
+    }
+    .btn-secondary:disabled {
+      color: #94A3B8;
+      text-decoration: none;
+      cursor: not-allowed;
+    }
+    .alert-banner {
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 20px;
+      display: none;
+      line-height: 1.45;
+    }
+    .alert-error {
+      background: #FEF2F2;
+      border: 1px solid #FCA5A5;
+      color: #B91C1C;
+    }
+    .alert-success {
+      background: #F0FDF4;
+      border: 1px solid #86EFAC;
+      color: #166534;
+    }
+    .alert-dev {
+      background: #EFF6FF;
+      border: 1px solid #93C5FD;
+      color: #1E40AF;
+      cursor: pointer;
+    }
+    .otp-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 14px;
+      font-size: 12.5px;
+      color: #64748B;
+    }
+    .login-footer-links {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid #F1F5F9;
+      text-align: center;
+      font-size: 13px;
+      color: #64748B;
+    }
+    .login-footer-links a {
+      color: #16A34A;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .login-footer-links a:hover {
+      text-decoration: underline;
+    }
+    .spinner {
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top: 2px solid #FFFFFF;
+      width: 16px;
+      height: 16px;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="login-header">
+    <a href="/landing" class="login-header-brand">
+      <span class="logo">GoMate</span>
+      <span class="badge">Owner Pro</span>
+    </a>
+    <div style="font-size: 12.5px; color: #94A3B8;">
+      जत तालुका केंद्र
+    </div>
+  </header>
+
+  <!-- Login Card Container -->
+  <main class="login-main">
+    <div class="login-card">
+      
+      <!-- Title & Icon -->
+      <div class="login-title-box">
+        <div class="login-icon">🚜</div>
+        <h1 class="login-title">मशिनरी मालक लॉगिन</h1>
+        <p class="login-sub">GoMate Owner Pro — बुकिंग, मशिनरी आणि खर्चाचे संपूर्ण नियंत्रण</p>
+      </div>
+
+      <!-- Alert / Notice Box -->
+      <div id="alertBox" class="alert-banner"></div>
+
+      <!-- STEP 1: Enter Phone Number -->
+      <div id="stepPhone">
+        <form id="phoneForm" onsubmit="handleRequestOtp(event)">
+          <div class="input-group">
+            <label class="input-label" for="ownerPhoneInput">नोंदणीकृत व्हॉट्सअॅप मोबाईल क्रमांक</label>
+            <div class="phone-input-wrapper">
+              <span class="phone-prefix">+91</span>
+              <input
+                type="tel"
+                id="ownerPhoneInput"
+                class="phone-input"
+                placeholder="९८२२० १२३४५"
+                maxlength="10"
+                pattern="[0-9]{10}"
+                inputmode="numeric"
+                required
+                autocomplete="tel-national"
+                autofocus
+              />
+            </div>
+            <p style="font-size: 12px; color: #94A3B8; margin: 6px 0 0 0;">
+              १००% सुरक्षित · OTP थेट तुमच्या अधिकृत WhatsApp वर येईल.
+            </p>
+          </div>
+
+          <button type="submit" id="btnSendOtp" class="btn-submit">
+            <span>व्हॉट्सअॅपवर OTP पाठवा</span>
+          </button>
+        </form>
+
+        <div class="login-footer-links">
+          अद्याप GoMate वर नोंदणी केली नाही का?<br>
+          <a href="/owner/register.html">येथे मोफत मालक नोंदणी करा (7-दिवस चाचणी)</a>
+        </div>
+      </div>
+
+      <!-- STEP 2: Enter OTP -->
+      <div id="stepOtp" style="display: none;">
+        <form id="otpForm" onsubmit="handleVerifyOtp(event)">
+          <div class="input-group">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+              <label class="input-label" style="margin-bottom: 0;">६-अंकी WhatsApp OTP</label>
+              <button type="button" onclick="editPhone()" style="background: none; border: none; color: #16A34A; font-size: 12px; cursor: pointer; text-decoration: underline;">
+                नंबर बदला
+              </button>
+            </div>
+            <p id="otpSentToLabel" style="font-size: 12.5px; color: #475569; margin: 0 0 12px 0;">
+              OTP पाठवला आहे: <strong>+91 XXXXX XXXXX</strong>
+            </p>
+            <input
+              type="text"
+              id="otpInput"
+              class="otp-input"
+              placeholder="••••••"
+              maxlength="6"
+              pattern="[0-9]{6}"
+              inputmode="numeric"
+              required
+              autocomplete="one-time-code"
+            />
+          </div>
+
+          <button type="submit" id="btnVerifyOtp" class="btn-submit">
+            <span>सत्यापित करा आणि लॉगिन करा</span>
+          </button>
+
+          <div class="otp-meta">
+            <span id="countdownTimer">⏱️ १०:०० शिल्लक</span>
+            <button type="button" id="btnResendOtp" class="btn-secondary" onclick="handleResendOtp()" disabled>
+              पुन्हा OTP पाठवा (३०s)
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    let activePhone = '';
+    let resendTimer = null;
+    let resendSeconds = 30;
+
+    // Check if already authenticated on load
+    window.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const res = await fetch('/api/owner/auth/me');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.owner) {
+            window.location.replace('/owner');
+            return;
+          }
+        }
+      } catch (_) {}
+
+      // Pre-fill phone from URL param if available
+      const urlParams = new URLSearchParams(window.location.search);
+      const phoneParam = urlParams.get('phone');
+      if (phoneParam) {
+        const clean = phoneParam.replace(/[^0-9]/g, '').slice(-10);
+        const input = document.getElementById('ownerPhoneInput');
+        if (input && clean.length === 10) {
+          input.value = clean;
+        }
+      }
+    });
+
+    function showAlert(msg, type = 'error', clickAction = null) {
+      const box = document.getElementById('alertBox');
+      box.textContent = msg;
+      box.className = `alert-banner alert-${type}`;
+      box.style.display = 'block';
+      if (clickAction) {
+        box.onclick = clickAction;
+      } else {
+        box.onclick = null;
+      }
+    }
+
+    function hideAlert() {
+      const box = document.getElementById('alertBox');
+      box.style.display = 'none';
+      box.textContent = '';
+    }
+
+    async function handleRequestOtp(e) {
+      if (e) e.preventDefault();
+      hideAlert();
+
+      const phoneInput = document.getElementById('ownerPhoneInput');
+      const rawDigits = phoneInput.value.replace(/[^0-9]/g, '');
+      if (rawDigits.length !== 10) {
+        showAlert('कृपया १० अंकी वैध मोबाईल क्रमांक प्रविष्ट करा.');
+        return;
+      }
+
+      activePhone = `+91${rawDigits}`;
+      const btn = document.getElementById('btnSendOtp');
+      const originalText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<div class="spinner"></div> <span>OTP पाठवत आहे...</span>';
+
+      try {
+        const res = await fetch('/api/owner/auth/request-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: activePhone })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+          if (data.code === 'NOT_REGISTERED') {
+            showAlert(data.error || 'हा नंबर नोंदणीकृत नाही.', 'error');
+          } else {
+            showAlert(data.error || 'OTP पाठवण्यात त्रुटी आली. कृपया पुन्हा प्रयत्न करा.');
+          }
+          return;
+        }
+
+        // Move to Step 2
+        document.getElementById('stepPhone').style.display = 'none';
+        document.getElementById('stepOtp').style.display = 'block';
+        document.getElementById('otpSentToLabel').innerHTML = `OTP पाठवला आहे: <strong>${activePhone}</strong> (${data.ownerName || 'मालक'})`;
+        
+        showAlert(data.message || 'OTP व्हॉट्सअॅपवर पाठवण्यात आला आहे.', 'success');
+
+        // If dev debug OTP is provided, display 1-click fill helper
+        if (data.debugOtp) {
+          setTimeout(() => {
+            showAlert(`⚡ [चाचणी मोड] OTP: ${data.debugOtp} (येथे क्लिक करून आपोआप भरा)`, 'dev', () => {
+              document.getElementById('otpInput').value = data.debugOtp;
+              document.getElementById('otpInput').focus();
+            });
+          }, 600);
+        }
+
+        document.getElementById('otpInput').focus();
+        startResendCountdown();
+
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        showAlert('नेटवर्क त्रुटी. सर्व्हरशी संपर्क साधता आला नाही.');
+      }
+    }
+
+    async function handleVerifyOtp(e) {
+      if (e) e.preventDefault();
+      hideAlert();
+
+      const otp = document.getElementById('otpInput').value.trim();
+      if (otp.length !== 6) {
+        showAlert('कृपया ६ अंकी OTP प्रविष्ट करा.');
+        return;
+      }
+
+      const btn = document.getElementById('btnVerifyOtp');
+      const originalText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<div class="spinner"></div> <span>पडताळणी चालू आहे...</span>';
+
+      try {
+        const res = await fetch('/api/owner/auth/verify-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: activePhone, otp })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+          showAlert(data.error || 'OTP चुकीचा किंवा कालबाह्य आहे.');
+          return;
+        }
+
+        // Store token in localStorage as backup (cookie is also set by server)
+        if (data.token) {
+          localStorage.setItem('gm_owner_token', data.token);
+          localStorage.setItem('gm_owner_phone', data.owner.phone);
+          localStorage.setItem('gm_owner_name', data.owner.name);
+        }
+
+        showAlert('लॉगिन यशस्वी! डॅशबोर्ड उघडत आहे...', 'success');
+        setTimeout(() => {
+          window.location.replace('/owner');
+        }, 500);
+
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        showAlert('पडताळणी त्रुटी. कृपया पुन्हा प्रयत्न करा.');
+      }
+    }
+
+    function editPhone() {
+      hideAlert();
+      clearInterval(resendTimer);
+      document.getElementById('stepOtp').style.display = 'none';
+      document.getElementById('stepPhone').style.display = 'block';
+      document.getElementById('btnSendOtp').disabled = false;
+      document.getElementById('btnSendOtp').innerHTML = '<span>व्हॉट्सअॅपवर OTP पाठवा</span>';
+      document.getElementById('ownerPhoneInput').focus();
+    }
+
+    function startResendCountdown() {
+      clearInterval(resendTimer);
+      resendSeconds = 30;
+      const resendBtn = document.getElementById('btnResendOtp');
+      resendBtn.disabled = true;
+      resendBtn.textContent = `पुन्हा OTP पाठवा (${resendSeconds}s)`;
+
+      resendTimer = setInterval(() => {
+        resendSeconds--;
+        if (resendSeconds <= 0) {
+          clearInterval(resendTimer);
+          resendBtn.disabled = false;
+          resendBtn.textContent = 'पुन्हा OTP पाठवा';
+        } else {
+          resendBtn.textContent = `पुन्हा OTP पाठवा (${resendSeconds}s)`;
+        }
+      }, 1000);
+    }
+
+    async function handleResendOtp() {
+      const resendBtn = document.getElementById('btnResendOtp');
+      resendBtn.disabled = true;
+      await handleRequestOtp(null);
+    }
+  </script>
+</body>
+</html>
