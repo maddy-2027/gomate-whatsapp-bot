@@ -54,22 +54,26 @@ async function createPaymentLink(phone, ownerName = 'Equipment Owner') {
   }
 }
 
-async function createBookingPaymentLink(phone, amount, bookingRef, equipmentModel) {
+async function createBookingPaymentLink(phone, amount, bookingRef, equipmentModel, details = {}) {
   const baseUrl = process.env.RENDER_EXTERNAL_URL || 'https://gomate-whatsapp-bot.onrender.com';
+  const totalParam = details.totalAmount ? `&total=${details.totalAmount}` : '';
+  const remParam = details.remainingAmount ? `&remaining=${details.remainingAmount}` : '';
+  const advParam = `&advance=${amount}`;
+
   if (!razorpay) {
     const encodedPhone = encodeURIComponent(phone || '+919876543210');
     return {
       id: `plink_book_${Date.now()}`,
-      short_url: `${baseUrl}/customer-payment.html?phone=${encodedPhone}&amount=${amount}&ref=${bookingRef}&model=${encodeURIComponent(equipmentModel)}`
+      short_url: `${baseUrl}/customer-payment.html?phone=${encodedPhone}&amount=${amount}&ref=${bookingRef}&model=${encodeURIComponent(equipmentModel)}${totalParam}${remParam}${advParam}`
     };
   }
 
   try {
     const paymentLink = await razorpay.paymentLink.create({
-      amount: Math.round(amount * 100), // amount in paise
+      amount: Math.round(amount * 100), // amount in paise (20% advance token)
       currency: 'INR',
       accept_partial: false,
-      description: `Rental Deposit for ${equipmentModel} (Ref: ${bookingRef})`,
+      description: `20% Booking Advance for ${equipmentModel} (Ref: ${bookingRef})`,
       customer: {
         contact: phone
       },
@@ -80,7 +84,10 @@ async function createBookingPaymentLink(phone, amount, bookingRef, equipmentMode
       notes: {
         bookingRef,
         equipmentModel,
-        phone
+        phone,
+        totalAmount: details.totalAmount || '',
+        advanceAmount: amount,
+        remainingAmount: details.remainingAmount || ''
       },
       callback_url: `${baseUrl}/payment-success`,
       callback_method: 'get'
@@ -92,7 +99,7 @@ async function createBookingPaymentLink(phone, amount, bookingRef, equipmentMode
     const encodedPhone = encodeURIComponent(phone || '+919876543210');
     return {
       id: `plink_book_fb_${Date.now()}`,
-      short_url: `${baseUrl}/customer-payment.html?phone=${encodedPhone}&amount=${amount}&ref=${bookingRef}&model=${encodeURIComponent(equipmentModel)}`
+      short_url: `${baseUrl}/customer-payment.html?phone=${encodedPhone}&amount=${amount}&ref=${bookingRef}&model=${encodeURIComponent(equipmentModel)}${totalParam}${remParam}${advParam}`
     };
   }
 }

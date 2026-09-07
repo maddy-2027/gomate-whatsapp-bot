@@ -25,7 +25,9 @@ function formatConfirmationMessage(booking, lang = 'mr') {
   const model = booking.equipment_name || booking.equipment_model || booking.model || 'Tractor';
   const village = booking.village || booking.district || 'जत';
   const duration = booking.hours_booked || booking.duration_days || booking.duration || 2;
-  const amount = booking.total_amount || 1500;
+  const totalAmount = booking.total_amount || 1500;
+  const advanceAmount = booking.advance_amount || Math.round(totalAmount * 0.20);
+  const remainingAmount = booking.remaining_amount || (totalAmount - advanceAmount);
   const invoiceUrl = `https://gomate-whatsapp-bot.onrender.com/api/bookings/${ref}/invoice`;
 
   if (lang === 'mr') {
@@ -37,12 +39,15 @@ function formatConfirmationMessage(booking, lang = 'mr') {
       `🚜 *उपकरण (Equipment):* ${model}\n` +
       `📍 *स्थान (Location):* ${village}, जत\n` +
       `⏱️ *कालावधी (Duration):* ${duration} तास (Hours)\n` +
-      `💰 *भरलेली रक्कम (Amount Paid):* *₹${Number(amount).toLocaleString('en-IN')}* (Paid ✅)\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+      `💰 *एकूण बिल (Total Bill):* *₹${Number(totalAmount).toLocaleString('en-IN')}*\n` +
+      `💳 *भरलेली आगाऊ रक्कम (20% Advance Paid):* *₹${Number(advanceAmount).toLocaleString('en-IN')}* (Paid ✅)\n` +
+      `💵 *काम झाल्यावर ऑपरेटरला देणे (80% Balance on Completion):* *₹${Number(remainingAmount).toLocaleString('en-IN')}*\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
       `🧾 *बुकिंग पावती (Official Invoice):*\n` +
       `🔗 ${invoiceUrl}\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
-      `_मशिनरी मालक आणि ड्रायव्हर लवकरच आपल्याशी संपर्क करतील. GoMate वर विश्वास ठेवल्याबद्दल धन्यवाद!_\n\n` +
+      `_मशिनरी मालक आणि ड्रायव्हर लवकरच आपल्याशी संपर्क करतील. काम पूर्ण झाल्यावर उर्वरित ₹${Number(remainingAmount).toLocaleString('en-IN')} थेट ऑपरेटरला द्या. GoMate वर विश्वास ठेवल्याबद्दल धन्यवाद!_\n\n` +
       `_मेनूसाठी *0* पाठवा._`;
   } else if (lang === 'hi') {
     return `🎉 *बुकिंग कन्फर्म हो गई है! (Booking Confirmed)* 🚜\n` +
@@ -53,12 +58,15 @@ function formatConfirmationMessage(booking, lang = 'mr') {
       `🚜 *मशीनरी (Equipment):* ${model}\n` +
       `📍 *स्थान (Location):* ${village}, जत\n` +
       `⏱️ *अवधि (Duration):* ${duration} घंटे (Hours)\n` +
-      `💰 *कुल भुगतान (Amount Paid):* *₹${Number(amount).toLocaleString('en-IN')}* (Paid ✅)\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+      `💰 *कुल बिल (Total Bill):* *₹${Number(totalAmount).toLocaleString('en-IN')}*\n` +
+      `💳 *जमा अग्रिम राशि (20% Advance Paid):* *₹${Number(advanceAmount).toLocaleString('en-IN')}* (Paid ✅)\n` +
+      `💵 *काम पूर्ण होने पर ऑपरेटर को देय (80% Balance on Completion):* *₹${Number(remainingAmount).toLocaleString('en-IN')}*\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
       `🧾 *बुकिंग रसीद (Official Invoice):*\n` +
       `🔗 ${invoiceUrl}\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
-      `_मशीनरी मालिक व ऑपरेटर आपसे जल्द संपर्क करेंगे। GoMate चुनने के लिए धन्यवाद!_\n\n` +
+      `_मशीनरी मालिक व ऑपरेटर आपसे जल्द संपर्क करेंगे। कार्य पूर्ण होने पर शेष ₹${Number(remainingAmount).toLocaleString('en-IN')} ऑपरेटर को दें। GoMate चुनने के लिए धन्यवाद!_\n\n` +
       `_मेनू के लिए *0* भेजें।_`;
   } else {
     return `🎉 *Booking is confirmed!* 🚜\n` +
@@ -69,12 +77,15 @@ function formatConfirmationMessage(booking, lang = 'mr') {
       `🚜 *Equipment:* ${model}\n` +
       `📍 *Location:* ${village}, Jath\n` +
       `⏱️ *Duration:* ${duration} Hours\n` +
-      `💰 *Amount Paid:* *₹${Number(amount).toLocaleString('en-IN')}* (Paid ✅)\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+      `💰 *Total Bill:* *₹${Number(totalAmount).toLocaleString('en-IN')}*\n` +
+      `💳 *20% Advance Token Paid:* *₹${Number(advanceAmount).toLocaleString('en-IN')}* (Paid ✅)\n` +
+      `💵 *Remaining 80% Balance Due on Completion:* *₹${Number(remainingAmount).toLocaleString('en-IN')}*\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
       `🧾 *Booking Invoice:*\n` +
       `🔗 ${invoiceUrl}\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
-      `_The machinery owner and verified operator will contact you shortly. Thank you for choosing GoMate!_\n\n` +
+      `_The machinery owner and verified operator will contact you shortly. Pay remaining ₹${Number(remainingAmount).toLocaleString('en-IN')} to operator upon work completion. Thank you for choosing GoMate!_\n\n` +
       `_Reply *0* for Menu._`;
   }
 }

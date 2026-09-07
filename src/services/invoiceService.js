@@ -211,21 +211,41 @@ function generateInvoicePDF(booking) {
       doc.moveTo(M, y).lineTo(M + contentW, y).strokeColor(BRAND.lineColor).lineWidth(1).stroke();
       y += 2;
 
-      // Subtotal row
-      doc.rect(M, y, contentW, 24).fill('#EFF6FF');
-      doc.fillColor(BRAND.blue).font('Helvetica-Bold').fontSize(10)
-         .text('Sub-total (Rental + Fees):', M + 12, y + 7, { width: contentW * 0.7 });
-      doc.fillColor(BRAND.slate).font('Helvetica-Bold').fontSize(11)
-         .text(`₹${total.toLocaleString('en-IN')}`, M, y + 7, { width: contentW + M - 12, align: 'right' });
-      y += 24;
+      const finalTotal = booking.total_amount || total;
+      const advancePaid = booking.advance_amount || Math.round(finalTotal * 0.20);
+      const balanceDue = booking.remaining_amount || (finalTotal - advancePaid);
 
-      // Total row
-      doc.rect(M, y, contentW, 40).fill(BRAND.slate);
-      doc.fillColor(BRAND.white).font('Helvetica-Bold').fontSize(14)
-         .text('TOTAL AMOUNT DUE  ·  एकूण देय रक्कम', M + 12, y + 12, { width: contentW * 0.6 });
-      doc.fillColor('#4ADE80').font('Helvetica-Bold').fontSize(18)
-         .text(`₹${total.toLocaleString('en-IN')}`, M, y + 10, { width: contentW + M - 12, align: 'right' });
-      y += 55;
+      // Subtotal row
+      doc.rect(M, y, contentW, 22).fill('#EFF6FF');
+      doc.fillColor(BRAND.blue).font('Helvetica-Bold').fontSize(9.5)
+         .text('Sub-total (Rental + Fees):', M + 12, y + 6, { width: contentW * 0.7 });
+      doc.fillColor(BRAND.slate).font('Helvetica-Bold').fontSize(10.5)
+         .text(`₹${finalTotal.toLocaleString('en-IN')}`, M, y + 6, { width: contentW + M - 12, align: 'right' });
+      y += 22;
+
+      // Total Bill Row
+      doc.rect(M, y, contentW, 26).fill(BRAND.slate);
+      doc.fillColor(BRAND.white).font('Helvetica-Bold').fontSize(10.5)
+         .text('TOTAL BILL AMOUNT  ·  एकूण बिल', M + 12, y + 8, { width: contentW * 0.6 });
+      doc.fillColor('#FFFFFF').font('Helvetica-Bold').fontSize(12)
+         .text(`₹${finalTotal.toLocaleString('en-IN')}`, M, y + 8, { width: contentW + M - 12, align: 'right' });
+      y += 26;
+
+      // 20% Advance Paid Online Row (Paid Checkmark)
+      doc.rect(M, y, contentW, 25).fill('#DCFCE7').stroke('#86EFAC');
+      doc.fillColor('#15803D').font('Helvetica-Bold').fontSize(10)
+         .text('20% ADVANCE PAID ONLINE  ·  भरलेली २०% आगाऊ रक्कम (Paid ✅):', M + 12, y + 7, { width: contentW * 0.7 });
+      doc.fillColor('#15803D').font('Helvetica-Bold').fontSize(11.5)
+         .text(`₹${advancePaid.toLocaleString('en-IN')}`, M, y + 7, { width: contentW + M - 12, align: 'right' });
+      y += 25;
+
+      // 80% Balance Payable on Completion Row
+      doc.rect(M, y, contentW, 28).fill('#FEF3C7').stroke('#FCD34D');
+      doc.fillColor('#92400E').font('Helvetica-Bold').fontSize(10.5)
+         .text('80% BALANCE PAYABLE ON COMPLETION  ·  काम झाल्यावर मालकास देय:', M + 12, y + 8, { width: contentW * 0.7 });
+      doc.fillColor('#B45309').font('Helvetica-Bold').fontSize(13)
+         .text(`₹${balanceDue.toLocaleString('en-IN')}`, M, y + 8, { width: contentW + M - 12, align: 'right' });
+      y += 38;
 
       // ── PAYMENT + GUARANTEE ─────────────────────────────────────────────
       const colW = (contentW - 16) / 2;

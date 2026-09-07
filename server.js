@@ -677,13 +677,15 @@ app.post('/api/booking/create-hourly', async (req, res) => {
 
     const PLATFORM_FEE = 49;
     const totalAmount = machineSubtotal + PLATFORM_FEE;
+    const advanceAmount = Math.round(totalAmount * 0.20); // 20% upfront deposit to confirm booking
+    const remainingAmount = totalAmount - advanceAmount;   // 80% remaining payable to machinery owner upon work completion
 
     let cleanPhone = String(customer_phone).trim().replace(/[^\d+]/g, '');
     if (!cleanPhone.startsWith('+')) {
       cleanPhone = cleanPhone.length === 10 ? `+91${cleanPhone}` : `+${cleanPhone}`;
     }
 
-    // Create Booking with Farm Geolocation & Navigation Link
+    // Create Booking with Farm Geolocation & Navigation Link (with 20% advance & 80% balance)
     const booking = await bookingsRepo.createBooking({
       customer_name: customer_name.trim(),
       customer_phone: cleanPhone,
@@ -697,16 +699,19 @@ app.post('/api/booking/create-hourly', async (req, res) => {
       start_date: `${start_date || 'Tomorrow'} at ${start_time || '08:00 AM'} (${unitsDescription})`,
       duration_days: Math.max(0.125, (Number(hours) || 1) / 8),
       total_amount: totalAmount,
+      advance_amount: advanceAmount,
+      remaining_amount: remainingAmount,
       status: 'pending',
       owner_phone: equip.owner_phone || '+919822012345'
     });
 
-    // Generate Payment Link
+    // Generate Payment Link for 20% Advance Token
     const payObj = await razorpayService.createBookingPaymentLink(
       cleanPhone,
-      totalAmount,
+      advanceAmount,
       booking.booking_ref,
-      `${equip.model} (${serviceName} - ${unitsDescription})`
+      `${equip.model} (${serviceName} - ${unitsDescription})`,
+      { totalAmount, remainingAmount }
     );
 
     res.json({
@@ -724,6 +729,8 @@ app.post('/api/booking/create-hourly', async (req, res) => {
         machine_subtotal: machineSubtotal,
         platform_fee: PLATFORM_FEE,
         total_amount: totalAmount,
+        advance_amount: advanceAmount,
+        remaining_amount: remainingAmount,
         start_date,
         start_time,
         village: village || 'Jath',
@@ -1215,34 +1222,32 @@ app.post('/api/demo/payment-success', async (req, res) => {
 // Customer Booking Payment Success & Official Invoice Generator
 app.post('/api/demo/customer-payment-success', async (req, res) => {
   try {
-    const { phone, ref, amount, model, txnId } = req.body;
-    console.log(`\n💰 CUSTOMER PAYMENT CONFIRMED: ₹${amount} for ${model} (Ref: ${ref}) by ${phone}`);
+    const { phone, ref, amount, totalAmount, remainingAmount, model, txnId } = req.body;
+    const advancePaid = Number(amount);
+    const fullTotal = totalAmount ? Number(totalAmount) : Math.round(advancePaid / 0.20);
+    const balanceRemaining = remainingAmount ? Number(remainingAmount) : (fullTotal - advancePaid);
+
+    console.log(`\n💰 CUSTOMER 20% ADVANCE CONFIRMED: ₹${advancePaid} (Total: ₹${fullTotal}, Due: ₹${balanceRemaining}) for ${model} (Ref: ${ref}) by ${phone}`);
 
     const { sendWhatsAppDirect } = require('./src/services/whatsappWeb');
     const { getSession } = require('./src/services/session');
     const session = getSession(phone);
-    const lang = (session && session.language) || 'en';
+    const lang = (session && session.language) || 'mr';
     const customerName = (session && session.customerName) || 'Customer';
     const now = new Date();
     const dateStr = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()}`;
     const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
     const invNo = `GM-INV-${ref.replace('GM-', '')}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-    const platformFee = 49;
-    const totalPaid = Number(amount);
-    const rentalPortion = Math.max(0, totalPaid - platformFee);
-    const baseRental = Math.round(rentalPortion / 1.18);
-    const gstAmount = rentalPortion - baseRental;
-
     let invoiceMessage = '';
 
     if (lang === 'mr') {
-      invoiceMessage = `🧾 *गोमेट अधिकृत टॅक्स इनव्हॉइस व पावती*
+      invoiceMessage = `🧾 *गोमेट अधिकृत टॅक्स इनव्हॉइस व आगाऊ पावती*
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔖 *पावती क्र (Invoice No):* ${invNo}
 🔖 *बुकिंग संदर्भ (Ref):* ${ref}
 📅 *तारीख व वेळ:* ${dateStr} | ${timeStr}
-💳 *पेमेंट पद्धत:* UPI (यशस्वी ✅)
+💳 *पेमेंट पद्धत:* UPI (२०% आगाऊ टोकन ✅)
 🔖 *व्यवहार आयडी (Txn ID):* ${txnId}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -1252,11 +1257,11 @@ app.post('/api/demo/customer-payment-success', async (req, res) => {
 📍 *स्थान:* महाराष्ट्र (स्थानिक शेत / साइट)
 
 💰 *पेमेंट सारांश:*
-• मूळ भाडे रक्कम: ₹${baseRental.toLocaleString('en-IN')}
-• गोमेट सुरक्षा व सहाय्य फी: ₹${platformFee}
-• GST (18% समाविष्ट): ₹${gstAmount.toLocaleString('en-IN')}
+• एकूण बिल (Total Bill): ₹${fullTotal.toLocaleString('en-IN')}
+• भरलेला २०% आगाऊ (Advance Paid): ₹${advancePaid.toLocaleString('en-IN')} (PAID ✅)
+• काम झाल्यावर ऑपरेटरला देणे (८०%): ₹${balanceRemaining.toLocaleString('en-IN')}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💵 *एकूण भरलेली रक्कम: ₹${totalPaid.toLocaleString('en-IN')} (PAID ✅)*
+💵 *आगाऊ भरलेली रक्कम: ₹${advancePaid.toLocaleString('en-IN')} (PAID ✅)*
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 📞 *मशिनरी मालक व ऑपरेटर तपशील:*
@@ -1266,18 +1271,19 @@ app.post('/api/demo/customer-payment-success', async (req, res) => {
 
 🚚 *डिलिव्हरी व पुढील सूचना:*
 1️⃣ मालकांना तुमची बुकिंग पावती व तपशील त्वरित पाठवले आहेत.
-2️⃣ डिलिव्हरी वेळेचे समन्वय साधण्यासाठी मालक तुम्हाला 1-2 तासांत कॉल करतील.
-3️⃣ सुरक्षिततेची हमी: काम सुरू होईपर्यंत तुमची रक्कम GoMate द्वारे 100% सुरक्षित आहे.
+2️⃣ डिलिव्हरी वेळेचे समन्वय साधण्यासाठी मालक तुम्हाला त्वरित कॉल करतील.
+3️⃣ काम पूर्ण झाल्यावर उर्वरित ₹${balanceRemaining.toLocaleString('en-IN')} थेट मशिनरी मालक/ऑपरेटरला द्या.
+4️⃣ सुरक्षिततेची हमी: काम सुरू होईपर्यंत तुमची रक्कम GoMate द्वारे 100% सुरक्षित आहे.
 
 _📞 GoMate शेतकरी हेल्पलाइन: 1800-123-4567_
 _गोमेट निवडल्याबद्दल धन्यवाद! 🚜🌾_`;
     } else if (lang === 'hi') {
-      invoiceMessage = `🧾 *गोमेट आधिकारिक टैक्स इनवॉइस व रसीद*
+      invoiceMessage = `🧾 *गोमेट आधिकारिक टैक्स इनवॉइस व अग्रिम रसीद*
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔖 *रसीद सं (Invoice No):* ${invNo}
 🔖 *बुकिंग संदर्भ (Ref):* ${ref}
 📅 *दिनांक व समय:* ${dateStr} | ${timeStr}
-💳 *भुगतान माध्यम:* UPI (सफल ✅)
+💳 *भुगतान माध्यम:* UPI (२०% अग्रिम टोकन ✅)
 🔖 *लेनदेन आईडी (Txn ID):* ${txnId}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -1287,11 +1293,11 @@ _गोमेट निवडल्याबद्दल धन्यवाद! 
 📍 *स्थान:* महाराष्ट्र
 
 💰 *भुगतान विवरण:*
-• मूल किराया राशि: ₹${baseRental.toLocaleString('en-IN')}
-• गोमेट सुरक्षा व सेवा शुल्क: ₹${platformFee}
-• GST (18% सम्मिलित): ₹${gstAmount.toLocaleString('en-IN')}
+• कुल बिल (Total Bill): ₹${fullTotal.toLocaleString('en-IN')}
+• जमा २०% अग्रिम (Advance Paid): ₹${advancePaid.toLocaleString('en-IN')} (PAID ✅)
+• कार्य पूर्ण होने पर देय शेष राशि (८०%): ₹${balanceRemaining.toLocaleString('en-IN')}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💵 *कुल भुगतान राशि: ₹${totalPaid.toLocaleString('en-IN')} (PAID ✅)*
+💵 *जमा अग्रिम राशि: ₹${advancePaid.toLocaleString('en-IN')} (PAID ✅)*
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 📞 *मशीन मालिक व ऑपरेटर विवरण:*
@@ -1301,18 +1307,19 @@ _गोमेट निवडल्याबद्दल धन्यवाद! 
 
 🚚 *डिलीवरी व आगामी निर्देश:*
 1️⃣ मशीन मालिक को आपकी बुकिंग रसीद भेज दी गई है।
-2️⃣ डिलीवरी समय और स्थान के समन्वय हेतु मालिक 1-2 घंटे में आपको कॉल करेंगे।
-3️⃣ सुरक्षा गारंटी: काम शुरू होने तक आपका पैसा 100% सुरक्षित है।
+2️⃣ डिलीवरी समय और स्थान के समन्वय हेतु मालिक आपको जल्द कॉल करेंगे।
+3️⃣ कार्य पूर्ण होने पर शेष ₹${balanceRemaining.toLocaleString('en-IN')} सीधे मालिक/ऑपरेटर को दें।
+4️⃣ सुरक्षा गारंटी: काम शुरू होने तक आपका पैसा 100% सुरक्षित है।
 
 _📞 GoMate किसान हेल्पलाइन: 1800-123-4567_
 _गोमेट का उपयोग करने के लिए धन्यवाद! 🚜🌾_`;
     } else {
-      invoiceMessage = `🧾 *GOMATE OFFICIAL TAX INVOICE & RECEIPT*
+      invoiceMessage = `🧾 *GOMATE OFFICIAL TAX INVOICE & ADVANCE RECEIPT*
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔖 *Invoice No:* ${invNo}
 🔖 *Booking Ref:* ${ref}
 📅 *Date & Time:* ${dateStr} | ${timeStr}
-💳 *Payment Mode:* UPI / Cards (SUCCESS ✅)
+💳 *Payment Mode:* UPI / Cards (20% Advance Token SUCCESS ✅)
 🔖 *Transaction ID:* ${txnId}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -1322,11 +1329,11 @@ _गोमेट का उपयोग करने के लिए धन्�
 📍 *Service Location:* Maharashtra (Local Site / Farm)
 
 💰 *PAYMENT BREAKDOWN:*
-• Base Rental Rate: ₹${baseRental.toLocaleString('en-IN')}
-• GoMate Protection & Support Fee: ₹${platformFee}
-• GST (18% Included): ₹${gstAmount.toLocaleString('en-IN')}
+• Total Bill Amount: ₹${fullTotal.toLocaleString('en-IN')}
+• 20% Advance Token Paid: ₹${advancePaid.toLocaleString('en-IN')} (PAID ✅)
+• Remaining 80% Due on Completion: ₹${balanceRemaining.toLocaleString('en-IN')}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💵 *TOTAL AMOUNT PAID: ₹${totalPaid.toLocaleString('en-IN')} (PAID ✅)*
+💵 *TOTAL ADVANCE PAID NOW: ₹${advancePaid.toLocaleString('en-IN')} (PAID ✅)*
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 📞 *VERIFIED EQUIPMENT OWNER DETAILS:*
@@ -1336,8 +1343,9 @@ _गोमेट का उपयोग करने के लिए धन्�
 
 🚚 *DELIVERY INSTRUCTIONS:*
 1️⃣ The machinery owner has received your confirmed booking voucher.
-2️⃣ The owner will call you within 1-2 hours to confirm your exact delivery coordinates.
-3️⃣ 100% GoMate Protection: Your payment is protected until machinery is deployed on site.
+2️⃣ The owner will call you to confirm your exact delivery coordinates.
+3️⃣ Pay the remaining balance of ₹${balanceRemaining.toLocaleString('en-IN')} directly to the operator upon job completion.
+4️⃣ 100% GoMate Protection: Your payment is protected until machinery is deployed on site.
 
 _📞 GoMate Toll-Free Support: 1800-123-4567_
 _Thank you for renting with GoMate! 🚜🌾_`;
@@ -1349,13 +1357,15 @@ _Thank you for renting with GoMate! 🚜🌾_`;
     // 2. Also notify Owner with Customer details and net equipment payout
     const ownerPhone = process.env.ADMIN_WHATSAPP_NUMBER || '+919822012345';
     await sendWhatsAppDirect(ownerPhone,
-      `🎉 *PAYMENT CONFIRMED FOR YOUR MACHINERY!*\n\n` +
+      `🎉 *20% ADVANCE PAYMENT CONFIRMED FOR YOUR MACHINERY!*\n\n` +
       `🔖 *Ref:* ${ref}\n` +
       `🚜 *Equipment:* ${model}\n` +
-      `💰 *Equipment Rental Payout:* ₹${rentalPortion.toLocaleString('en-IN')}\n` +
+      `💰 *Total Bill:* ₹${fullTotal.toLocaleString('en-IN')}\n` +
+      `💳 *20% Advance Paid on GoMate:* ₹${advancePaid.toLocaleString('en-IN')} (Paid ✅)\n` +
+      `💵 *Collect from Farmer upon Completion (80%):* ₹${balanceRemaining.toLocaleString('en-IN')}\n` +
       `👤 *Customer:* ${customerName} (${phone})\n` +
       `🔖 *Txn ID:* ${txnId}\n\n` +
-      `👉 Please contact the customer immediately to coordinate delivery!`
+      `👉 Please contact the customer immediately to coordinate delivery and collect ₹${balanceRemaining.toLocaleString('en-IN')} upon work completion!`
     ).catch(() => {});
 
     res.json({ success: true, txnId, invoiceNo: invNo });

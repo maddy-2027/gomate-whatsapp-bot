@@ -588,15 +588,19 @@ async function createFinalBookingAndPayment(phone, session) {
   }
 
   const totalAmount = rentalAmount + PLATFORM_FEE;
+  const advanceAmount = Math.round(totalAmount * 0.20); // 20% upfront deposit to confirm booking
+  const remainingAmount = totalAmount - advanceAmount;   // 80% remaining payable to owner upon work completion
 
   session.data.totalAmount = totalAmount;
+  session.data.advanceAmount = advanceAmount;
+  session.data.remainingAmount = remainingAmount;
   session.data.rentalTotal = rentalAmount;
   session.data.platformFee = PLATFORM_FEE;
 
   const customerName = session.customerName || session.data.customerName || 'Customer';
   const modelText = quantity > 1 ? `${quantity}x ${equip.model}` : equip.model;
 
-  // 1. Create Booking Reference (GM-XXXX)
+  // 1. Create Booking Reference (GM-XXXX) with 20% advance & 80% remaining
   let booking;
   try {
     booking = await createBooking({
@@ -612,6 +616,8 @@ async function createFinalBookingAndPayment(phone, session) {
       start_date: `${startDate} at ${startTime} (${unitDesc})`,
       duration_days: durationDays,
       total_amount: totalAmount,
+      advance_amount: advanceAmount,
+      remaining_amount: remainingAmount,
       status: 'pending'
     });
   } catch (err) {
@@ -627,15 +633,18 @@ async function createFinalBookingAndPayment(phone, session) {
     equipment_name: modelText,
     village: session.data.location,
     duration,
-    total_amount: totalAmount
+    total_amount: totalAmount,
+    advance_amount: advanceAmount,
+    remaining_amount: remainingAmount
   }, 90000);
 
-  // 2. Generate Real / Demo UPI Payment Link
+  // 2. Generate Real / Demo UPI Payment Link for 20% Advance Token
   const payObj = await createBookingPaymentLink(
     phone,
-    totalAmount,
+    advanceAmount,
     booking.booking_ref,
-    modelText
+    modelText,
+    { totalAmount, remainingAmount }
   );
   const payLink = (payObj && payObj.short_url) ? payObj.short_url : 'https://rzp.io/l/gomate-booking';
   session.data.payLink = payLink;
@@ -651,7 +660,9 @@ async function createFinalBookingAndPayment(phone, session) {
     startTime,
     duration,
     rentalAmount,
-    totalAmount
+    totalAmount,
+    advanceAmount,
+    remainingAmount
   }).catch(err => console.warn('Dispatch alert error:', err.message));
 
   // Clear active quote
@@ -673,18 +684,21 @@ async function createFinalBookingAndPayment(phone, session) {
 ━━━━━━━━━━━━━━━━━━━━
 • भाडे रक्कम: *₹${rentalAmount.toLocaleString('en-IN')}* (${unitDesc})
 • गोमेट सुरक्षा व सहाय्य फी: *₹${PLATFORM_FEE}*
-💰 *एकूण देय रक्कम: ₹${totalAmount.toLocaleString('en-IN')}*
+💰 *एकूण बिल (Total Bill): ₹${totalAmount.toLocaleString('en-IN')}*
+━━━━━━━━━━━━━━━━━━━━
+💳 *बुकिंग निश्चितीसाठी २०% आगाऊ: ₹${advanceAmount.toLocaleString('en-IN')}*
+💵 *उर्वरित ८०% रक्कम (काम झाल्यावर द्या): ₹${remainingAmount.toLocaleString('en-IN')}*
 ━━━━━━━━━━━━━━━━━━━━
 
-👉 *बुकिंग निश्चित करण्यासाठी UPI पेमेंट करा:*
+👉 *बुकिंग पक्की करण्यासाठी २०% आगाऊ (₹${advanceAmount.toLocaleString('en-IN')}) UPI पेमेंट करा:*
 🔗 ${payLink}
 _(PhonePe, Google Pay, Paytm किंवा BHIM UPI द्वारे त्वरित पेमेंट करा)_
 
-📋 *Uber-Style डिलिव्हरी प्रक्रिया:*
-1️⃣ *UPI पेमेंट पूर्ण करा:* वरील लिंकवर क्लिक करून ₹${totalAmount.toLocaleString('en-IN')} भरा.
-2️⃣ *मालक व ड्रायव्हर तपशील:* पेमेंट यशस्वी होताच मशिनरी मालक व ड्रायव्हरचा फोन नंबर व लोकेशन WhatsApp वर मिळेल.
+📋 *डिलिव्हरी प्रक्रिया:*
+1️⃣ *२०% आगाऊ पेमेंट करा:* वरील लिंकवर क्लिक करून ₹${advanceAmount.toLocaleString('en-IN')} भरा.
+2️⃣ *मालक व ड्रायव्हर तपशील:* आगाऊ पेमेंट यशस्वी होताच मशिनरी मालक व ड्रायव्हरचा थेट संपर्क WhatsApp वर मिळेल.
 3️⃣ *वेळेवर डिलिव्हरी:* मालक ठरलेल्या वेळेत (${startDate}, ${startTime}) उपकरण तुमच्या शेतात पोहोचवतील.
-4️⃣ *१००% सुरक्षा:* काम सुरू होईपर्यंत तुमची रक्कम GoMate द्वारे सुरक्षित!
+4️⃣ *उर्वरित पेमेंट:* काम पूर्ण झाल्यावर उर्वरित ₹${remainingAmount.toLocaleString('en-IN')} थेट मालकाला द्या.
 
 _रद्द करण्यासाठी *CANCEL* किंवा मेनूसाठी *0* पाठवा._`;
   } else if (lang === 'hi') {
@@ -694,24 +708,27 @@ _रद्द करण्यासाठी *CANCEL* किंवा मेन�
 🔖 बुकिंग संदर्भ: *${booking.booking_ref}*
 📅 निर्धारित दिनांक: *${startDate}*
 ⏰ पहुंचने का समय: *${startTime} (सटीक समय पर)*
-⏱️ अवधि: *${duration} घंटे (Hours)*
+⏱️ अवधि: *${unitDesc}*
 📍 स्थान: *${session.data.location || 'खेत / साइट'}*
 👤 ऑपरेटर/चालक: *सत्यापित ड्राइवर सम्मिलित (GoMate गारंटी)*
 ━━━━━━━━━━━━━━━━━━━━
-• किराया: *₹${rentalAmount.toLocaleString('en-IN')}* (₹${unitRate}/घंटा x ${duration} घंटे)
+• किराया: *₹${rentalAmount.toLocaleString('en-IN')}* (${unitDesc})
 • गोमेट सुरक्षा शुल्क: *₹${PLATFORM_FEE}*
-💰 *कुल देय राशि: ₹${totalAmount.toLocaleString('en-IN')}*
+💰 *कुल बिल (Total Bill): ₹${totalAmount.toLocaleString('en-IN')}*
+━━━━━━━━━━━━━━━━━━━━
+💳 *बुकिंग पक्की करने के लिए २०% अग्रिम (Advance): ₹${advanceAmount.toLocaleString('en-IN')}*
+💵 *शेष ८०% राशि (कार्य पूर्ण होने पर दें): ₹${remainingAmount.toLocaleString('en-IN')}*
 ━━━━━━━━━━━━━━━━━━━━
 
-👉 *बुकिंग पक्की करने के लिए UPI भुगतान करें:*
+👉 *बुकिंग पक्की करने के लिए २०% अग्रिम (₹${advanceAmount.toLocaleString('en-IN')}) UPI भुगतान करें:*
 🔗 ${payLink}
 _(PhonePe, Google Pay, Paytm या BHIM UPI द्वारा तुरंत भुगतान करें)_
 
-📋 *Uber-Style डिलीवरी प्रक्रिया:*
-1️⃣ *UPI भुगतान पूरा करें:* ऊपर दिए गए लिंक पर क्लिक कर ₹${totalAmount.toLocaleString('en-IN')} का भुगतान करें।
-2️⃣ *मालिक व ड्राइवर विवरण:* भुगतान के तुरंत बाद ऑपरेटर का नंबर और लोकेशन WhatsApp पर प्राप्त होगी।
+📋 *डिलीवरी प्रक्रिया:*
+1️⃣ *२०% अग्रिम भुगतान पूरा करें:* ऊपर दिए गए लिंक पर क्लिक कर केवल ₹${advanceAmount.toLocaleString('en-IN')} का भुगतान करें।
+2️⃣ *मालिक व ड्राइवर विवरण:* अग्रिम भुगतान होते ही ऑपरेटर का सीधा नंबर WhatsApp पर मिलेगा।
 3️⃣ *समय पर डिलीवरी:* मशीनरी तय समय पर (${startDate}, ${startTime}) आपके खेत पहुंचेगी।
-4️⃣ *१००% सुरक्षा:* काम शुरू होने तक आपका भुगतान GoMate द्वारा सुरक्षित!
+4️⃣ *शेष भुगतान:* काम पूरा होने के बाद शेष ₹${remainingAmount.toLocaleString('en-IN')} सीधे मालिक को दें।
 
 _रद्द करने के लिए *CANCEL* या मेनू के लिए *0* भेजें।_`;
   } else {
@@ -727,18 +744,21 @@ _रद्द करने के लिए *CANCEL* या मेनू के 
 ━━━━━━━━━━━━━━━━━━━━
 • Rental Charge: *₹${rentalAmount.toLocaleString('en-IN')}* (${unitDesc})
 • GoMate Protection Fee: *₹${PLATFORM_FEE}*
-💰 *Total Payable: ₹${totalAmount.toLocaleString('en-IN')}*
+💰 *Total Bill: ₹${totalAmount.toLocaleString('en-IN')}*
+━━━━━━━━━━━━━━━━━━━━
+💳 *20% Advance to Confirm Booking: ₹${advanceAmount.toLocaleString('en-IN')}*
+💵 *Remaining 80% Due on Completion: ₹${remainingAmount.toLocaleString('en-IN')}*
 ━━━━━━━━━━━━━━━━━━━━
 
-👉 *Complete UPI Advance to Confirm Booking:*
+👉 *Pay 20% Advance (₹${advanceAmount.toLocaleString('en-IN')}) via UPI to Confirm Booking:*
 🔗 ${payLink}
 _(Instant pay via PhonePe, Google Pay, Paytm or BHIM UPI)_
 
-📋 *Uber-Style Delivery Workflow:*
-1️⃣ *Pay via UPI:* Click the link above and pay ₹${totalAmount.toLocaleString('en-IN')}.
-2️⃣ *Driver Details:* You will receive the owner and driver's direct contact and live GPS location on WhatsApp.
+📋 *Delivery Workflow:*
+1️⃣ *Pay 20% Advance:* Click the link above and pay ₹${advanceAmount.toLocaleString('en-IN')} to lock in the reservation.
+2️⃣ *Driver Details:* You will receive the owner & driver's direct contact and live ETA on WhatsApp.
 3️⃣ *Timely Delivery:* Equipment arrives at your farm on ${startDate} at ${startTime}.
-4️⃣ *100% Escrow Protection:* Your money is held safe until field work commences.
+4️⃣ *Final Payment:* Pay the remaining ₹${remainingAmount.toLocaleString('en-IN')} directly to the machinery owner after work is completed.
 
 _Reply *CANCEL* to cancel or *0* for Menu._`;
   }

@@ -48,7 +48,9 @@ async function sendOwnerDispatchAlert(bookingData) {
     startTime,
     duration,
     rentalAmount,
-    totalAmount
+    totalAmount,
+    advanceAmount,
+    remainingAmount
   } = bookingData;
 
   const candidateOwners = await getCandidateOwners(village);
@@ -58,7 +60,10 @@ async function sendOwnerDispatchAlert(bookingData) {
   };
 
   const ownerPhone = primaryOwner.phone;
-  const ownerPayout = rentalAmount || (totalAmount ? totalAmount - 49 : 3000);
+  const total = totalAmount || (rentalAmount ? rentalAmount + 49 : 3049);
+  const advance = advanceAmount !== undefined ? advanceAmount : Math.round(total * 0.20);
+  const remaining = remainingAmount !== undefined ? remainingAmount : (total - advance);
+  const ownerPayout = remaining; // The owner collects the remaining 80% directly from customer upon completion
 
   const alertText = `🚨 *GoMate नवीन मशिनरी मागणी (New Booking Request)!* 🚜
 ━━━━━━━━━━━━━━━━━━━━
@@ -67,8 +72,10 @@ async function sendOwnerDispatchAlert(bookingData) {
 📍 कार्यक्षेत्र/गाव: *${village || 'जत तालुका'}*
 📅 तारीख: *${startDate}*
 ⏰ वेळ: *${startTime || '08:00 AM'}*
-⏱️ कालावधी: *${duration} दिवस*
-💰 तुमची निव्वळ कमाई: *₹${ownerPayout.toLocaleString('en-IN')}* (थेट रोख/UPI)
+⏱️ कामाचे प्रमाण: *${duration || 'शेड्युलनुसार'}*
+💰 एकूण बिल: *₹${total.toLocaleString('en-IN')}*
+💳 गोमेटवर भरलेला आगाऊ (२०% टोकन): *₹${advance.toLocaleString('en-IN')}* (Paid ✅)
+💵 काम झाल्यावर थेट ग्राहकाकडून रोख/UPI घ्यायचे (८०%): *₹${remaining.toLocaleString('en-IN')}*
 👤 शेतकरी/ग्राहक: *${farmerName || 'शेतकरी'}*
 ━━━━━━━━━━━━━━━━━━━━
 ⚡ *पुढील १५ मिनिटांत उत्तर द्या:*
@@ -92,7 +99,9 @@ _(नकार दिल्यास ही ऑर्डर जत क्लस�
     startTime: startTime || '08:00 AM',
     duration,
     ownerPayout,
-    totalAmount: totalAmount || ownerPayout + 49,
+    totalAmount: total,
+    advanceAmount: advance,
+    remainingAmount: remaining,
     ownerPhone,
     ownerName: primaryOwner.name,
     candidateOwners,
@@ -152,8 +161,10 @@ async function handleOwnerResponse(ownerPhone, text) {
 📞 मालकाचा संपर्क: *${session.ownerPhone}*
 📅 पोहोचण्याची वेळ: *${session.startDate}, ${session.startTime}*
 📍 तुमचे गाव: *${session.village}*
-⏱️ कालावधी: *${session.duration} दिवस*
-💰 एकूण देय रक्कम: *₹${session.totalAmount.toLocaleString('en-IN')}* (कामाच्या वेळी थेट द्या)
+⏱️ कालावधी / प्रमाण: *${session.duration || 'शेड्युलनुसार'}*
+💰 एकूण बिल: *₹${session.totalAmount.toLocaleString('en-IN')}*
+💳 भरलेला २०% आगाऊ: *₹${session.advanceAmount.toLocaleString('en-IN')}* (Paid ✅)
+💵 काम झाल्यावर मालकाला द्यायचे (८०%): *₹${session.remainingAmount.toLocaleString('en-IN')}*
 ━━━━━━━━━━━━━━━━━━━━
 ✅ मालक स्वतः ठरलेल्या वेळेत ड्रायव्हरसह उपकरण तुमच्या शेतात पोहोचवतील!
 _काही मदत हवी असल्यास थेट कॉल करा किंवा '0' पाठवा._`;
@@ -172,11 +183,13 @@ _काही मदत हवी असल्यास थेट कॉल क�
 📞 ग्राहक फोन: *${session.farmerPhone}*
 📍 कार्यक्षेत्र: *${session.village} (जत तालुका)*
 📅 शेड्युल वेळ: *${session.startDate}, सकाळी ${session.startTime}*
-⏱️ कालावधी: *${session.duration} दिवस*
-💰 एकूण भाडे: *₹${session.ownerPayout.toLocaleString('en-IN')}* (थेट ग्राहकाकडून मिळवा)
+⏱️ कामाचे प्रमाण: *${session.duration || 'शेड्युलनुसार'}*
+💰 एकूण बिल: *₹${session.totalAmount.toLocaleString('en-IN')}*
+💳 गोमेटवर आगाऊ भरले (२०%): *₹${session.advanceAmount.toLocaleString('en-IN')}*
+💵 काम पूर्ण झाल्यावर थेट शेतकऱ्याकडून घ्या (८०%): *₹${session.remainingAmount.toLocaleString('en-IN')}*
 ━━━━━━━━━━━━━━━━━━━━
 👉 *पुढील पायरी:*
-कृपया ग्राहकाशी (${session.farmerPhone}) फोनवर बोलून नेमकी शेताची वाट समजून घ्या आणि ठरलेल्या वेळेत पोहोचवा. धन्यवाद!`;
+कृपया ग्राहकाशी (${session.farmerPhone}) फोनवर बोलून नेमकी शेताची वाट समजून घ्या आणि ठरलेल्या वेळेत पोहोचवा. काम पूर्ण झाल्यावर शेतकऱ्याकडून उर्वरित ₹${session.remainingAmount.toLocaleString('en-IN')} रोख किंवा UPI ने घ्या. धन्यवाद!`;
   } else {
     // Owner Rejected -> Cascade
     console.log(`❌ Owner ${ownerPhone} rejected booking ${session.bookingRef}`);
@@ -231,8 +244,10 @@ async function cascadeToNextOwner(session) {
 📍 कार्यक्षेत्र/गाव: *${session.village}*
 📅 तारीख: *${session.startDate}*
 ⏰ वेळ: *${session.startTime}*
-⏱️ कालावधी: *${session.duration} दिवस*
-💰 तुमची निव्वळ कमाई: *₹${session.ownerPayout.toLocaleString('en-IN')}*
+⏱️ कामाचे प्रमाण: *${session.duration || 'शेड्युलनुसार'}*
+💰 एकूण बिल: *₹${session.totalAmount.toLocaleString('en-IN')}*
+💳 गोमेटवर भरलेला आगाऊ (२०%): *₹${session.advanceAmount.toLocaleString('en-IN')}* (Paid ✅)
+💵 काम झाल्यावर थेट ग्राहकाकडून रोख/UPI घ्यायचे (८०%): *₹${session.remainingAmount.toLocaleString('en-IN')}*
 ━━━━━━━━━━━━━━━━━━━━
 ⚡ *पुढील १५ मिनिटांत उत्तर द्या:*
 👉 *स्वीकारण्यासाठी '1'* पाठवा
