@@ -25,6 +25,8 @@ let rawQrCode = null;
 let isReady = false;
 let connectedUser = null;
 let isInitializing = false;
+let savedOnQrCallback = null;
+let savedOnReadyCallback = null;
 
 // Fallback local auth dir (used for local dev / file cache)
 const AUTH_DIR = path.join(process.cwd(), '.baileys_auth');
@@ -258,6 +260,8 @@ async function useLocalAuthState() {
  * Session is persisted to Supabase automatically — survives all redeploys.
  */
 async function initWhatsAppWeb(onQrCallback, onReadyCallback) {
+  if (onQrCallback) savedOnQrCallback = onQrCallback;
+  if (onReadyCallback) savedOnReadyCallback = onReadyCallback;
   if (isInitializing) return;
   isInitializing = true;
 
@@ -344,8 +348,10 @@ async function initWhatsAppWeb(onQrCallback, onReadyCallback) {
         isReady = false;
         isInitializing = false;
         currentQrDataUrl = null;
+        rawQrCode = null;
         const statusCode = lastDisconnect?.error?.output?.statusCode || lastDisconnect?.error?.status;
-        const shouldReconnect = statusCode !== DisconnectReason.loggedOut && statusCode !== 401;
+        const isAuthRejection = statusCode === DisconnectReason.loggedOut || statusCode === 401 || statusCode === 403 || statusCode === 405;
+        const shouldReconnect = !isAuthRejection;
 
         console.log(`⚠️ WhatsApp connection closed (Reason: ${statusCode || 'Unknown'}). Reconnecting: ${shouldReconnect}`);
 
@@ -354,12 +360,12 @@ async function initWhatsAppWeb(onQrCallback, onReadyCallback) {
             initWhatsAppWeb(onQrCallback, onReadyCallback);
           }, 3000);
         } else {
-          // User explicitly logged out from WhatsApp on their phone — clear Supabase session too
-          console.log('🔒 WhatsApp logged out from phone. Clearing Supabase session...');
+          // Stale session or user logged out from phone — wipe bad credentials and generate clean QR code
+          console.log('🔒 WhatsApp credentials rejected by WhatsApp servers (Status ' + statusCode + '). Clearing stale session and generating fresh QR code...');
           await deleteSessionFromSupabase();
           setTimeout(() => {
             initWhatsAppWeb(onQrCallback, onReadyCallback);
-          }, 2000);
+          }, 1500);
         }
       }
     });
@@ -472,6 +478,7 @@ async function sendWhatsAppDirect(phone, text) {
 async function logoutWhatsApp() {
   if (waSocket) {
     try {
+      waSocket.ev.removeAllListeners();
       await waSocket.logout();
     } catch (e) {}
     waSocket = null;
@@ -482,6 +489,13 @@ async function logoutWhatsApp() {
   currentQrDataUrl = null;
   rawQrCode = null;
   isInitializing = false;
+
+  console.log('🔄 [WhatsApp] Session reset requested. Initializing clean pairing sequence...');
+  setTimeout(() => {
+    initWhatsAppWeb(savedOnQrCallback, savedOnReadyCallback);
+  }, 1000);
+
+  return { success: true, message: 'Session cleared. Generating new pairing QR...' };
 }
 
 /**
