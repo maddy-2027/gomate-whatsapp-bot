@@ -896,6 +896,43 @@ app.get('/api/owner/data', async (req, res) => {
   }
 });
 
+// ==========================================
+// Owner Wallet & Payout Endpoints
+// ==========================================
+
+/** GET /api/owner/payout — returns wallet summary + ledger + saved bank details */
+app.get('/api/owner/payout', async (req, res) => {
+  try {
+    const phone = resolveRequestOwnerPhone(req) || '+919822012345';
+    const { getOwnerPayoutSummary } = require('./src/services/payoutService');
+    const payoutData = await getOwnerPayoutSummary(phone);
+    const owner = await ownersRepo.getOwnerByPhone(phone);
+    const bankDetails = {
+      upi_id: owner?.upi_id || '',
+      bank_account: owner?.bank_account || '',
+      ifsc_code: owner?.ifsc_code || '',
+      account_holder_name: owner?.account_holder_name || owner?.name || '',
+      payout_method: owner?.payout_method || 'upi'
+    };
+    res.json({ success: true, ...payoutData, bankDetails });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/** POST /api/owner/payout/save-bank — saves UPI / bank account details */
+app.post('/api/owner/payout/save-bank', async (req, res) => {
+  try {
+    const phone = resolveRequestOwnerPhone(req) || '+919822012345';
+    const { upi_id, bank_account, ifsc_code, account_holder_name, payout_method } = req.body;
+    const { saveOwnerBankDetails } = require('./src/db/owners.repo');
+    await saveOwnerBankDetails(phone, { upi_id, bank_account, ifsc_code, account_holder_name, payout_method });
+    res.json({ success: true, message: 'बँक माहिती सेव्ह झाली!' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.post('/api/owner/equipment', async (req, res) => {
   try {
     const { name, category, equipment_type, model, daily_rate, district, owner_phone, owner_name, specs } = req.body;

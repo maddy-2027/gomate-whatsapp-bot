@@ -59,6 +59,7 @@
         <button class="owner-tab-btn" data-tab="bookings" onclick="switchOwnerTab('bookings')">बुकिंग</button>
         <button class="owner-tab-btn" data-tab="calendar" onclick="switchOwnerTab('calendar')">उत्पन्न</button>
         <button class="owner-tab-btn" data-tab="expenses" onclick="switchOwnerTab('expenses')">खर्च</button>
+        <button class="owner-tab-btn" data-tab="payouts" onclick="switchOwnerTab('payouts')">💳 पेआउट</button>
         <button class="owner-tab-btn" data-tab="subscription" onclick="switchOwnerTab('subscription')">प्लॅन</button>
         <button class="owner-tab-btn" data-tab="profile" onclick="switchOwnerTab('profile')">माझी माहिती</button>
       </nav>
@@ -90,6 +91,7 @@
           <button class="owner-tab-btn" data-tab="bookings" onclick="switchOwnerTab('bookings')">बुकिंग</button>
           <button class="owner-tab-btn" data-tab="calendar" onclick="switchOwnerTab('calendar')">उत्पन्न</button>
           <button class="owner-tab-btn" data-tab="expenses" onclick="switchOwnerTab('expenses')">खर्च</button>
+          <button class="owner-tab-btn" data-tab="payouts" onclick="switchOwnerTab('payouts')">💳 पेआउट</button>
           <button class="owner-tab-btn" data-tab="subscription" onclick="switchOwnerTab('subscription')">प्लॅन</button>
           <button class="owner-tab-btn" data-tab="profile" onclick="switchOwnerTab('profile')">माझी माहिती</button>
           <button class="owner-tab-btn" onclick="logoutOwner()" style="color: #EF4444; font-weight: 700;">लॉगआउट (Logout)</button>
@@ -616,6 +618,145 @@
         </div>
       </form>
     </div>
+  </div>
+
+
+  <!-- Tab: Wallet & Payouts -->
+  <div id="tab-payouts" class="owner-panel" style="display:none;">
+    <section style="max-width: 900px; margin: 0 auto; padding: 0 0 40px;">
+
+      <!-- Header -->
+      <div style="margin-bottom: 24px;">
+        <p style="font-size: 12px; font-weight: 700; color: #22C55E; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">GoMate पेआउट सिस्टम</p>
+        <h2 style="font-size: 24px; font-weight: 800; color: #0F172A; margin: 0 0 4px;">💳 Wallet &amp; Payouts</h2>
+        <p style="font-size: 14px; color: #64748B;">GoMate कडून मिळालेल्या ॲडव्हान्स पेमेंटची माहिती आणि रोख संकलनाचा ट्रॅक.</p>
+      </div>
+
+      <!-- Balance Summary Cards -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px;">
+
+        <!-- Advance Received -->
+        <div style="background: linear-gradient(135deg, #0A1F44, #1E3A5F); border-radius: 12px; padding: 20px; color: white;">
+          <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #93C5FD; margin-bottom: 8px;">GoMate कडून आगाऊ (20%)</div>
+          <div id="payoutAdvanceAmount" style="font-size: 28px; font-weight: 800; color: #60A5FA;">₹0</div>
+          <div style="font-size: 12px; color: #93C5FD; margin-top: 4px;">Razorpay द्वारे जमा</div>
+        </div>
+
+        <!-- Net Payout After Fee -->
+        <div style="background: linear-gradient(135deg, #14532D, #166534); border-radius: 12px; padding: 20px; color: white;">
+          <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #86EFAC; margin-bottom: 8px;">निव्वळ पेआउट (2% कमी)</div>
+          <div id="payoutNetAmount" style="font-size: 28px; font-weight: 800; color: #4ADE80;">₹0</div>
+          <div style="font-size: 12px; color: #86EFAC; margin-top: 4px;">Platform fee वजा करून</div>
+        </div>
+
+        <!-- Cash to Collect On-Site -->
+        <div style="background: linear-gradient(135deg, #78350F, #92400E); border-radius: 12px; padding: 20px; color: white;">
+          <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #FCD34D; margin-bottom: 8px;">रोख संकलन बाकी (80%)</div>
+          <div id="payoutCashToCollect" style="font-size: 28px; font-weight: 800; color: #FDE68A;">₹0</div>
+          <div style="font-size: 12px; color: #FCD34D; margin-top: 4px;">शेतात प्रत्यक्ष घ्या</div>
+        </div>
+
+        <!-- Cash Already Collected -->
+        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 20px;">
+          <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #64748B; margin-bottom: 8px;">रोख मिळालेले</div>
+          <div id="payoutCashCollected" style="font-size: 28px; font-weight: 800; color: #0F172A;">₹0</div>
+          <div style="font-size: 12px; color: #94A3B8; margin-top: 4px;">Completed बुकिंगमधून</div>
+        </div>
+      </div>
+
+      <!-- Payment Flow Info Banner -->
+      <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 10px; padding: 16px; margin-bottom: 28px; display: flex; gap: 12px; align-items: flex-start;">
+        <span style="font-size: 20px;">ℹ️</span>
+        <div>
+          <div style="font-size: 13px; font-weight: 700; color: #1D4ED8; margin-bottom: 4px;">GoMate पेमेंट सिस्टम कसे काम करते?</div>
+          <div style="font-size: 12px; color: #1E40AF; line-height: 1.6;">
+            शेतकरी <strong>20% आगाऊ</strong> Razorpay ने GoMate ला देतो → GoMate तुम्हाला दर महिन्याला transfer करतो (2% fee वजा). 
+            उरलेले <strong>80%</strong> तुम्ही शेतात प्रत्यक्ष घ्या.
+          </div>
+        </div>
+      </div>
+
+      <!-- Payout Ledger -->
+      <div style="background: white; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden; margin-bottom: 28px;">
+        <div style="padding: 16px 20px; border-bottom: 1px solid #F1F5F9; display: flex; justify-content: space-between; align-items: center;">
+          <h3 style="font-size: 15px; font-weight: 700; color: #0F172A; margin: 0;">पेमेंट इतिहास</h3>
+          <span id="payoutLedgerCount" style="font-size: 12px; font-weight: 600; color: #64748B; background: #F1F5F9; padding: 3px 10px; border-radius: 20px;">लोड होत आहे...</span>
+        </div>
+        <div id="payoutLedgerBody" style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+            <thead>
+              <tr style="background: #F8FAFC;">
+                <th style="text-align: left; padding: 10px 16px; font-weight: 700; color: #475569; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">दिनांक</th>
+                <th style="text-align: left; padding: 10px 16px; font-weight: 700; color: #475569; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">तपशील</th>
+                <th style="text-align: center; padding: 10px 16px; font-weight: 700; color: #475569; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">प्रकार</th>
+                <th style="text-align: right; padding: 10px 16px; font-weight: 700; color: #475569; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">रक्कम</th>
+                <th style="text-align: center; padding: 10px 16px; font-weight: 700; color: #475569; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">स्थिती</th>
+              </tr>
+            </thead>
+            <tbody id="payoutLedgerRows">
+              <tr><td colspan="5" style="text-align: center; padding: 32px; color: #94A3B8;">लोड होत आहे...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Bank Details Form -->
+      <div style="background: white; border: 1px solid #E2E8F0; border-radius: 12px; padding: 24px;">
+        <div style="margin-bottom: 20px;">
+          <h3 style="font-size: 16px; font-weight: 800; color: #0F172A; margin: 0 0 4px;">🏦 बँक / UPI माहिती</h3>
+          <p style="font-size: 13px; color: #64748B; margin: 0;">GoMate पेआउट या खात्यावर पाठवेल.</p>
+        </div>
+
+        <!-- Payout Method Toggle -->
+        <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+          <button id="payoutMethodUpi" onclick="selectPayoutMethod('upi')"
+            style="flex: 1; padding: 10px; border-radius: 8px; border: 2px solid #22C55E; background: #F0FDF4; color: #166534; font-weight: 700; font-size: 13px; cursor: pointer;">
+            📱 UPI ID
+          </button>
+          <button id="payoutMethodBank" onclick="selectPayoutMethod('bank')"
+            style="flex: 1; padding: 10px; border-radius: 8px; border: 2px solid #E2E8F0; background: #F8FAFC; color: #64748B; font-weight: 700; font-size: 13px; cursor: pointer;">
+            🏦 Bank Transfer
+          </button>
+        </div>
+
+        <form id="bankDetailsForm" onsubmit="saveBankDetails(event)">
+          <!-- UPI Section -->
+          <div id="upiSection">
+            <div style="margin-bottom: 16px;">
+              <label style="font-size: 12px; font-weight: 700; color: #374151; display: block; margin-bottom: 6px;">UPI ID *</label>
+              <input type="text" id="bankUpiId" class="gm-input" placeholder="उदा. rajesh@upi किंवा 9822012345@paytm"
+                style="width: 100%; box-sizing: border-box;">
+            </div>
+          </div>
+
+          <!-- Bank Transfer Section -->
+          <div id="bankSection" style="display: none;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
+              <div>
+                <label style="font-size: 12px; font-weight: 700; color: #374151; display: block; margin-bottom: 6px;">खाते क्रमांक (Account No.)</label>
+                <input type="text" id="bankAccountNo" class="gm-input" placeholder="उदा. 123456789012">
+              </div>
+              <div>
+                <label style="font-size: 12px; font-weight: 700; color: #374151; display: block; margin-bottom: 6px;">IFSC कोड</label>
+                <input type="text" id="bankIfsc" class="gm-input" placeholder="उदा. SBIN0001234" style="text-transform: uppercase;">
+              </div>
+            </div>
+            <div style="margin-bottom: 16px;">
+              <label style="font-size: 12px; font-weight: 700; color: #374151; display: block; margin-bottom: 6px;">खातेधारकाचे नाव</label>
+              <input type="text" id="bankHolder" class="gm-input" placeholder="उदा. Rajesh Dattatray Patil" style="width: 100%; box-sizing: border-box;">
+            </div>
+          </div>
+
+          <div id="payoutBankSaveStatus" style="display: none; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; margin-bottom: 14px;"></div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 10px;">
+            <button type="submit" class="gm-btn gm-btn-primary" style="font-weight: 700; padding: 10px 24px;">
+              💾 सेव्ह करा
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
   </div>
 
   <script src="/owner/owner.js?v=4.0"></script>

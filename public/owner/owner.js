@@ -123,6 +123,8 @@ function switchOwnerTab(tabId) {
     fetchOwnerExpenses();
   } else if (tabId === 'calendar') {
     fetchOwnerCalendar();
+  } else if (tabId === 'payouts') {
+    fetchOwnerPayouts();
   }
 }
 
@@ -932,3 +934,137 @@ function renderOwnerCalendar() {
   }).join('');
 }
 
+
+
+// ==========================================
+// Wallet & Payouts Tab
+// ==========================================
+
+let _currentPayoutMethod = 'upi';
+
+async function fetchOwnerPayouts() {
+  try {
+    const res = await fetch(`/api/owner/payout?phone=${encodeURIComponent(currentOwnerPhone)}`);
+    if (!res.ok) throw new Error('Failed to load payout data');
+    const data = await res.json();
+    renderPayoutSummary(data.summary || {});
+    renderPayoutLedger(data.ledger || []);
+    prefillBankDetails(data.bankDetails || {});
+  } catch (err) {
+    console.error('fetchOwnerPayouts error:', err);
+    showToast('पेआउट माहिती लोड करण्यात अडचण आली.', 'error');
+  }
+}
+
+function renderPayoutSummary(s) {
+  const fmt = n => `\u20b9${(n || 0).toLocaleString('en-IN')}`;
+  const el = id => document.getElementById(id);
+  if (el('payoutAdvanceAmount'))  el('payoutAdvanceAmount').textContent  = fmt(s.advancesReceived);
+  if (el('payoutNetAmount'))      el('payoutNetAmount').textContent      = fmt(s.netPayout);
+  if (el('payoutCashToCollect'))  el('payoutCashToCollect').textContent  = fmt(s.cashToCollect);
+  if (el('payoutCashCollected'))  el('payoutCashCollected').textContent  = fmt(s.cashCollected);
+}
+
+function renderPayoutLedger(ledger) {
+  const badge = document.getElementById('payoutLedgerCount');
+  const tbody = document.getElementById('payoutLedgerRows');
+  if (badge) badge.textContent = `${ledger.length} नोंदी`;
+  if (!tbody) return;
+  if (!ledger.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:32px;color:#94A3B8;">अजून कोणतीही नोंद नाही</td></tr>';
+    return;
+  }
+  tbody.innerHTML = ledger.map(entry => {
+    const typeBadge = entry.type === 'advance'
+      ? '<span style="background:#DBEAFE;color:#1D4ED8;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;">20% आगाऊ</span>'
+      : '<span style="background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;">80% रोख</span>';
+    const stMap = {
+      paid:               { bg: '#DCFCE7', color: '#166534', label: 'मिळाले' },
+      pending:            { bg: '#FEF3C7', color: '#92400E', label: 'प्रतीक्षा' },
+      pending_collection: { bg: '#FFF7ED', color: '#C2410C', label: 'संकलन बाकी' },
+      collected:          { bg: '#F0FDF4', color: '#15803D', label: 'मिळाले' }
+    };
+    const st = stMap[entry.status] || { bg: '#F1F5F9', color: '#475569', label: entry.status };
+    const stBadge = `<span style="background:${st.bg};color:${st.color};padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;">${st.label}</span>`;
+    return `<tr style="border-top:1px solid #F1F5F9;">
+      <td style="padding:12px 16px;color:#64748B;white-space:nowrap;">${entry.date}</td>
+      <td style="padding:12px 16px;color:#0F172A;font-weight:600;">${entry.label}</td>
+      <td style="padding:12px 16px;text-align:center;">${typeBadge}</td>
+      <td style="padding:12px 16px;text-align:right;font-weight:800;color:#0F172A;">\u20b9${(entry.amount||0).toLocaleString('en-IN')}</td>
+      <td style="padding:12px 16px;text-align:center;">${stBadge}</td>
+    </tr>`;
+  }).join('');
+}
+
+function prefillBankDetails(bank) {
+  selectPayoutMethod(bank.payout_method || 'upi');
+  const f = id => document.getElementById(id);
+  if (f('bankUpiId') && bank.upi_id)               f('bankUpiId').value  = bank.upi_id;
+  if (f('bankAccountNo') && bank.bank_account)     f('bankAccountNo').value = bank.bank_account;
+  if (f('bankIfsc') && bank.ifsc_code)             f('bankIfsc').value   = bank.ifsc_code;
+  if (f('bankHolder') && bank.account_holder_name) f('bankHolder').value = bank.account_holder_name;
+}
+
+function selectPayoutMethod(method) {
+  _currentPayoutMethod = method;
+  const upiBtn  = document.getElementById('payoutMethodUpi');
+  const bankBtn = document.getElementById('payoutMethodBank');
+  const upiSec  = document.getElementById('upiSection');
+  const bankSec = document.getElementById('bankSection');
+  if (method === 'upi') {
+    if (upiBtn)  { upiBtn.style.border  = '2px solid #22C55E'; upiBtn.style.background = '#F0FDF4'; upiBtn.style.color = '#166534'; }
+    if (bankBtn) { bankBtn.style.border = '2px solid #E2E8F0'; bankBtn.style.background= '#F8FAFC'; bankBtn.style.color= '#64748B'; }
+    if (upiSec)  upiSec.style.display  = 'block';
+    if (bankSec) bankSec.style.display = 'none';
+  } else {
+    if (bankBtn) { bankBtn.style.border = '2px solid #22C55E'; bankBtn.style.background= '#F0FDF4'; bankBtn.style.color= '#166534'; }
+    if (upiBtn)  { upiBtn.style.border  = '2px solid #E2E8F0'; upiBtn.style.background = '#F8FAFC'; upiBtn.style.color = '#64748B'; }
+    if (bankSec) bankSec.style.display = 'block';
+    if (upiSec)  upiSec.style.display  = 'none';
+  }
+}
+
+async function saveBankDetails(e) {
+  e.preventDefault();
+  const statusEl = document.getElementById('payoutBankSaveStatus');
+  const payload = { payout_method: _currentPayoutMethod };
+  if (_currentPayoutMethod === 'upi') {
+    const upi = (document.getElementById('bankUpiId')?.value || '').trim();
+    if (!upi) { showToast('UPI ID टाका.', 'error'); return; }
+    payload.upi_id = upi;
+  } else {
+    const acct = (document.getElementById('bankAccountNo')?.value || '').trim();
+    const ifsc = (document.getElementById('bankIfsc')?.value || '').trim().toUpperCase();
+    const name = (document.getElementById('bankHolder')?.value || '').trim();
+    if (!acct || !ifsc) { showToast('खाते क्रमांक आणि IFSC आवश्यक आहे.', 'error'); return; }
+    payload.bank_account = acct;
+    payload.ifsc_code = ifsc;
+    payload.account_holder_name = name;
+  }
+  try {
+    const res = await fetch(`/api/owner/payout/save-bank?phone=${encodeURIComponent(currentOwnerPhone)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      if (statusEl) {
+        statusEl.style.display = 'block';
+        statusEl.style.background = '#DCFCE7';
+        statusEl.style.color = '#166534';
+        statusEl.textContent = 'बँक माहिती यशस्वीरित्या सेव्ह झाली!';
+        setTimeout(() => { statusEl.style.display = 'none'; }, 4000);
+      }
+      showToast('बँक माहिती सेव्ह झाली!', 'success');
+    } else { throw new Error(data.error || 'Save failed'); }
+  } catch (err) {
+    if (statusEl) {
+      statusEl.style.display = 'block';
+      statusEl.style.background = '#FEE2E2';
+      statusEl.style.color = '#B91C1C';
+      statusEl.textContent = err.message;
+    }
+    showToast('सेव्ह करताना अडचण आली.', 'error');
+  }
+}

@@ -102,10 +102,23 @@ async function getOwnerStats() {
   };
 }
 
+/**
+ * Save or update the owner's payout bank / UPI details.
+ * Accepts any subset of: upi_id, bank_account, ifsc_code, account_holder_name, payout_method.
+ */
+async function saveOwnerBankDetails(phone, details) {
+  const allowed = ['upi_id', 'bank_account', 'ifsc_code', 'account_holder_name', 'payout_method'];
+  const sanitized = {};
+  allowed.forEach(k => { if (details[k] !== undefined) sanitized[k] = details[k]; });
+  if (!Object.keys(sanitized).length) return false;
+  return updateSubscription(phone, sanitized);
+}
+
 module.exports = {
   registerOwner,
   getOwnerByPhone,
   updateSubscription,
+  saveOwnerBankDetails,
   getAllOwners,
   getOwnerStats
 };
