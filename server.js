@@ -1258,11 +1258,16 @@ app.post('/webhook/razorpay', express.raw({ type: 'application/json' }), async (
     const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
     const signature = req.headers['x-razorpay-signature'];
 
+    // Support raw Buffer, string, or already parsed JSON object
+    const rawPayload = Buffer.isBuffer(req.body)
+      ? req.body
+      : (typeof req.body === 'string' ? req.body : JSON.stringify(req.body));
+
     // Verify signature if webhook secret is configured
     if (webhookSecret && signature) {
       const expectedSignature = crypto
         .createHmac('sha256', webhookSecret)
-        .update(req.body)
+        .update(rawPayload)
         .digest('hex');
       if (signature !== expectedSignature) {
         console.warn('⚠️ [Razorpay Webhook] Invalid signature — request rejected.');
@@ -1270,7 +1275,9 @@ app.post('/webhook/razorpay', express.raw({ type: 'application/json' }), async (
       }
     }
 
-    const event = typeof req.body === 'string' ? JSON.parse(req.body) : JSON.parse(req.body.toString());
+    const event = Buffer.isBuffer(req.body)
+      ? JSON.parse(req.body.toString('utf8'))
+      : (typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {}));
     await razorpayService.handleWebhookEvent(event);
     res.status(200).send('OK');
   } catch (e) {
