@@ -125,6 +125,15 @@ function switchOwnerTab(tabId) {
     fetchOwnerCalendar();
   } else if (tabId === 'payouts') {
     fetchOwnerPayouts();
+    if (window.GomatePush) {
+      window.GomatePush.attachToggle(document.getElementById('pushToggleBtn'), currentOwnerPhone);
+    } else {
+      setTimeout(() => {
+        if (window.GomatePush) {
+          window.GomatePush.attachToggle(document.getElementById('pushToggleBtn'), currentOwnerPhone);
+        }
+      }, 800);
+    }
   }
 }
 

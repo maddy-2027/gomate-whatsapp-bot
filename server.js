@@ -23,6 +23,11 @@ const equipmentRepo = require('./src/db/equipment.repo');
 const ownersRepo = require('./src/db/owners.repo');
 const { JATH_VILLAGES } = require('./src/data/jathVillages');
 const { resolveCoordinates } = require('./src/services/distanceService');
+const pushService = require('./src/services/pushService');
+
+// Pre-load any persisted push subscriptions from Supabase into memory
+pushService.loadSubscriptionsFromDB().catch(() => {});
+
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -120,6 +125,58 @@ app.get('/api/health', (req, res) => {
     keepAlive: getKeepAliveStatus(),
     whatsapp: getWhatsAppStatus().status
   });
+});
+
+// ==========================================
+// Web Push Notification Endpoints
+// ==========================================
+
+/** GET /api/push/vapid-key — returns the VAPID public key for client subscription */
+app.get('/api/push/vapid-key', (req, res) => {
+  res.json({ publicKey: pushService.VAPID_PUBLIC_KEY() });
+});
+
+/** POST /api/push/subscribe — saves a PushSubscription for an owner */
+app.post('/api/push/subscribe', async (req, res) => {
+  try {
+    const { ownerPhone, subscription } = req.body;
+    if (!ownerPhone || !subscription || !subscription.endpoint) {
+      return res.status(400).json({ error: 'ownerPhone and subscription.endpoint required' });
+    }
+    await pushService.saveSubscription(ownerPhone, subscription);
+    res.json({ success: true, message: 'Subscription saved' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/** POST /api/push/unsubscribe — removes a push subscription */
+app.post('/api/push/unsubscribe', async (req, res) => {
+  try {
+    const { ownerPhone, endpoint } = req.body;
+    if (ownerPhone && endpoint) {
+      await pushService.removeSubscription(ownerPhone, endpoint);
+    }
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/** POST /api/push/test — sends a test notification to a specific owner (admin tool) */
+app.post('/api/push/test', async (req, res) => {
+  try {
+    const { ownerPhone } = req.body;
+    if (!ownerPhone) return res.status(400).json({ error: 'ownerPhone required' });
+    await pushService.sendBookingPush(ownerPhone, {
+      title: '🚜 GoMate Test Notification',
+      body:  'हे एक चाचणी सूचना आहे. तुमचा अलर्ट यशस्वीरित्या सेटअप झाला आहे!',
+      tag:   'gomate-test'
+    });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // WhatsApp Web Real Device status & QR
@@ -1404,6 +1461,14 @@ _Thank you for renting with GoMate! 🚜🌾_`;
       `🔖 *Txn ID:* ${txnId}\n\n` +
       `👉 Please contact the customer immediately to coordinate delivery and collect ₹${balanceRemaining.toLocaleString('en-IN')} upon work completion!`
     ).catch(() => {});
+
+    // 3. Fire Web Push notification to owner's registered PWA devices
+    pushService.sendBookingPush(ownerPhone, {
+      title: `🚜 नवीन बुकिंग! — ${model}`,
+      body:  `${customerName} ने ₹${advancePaid.toLocaleString('en-IN')} आगाऊ दिला. शेतात ₹${balanceRemaining.toLocaleString('en-IN')} घ्यायचे. Ref: ${ref}`,
+      tag:   `booking-${ref}`,
+      data:  { url: '/owner', ref, model, amount: advancePaid }
+    }).catch(() => {});
 
     res.json({ success: true, txnId, invoiceNo: invNo });
   } catch (e) {

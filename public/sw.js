@@ -1,10 +1,13 @@
 /**
  * GoMate Progressive Web App (PWA) Service Worker
- * Version: gomate-pwa-v1.0.6
- * Provides 24/7 offline caching, instant app loading, and offline fallbacks.
+ * Version: gomate-pwa-v1.1.0
+ * Features:
+ *  - Offline caching (shell + static assets)
+ *  - Web Push notifications with booking alert sound
+ *  - notificationclick → opens /owner tab
  */
 
-const CACHE_NAME = 'gomate-pwa-v1.0.6';
+const CACHE_NAME = 'gomate-pwa-v1.1.0';
 
 // Critical static assets pre-cached on install
 const PRECACHE_ASSETS = [
@@ -22,13 +25,14 @@ const PRECACHE_ASSETS = [
   '/icons/apple-touch-icon.png',
   '/icons/favicon-32x32.png',
   '/js/pwa.js',
+  '/js/push-manager.js',
   '/assets/brand/logo.svg',
   '/assets/brand/logo-white.svg',
   'https://cdn.tailwindcss.com',
   'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap'
 ];
 
-// Install Event: Cache critical shell assets
+// ─── Install ─────────────────────────────────────────────────────────────────
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -40,7 +44,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate Event: Clean up legacy caches
+// ─── Activate ────────────────────────────────────────────────────────────────
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -56,7 +60,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch Event: Smart routing & offline fallback
+// ─── Fetch ───────────────────────────────────────────────────────────────────
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -86,7 +90,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 2. Navigation / Page Requests (HTML): Network-First -> Cache -> /offline.html
+  // 2. Navigation / Page Requests (HTML): Network-First → Cache → /offline.html
   if (request.mode === 'navigate' || request.headers.get('accept')?.includes('text/html')) {
     event.respondWith(
       fetch(request)
@@ -99,10 +103,7 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(async () => {
           const cachedResponse = await caches.match(request);
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-          // Fallback to beautiful offline page
+          if (cachedResponse) return cachedResponse;
           const offlinePage = await caches.match('/offline.html');
           return offlinePage || new Response('GoMate Offline Mode. Please connect to internet.', {
             headers: { 'Content-Type': 'text/plain' }
@@ -112,7 +113,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 3. Static Assets (CSS, JS, Fonts, Images, SVGs): Stale-While-Revalidate
+  // 3. Static Assets: Stale-While-Revalidate
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       const fetchPromise = fetch(request)
@@ -130,3 +131,77 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
+// ─── Push Notification ───────────────────────────────────────────────────────
+
+/**
+ * Synthesize a tractor chime / horn alert using the Web Audio API.
+ * Runs inside the SW using an AudioContext on the client via postMessage.
+ * Actually, SW can't use AudioContext directly — we postMessage to the page.
+ * The sound is played on the client side via the visible page or a BroadcastChannel.
+ */
+function playBookingChime() {
+  // Broadcast to all open clients — they'll play the sound
+  self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
+    clients.forEach(client => {
+      client.postMessage({ type: 'GOMATE_BOOKING_CHIME' });
+    });
+  });
+}
+
+self.addEventListener('push', (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch (e) {
+    data = { title: '🚜 GoMate', body: event.data ? event.data.text() : 'नवीन बुकिंग आली!' };
+  }
+
+  const title   = data.title  || '🚜 नवीन बुकिंग आली!';
+  const options = {
+    body:    data.body   || 'GoMate Owner Pro — तुमच्या मशिनरीसाठी नवीन बुकिंग आहे.',
+    icon:    data.icon   || '/icons/icon-192x192.png',
+    badge:   data.badge  || '/icons/favicon-32x32.png',
+    tag:     data.tag    || 'gomate-booking',
+    vibrate: data.vibrate || [200, 100, 200, 100, 400],
+    data:    data.data   || { url: '/owner' },
+    requireInteraction: true,    // stays visible until owner taps it
+    actions: [
+      { action: 'view',    title: '📋 बुकिंग पहा' },
+      { action: 'dismiss', title: '✕ नंतर पाहतो' }
+    ]
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(title, options).then(() => {
+      // Play chime on all open owner portal windows
+      playBookingChime();
+    })
+  );
+});
+
+// ─── Notification Click ──────────────────────────────────────────────────────
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  const action = event.action;
+  if (action === 'dismiss') return;
+
+  const targetUrl = (event.notification.data && event.notification.data.url) || '/owner';
+
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
+      // Focus existing owner tab if open
+      for (const client of clients) {
+        const clientUrl = new URL(client.url);
+        if (clientUrl.pathname.startsWith('/owner') && 'focus' in client) {
+          client.postMessage({ type: 'GOMATE_BOOKING_CHIME' });
+          return client.focus();
+        }
+      }
+      // Otherwise open a new tab
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(targetUrl);
+      }
+    })
+  );
+});

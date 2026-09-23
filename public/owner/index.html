@@ -676,6 +676,25 @@
         </div>
       </div>
 
+      <!-- Push Notification Toggle -->
+      <div style="background: #FAFAFA; border: 1px solid #E2E8F0; border-radius: 10px; padding: 16px 20px; margin-bottom: 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <div style="font-size: 14px; font-weight: 700; color: #0F172A; margin-bottom: 2px;">📲 नवीन बुकिंग अलर्ट</div>
+          <div style="font-size: 12px; color: #64748B;">शेतात असतानाही बुकिंग आल्यावर आवाज व सूचना मिळवा (PWA Install केलेल्यांसाठी)</div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+          <button id="pushToggleBtn"
+            style="padding: 9px 18px; border-radius: 8px; border: 1.5px solid #CBD5E1; background: #F1F5F9; color: #475569; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s;">
+            🔕 बुकिंग सूचना चालू करा
+          </button>
+          <button onclick="typeof playBookingChime !== 'undefined' && playBookingChime()"
+            title="Test chime sound"
+            style="padding: 9px 14px; border-radius: 8px; border: 1.5px solid #E2E8F0; background: white; color: #64748B; font-size: 13px; font-weight: 600; cursor: pointer;">
+            🔊 चाचणी आवाज
+          </button>
+        </div>
+      </div>
+
       <!-- Payout Ledger -->
       <div style="background: white; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden; margin-bottom: 28px;">
         <div style="padding: 16px 20px; border-bottom: 1px solid #F1F5F9; display: flex; justify-content: space-between; align-items: center;">
@@ -759,9 +778,68 @@
     </section>
   </div>
 
+
   <script src="/owner/owner.js?v=4.0"></script>
   <!-- PWA & Offline Support -->
   <script src="/js/pwa.js" defer></script>
+  <!-- Web Push Notifications -->
+  <script src="/js/push-manager.js" defer></script>
+  <script>
+    /**
+     * Booking Chime Synthesizer
+     * Plays a tractor horn + chime sequence using Web Audio API.
+     * Triggered either by SW postMessage (when app is open) or by the SW itself via vibration.
+     */
+    function playBookingChime() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playTone(freq, startTime, duration, type = 'sawtooth', gain = 0.3) {
+          const osc = ctx.createOscillator();
+          const gainNode = ctx.createGain();
+          osc.connect(gainNode);
+          gainNode.connect(ctx.destination);
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, startTime);
+          gainNode.gain.setValueAtTime(gain, startTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+          osc.start(startTime);
+          osc.stop(startTime + duration);
+        }
+
+        const now = ctx.currentTime;
+
+        // Tractor horn — low rumble sweep
+        playTone(80,  now,        0.25, 'sawtooth', 0.4);
+        playTone(100, now + 0.02, 0.25, 'sawtooth', 0.3);
+        playTone(70,  now + 0.30, 0.20, 'sawtooth', 0.35);
+
+        // Chime — three ascending notes
+        playTone(523.25, now + 0.60, 0.18, 'sine', 0.4);  // C5
+        playTone(659.25, now + 0.82, 0.18, 'sine', 0.4);  // E5
+        playTone(783.99, now + 1.04, 0.30, 'sine', 0.5);  // G5
+
+        // Sustain ring
+        playTone(1046.5, now + 1.06, 0.50, 'sine', 0.25); // C6 harmonics
+
+      } catch (e) {
+        console.warn('[GoMate Chime] Audio not available:', e.message);
+      }
+    }
+
+    // Listen for SW postMessage (when page is open and push arrives)
+    navigator.serviceWorker && navigator.serviceWorker.addEventListener('message', (event) => {
+      if (event.data && event.data.type === 'GOMATE_BOOKING_CHIME') {
+        playBookingChime();
+        if (typeof showToast === 'function') {
+          showToast('🚜 नवीन बुकिंग आली! पेआउट टॅब पाहा.', 'success');
+        }
+      }
+    });
+
+    // Expose for testing
+    window.playBookingChime = playBookingChime;
+  </script>
 </body>
 </html>
 
