@@ -120,6 +120,12 @@ async function routeMessage(phone, text, session) {
 
   const currentLang = session.language || detectLanguage(rawText) || 'en';
 
+  // 0.8 Check if this is a WhatsApp GPS Location Pin from farmer
+  if (isLocationPin) {
+    const { handleFarmerGpsPin } = require('../services/gpsService');
+    return await handleFarmerGpsPin(phone, rawText, session);
+  }
+
   if (t === 'help' || t === 'मदत' || t === 'सहायता') return getText(currentLang, 'help_text');
 
   if (t === 'reset' || t === 'restart' || t === '00' || t === 'change language' || t === 'भाषा बदला') {

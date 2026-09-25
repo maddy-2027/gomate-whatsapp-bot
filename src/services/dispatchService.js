@@ -64,12 +64,17 @@ async function sendOwnerDispatchAlert(bookingData) {
   const advance = advanceAmount !== undefined ? advanceAmount : Math.round(total * 0.20);
   const remaining = remainingAmount !== undefined ? remainingAmount : (total - advance);
   const ownerPayout = remaining; // The owner collects the remaining 80% directly from customer upon completion
+  const mapsUrl = bookingData.mapsUrl || bookingData.google_maps_url || null;
+
+  const mapsNote = mapsUrl
+    ? `\n🗺️ *शेताचा थेट नकाशा (Google Maps):*\n🔗 ${mapsUrl}\n`
+    : '';
 
   const alertText = `🚨 *GoMate नवीन मशिनरी मागणी (New Booking Request)!* 🚜
 ━━━━━━━━━━━━━━━━━━━━
 🔖 संदर्भ: *${bookingRef}*
 🚜 उपकरण: *${equipModel}*
-📍 कार्यक्षेत्र/गाव: *${village || 'जत तालुका'}*
+📍 कार्यक्षेत्र/गाव: *${village || 'जत तालुका'}*${mapsNote}
 📅 तारीख: *${startDate}*
 ⏰ वेळ: *${startTime || '08:00 AM'}*
 ⏱️ कामाचे प्रमाण: *${duration || 'शेड्युलनुसार'}*
@@ -95,6 +100,7 @@ _(नकार दिल्यास ही ऑर्डर जत क्लस�
     farmerName: farmerName || 'Farmer',
     equipModel,
     village,
+    mapsUrl,
     startDate,
     startTime: startTime || '08:00 AM',
     duration,
@@ -176,12 +182,16 @@ _काही मदत हवी असल्यास थेट कॉल क�
     }
 
     // 3. Send detailed work order to Owner
+    const mapsSection = session.mapsUrl
+      ? `\n🗺️ *ऑपरेटरसाठी थेट Google Maps नेव्हिगेशन:*\n🔗 ${session.mapsUrl}\n`
+      : '';
+
     return `✅ *बुकिंग यशस्वीरित्या स्वीकारले (Booking Accepted)!* 🚜
 ━━━━━━━━━━━━━━━━━━━━
 🔖 संदर्भ: *${session.bookingRef}*
 👤 ग्राहक नाव: *${session.farmerName}*
 📞 ग्राहक फोन: *${session.farmerPhone}*
-📍 कार्यक्षेत्र: *${session.village} (जत तालुका)*
+📍 कार्यक्षेत्र: *${session.village} (जत तालुका)*${mapsSection}
 📅 शेड्युल वेळ: *${session.startDate}, सकाळी ${session.startTime}*
 ⏱️ कामाचे प्रमाण: *${session.duration || 'शेड्युलनुसार'}*
 💰 एकूण बिल: *₹${session.totalAmount.toLocaleString('en-IN')}*
@@ -189,7 +199,7 @@ _काही मदत हवी असल्यास थेट कॉल क�
 💵 काम पूर्ण झाल्यावर थेट शेतकऱ्याकडून घ्या (८०%): *₹${session.remainingAmount.toLocaleString('en-IN')}*
 ━━━━━━━━━━━━━━━━━━━━
 👉 *पुढील पायरी:*
-कृपया ग्राहकाशी (${session.farmerPhone}) फोनवर बोलून नेमकी शेताची वाट समजून घ्या आणि ठरलेल्या वेळेत पोहोचवा. काम पूर्ण झाल्यावर शेतकऱ्याकडून उर्वरित ₹${session.remainingAmount.toLocaleString('en-IN')} रोख किंवा UPI ने घ्या. धन्यवाद!`;
+कृपया ग्राहकाशी (${session.farmerPhone}) फोनवर बोला. वरील Google Maps नेव्हिगेशन लिंक वापरून ऑपरेटर थेट शेतात पोहोचू शकतो. काम पूर्ण झाल्यावर शेतकऱ्याकडून उर्वरित ₹${session.remainingAmount.toLocaleString('en-IN')} रोख किंवा UPI ने घ्या. धन्यवाद!`;
   } else {
     // Owner Rejected -> Cascade
     console.log(`❌ Owner ${ownerPhone} rejected booking ${session.bookingRef}`);

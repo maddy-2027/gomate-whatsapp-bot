@@ -519,6 +519,31 @@ async function runE2ETests() {
   assert(weatherWaRes.ok && weatherWaRes.data.message.includes('हवामान व फवारणी सल्ला'), 'Village weather forecast & drone spraying advisory dispatched to farmer on WhatsApp');
 
   // -------------------------------------------------------------
+  // Phase 22: Farmer Instant GPS Location Sharing & Operator Navigation
+  // -------------------------------------------------------------
+  console.log('\n--- Phase 22: Farmer Instant GPS Location Sharing & Operator Navigation ---');
+
+  const gpsApiRes = await request('/api/location/reverse', {
+    method: 'POST',
+    body: JSON.stringify({ latitude: 17.0850, longitude: 75.2900, machineryType: 'tractor' })
+  });
+  assert(gpsApiRes.ok && gpsApiRes.data.nearestVillage?.name === 'Shegaon', `GPS reverse geocoded to nearest village: ${gpsApiRes.data?.nearestVillage?.nameMr} (${gpsApiRes.data?.nearestVillage?.name})`);
+  assert(gpsApiRes.data.roadDistanceKm > 9 && gpsApiRes.data.roadDistanceKm < 12, `Deccan plateau road distance calculated: ${gpsApiRes.data.roadDistanceKm} km from Jat Hub`);
+  assert(gpsApiRes.data.etaMinutes > 20 && gpsApiRes.data.etaMinutes < 60, `Machinery arrival ETA calculated: ${gpsApiRes.data.etaMinutes} mins`);
+  assert(gpsApiRes.data.mapsUrl?.includes('google.com/maps'), `Operator Google Maps navigation route generated: ${gpsApiRes.data.mapsUrl}`);
+
+  // Test WhatsApp webhook with GPS pin
+  const twilioGpsRes = await request('/webhook/whatsapp', {
+    method: 'POST',
+    body: JSON.stringify({
+      phone: '+919876543210',
+      Latitude: '17.0850',
+      Longitude: '75.2900'
+    })
+  });
+  assert(twilioGpsRes.ok && twilioGpsRes.data.includes('शेत लोकेशन यशस्वीरित्या मिळाले'), 'Farmer WhatsApp location pin generates instant village detection & navigation reply');
+
+  // -------------------------------------------------------------
   // Test Summary
   // -------------------------------------------------------------
   console.log('\n===============================================================');

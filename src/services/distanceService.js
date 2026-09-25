@@ -143,5 +143,8 @@ function calculateDistanceAndETA(farmerLoc, ownerLoc = 'जत', machineryType =
 module.exports = {
   calculateDistanceAndETA,
   resolveCoordinates,
+  haversineDistance,
+  SPEED_PROFILE,
+  RURAL_ROAD_CURVATURE,
   VILLAGE_COORDINATES
 };

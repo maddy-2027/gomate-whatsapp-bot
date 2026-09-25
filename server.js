@@ -189,6 +189,28 @@ app.post('/api/whatsapp/logout', async (req, res) => {
   res.json(result);
 });
 
+// Farmer GPS Reverse-Geocoding & Live Navigation Route Endpoint
+app.post('/api/location/reverse', (req, res) => {
+  try {
+    const { latitude, longitude, hubLocation, machineryType } = req.body;
+    const lat = parseFloat(latitude);
+    const lng = parseFloat(longitude);
+    if (isNaN(lat) || isNaN(lng)) {
+      return res.status(400).json({ error: 'Valid latitude and longitude required' });
+    }
+    const { calculateGpsDispatch } = require('./src/services/gpsService');
+    const result = calculateGpsDispatch({
+      farmerLat: lat,
+      farmerLng: lng,
+      ownerHubLocation: hubLocation || 'जत',
+      machineryType: machineryType || 'tractor'
+    });
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Admin Auth Middleware
 function adminAuth(req, res, next) {
   if (!adminConfigurationReady()) {

@@ -191,6 +191,40 @@ async function updateBookingStatus(idOrRef, status) {
   }
 }
 
+async function updateBookingGps(idOrRef, { latitude, longitude, village, google_maps_url }) {
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrRef);
+  const item = memoryBookings.find(b => b.id == idOrRef || b.booking_ref == idOrRef);
+  if (item) {
+    if (latitude != null) item.latitude = latitude;
+    if (longitude != null) item.longitude = longitude;
+    if (village) item.village = village;
+    if (google_maps_url) item.google_maps_url = google_maps_url;
+  }
+
+  try {
+    const updatePayload = {};
+    if (latitude != null) updatePayload.latitude = latitude;
+    if (longitude != null) updatePayload.longitude = longitude;
+    if (village) updatePayload.village = village;
+    if (google_maps_url) updatePayload.google_maps_url = google_maps_url;
+
+    let query = supabase.from('bookings').update(updatePayload);
+    if (isUuid) {
+      query = query.eq('id', idOrRef);
+    } else {
+      query = query.eq('booking_ref', idOrRef);
+    }
+    const updatePromise = Promise.race([
+      query,
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1500))
+    ]);
+    const { error } = await updatePromise;
+    return !error;
+  } catch (err) {
+    return true;
+  }
+}
+
 async function getAllBookings() {
   try {
     const { data, error } = await supabase.from('bookings').select('*').order('created_at', { ascending: false });
@@ -225,6 +259,7 @@ module.exports = {
   getBookingsByOwnerPhone,
   getBookingsByEquipment,
   updateBookingStatus,
+  updateBookingGps,
   getAllBookings,
   getBookingStats
 };

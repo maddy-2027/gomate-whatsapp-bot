@@ -602,6 +602,9 @@ async function createFinalBookingAndPayment(phone, session) {
 
   // 1. Create Booking Reference (GM-XXXX) with 20% advance & 80% remaining
   let booking;
+  const gpsData = session.data.gps || null;
+  const mapsUrl = gpsData ? gpsData.mapsUrl : null;
+
   try {
     booking = await createBooking({
       customer_phone: phone,
@@ -609,10 +612,13 @@ async function createFinalBookingAndPayment(phone, session) {
       equipment_id: equip.id || 101,
       equipment_name: `${equip.model} [${selectedService ? selectedService.name : 'Machinery'}]`,
       village: session.data.location || 'Jath',
+      latitude: gpsData ? gpsData.lat : null,
+      longitude: gpsData ? gpsData.lng : null,
+      google_maps_url: mapsUrl,
       billing_mode: billingMode,
       hours: session.data.duration || 1,
       acres: session.data.acres || 1,
-      distance_km: session.data.distanceKm || 5,
+      distance_km: session.data.distanceKm || (gpsData ? gpsData.roadDistanceKm : 5),
       start_date: `${startDate} at ${startTime} (${unitDesc})`,
       duration_days: durationDays,
       total_amount: totalAmount,
@@ -649,13 +655,15 @@ async function createFinalBookingAndPayment(phone, session) {
   const payLink = (payObj && payObj.short_url) ? payObj.short_url : 'https://rzp.io/l/gomate-booking';
   session.data.payLink = payLink;
 
-  // 3. Trigger 2-Way Interactive Dispatch Alert to Local Equipment Owner
+  // 3. Trigger 2-Way Interactive Dispatch Alert to Local Equipment Owner (with GPS map link)
   await sendOwnerDispatchAlert({
     bookingRef: booking.booking_ref,
     farmerPhone: phone,
     farmerName: customerName,
     equipModel: modelText,
     village: session.data.location,
+    mapsUrl,
+    google_maps_url: mapsUrl,
     startDate,
     startTime,
     duration,
@@ -769,7 +777,15 @@ _Reply *CANCEL* to cancel or *0* for Menu._`;
  * Also auto-dispatches invoice PDF link on payment success keywords
  */
 async function handleConfirmation(phone, text, session) {
-  const t = (text || '').trim().toLowerCase();
+  const raw = (text || '').trim();
+  const t = raw.toLowerCase();
+
+  // If farmer shares GPS location pin
+  if (raw.startsWith('GPS_LOCATION:')) {
+    const { handleFarmerGpsPin } = require('../../services/gpsService');
+    return await handleFarmerGpsPin(phone, raw, session);
+  }
+
   const isCancel = ['cancel', '0', 'no', 'नाही', 'रद्द', 'रद्द करा', 'nahi', 'reject'].includes(t);
   const isPaidKeyword = [
     'paid', 'done', 'pay', 'payment done', 'payment completed', 'completed',

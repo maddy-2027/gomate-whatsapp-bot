@@ -74,6 +74,33 @@ async function handleCategorySelect(phone, text, session) {
 async function handleLocationInput(phone, text, session) {
   let district = text.trim();
   let distanceNote = '';
+  let gpsBadge = '';
+
+  // Check if input is GPS location from WhatsApp pin
+  const { parseGpsLocation, findNearestVillage, calculateGpsDispatch } = require('../../services/gpsService');
+  const gpsCoords = parseGpsLocation(district);
+  if (gpsCoords) {
+    const nearest = findNearestVillage(gpsCoords.lat, gpsCoords.lng);
+    const dispatch = calculateGpsDispatch({
+      farmerLat: gpsCoords.lat,
+      farmerLng: gpsCoords.lng,
+      ownerHubLocation: 'जत',
+      machineryType: 'tractor'
+    });
+    session.data = session.data || {};
+    session.data.gps = {
+      lat: gpsCoords.lat,
+      lng: gpsCoords.lng,
+      nearestVillage: nearest,
+      roadDistanceKm: dispatch.roadDistanceKm,
+      etaMinutes: dispatch.etaMinutes,
+      mapsUrl: dispatch.mapsUrl
+    };
+    district = nearest.nameMr || nearest.name;
+    gpsBadge = session.language === 'mr'
+      ? `📍 *शेत GPS स्थान मिळाले:* ${nearest.nameMr} (${dispatch.roadDistanceKm} किमी, ETA: ${dispatch.etaFormattedMr})\n🗺️ ${dispatch.mapsUrl}\n`
+      : `📍 *Farm GPS Pin Detected:* ${nearest.name} (${dispatch.roadDistanceKm} km, ETA: ${dispatch.etaFormattedEn})\n🗺️ ${dispatch.mapsUrl}\n`;
+  }
 
   // Match against 125 villages of Jath Taluka
   const matchedVillage = findJathVillage(district);
@@ -121,7 +148,8 @@ async function handleLocationInput(phone, text, session) {
   const { calculateDistanceAndETA } = require('../../services/distanceService');
   const proximity = calculateDistanceAndETA(district, 'जत', category);
 
-  const header = getText(session.language, 'search_results_header', { type: category.toUpperCase(), location: displayVillage }) + 
+  const header = (gpsBadge ? `${gpsBadge}\n` : '') +
+    getText(session.language, 'search_results_header', { type: category.toUpperCase(), location: displayVillage }) + 
     `\n${session.language === 'mr' ? proximity.formattedBadgeMr : proximity.formattedBadgeEn}\n`;
 
   const cards = results.map((r, i) => {
