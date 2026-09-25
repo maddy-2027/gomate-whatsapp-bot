@@ -1190,10 +1190,12 @@ app.post('/api/simulator/send', async (req, res) => {
     }
     const session = getSession(phone);
     const reply = await routeMessage(phone, message, session);
+    const replyString = reply ? (typeof reply === 'string' ? reply : (reply.fallbackText || reply.toString())) : '';
     res.json({
       success: true,
       phone,
-      reply,
+      reply: replyString,
+      interactive: (reply && typeof reply === 'object' && reply.isInteractive) ? reply : null,
       session: {
         state: session.state,
         language: session.language,

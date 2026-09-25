@@ -48,7 +48,8 @@ module.exports = async (req, res) => {
       timeoutPromise
     ]);
 
-    const finalReply = replyText || fallbackMessage;
+    const safeReply = replyText ? (typeof replyText === 'string' ? replyText : replyText.toString()) : '';
+    const finalReply = safeReply || fallbackMessage;
     const latency = Date.now() - startTime;
     console.log(`💬 [Twilio Webhook] Replying in ${latency}ms to ${rawPhone}: "${finalReply.substring(0, 60)}..."`);
 

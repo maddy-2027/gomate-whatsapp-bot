@@ -544,6 +544,47 @@ async function runE2ETests() {
   assert(twilioGpsRes.ok && twilioGpsRes.data.includes('शेत लोकेशन यशस्वीरित्या मिळाले'), 'Farmer WhatsApp location pin generates instant village detection & navigation reply');
 
   // -------------------------------------------------------------
+  // Phase 23: WhatsApp Native Interactive Buttons & List Menus
+  // -------------------------------------------------------------
+  console.log('\n--- Phase 23: WhatsApp Native Interactive Buttons & List Menus ---');
+
+  const {
+    getRoleSelectInteractive,
+    getCategorySelectInteractive,
+    getOwnerDispatchInteractive,
+    getScheduleSlotsInteractive,
+    extractInteractiveResponse
+  } = require('../src/services/interactiveMessageService');
+
+  const roleInteractive = getRoleSelectInteractive('mr');
+  assert(roleInteractive.isInteractive && roleInteractive.buttons.length === 2, 'Role select builds 2 native quick-reply buttons (Customer vs Owner)');
+  assert(roleInteractive.interactivePayload.viewOnceMessage.message.interactiveMessage.nativeFlowMessage.buttons.length === 2, 'Role select encodes valid Baileys nativeFlowMessage protobuf');
+
+  const catInteractive = getCategorySelectInteractive('mr');
+  assert(catInteractive.buttons.length === 3, 'Category select builds 3 quick-reply buttons (Agri, Transport, Infra)');
+
+  const dispatchInteractive = getOwnerDispatchInteractive({
+    bookingRef: 'GM-TEST',
+    equipModel: 'Mahindra 575 DI (45 HP)',
+    village: 'शेगाव',
+    startDate: '18/08/2026',
+    startTime: '08:00 AM'
+  }, 'mr');
+  assert(dispatchInteractive.buttons.some(b => b.id === '1' && b.title.includes('स्वीकारा')), 'Owner 2-way dispatch includes 1-tap Accept button');
+  assert(dispatchInteractive.buttons.some(b => b.id === '2' && b.title.includes('नाकारा')), 'Owner 2-way dispatch includes 1-tap Decline button');
+
+  // Verify button click extraction
+  const extractedBtn = extractInteractiveResponse({
+    buttonsResponseMessage: { selectedButtonId: '1', selectedDisplayText: 'शेती कामे' }
+  });
+  assert(extractedBtn === '1', 'Interactive button click response extracted accurately');
+
+  const extractedList = extractInteractiveResponse({
+    listResponseMessage: { singleSelectReply: { selectedRowId: '2' }, title: 'उद्या दुपारी' }
+  });
+  assert(extractedList === '2', 'Interactive list row click response extracted accurately');
+
+  // -------------------------------------------------------------
   // Test Summary
   // -------------------------------------------------------------
   console.log('\n===============================================================');

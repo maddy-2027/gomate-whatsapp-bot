@@ -68,7 +68,8 @@ async function handleCategorySelect(phone, text, session) {
     session.state = 'SEARCH_LOCATION';
     return getText(session.language, 'location_prompt');
   }
-  return getText(session.language, 'category_select');
+  const { getCategorySelectInteractive } = require('../../services/interactiveMessageService');
+  return getCategorySelectInteractive(session.language);
 }
 
 async function handleLocationInput(phone, text, session) {

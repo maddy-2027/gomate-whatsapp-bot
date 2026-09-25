@@ -240,27 +240,30 @@ async function handleServiceSelect(phone, text, session) {
   if (cat === 'agriculture') ratePreview = `₹${hourlyRate}/तास किंवा ₹${acreRate}/एकर`;
   else if (cat === 'transport') ratePreview = `बेस ₹${baseFare} (+₹${perKm}/कि.मी.)`;
 
-  if (lang === 'mr') {
-    return `✅ निवडले: *${serviceName}* (दर: *${ratePreview}*)
-━━━━━━━━━━━━━━━━━━━━
-📍 *आता कामाची तारीख व वेळ स्लॉट निवडा:*
-1️⃣ *उद्या सकाळी (८:०० AM)* ⭐️ सर्वाधिक पसंती
-2️⃣ *उद्या दुपारी (१:०० PM)*
-3️⃣ *आज त्वरित डिलिव्हरी (२ तासांत)*
-4️⃣ *परवा सकाळी (८:०० AM)*
+  const { buildListMenuMessage } = require('../../services/interactiveMessageService');
+  const slotListTitle = lang === 'mr' ? '⏰ वेळ स्लॉट निवडा' : '⏰ Select Time Slot';
+  const slotTitle = lang === 'mr' ? 'लोकप्रिय वेळ स्लॉट' : 'Popular Time Slots';
+  const introText = lang === 'mr'
+    ? `✅ निवडले: *${serviceName}* (दर: *${ratePreview}*)\n━━━━━━━━━━━━━━━━━━━━\n📍 *आता कामाची तारीख व वेळ स्लॉट निवडा:*`
+    : `✅ Selected: *${serviceName}* (Rate: *${ratePreview}*)\n━━━━━━━━━━━━━━━━━━━━\n📍 *Now Select Date & Time Slot:*`;
 
-_किंवा तुमची तारीख व वेळ टाईप करा (उदा. 'उद्या सकाळी 8 वाजता 2 तास' किंवा 'उद्या 2 एकर')_`;
-  } else {
-    return `✅ Selected: *${serviceName}* (Rate: *${ratePreview}*)
-━━━━━━━━━━━━━━━━━━━━
-📍 *Now Select Date & Time Slot:*
-1️⃣ *Tomorrow Morning (8:00 AM)* ⭐️ Most Popular
-2️⃣ *Tomorrow Afternoon (1:00 PM)*
-3️⃣ *Today Immediate Dispatch (within 2 hours)*
-4️⃣ *Day After Tomorrow (8:00 AM)*
-
-_Or reply with custom date & time (e.g. 'Tomorrow 8 AM for 2 hours' or '2 acres')_`;
-  }
+  return buildListMenuMessage({
+    title: lang === 'mr' ? '📅 तारीख व वेळ स्लॉट' : '📅 Schedule Arrival Slot',
+    text: introText,
+    buttonTitle: slotListTitle,
+    footer: lang === 'mr' ? 'किंवा तारीख व वेळ टाईप करा (उदा. उद्या सकाळी 8 वाजता 2 तास)' : 'Or type custom date/time (e.g. Tomorrow 8 AM for 2 hours)',
+    sections: [
+      {
+        title: slotTitle,
+        rows: [
+          { id: '1', title: lang === 'mr' ? 'उद्या सकाळी (८:०० AM)' : 'Tomorrow Morning (8:00 AM)', description: '⭐️ 8:00 AM' },
+          { id: '2', title: lang === 'mr' ? 'उद्या दुपारी (१:०० PM)' : 'Tomorrow Afternoon (1:00 PM)', description: '1:00 PM' },
+          { id: '3', title: lang === 'mr' ? 'आज त्वरित डिलिव्हरी' : 'Today Immediate Dispatch', description: '⚡ Within 2 hours' },
+          { id: '4', title: lang === 'mr' ? 'परवा सकाळी (८:०० AM)' : 'Day After Tomorrow (8:00 AM)', description: '8:00 AM' }
+        ]
+      }
+    ]
+  });
 }
 
 /**

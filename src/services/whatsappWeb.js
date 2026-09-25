@@ -401,7 +401,12 @@ async function initWhatsAppWeb(onQrCallback, onReadyCallback) {
         let incomingText = '';
         let isAudioMessage = false;
 
-        if (msg.message.conversation) {
+        const { extractInteractiveResponse, sendInteractiveWhatsApp } = require('./interactiveMessageService');
+        const buttonSelected = extractInteractiveResponse(msg.message);
+
+        if (buttonSelected) {
+          incomingText = buttonSelected;
+        } else if (msg.message.conversation) {
           incomingText = msg.message.conversation;
         } else if (msg.message.extendedTextMessage?.text) {
           incomingText = msg.message.extendedTextMessage.text;
@@ -435,7 +440,7 @@ async function initWhatsAppWeb(onQrCallback, onReadyCallback) {
             const replyText = await routeMessage(cleanPhone, incomingText, session);
 
             if (replyText && waSocket) {
-              await waSocket.sendMessage(senderJid, { text: replyText });
+              await sendInteractiveWhatsApp(waSocket, senderJid, replyText);
               console.log(`📤 [WhatsApp Web] Replied to ${cleanPhone}`);
             }
           } catch (err) {
@@ -454,9 +459,9 @@ async function initWhatsAppWeb(onQrCallback, onReadyCallback) {
 }
 
 /**
- * Send WhatsApp text message directly
+ * Send WhatsApp message directly (supports plain text or interactive button/list messages)
  */
-async function sendWhatsAppDirect(phone, text) {
+async function sendWhatsAppDirect(phone, content) {
   if (!waSocket || !isReady) {
     console.warn(`⚠️ WhatsApp Web socket not connected. Could not send message to ${phone}`);
     return false;
@@ -464,8 +469,8 @@ async function sendWhatsAppDirect(phone, text) {
   try {
     const cleanNumber = phone.replace(/[^0-9]/g, '');
     const jid = `${cleanNumber}@s.whatsapp.net`;
-    await waSocket.sendMessage(jid, { text });
-    return true;
+    const { sendInteractiveWhatsApp } = require('./interactiveMessageService');
+    return await sendInteractiveWhatsApp(waSocket, jid, content);
   } catch (err) {
     console.error(`❌ Error sending direct WhatsApp to ${phone}:`, err.message);
     return false;

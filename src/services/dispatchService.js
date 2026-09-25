@@ -120,8 +120,23 @@ _(नकार दिल्यास ही ऑर्डर जत क्लस�
   bookingToOwner.set(bookingRef, ownerPhone);
 
   try {
-    await sendWhatsAppDirect(ownerPhone, alertText);
-    console.log(`📲 [Dispatch] Alert sent to owner ${ownerPhone} for booking ${bookingRef}`);
+    const { getOwnerDispatchInteractive } = require('./interactiveMessageService');
+    const alertInteractive = getOwnerDispatchInteractive({
+      bookingRef,
+      equipModel,
+      village,
+      startDate,
+      startTime,
+      duration,
+      totalAmount: total,
+      advanceAmount: advance,
+      remainingAmount: remaining,
+      farmerName,
+      mapsUrl
+    }, 'mr');
+
+    await sendWhatsAppDirect(ownerPhone, alertInteractive);
+    console.log(`📲 [Dispatch] Interactive alert sent to owner ${ownerPhone} for booking ${bookingRef}`);
   } catch (err) {
     console.warn(`⚠️ [Dispatch] Failed to send alert to ${ownerPhone}:`, err.message);
   }

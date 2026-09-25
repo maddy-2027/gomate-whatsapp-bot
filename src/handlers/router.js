@@ -218,12 +218,14 @@ async function routeMessage(phone, text, session) {
     }
     session.languageChosen = true;  // Lock language
     session.state = 'ROLE_SELECT';
-    return getText(session.language, 'role_select');
+    const { getRoleSelectInteractive } = require('../services/interactiveMessageService');
+    return getRoleSelectInteractive(session.language);
   }
 
   if (session.state === 'ROLE_SELECT') {
+    const { getRoleSelectInteractive } = require('../services/interactiveMessageService');
     if (isShortGreeting) {
-      return getText(session.language, 'role_select');
+      return getRoleSelectInteractive(session.language);
     }
     if (t === '1' || t.includes('customer') || t.includes('find') || t.includes('ग्राहक')) {
       session.role = 'customer';
@@ -276,7 +278,11 @@ async function routeMessage(phone, text, session) {
     }
 
     case 'CUSTOMER_MENU':
-      if (t === '1') { session.state = 'SEARCH_CATEGORY'; return getText(session.language, 'category_select'); }
+      if (t === '1') {
+        session.state = 'SEARCH_CATEGORY';
+        const { getCategorySelectInteractive } = require('../services/interactiveMessageService');
+        return getCategorySelectInteractive(session.language);
+      }
       if (t === '2') { session.state = 'CHECK_STATUS'; return getText(session.language, 'booking_status_prompt'); }
       if (t === '3') { return getText(session.language, 'help_text'); }
       // If user asks any natural language question out-of-context:
