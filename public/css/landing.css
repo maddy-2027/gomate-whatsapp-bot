@@ -1691,7 +1691,7 @@ img {
 }
 
 /* ── Farmer-first navigation and resilient language controls ───────────── */
-.landing-nav .nav-links a:not(.nav-btn-primary):not([href="#equipment"]):not([href="#trust"]):not([href="#faq"]) {
+.landing-nav .nav-links a:not(.nav-btn-primary):not([href="#equipment"]):not([href="#trust"]):not([href="#faq"]):not(.nav-owner-link) {
   display: none;
 }
 
