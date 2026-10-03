@@ -1405,6 +1405,55 @@ img {
   min-width: 0;
 }
 
+.booking-steps {
+  max-width: 580px;
+  margin: -5px 0 20px;
+  padding: 12px 14px;
+  border: 1px solid #D1FAE5;
+  border-radius: 10px;
+  background: rgba(236, 253, 245, 0.86);
+}
+
+.booking-steps-title {
+  margin: 0 0 9px;
+  color: #14532D;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.booking-steps-list {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.booking-steps-list li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #1E293B;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.25;
+}
+
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  border-radius: 50%;
+  background: #15803D;
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 800;
+}
+
 .equip-mini-title {
   font-size: 13.5px;
   font-weight: 700;
@@ -1486,6 +1535,12 @@ img {
 
   .equip-mini-sub {
     white-space: normal;
+  }
+
+  .booking-steps-list {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
   }
 
   .hero-actions {
