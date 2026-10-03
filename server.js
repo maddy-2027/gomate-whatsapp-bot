@@ -77,6 +77,16 @@ process.on('unhandledRejection', (err) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Public Official Website (Home & Landing Page)
+app.get(['/', '/landing', '/home'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'landing', 'index.html'));
+});
+
+// Developer WhatsApp Web Simulator & Flow Tester
+app.get(['/simulator', '/demo', '/chat-simulator'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 // Serve Static Frontend Assets & Pages
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -88,11 +98,6 @@ app.get('/qr', (req, res) => {
 // Admin portal route
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin', 'index.html'));
-});
-
-// Public Landing Page
-app.get('/landing', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'landing', 'index.html'));
 });
 
 // Owner Pro Portal
