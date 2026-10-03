@@ -1691,11 +1691,6 @@ img {
 }
 
 /* ── Farmer-first navigation and resilient language controls ───────────── */
-.gm-pwa-install-trigger,
-.gomate-install-pill {
-  display: none !important;
-}
-
 .landing-nav .nav-links a:not(.nav-btn-primary):not([href="#equipment"]):not([href="#trust"]):not([href="#faq"]) {
   display: none;
 }

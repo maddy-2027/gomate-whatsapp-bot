@@ -128,7 +128,7 @@
       pill.style.cssText = `
         position: fixed;
         bottom: 24px;
-        left: 24px;
+        right: 24px;
         z-index: 9998;
         display: flex;
         align-items: center;
