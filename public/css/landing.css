@@ -1689,3 +1689,47 @@ img {
 .equip-mini-card:hover .equip-mini-jcb-box {
   transform: scale(1.08);
 }
+
+/* ── Farmer-first navigation and resilient language controls ───────────── */
+.gm-pwa-install-trigger,
+.gomate-install-pill {
+  display: none !important;
+}
+
+.landing-nav .nav-links a:not(.nav-btn-primary):not([href="#equipment"]):not([href="#trust"]):not([href="#faq"]) {
+  display: none;
+}
+
+.lang-tabs {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  order: 1;
+}
+
+.nav-links {
+  order: 2;
+}
+
+.hero-content-left {
+  max-width: 620px;
+}
+
+.hero-sub-mr {
+  padding: 10px 12px;
+  border: 1px solid #BBF7D0;
+  border-radius: 8px;
+  background: rgba(240, 253, 244, .9);
+  color: #14532D;
+  font-weight: 650;
+}
+
+@media (max-width: 860px) {
+  .landing-nav .nav-links a:not(.nav-btn-primary) {
+    display: none;
+  }
+
+  .nav-container {
+    gap: 8px;
+  }
+}
